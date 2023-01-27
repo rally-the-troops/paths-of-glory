@@ -1,0 +1,305 @@
+main { background-color: steelblue; }
+aside { background-color: darkgray; }
+header { background-color: gainsboro; }
+body.AP header.your_turn { background-color: lightskyblue; }
+body.CP header.your_turn { background-color: darkgrey; }
+#role_France, #log .h2.france { background-color: #bdf; }
+#role_Britain, #log .h2.britain { background-color: #fcb; }
+
+aside { width: 220px; }
+
+.checked::before { content: "\2714  " }
+.unchecked::before { content: "\2714  "; color:transparent; }
+
+/* LOG */
+
+#log { background-color: floralwhite; }
+#log > div { padding-left: 20px; text-indent: -12px; }
+#log .h1 { background-color: tan; font-weight: bold; padding-top:2px; padding-bottom:2px; text-align: center; }
+#log .h2 { background-color: wheat; padding-top:2px; padding-bottom:2px; text-align: center; }
+#log .h3 { background-color: antiquewhite; padding-top:2px; padding-bottom:2px; text-align: center; }
+#log .b { text-transform: uppercase; }
+
+#log .tip { color: blue; }
+#log .tip:hover { text-decoration: underline; }
+#log .spacetip:hover { text-decoration: underline; cursor: pointer; }
+
+#log .indent {
+    padding-left: 12px;
+    text-indent: -12px;
+}
+
+.card_info {
+    position: relative;
+}
+
+.card_info:hover #deck_size {
+    visibility: visible;
+}
+
+#deck_size {
+    visibility: hidden;
+    position: absolute;
+    right: 5px;
+    bottom: 3px;
+}
+
+
+/* CARDS */
+
+.hand {
+    margin: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    min-height: 370px;
+}
+
+.card {
+    width: 240px;
+    height: 336px;
+    border-radius: 16px;
+    box-shadow: 1px 1px 5px rgba(0,0,0,0.5);
+    transition: transform 100ms;
+    background-color: #f1ead0;
+    background-size: cover;
+    background-repeat: no-repeat;
+    border: 1px solid #655c4d;
+
+}
+
+.card.highlight {
+    box-shadow: 0 0 0 2px yellow;
+}
+
+.card.enabled {
+    cursor: pointer;
+}
+
+.card.enabled:hover, .card.selected {
+    transform: translateY(-10px);
+}
+
+.hand .card { margin: 10px; }
+.hand .card { display: none; }
+.hand .card.show { display: block; }
+
+.card_info {
+    border-bottom: 1px solid black;
+    padding: 15px 0;
+}
+
+.card_info .card {
+    width: 120px;
+    height: 168px;
+    border-radius: 8px;
+    margin: 0 auto;
+}
+
+#tooltip {
+    display: none;
+    pointer-events: none;
+    position: fixed;
+    z-index: 300;
+    right: 240px;
+    top: 60px;
+}
+
+#tooltip.show {
+    display: block;
+}
+
+
+/* CARD LIST DIALOGS */
+
+.card_list_dialog {
+    position: fixed;
+    width: 300px;
+    border: 1px solid black;
+    box-shadow: 0px 5px 10px 0px rgba(0,0,0,0.5);
+    user-select: none;
+}
+.card_list_header {
+    cursor: move;
+    border-bottom: 1px solid black;
+    background-color: tan;
+    padding: 5px 10px;
+}
+.card_list_x {
+    cursor: pointer;
+    float: right;
+    padding: 0px 2px;
+    margin: 5px 5px;
+}
+.card_list_x:hover {
+    background-color: black;
+    color: white;
+}
+.card_list_body {
+    padding: 5px 10px;
+    background-color: floralwhite;
+    overflow-y: scroll;
+    max-height: 500px;
+}
+.card_list_body div {
+    text-indent: -30px;
+    margin-left: 30px;
+}
+
+#removed { top: 100px; left: 100px; z-index: 98; }
+#discard { top: 100px; left: 425px; z-index: 99; }
+
+/* CARD MENU */
+
+#popup {
+    position: fixed;
+    user-select: none;
+    background-color: white;
+    left: 10px;
+    top: 100px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.3);
+    z-index: 300;
+    min-width: 20ex;
+    white-space: nowrap;
+    display: none;
+    border: 1px solid black;
+}
+#popup div { padding: 3pt 8pt; color: gray; display: none; }
+#popup div.enabled { color: black; display: block; }
+#popup div.enabled:hover { background-color: black; color: white; }
+#popup div.always { display: block; }
+body:not(.shift) #popup #menu_discard { display: none; }
+
+/* MAP */
+
+#mapwrap {
+    position: relative;
+    box-shadow: 0px 1px 10px rgba(0,0,0,0.5);
+    width: 2550px;
+    height: 1650px;
+}
+
+#map {
+    position: absolute;
+    width: 2550px;
+    height: 1650px;
+    background-color: #ffedb3;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+#map.hide_pieces #pieces { display: none; }
+#map.hide_markers #markers { display: none; }
+
+#events {
+    position: absolute;
+    display: flex;
+    top: 230px;
+    left: 190px;
+}
+
+.event {
+    margin: 3px;
+}
+
+#focus {
+    position: absolute;
+    background-color: black;
+    opacity: 50%;
+    box-shadow: 0 0 5px black;
+    z-index: 100;
+}
+
+.offmap { display: none; }
+
+.highlight {
+    cursor: pointer;
+    z-index: 200;
+}
+
+body.shift .highlight {
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* SPACES */
+
+
+/* COUNTERS */
+
+.unit, .marker {
+    transition: left 200ms, top 200ms;
+    position: absolute;
+    background-size: auto 100%;
+    background-repeat: no-repeat;
+}
+
+.unit.activated {
+    transform: rotate(20deg);
+}
+
+/* FLAT STYLE */
+
+body.flat .unit,
+body.flat .marker,
+body.flat .event {
+    border-width: 1px;
+    border-style: solid;
+}
+
+body.flat .unit.highlight {
+    box-shadow:0 0 0 2px yellow;
+}
+
+body.flat .unit.selected {
+    box-shadow:0 0 0 2px crimson;
+}
+
+/* BEVEL STYLE ( top right bottom left ) */
+
+body.bevel .unit,
+body.bevel .marker,
+body.bevel .event {
+    border-width: 2px;
+    border-style: solid;
+}
+
+/* TRACKS */
+
+
+/* MARKERS */
+
+.marker{width:45px;height:45px;}
+.marker.small{width:36px;height:36px}
+
+.event{width:54px;height:54px;background-size:cover;display:none}
+.event.show{display:block}
+
+/* COLORS */
+
+
+/* MOBILE PHONE LAYOUT */
+
+@media (max-width: 640px) {
+    .hand .card {
+        width: 120px;
+        height: 168px;
+        border-radius: 8px;
+    }
+    .hand {
+        min-height: 168px;
+    }
+    #tooltip {
+        top: 10px;
+        right: 10px;
+    }
+    #removed, #discard {
+        position: static;
+        box-shadow: none;
+        border-top: none;
+        width: auto;
+    }
+    #removed { grid-row: 3; }
+    #discard { grid-row: 4; }
+}
+

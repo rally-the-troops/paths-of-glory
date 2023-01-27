@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="/fonts/fonts.css">
   <link rel="stylesheet" href="/common/play.css">
   <link rel="stylesheet" href="play.css">
+  <link rel="stylesheet" href="images.css">
   <script defer src="/common/play.js"></script>
   <script defer src="cards.js"></script>
   <script defer src="play.js"></script>
@@ -27,6 +28,20 @@
         <div class="resign menu_item" onclick="confirm_resign()">Resign</div>
       </div>
     </div>
+    <div class="menu">
+      <div class="menu_title"><img src="/images/stack.svg"></div>
+      <div class="menu_popup">
+        <div id="stack_v" class="menu_item unchecked" onclick="set_layout(0)">Vertical</div>
+        <div id="stack_h" class="menu_item unchecked" onclick="set_layout(1)">Horizontal</div>
+        <div id="stack_d" class="menu_item unchecked" onclick="set_layout(2)">Diagonal</div>
+        <div class="menu_separator"></div>
+        <div id="mouse_focus" class="menu_item unchecked" onclick="set_mouse_focus()">Mouse-focus</div>
+        <div class="menu_separator"></div>
+        <div id="style_bevel" class="menu_item unchecked" onclick="set_style('bevel')">Beveled</div>
+        <div id="style_flat" class="menu_item unchecked" onclick="set_style('flat')">Flat</div>
+      </div>
+    </div>
+    <div class="icon_button" onclick="toggle_counters()"><img src="/images/earth-america.svg"></div>
     <div class="icon_button" onclick="toggle_log()"><img src="/images/scroll-quill.svg"></div>
   </div>
   <div id="prompt"></div>
@@ -35,20 +50,52 @@
 
 <aside>
   <div id="log"></div>
+  <div id="roles">
+    <div class="role" id="role_AP">
+      <div class="role_name">
+        Allied Powers
+        <div id="ap_hand" class="role_vp">?</div>
+        <div class="role_user"></div>
+      </div>
+    </div>
+    <div class="role" id="role_CP">
+      <div class="role_name">
+        Central Powers
+        <div id="cp_hand" class="role_vp">?</div>
+        <div class="role_user"></div>
+      </div>
+    </div>
+    <div class="card_info"><div id="last_card" class="card show card_back"></div><div id="deck_size">0</div></div>
+  </div>
 </aside>
 
 <div id="tooltip" class="hide"></div>
 
 <main>
-
-  <div id="board">
+  <div id="mapwrap">
+    <div id="map">
+      <!--div id="events">
+        <div class="event" id="event_pitt"></div>
+        <div class="event" id="event_diplo"></div>
+        <div class="event" id="event_quiberon"></div>
+        <div class="event" id="british_card_held"></div>
+        <div class="event" id="french_card_held"></div>
+        <div class="event" id="event_no_fr_naval"></div>
+        <div class="event" id="event_no_amphib"></div>
+        <div class="event" id="event_cherokees"></div>
+        <div class="event" id="event_cherokee_uprising"></div>
+        <div class="event" id="event_british_blockhouses"></div>
+        <div class="event" id="event_french_blockhouses"></div>
+      </div-->
+      <div id="spaces"></div>
+      <div id="markers">
+      </div>
+      <div id="pieces">
+        <div id="focus" class="hide"></div>
+      </div>
+    </div>
   </div>
-
-  <div id="global_events"></div>
-
-  <div id="player_area_list">
-  </div>
-
+  <div id="cards" class="hand"></div>
 </main>
 
 <footer id="status"></footer>
