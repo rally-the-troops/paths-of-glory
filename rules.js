@@ -6,9 +6,12 @@ let game, view
 
 let states = {}
 
+const AP = "AP"
+const CP = "CP"
+
 exports.scenarios = [ "Standard", "Historical" ]
 
-exports.roles = [ "AP", "CP" ]
+exports.roles = [ AP, CP ]
 
 exports.action = function (state, current, action, arg) {
     game = state
@@ -17,6 +20,7 @@ exports.action = function (state, current, action, arg) {
     } else {
         if (action === "undo" && game.undo && game.undo.length > 0)
             pop_undo()
+        // TODO: Add actions that can be done at any time, regardless of state
         else
             throw new Error("Invalid action: " + action)
     }
@@ -31,58 +35,71 @@ exports.resign = function (state, current) {
         game.state = "game_over"
         game.active = null
         game.state = "game_over"
-        game.result = (current === "AP" ? "CP" : "AP")
+        game.result = (current === AP ? CP : AP)
         game.victory = current + " resigned."
     }
     return game
 }
 
 exports.is_checkpoint = function (a, b) {
-    return a.round !== b.round
+    let x = b.log[b.log.length-2]
+    if (x === ".h2 cp") return true
+    if (x === ".h2 ap") return true
+    return false
 }
 
+function inactive_prompt(name, who, where) {
+    view.prompt = `Waiting for ${game.active} \u2014 ${name}...`
+    if (who)
+        view.who = who
+    if (where)
+        view.where = where
+}
 
 exports.view = function(state, current) {
     game = state
 
     view = {
+        active: game.active,
         log: game.log,
         prompt: null,
-        actions: null
-    }
-
-    if (current === "AP") {
-        view.hand = game.red_hand
-        view.final = game.red_final
-        view.objective = game.red_objective
-    }
-    if (current === "CP") {
-        view.hand = game.blue_hand
-        view.final = game.blue_final
-        view.objective = game.blue_objective
-    }
-
-    if (game.state === "game_over") {
-        view.prompt = game.victory
-    } else if (current === "Observer" || (game.active !== current && game.active !== "Both")) {
-        if (states[game.state]) {
-            let inactive = states[game.state].inactive || game.state
-            view.prompt = `Waiting for ${game.active} to ${inactive}...`
-        } else {
-            view.prompt = "Unknown state: " + game.state
+        actions: null,
+        turn: game.turn,
+        vp: game.vp,
+        last_card: game.last_card,
+        ap: {
+            deck: game.ap.deck.length,
+            hand: game.ap.hand.length
+        },
+        cp: {
+            deck: game.cp.deck.length,
+            hand: game.cp.hand.length
         }
+    }
+
+    if (current === AP) {
+        view.hand = game.ap.hand
+    } else if (current === CP) {
+        view.hand = game.cp.hand
     } else {
-        view.actions = {}
-        if (states[game.state])
-            states[game.state].prompt(current)
+        view.hand = []
+    }
+
+    if (!states[game.state]) {
+        view.prompt = "Invalid game state: " + game.state
+        return view
+    }
+
+    if (current === 'Observer' || game.active !== current) {
+        let inactive = states[game.state].inactive
+        if (typeof inactive === 'function')
+            states[game.state].inactive()
+        else if (typeof inactive === 'string')
+            inactive_prompt(inactive)
         else
-            view.prompt = "Unknown state: " + game.state
-        if (view.actions.undo === undefined) {
-            if (game.undo && game.undo.length > 0)
-                view.actions.undo = 1
-            else
-                view.actions.undo = 0
-        }
+            inactive_prompt(game.state.replace(/_/g, " "))
+    } else {
+        states[game.state].prompt()
     }
 
     return view
@@ -94,11 +111,41 @@ exports.setup = function (seed, scenario, options) {
         scenario: scenario,
         log: [],
         undo: [],
-        active: "Both",
-        state: "choose_objective_card"
+        active: CP,
+        state: null,
+        turn: 1,
+        vp: 0,
+        last_card: 0,
+
+        // Units
+        location: pieces.map(() => 0),
+        reduced: [],
+
+        // AP state
+        ap: {
+            deck: [],
+            discard: [],
+            removed: [],
+            hand: []
+        },
+
+        // CP state
+        cp: {
+            deck: [],
+            discard: [],
+            removed: [],
+            hand: []
+        }
     }
 
     log_h1("Paths of Glory")
+
+    // TODO: Scenario setup
+
+    log(".h1 " + scenario)
+    logbr()
+
+    // TODO: Options and other setup
 
     return game
 }
@@ -117,6 +164,27 @@ exports.setup = function (seed, scenario, options) {
 //
 //  },
 //}
+
+
+function gen_action_next() {
+    gen_action('next')
+}
+
+function gen_action_pass() {
+    gen_action('pass')
+}
+
+function gen_action_space(s) {
+    gen_action('space', s)
+}
+
+function gen_action_piece(p) {
+    gen_action('piece', p)
+}
+
+function gen_action_discard(c) {
+    gen_action('card', c)
+}
 
 // === COMMON LIBRARY ===
 

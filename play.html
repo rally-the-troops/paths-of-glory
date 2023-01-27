@@ -11,10 +11,31 @@
   <link rel="stylesheet" href="play.css">
   <link rel="stylesheet" href="images.css">
   <script defer src="/common/play.js"></script>
-  <script defer src="cards.js"></script>
+  <script defer src="data.js"></script>
   <script defer src="play.js"></script>
 </head>
-<body>
+<body class="bevel">
+
+<div id="tooltip"></div>
+
+<div id="popup" onmouseleave="hide_popup_menu()">
+  <div id="menu_play_event" class="always" onclick="on_play_event()">Play Event</div>
+  <div id="menu_play_ops" class="always" onclick="on_play_ops()">Play Ops</div>
+  <div id="menu_play_sr" class="always" onclick="on_play_sr()">Play SR</div>
+  <div id="menu_play_rps" class="always" onclick="on_play_rps()">Play Reinforcements</div>
+</div>
+
+<div id="removed" class="card_list_dialog hide">
+  <div id="removed_x" class="card_list_x" onclick="hide_card_list('removed')">&#x274c;</div>
+  <div id="removed_header" class="card_list_header">Removed</div>
+  <div id="removed_body" class="card_list_body"></div>
+</div>
+
+<div id="discard" class="card_list_dialog hide">
+  <div id="discard_x" class="card_list_x" onclick="hide_card_list('discard')">&#x274c;</div>
+  <div id="discard_header" class="card_list_header">Discard</div>
+  <div id="discard_body" class="card_list_body"></div>
+</div>
 
 <header>
   <div id="toolbar">
