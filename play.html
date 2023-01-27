@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<!-- vim:set nowrap: -->
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
+  <title>Paths of Glory</title>
+  <link rel="icon" href="favicon.svg">
+  <link rel="stylesheet" href="/fonts/fonts.css">
+  <link rel="stylesheet" href="/common/play.css">
+  <link rel="stylesheet" href="play.css">
+  <script defer src="/common/play.js"></script>
+  <script defer src="cards.js"></script>
+  <script defer src="play.js"></script>
+</head>
+<body>
+
+<header>
+  <div id="toolbar">
+    <div class="menu">
+      <div class="menu_title"><img src="/images/cog.svg"></div>
+      <div class="menu_popup">
+        <a class="menu_item" href="info/rules.html" target="_blank")">Rules</a>
+        <a class="menu_item" href="info/pac.html" target="_blank")">Player Aid</a>
+        <a class="menu_item" href="info/cards.html" target="_blank")">Cards</a>
+        <div class="resign menu_separator"></div>
+        <div class="resign menu_item" onclick="confirm_resign()">Resign</div>
+      </div>
+    </div>
+    <div class="icon_button" onclick="toggle_log()"><img src="/images/scroll-quill.svg"></div>
+  </div>
+  <div id="prompt"></div>
+  <div id="actions"></div>
+</header>
+
+<aside>
+  <div id="log"></div>
+</aside>
+
+<div id="tooltip" class="hide"></div>
+
+<main>
+
+  <div id="board">
+  </div>
+
+  <div id="global_events"></div>
+
+  <div id="player_area_list">
+  </div>
+
+</main>
+
+<footer id="status"></footer>
+
+</body>
