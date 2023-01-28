@@ -33,11 +33,22 @@ aside { width: 220px; }
     position: relative;
 }
 
-.card_info:hover #deck_size {
+.card_info:hover #ap_deck_size {
     visibility: visible;
 }
 
-#deck_size {
+.card_info:hover #cp_deck_size {
+    visibility: visible;
+}
+
+#ap_deck_size {
+    visibility: hidden;
+    position: absolute;
+    right: 5px;
+    bottom: 3px;
+}
+
+#cp_deck_size {
     visibility: hidden;
     position: absolute;
     right: 5px;

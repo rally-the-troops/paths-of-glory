@@ -763,7 +763,8 @@ function update_map() {
 
     document.getElementById("cp_hand").textContent = view.cp.hand
     document.getElementById("ap_hand").textContent = view.ap.hand
-    document.getElementById("deck_size").textContent = view.deck
+    document.getElementById("ap_deck_size").textContent = view.ap.deck
+    document.getElementById("cp_deck_size").textContent = view.cp.deck
 
     action_button("next", "Next")
     action_button("end_move", "End move")
