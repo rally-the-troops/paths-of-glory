@@ -74,7 +74,8 @@ exports.view = function(state, current) {
         cp: {
             deck: game.cp.deck.length,
             hand: game.cp.hand.length
-        }
+        },
+        spaces: data.spaces
     }
 
     if (current === AP) {
@@ -118,7 +119,7 @@ exports.setup = function (seed, scenario, options) {
         last_card: 0,
 
         // Units
-        location: pieces.map(() => 0),
+        location: data.pieces.map(() => 0),
         reduced: [],
 
         // AP state
@@ -143,7 +144,6 @@ exports.setup = function (seed, scenario, options) {
     // TODO: Scenario setup
 
     log(".h1 " + scenario)
-    logbr()
 
     // TODO: Options and other setup
 

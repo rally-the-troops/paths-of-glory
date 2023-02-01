@@ -235,6 +235,13 @@ body.shift .highlight {
 
 /* SPACES */
 
+#spaces {
+    position: absolute;
+}
+
+#spaces div {
+    position: absolute;
+}
 
 /* COUNTERS */
 

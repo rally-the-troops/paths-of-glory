@@ -1,6 +1,6 @@
 "use strict"
 
-const DEBUG_CONNECTIONS = false
+const DEBUG_CONNECTIONS = true
 
 function check_menu(id, x) {
     document.getElementById(id).className = x ? "menu_item checked" : "menu_item unchecked"
@@ -404,11 +404,12 @@ function on_play_rps() {
 
 function build_space(id) {
     let space = spaces[id]
-    /* Make space for border */
-    let x = space.x
-    let y = space.y
+
     let w = space.w
     let h = space.h
+
+    let x = space.x / 2 - w / 2
+    let y = space.y / 2 - h / 2
 
     space.apStack = []
     space.apStack.name = spaces[id].name + "/ap"
