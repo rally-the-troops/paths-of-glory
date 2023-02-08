@@ -1,4 +1,3 @@
-// This file is exported from a spreadsheet. Do not edit by hand.
 
 const cards = [
     {
@@ -1799,2318 +1798,3624 @@ const cards = [
 const pieces = []
 
 const spaces = [
+    {},
     {
-        "map": "neareast",
-        "name": "Constantinople",
-        "x": 3703,
-        "y": 2140,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Bursa",
-        "x": 3712,
-        "y": 2289,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Adapazari",
-        "x": 3829,
-        "y": 2139,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Eskidor",
-        "x": 3828,
-        "y": 2279,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Sinope",
-        "x": 3937,
-        "y": 2091,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Ankara",
-        "x": 3943,
-        "y": 2245,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Samsun",
-        "x": 4043,
-        "y": 2074,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Sivas",
-        "x": 4094,
-        "y": 2234,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Giresun",
-        "x": 4142,
-        "y": 2108,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Trebizond",
-        "x": 4263,
-        "y": 2147,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Erzingan",
-        "x": 4267,
-        "y": 2275,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Rize",
-        "x": 4391,
-        "y": 2140,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Batum",
-        "x": 4494,
-        "y": 2079,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Kars",
-        "x": 4597,
-        "y": 2126,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Poti",
-        "x": 4414,
-        "y": 1910,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Grozny",
-        "x": 4630,
-        "y": 1920,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Petrovsk",
-        "x": 4838,
-        "y": 1956,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Tbilisi",
-        "x": 4721,
-        "y": 2075,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Elizabethpol",
-        "x": 4834,
-        "y": 2158,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Baku",
-        "x": 4956,
-        "y": 2237,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Erivan",
-        "x": 4721,
-        "y": 2208,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Eleskirt",
-        "x": 4563,
-        "y": 2262,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Erzerum",
-        "x": 4434,
-        "y": 2252,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Dilman",
-        "x": 4714,
-        "y": 2355,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Tabriz",
-        "x": 4828,
-        "y": 2441,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Van",
-        "x": 4581,
-        "y": 2377,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Bitlis",
-        "x": 4467,
-        "y": 2385,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Diyarbakir",
-        "x": 4361,
-        "y": 2378,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Kharput",
-        "x": 4247,
-        "y": 2387,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Kayseri",
-        "x": 4129,
-        "y": 2373,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Konya",
-        "x": 3996,
-        "y": 2394,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Adana",
-        "x": 4110,
-        "y": 2493,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Aleppo",
-        "x": 4235,
-        "y": 2548,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Urfa",
-        "x": 4346,
-        "y": 2509,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Mardin",
-        "x": 4470,
-        "y": 2506,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Mosul",
-        "x": 4583,
-        "y": 2515,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Hamadan",
-        "x": 4881,
-        "y": 2603,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Kermanshah",
-        "x": 4753,
-        "y": 2672,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Kirkuk",
-        "x": 4596,
-        "y": 2650,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Damascus",
-        "x": 4250,
-        "y": 2650,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Beirut",
-        "x": 4130,
-        "y": 2621,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "MEF4",
-        "x": 3887,
-        "y": 2626,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Nablus",
-        "x": 4081,
-        "y": 2768,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Amman",
-        "x": 4204,
-        "y": 2781,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Baghdad",
-        "x": 4641,
-        "y": 2778,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Kut",
-        "x": 4749,
-        "y": 2827,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Khorramabad",
-        "x": 4894,
-        "y": 2736,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Ahwaz",
-        "x": 4906,
-        "y": 2881,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Qurna",
-        "x": 4794,
-        "y": 2918,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Samawah",
-        "x": 4590,
-        "y": 2917,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Basra",
-        "x": 4878,
-        "y": 3031,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "An Nasiriya",
-        "x": 4710,
-        "y": 3070,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Arabia",
-        "x": 4359,
-        "y": 3027,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Medina",
-        "x": 4205,
-        "y": 3192,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Aqaba",
-        "x": 4054,
-        "y": 3111,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Beersheba",
-        "x": 4137,
-        "y": 3005,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Jerusalem",
-        "x": 4155,
-        "y": 2879,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Gaza",
-        "x": 4025,
-        "y": 2911,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Sinai",
-        "x": 3935,
-        "y": 3016,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Cairo",
-        "x": 3826,
-        "y": 3073,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Port Said",
-        "x": 3815,
-        "y": 2934,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Alexandria",
-        "x": 3697,
-        "y": 2988,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Libya",
-        "x": 3555,
-        "y": 2972,
-        "w": 45,
-        "h": 45
-    },
-    {
-        "map": "neareast",
-        "name": "Mediterranean",
-        "x": 3723,
-        "y": 2600,
-        "w": 45,
-        "h": 45
-    },
-    {
+        "id": 1,
         "map": "europe",
         "name": "London",
         "x": 361,
         "y": 1081,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "br",
+        "faction": "ap",
+        "supply": true,
+        "apport": true,
+        "capital": true
     },
     {
+        "id": 2,
         "map": "europe",
         "name": "Cherbourg",
         "x": 203,
         "y": 1349,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "fr",
+        "faction": "ap",
+        "apport": true
     },
     {
+        "id": 3,
         "map": "europe",
         "name": "Caen",
         "x": 293,
         "y": 1457,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "fr",
+        "faction": "ap"
     },
     {
+        "id": 4,
         "map": "europe",
         "name": "Rennes",
         "x": 217,
         "y": 1580,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "fr",
+        "faction": "ap"
     },
     {
+        "id": 5,
         "map": "europe",
         "name": "Nantes",
         "x": 204,
         "y": 1710,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "fr",
+        "faction": "ap",
+        "apport": true
     },
     {
+        "id": 6,
         "map": "europe",
         "name": "La Rochelle",
         "x": 280,
         "y": 1859,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "fr",
+        "faction": "ap",
+        "apport": true
     },
     {
+        "id": 7,
         "map": "europe",
         "name": "Bordeaux",
         "x": 319,
         "y": 2030,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "fr",
+        "faction": "ap",
+        "apport": true
     },
     {
+        "id": 8,
         "map": "europe",
         "name": "Poitiers",
         "x": 452,
         "y": 1837,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "fr",
+        "faction": "ap"
     },
     {
+        "id": 9,
         "map": "europe",
         "name": "Tours",
         "x": 458,
         "y": 1692,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "fr",
+        "faction": "ap"
     },
     {
+        "id": 10,
         "map": "europe",
         "name": "Le Mans",
         "x": 407,
         "y": 1570,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "fr",
+        "faction": "ap"
     },
     {
+        "id": 11,
         "map": "europe",
         "name": "Le Havre",
         "x": 406,
         "y": 1353,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "fr",
+        "faction": "ap",
+        "vp": 1,
+        "apport": true
     },
     {
+        "id": 12,
         "map": "europe",
         "name": "Rouen",
         "x": 524,
         "y": 1424,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "fr",
+        "faction": "ap",
+        "vp": 1
     },
     {
+        "id": 13,
         "map": "europe",
         "name": "Orleans",
         "x": 606,
         "y": 1617,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "fr",
+        "faction": "ap",
+        "vp": 1
     },
     {
+        "id": 14,
         "map": "europe",
         "name": "St. Amand",
         "x": 644,
         "y": 1790,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "fr",
+        "faction": "ap"
     },
     {
+        "id": 15,
         "map": "europe",
         "name": "Paris",
         "x": 665,
         "y": 1465,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "fr",
+        "faction": "ap",
+        "vp": 1,
+        "fort": 1,
+        "capital": true
     },
     {
+        "id": 16,
         "map": "europe",
         "name": "Amiens",
         "x": 618,
         "y": 1308,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "fr",
+        "faction": "ap",
+        "vp": 1
     },
     {
+        "id": 17,
         "map": "europe",
         "name": "Calais",
         "x": 585,
         "y": 1180,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "fr",
+        "faction": "ap",
+        "terrain": "swamp",
+        "vp": 1,
+        "apport": true
     },
     {
+        "id": 18,
         "map": "europe",
         "name": "Ostend",
         "x": 705,
         "y": 1090,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "be",
+        "faction": "ap",
+        "terrain": "swamp",
+        "vp": 1,
+        "apport": true
     },
     {
+        "id": 19,
         "map": "europe",
         "name": "Cambrai",
         "x": 746,
         "y": 1310,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "fr",
+        "faction": "ap",
+        "vp": 1
     },
     {
+        "id": 20,
         "map": "europe",
         "name": "Chateau Thierry",
         "x": 825,
         "y": 1450,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "fr",
+        "faction": "ap"
     },
     {
+        "id": 21,
         "map": "europe",
         "name": "Melun",
         "x": 770,
         "y": 1594,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "fr",
+        "faction": "ap",
+        "vp": 1
     },
     {
+        "id": 22,
         "map": "europe",
         "name": "Nevers",
         "x": 803,
         "y": 1765,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "fr",
+        "faction": "ap"
     },
     {
+        "id": 23,
         "map": "europe",
         "name": "Lyon",
         "x": 914,
         "y": 1928,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "fr",
+        "faction": "ap"
     },
     {
+        "id": 24,
         "map": "europe",
         "name": "Avignon",
         "x": 870,
         "y": 2102,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "fr",
+        "faction": "ap"
     },
     {
+        "id": 25,
         "map": "europe",
         "name": "Marseilles",
         "x": 957,
         "y": 2278,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "fr",
+        "faction": "ap",
+        "apport": true
     },
     {
+        "id": 26,
         "map": "europe",
         "name": "Nice",
         "x": 1121,
         "y": 2244,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "fr",
+        "faction": "ap"
     },
     {
+        "id": 27,
         "map": "europe",
         "name": "Grenoble",
         "x": 1055,
         "y": 1988,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "fr",
+        "faction": "ap",
+        "terrain": "mountain"
     },
     {
+        "id": 28,
         "map": "europe",
         "name": "Dijon",
         "x": 981,
         "y": 1745,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "fr",
+        "faction": "ap",
+        "vp": 1
     },
     {
+        "id": 29,
         "map": "europe",
         "name": "Bar le Duc",
         "x": 928,
         "y": 1571,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "fr",
+        "faction": "ap",
+        "vp": 1
     },
     {
+        "id": 30,
         "map": "europe",
         "name": "Sedan",
         "x": 887,
         "y": 1304,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "fr",
+        "faction": "ap",
+        "terrain": "forest",
+        "vp": 1
     },
     {
+        "id": 31,
         "map": "europe",
         "name": "Brussels",
         "x": 832,
         "y": 1177,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "be",
+        "faction": "ap",
+        "vp": 1
     },
     {
+        "id": 32,
         "map": "europe",
         "name": "Antwerp",
         "x": 901,
         "y": 1046,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "be",
+        "faction": "ap",
+        "vp": 1,
+        "fort": 1
     },
     {
+        "id": 33,
         "map": "europe",
         "name": "Liege",
         "x": 995,
         "y": 1190,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "be",
+        "faction": "ap",
+        "fort": 3
     },
     {
+        "id": 34,
         "map": "europe",
         "name": "Verdun",
         "x": 987,
         "y": 1398,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "fr",
+        "faction": "ap",
+        "vp": 1,
+        "fort": 3
     },
     {
+        "id": 35,
         "map": "europe",
         "name": "Nancy",
         "x": 1056,
         "y": 1534,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "fr",
+        "faction": "ap",
+        "vp": 1,
+        "fort": 2
     },
     {
+        "id": 36,
         "map": "europe",
         "name": "Belfort",
         "x": 1118,
         "y": 1682,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "fr",
+        "faction": "ap",
+        "terrain": "mountain"
     },
     {
+        "id": 37,
         "map": "europe",
         "name": "Turin",
         "x": 1205,
         "y": 2012,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "it",
+        "faction": "ap"
     },
     {
+        "id": 38,
         "map": "europe",
         "name": "Mulhouse",
         "x": 1257,
         "y": 1645,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ge",
+        "faction": "cp",
+        "terrain": "mountain"
     },
     {
+        "id": 39,
         "map": "europe",
         "name": "Strasbourg",
         "x": 1228,
         "y": 1495,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ge",
+        "faction": "cp",
+        "vp": 1,
+        "fort": 3
     },
     {
+        "id": 40,
         "map": "europe",
         "name": "Metz",
         "x": 1149,
         "y": 1350,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ge",
+        "faction": "cp",
+        "terrain": "forest",
+        "vp": 1,
+        "fort": 3
     },
     {
+        "id": 41,
         "map": "europe",
         "name": "Koblenz",
         "x": 1146,
         "y": 1208,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ge",
+        "faction": "cp",
+        "vp": 1
     },
     {
+        "id": 42,
         "map": "europe",
         "name": "Aachen",
         "x": 1061,
         "y": 1069,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ge",
+        "faction": "cp",
+        "vp": 1
     },
     {
+        "id": 43,
         "map": "europe",
         "name": "Essen",
         "x": 1204,
         "y": 1036,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ge",
+        "faction": "cp",
+        "supply": true,
+        "vp": 1
     },
     {
+        "id": 44,
         "map": "europe",
         "name": "Frankfurt",
         "x": 1297,
         "y": 1211,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ge",
+        "faction": "cp",
+        "vp": 1
     },
     {
+        "id": 45,
         "map": "europe",
         "name": "Mannheim",
         "x": 1300,
         "y": 1365,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ge",
+        "faction": "cp"
     },
     {
+        "id": 46,
         "map": "europe",
         "name": "Stuttgart",
         "x": 1386,
         "y": 1475,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ge",
+        "faction": "cp",
+        "vp": 1
     },
     {
+        "id": 47,
         "map": "europe",
         "name": "Wilhelmshaven",
         "x": 1266,
         "y": 734,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ge",
+        "faction": "cp",
+        "cpport": true
     },
     {
+        "id": 48,
         "map": "europe",
         "name": "Bremen",
         "x": 1345,
         "y": 877,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ge",
+        "faction": "cp"
     },
     {
+        "id": 49,
         "map": "europe",
         "name": "Kassel",
         "x": 1397,
         "y": 1050,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ge",
+        "faction": "cp"
     },
     {
+        "id": 50,
         "map": "europe",
         "name": "Kiel",
         "x": 1475,
         "y": 666,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ge",
+        "faction": "cp",
+        "cpport": true
     },
     {
+        "id": 51,
         "map": "europe",
         "name": "Hamburg",
         "x": 1479,
         "y": 802,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ge",
+        "faction": "cp"
     },
     {
+        "id": 52,
         "map": "europe",
         "name": "Hannover",
         "x": 1594,
         "y": 970,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ge",
+        "faction": "cp"
     },
     {
+        "id": 53,
         "map": "europe",
         "name": "Erfurt",
         "x": 1574,
         "y": 1228,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ge",
+        "faction": "cp"
     },
     {
+        "id": 54,
         "map": "europe",
         "name": "Nuremberg",
         "x": 1575,
         "y": 1375,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ge",
+        "faction": "cp"
     },
     {
+        "id": 55,
         "map": "europe",
         "name": "Augsburg",
         "x": 1529,
         "y": 1501,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ge",
+        "faction": "cp"
     },
     {
+        "id": 56,
         "map": "europe",
         "name": "Innsbruck",
         "x": 1617,
         "y": 1699,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ah",
+        "faction": "cp",
+        "terrain": "mountain"
     },
     {
+        "id": 57,
         "map": "europe",
         "name": "Trent",
         "x": 1494,
         "y": 1788,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ah",
+        "faction": "cp",
+        "terrain": "mountain",
+        "vp": 1,
+        "fort": 3
     },
     {
+        "id": 58,
         "map": "europe",
         "name": "Milan",
         "x": 1368,
         "y": 1953,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "it",
+        "faction": "ap",
+        "vp": 1
     },
     {
+        "id": 59,
         "map": "europe",
         "name": "Genoa",
         "x": 1346,
         "y": 2113,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "it",
+        "faction": "ap",
+        "vp": 1,
+        "apport": true
     },
     {
+        "id": 60,
         "map": "europe",
         "name": "Verona",
         "x": 1548,
         "y": 1961,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "it",
+        "faction": "ap"
     },
     {
+        "id": 61,
         "map": "europe",
         "name": "Bologna",
         "x": 1590,
         "y": 2079,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "it",
+        "faction": "ap",
+        "vp": 1
     },
     {
+        "id": 62,
         "map": "europe",
         "name": "Florence",
         "x": 1582,
         "y": 2209,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "it",
+        "faction": "ap",
+        "vp": 1
     },
     {
+        "id": 63,
         "map": "europe",
         "name": "Viterbo",
         "x": 1670,
         "y": 2353,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "it",
+        "faction": "ap"
     },
     {
+        "id": 64,
         "map": "europe",
         "name": "Rome",
         "x": 1724,
         "y": 2478,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "it",
+        "faction": "ap",
+        "vp": 1,
+        "capital": true
     },
     {
+        "id": 65,
         "map": "europe",
         "name": "Naples",
         "x": 1912,
         "y": 2630,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "it",
+        "faction": "ap",
+        "vp": 1,
+        "apport": true
     },
     {
+        "id": 66,
         "map": "europe",
         "name": "Taranto",
         "x": 2223,
         "y": 2690,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "it",
+        "faction": "ap",
+        "apport": true
     },
     {
+        "id": 67,
         "map": "europe",
         "name": "Foggia",
         "x": 2076,
         "y": 2571,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "it",
+        "faction": "ap"
     },
     {
+        "id": 68,
         "map": "europe",
         "name": "Pescara",
         "x": 1909,
         "y": 2424,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "it",
+        "faction": "ap"
     },
     {
+        "id": 69,
         "map": "europe",
         "name": "Ancona",
         "x": 1845,
         "y": 2288,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "it",
+        "faction": "ap"
     },
     {
+        "id": 70,
         "map": "europe",
         "name": "Ravenna",
         "x": 1732,
         "y": 2164,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "it",
+        "faction": "ap"
     },
     {
+        "id": 71,
         "map": "europe",
         "name": "Venice",
         "x": 1693,
         "y": 1981,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "it",
+        "faction": "ap",
+        "apport": true
     },
     {
+        "id": 72,
         "map": "europe",
         "name": "Udine",
         "x": 1811,
         "y": 1926,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "it",
+        "faction": "ap"
     },
     {
+        "id": 73,
         "map": "europe",
         "name": "Asiago",
         "x": 1664,
         "y": 1833,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "it",
+        "faction": "ap"
     },
     {
+        "id": 74,
         "map": "europe",
         "name": "Maggiore",
         "x": 1792,
         "y": 1808,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "it",
+        "faction": "ap"
     },
     {
+        "id": 75,
         "map": "europe",
         "name": "Spittal",
         "x": 1771,
         "y": 1682,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ah",
+        "faction": "cp",
+        "terrain": "mountain"
     },
     {
+        "id": 76,
         "map": "europe",
         "name": "Munich",
         "x": 1651,
         "y": 1553,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ge",
+        "faction": "cp",
+        "terrain": "mountain",
+        "vp": 1
     },
     {
+        "id": 77,
         "map": "europe",
         "name": "Regensburg",
         "x": 1703,
         "y": 1438,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ge",
+        "faction": "cp"
     },
     {
+        "id": 78,
         "map": "europe",
         "name": "Leipzig",
         "x": 1721,
         "y": 1108,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ge",
+        "faction": "cp"
     },
     {
+        "id": 79,
         "map": "europe",
         "name": "Berlin",
         "x": 1806,
         "y": 918,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ge",
+        "faction": "cp",
+        "vp": 1,
+        "capital": true
     },
     {
+        "id": 80,
         "map": "europe",
         "name": "Rostock",
         "x": 1684,
         "y": 700,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ge",
+        "faction": "cp",
+        "cpport": true
     },
     {
+        "id": 81,
         "map": "europe",
         "name": "Stettin",
         "x": 1955,
         "y": 733,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ge",
+        "faction": "cp",
+        "cpport": true
     },
     {
+        "id": 82,
         "map": "europe",
         "name": "Cottbus",
         "x": 1955,
         "y": 1017,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ge",
+        "faction": "cp"
     },
     {
+        "id": 83,
         "map": "europe",
         "name": "Dresden",
         "x": 1852,
         "y": 1139,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ge",
+        "faction": "cp"
     },
     {
+        "id": 84,
         "map": "europe",
         "name": "Prague",
         "x": 1929,
         "y": 1280,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ah",
+        "faction": "cp"
     },
     {
+        "id": 85,
         "map": "europe",
         "name": "Kolin",
         "x": 2056,
         "y": 1355,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ah",
+        "faction": "cp"
     },
     {
+        "id": 86,
         "map": "europe",
         "name": "Linz",
         "x": 1891,
         "y": 1572,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ah",
+        "faction": "cp"
     },
     {
+        "id": 87,
         "map": "europe",
         "name": "Villach",
         "x": 1913,
         "y": 1770,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ah",
+        "faction": "cp",
+        "terrain": "mountain"
     },
     {
+        "id": 88,
         "map": "europe",
         "name": "Trieste",
         "x": 1941,
         "y": 1936,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ah",
+        "faction": "cp",
+        "terrain": "mountain",
+        "vp": 1,
+        "fort": 3
     },
     {
+        "id": 89,
         "map": "europe",
         "name": "Graz",
         "x": 2042,
         "y": 1729,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ah",
+        "faction": "cp",
+        "terrain": "mountain"
     },
     {
+        "id": 90,
         "map": "europe",
         "name": "Vienna",
         "x": 2135,
         "y": 1565,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ah",
+        "faction": "cp",
+        "vp": 1,
+        "capital": true
     },
     {
+        "id": 91,
         "map": "europe",
         "name": "Brun",
         "x": 2176,
         "y": 1424,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ah",
+        "faction": "cp"
     },
     {
+        "id": 92,
         "map": "europe",
         "name": "Olmutz",
         "x": 2304,
         "y": 1321,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ah",
+        "faction": "cp"
     },
     {
+        "id": 93,
         "map": "europe",
         "name": "Oppeln",
         "x": 2359,
         "y": 1195,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ge",
+        "faction": "cp"
     },
     {
+        "id": 94,
         "map": "europe",
         "name": "Breslau",
         "x": 2202,
         "y": 1137,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ge",
+        "faction": "cp",
+        "supply": true,
+        "vp": 1,
+        "fort": 2
     },
     {
+        "id": 95,
         "map": "europe",
         "name": "Posen",
         "x": 2198,
         "y": 951,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ge",
+        "faction": "cp",
+        "vp": 1,
+        "fort": 2
     },
     {
+        "id": 96,
         "map": "europe",
         "name": "Thorn",
         "x": 2294,
         "y": 813,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ge",
+        "faction": "cp",
+        "fort": 2
     },
     {
+        "id": 97,
         "map": "europe",
         "name": "Kolberg",
         "x": 2160,
         "y": 681,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ge",
+        "faction": "cp",
+        "cpport": true
     },
     {
+        "id": 98,
         "map": "europe",
         "name": "Danzig",
         "x": 2378,
         "y": 656,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ge",
+        "faction": "cp",
+        "vp": 1,
+        "fort": 2,
+        "cpport": true
     },
     {
+        "id": 99,
         "map": "europe",
         "name": "Konigsberg",
         "x": 2559,
         "y": 598,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ge",
+        "faction": "cp",
+        "vp": 1,
+        "fort": 3,
+        "cpport": true
     },
     {
+        "id": 100,
         "map": "europe",
         "name": "Tannenberg",
         "x": 2550,
         "y": 761,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ge",
+        "faction": "cp",
+        "terrain": "forest"
     },
     {
+        "id": 101,
         "map": "europe",
         "name": "Plock",
         "x": 2474,
         "y": 890,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap"
     },
     {
+        "id": 102,
         "map": "europe",
         "name": "Lodz",
         "x": 2454,
         "y": 1022,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap",
+        "vp": 1
     },
     {
+        "id": 103,
         "map": "europe",
         "name": "Czestochowa",
         "x": 2544,
         "y": 1170,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap"
     },
     {
+        "id": 104,
         "map": "europe",
         "name": "Cracow",
         "x": 2504,
         "y": 1297,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ah",
+        "faction": "cp",
+        "vp": 1,
+        "fort": 2
     },
     {
+        "id": 105,
         "map": "europe",
         "name": "Martin",
         "x": 2375,
         "y": 1472,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ah",
+        "faction": "cp"
     },
     {
+        "id": 106,
         "map": "europe",
         "name": "Budapest",
         "x": 2437,
         "y": 1660,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ah",
+        "faction": "cp",
+        "vp": 1,
+        "capital": true
     },
     {
+        "id": 107,
         "map": "europe",
         "name": "Pecs",
         "x": 2343,
         "y": 1875,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ah",
+        "faction": "cp"
     },
     {
+        "id": 108,
         "map": "europe",
         "name": "Zagreb",
         "x": 2097,
         "y": 1910,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ah",
+        "faction": "cp"
     },
     {
+        "id": 109,
         "map": "europe",
         "name": "Banja Luka",
         "x": 2228,
         "y": 2062,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ah",
+        "faction": "cp",
+        "terrain": "mountain"
     },
     {
+        "id": 110,
         "map": "europe",
         "name": "Mostar",
         "x": 2213,
         "y": 2279,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ah",
+        "faction": "cp",
+        "terrain": "mountain"
     },
     {
+        "id": 111,
         "map": "europe",
         "name": "Cetinje",
         "x": 2401,
         "y": 2379,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "mn",
+        "faction": "ap",
+        "terrain": "mountain",
+        "capital": true
     },
     {
+        "id": 112,
         "map": "europe",
         "name": "Tirana",
         "x": 2505,
         "y": 2523,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "al",
+        "faction": "ap",
+        "terrain": "mountain"
     },
     {
+        "id": 113,
         "map": "europe",
         "name": "Valona",
         "x": 2497,
         "y": 2697,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "al",
+        "faction": "ap",
+        "terrain": "mountain"
     },
     {
+        "id": 114,
         "map": "europe",
         "name": "Florina",
         "x": 2696,
         "y": 2742,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "gr",
+        "faction": "ap",
+        "terrain": "mountain"
     },
     {
+        "id": 115,
         "map": "europe",
         "name": "Larisa",
         "x": 2791,
         "y": 2841,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "gr",
+        "faction": "ap",
+        "terrain": "mountain"
     },
     {
+        "id": 116,
         "map": "europe",
         "name": "Athens",
         "x": 2926,
         "y": 3055,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "gr",
+        "faction": "ap",
+        "apport": true,
+        "capital": true
     },
     {
+        "id": 117,
         "map": "europe",
         "name": "Salonika",
         "x": 2818,
         "y": 2688,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "gr",
+        "faction": "ap",
+        "terrain": "mountain",
+        "apport": true
     },
     {
+        "id": 118,
         "map": "europe",
         "name": "Monastir",
         "x": 2697,
         "y": 2587,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "sb",
+        "faction": "ap",
+        "terrain": "mountain"
     },
     {
+        "id": 119,
         "map": "europe",
         "name": "Kavala",
         "x": 2970,
         "y": 2622,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "gr",
+        "faction": "ap",
+        "terrain": "mountain"
     },
     {
+        "id": 120,
         "map": "europe",
         "name": "Strumitsa",
         "x": 2903,
         "y": 2483,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "bu",
+        "faction": "cp",
+        "terrain": "mountain"
     },
     {
+        "id": 121,
         "map": "europe",
         "name": "Skopje",
         "x": 2691,
         "y": 2449,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "sb",
+        "faction": "ap",
+        "terrain": "mountain"
     },
     {
+        "id": 122,
         "map": "europe",
         "name": "Nis",
         "x": 2685,
         "y": 2264,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "sb",
+        "faction": "ap"
     },
     {
+        "id": 123,
         "map": "europe",
         "name": "Valjevo",
         "x": 2535,
         "y": 2243,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "sb",
+        "faction": "ap",
+        "terrain": "mountain"
     },
     {
+        "id": 124,
         "map": "europe",
         "name": "Sarajevo",
         "x": 2363,
         "y": 2180,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ah",
+        "faction": "cp",
+        "terrain": "mountain"
     },
     {
+        "id": 125,
         "map": "europe",
         "name": "Belgrade",
         "x": 2623,
         "y": 2090,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "sb",
+        "faction": "ap",
+        "supply": true,
+        "vp": 1,
+        "fort": 1,
+        "capital": true
     },
     {
+        "id": 126,
         "map": "europe",
         "name": "Novi Sad",
         "x": 2496,
         "y": 1970,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ah",
+        "faction": "cp"
     },
     {
+        "id": 127,
         "map": "europe",
         "name": "Timisvar",
         "x": 2672,
         "y": 1924,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ah",
+        "faction": "cp"
     },
     {
+        "id": 128,
         "map": "europe",
         "name": "Szeged",
         "x": 2538,
         "y": 1815,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ah",
+        "faction": "cp"
     },
     {
+        "id": 129,
         "map": "europe",
         "name": "Debrecen",
         "x": 2710,
         "y": 1659,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ah",
+        "faction": "cp",
+        "vp": 1
     },
     {
+        "id": 130,
         "map": "europe",
         "name": "Miskolcz",
         "x": 2569,
         "y": 1541,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ah",
+        "faction": "cp"
     },
     {
+        "id": 131,
         "map": "europe",
         "name": "Gorlice",
         "x": 2620,
         "y": 1421,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ah",
+        "faction": "cp",
+        "terrain": "mountain"
     },
     {
+        "id": 132,
         "map": "europe",
         "name": "Tarnow",
         "x": 2665,
         "y": 1296,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ah",
+        "faction": "cp"
     },
     {
+        "id": 133,
         "map": "europe",
         "name": "Ivangorod",
         "x": 2692,
         "y": 1147,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap",
+        "fort": 1
     },
     {
+        "id": 134,
         "map": "europe",
         "name": "Warsaw",
         "x": 2637,
         "y": 963,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap",
+        "vp": 1,
+        "fort": 2
     },
     {
+        "id": 135,
         "map": "europe",
         "name": "Lomza",
         "x": 2751,
         "y": 830,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap",
+        "fort": 1
     },
     {
+        "id": 136,
         "map": "europe",
         "name": "Insterberg",
         "x": 2712,
         "y": 678,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ge",
+        "faction": "cp",
+        "terrain": "forest"
     },
     {
+        "id": 137,
         "map": "europe",
         "name": "Memel",
         "x": 2658,
         "y": 470,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ge",
+        "faction": "cp",
+        "cpport": true
     },
     {
+        "id": 138,
         "map": "europe",
         "name": "Libau",
         "x": 2660,
         "y": 331,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap",
+        "cpport": true
     },
     {
+        "id": 139,
         "map": "europe",
         "name": "Szawli",
         "x": 2825,
         "y": 407,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap"
     },
     {
+        "id": 140,
         "map": "europe",
         "name": "Riga",
         "x": 2966,
         "y": 284,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap",
+        "vp": 1,
+        "fort": 3,
+        "cpport": true
     },
     {
+        "id": 141,
         "map": "europe",
         "name": "Reval",
         "x": 3181,
         "y": 139,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap"
     },
     {
+        "id": 142,
         "map": "europe",
         "name": "Pskov",
         "x": 3441,
         "y": 168,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap"
     },
     {
+        "id": 143,
         "map": "europe",
         "name": "Petrograd",
         "x": 3654,
         "y": 145,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap",
+        "supply": true
     },
     {
+        "id": 144,
         "map": "europe",
         "name": "Velikiye Luki",
         "x": 3637,
         "y": 343,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap"
     },
     {
+        "id": 145,
         "map": "europe",
         "name": "Opochka",
         "x": 3454,
         "y": 345,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap"
     },
     {
+        "id": 146,
         "map": "europe",
         "name": "Dvinsk",
         "x": 3230,
         "y": 449,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap"
     },
     {
+        "id": 147,
         "map": "europe",
         "name": "Kovno",
         "x": 2850,
         "y": 576,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap",
+        "vp": 1,
+        "fort": 1
     },
     {
+        "id": 148,
         "map": "europe",
         "name": "Vilna",
         "x": 3014,
         "y": 571,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap",
+        "vp": 1
     },
     {
+        "id": 149,
         "map": "europe",
         "name": "Moldechno",
         "x": 3188,
         "y": 639,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap"
     },
     {
+        "id": 150,
         "map": "europe",
         "name": "Polotsk",
         "x": 3419,
         "y": 563,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap"
     },
     {
+        "id": 151,
         "map": "europe",
         "name": "Vitebsk",
         "x": 3637,
         "y": 519,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap"
     },
     {
+        "id": 152,
         "map": "europe",
         "name": "Moscow",
         "x": 3990,
         "y": 562,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap",
+        "supply": true
     },
     {
+        "id": 153,
         "map": "europe",
         "name": "Smolensk",
         "x": 3833,
         "y": 609,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap"
     },
     {
+        "id": 154,
         "map": "europe",
         "name": "Orsha",
         "x": 3637,
         "y": 634,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap"
     },
     {
+        "id": 155,
         "map": "europe",
         "name": "Roslavl",
         "x": 3882,
         "y": 807,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap"
     },
     {
+        "id": 156,
         "map": "europe",
         "name": "Mogilev",
         "x": 3648,
         "y": 749,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap"
     },
     {
+        "id": 157,
         "map": "europe",
         "name": "Minsk",
         "x": 3359,
         "y": 735,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap"
     },
     {
+        "id": 158,
         "map": "europe",
         "name": "Gomel",
         "x": 3716,
         "y": 944,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap"
     },
     {
+        "id": 159,
         "map": "europe",
         "name": "Slutsk",
         "x": 3439,
         "y": 876,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap",
+        "terrain": "forest"
     },
     {
+        "id": 160,
         "map": "europe",
         "name": "Baranovichi",
         "x": 3168,
         "y": 780,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap",
+        "terrain": "forest"
     },
     {
+        "id": 161,
         "map": "europe",
         "name": "Grodno",
         "x": 2926,
         "y": 728,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap",
+        "terrain": "forest",
+        "fort": 1
     },
     {
+        "id": 162,
         "map": "europe",
         "name": "Bialystok",
         "x": 2987,
         "y": 863,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap"
     },
     {
+        "id": 163,
         "map": "europe",
         "name": "Brest Litovsk",
         "x": 2873,
         "y": 980,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap",
+        "fort": 1
     },
     {
+        "id": 164,
         "map": "europe",
         "name": "Pinsk",
         "x": 3118,
         "y": 925,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap",
+        "terrain": "swamp"
     },
     {
+        "id": 165,
         "map": "europe",
         "name": "Lublin",
         "x": 2898,
         "y": 1144,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap"
     },
     {
+        "id": 166,
         "map": "europe",
         "name": "Kovel",
         "x": 3052,
         "y": 1055,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap",
+        "terrain": "swamp"
     },
     {
+        "id": 167,
         "map": "europe",
         "name": "Sarny",
         "x": 3262,
         "y": 1012,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap",
+        "terrain": "swamp"
     },
     {
+        "id": 168,
         "map": "europe",
         "name": "Mozyr",
         "x": 3521,
         "y": 1058,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap",
+        "terrain": "swamp"
     },
     {
+        "id": 169,
         "map": "europe",
         "name": "Chernigov",
         "x": 3745,
         "y": 1096,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap"
     },
     {
+        "id": 170,
         "map": "europe",
         "name": "Kharkov",
         "x": 3989,
         "y": 1227,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap",
+        "supply": true
     },
     {
+        "id": 171,
         "map": "europe",
         "name": "Kiev",
         "x": 3659,
         "y": 1229,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap",
+        "vp": 1
     },
     {
+        "id": 172,
         "map": "europe",
         "name": "Zhitomir",
         "x": 3485,
         "y": 1227,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap"
     },
     {
+        "id": 173,
         "map": "europe",
         "name": "Rovno",
         "x": 3326,
         "y": 1163,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap",
+        "terrain": "forest"
     },
     {
+        "id": 174,
         "map": "europe",
         "name": "Lutsk",
         "x": 3110,
         "y": 1191,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap",
+        "terrain": "forest",
+        "fort": 1
     },
     {
+        "id": 175,
         "map": "europe",
         "name": "Dubno",
         "x": 3234,
         "y": 1296,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap",
+        "fort": 1
     },
     {
+        "id": 176,
         "map": "europe",
         "name": "Przemysl",
         "x": 2824,
         "y": 1295,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ah",
+        "faction": "cp",
+        "fort": 3
     },
     {
+        "id": 177,
         "map": "europe",
         "name": "Lemberg",
         "x": 2976,
         "y": 1314,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ah",
+        "faction": "cp",
+        "vp": 1
     },
     {
+        "id": 178,
         "map": "europe",
         "name": "Uzhgorod",
         "x": 2773,
         "y": 1509,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ah",
+        "faction": "cp",
+        "terrain": "mountain"
     },
     {
+        "id": 179,
         "map": "europe",
         "name": "Stanislau",
         "x": 2940,
         "y": 1471,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ah",
+        "faction": "cp"
     },
     {
+        "id": 180,
         "map": "europe",
         "name": "Tarnopol",
         "x": 3095,
         "y": 1416,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ah",
+        "faction": "cp"
     },
     {
+        "id": 181,
         "map": "europe",
         "name": "Munkacs",
         "x": 2928,
         "y": 1605,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ah",
+        "faction": "cp",
+        "terrain": "mountain"
     },
     {
+        "id": 182,
         "map": "europe",
         "name": "Czernowitz",
         "x": 3092,
         "y": 1572,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ah",
+        "faction": "cp",
+        "vp": 1
     },
     {
+        "id": 183,
         "map": "europe",
         "name": "Kamenets-Podolski",
         "x": 3240,
         "y": 1484,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap"
     },
     {
+        "id": 184,
         "map": "europe",
         "name": "Vinnitsa",
         "x": 3449,
         "y": 1421,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap"
     },
     {
+        "id": 185,
         "map": "europe",
         "name": "Belaya Tserkov",
         "x": 3688,
         "y": 1410,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap"
     },
     {
+        "id": 186,
         "map": "europe",
         "name": "Caucasus",
         "x": 3989,
         "y": 1651,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap",
+        "supply": true
     },
     {
+        "id": 187,
         "map": "europe",
         "name": "Uman",
         "x": 3691,
         "y": 1592,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap"
     },
     {
+        "id": 188,
         "map": "europe",
         "name": "Odessa",
         "x": 3688,
         "y": 1801,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap",
+        "vp": 1,
+        "fort": 3
     },
     {
+        "id": 189,
         "map": "europe",
         "name": "Zhmerinka",
         "x": 3374,
         "y": 1592,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap"
     },
     {
+        "id": 190,
         "map": "europe",
         "name": "Jassy",
         "x": 3220,
         "y": 1682,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ro",
+        "faction": "ap"
     },
     {
+        "id": 191,
         "map": "europe",
         "name": "Schossburg",
         "x": 3051,
         "y": 1758,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ah",
+        "faction": "cp",
+        "terrain": "mountain"
     },
     {
+        "id": 192,
         "map": "europe",
         "name": "Cluj",
         "x": 2900,
         "y": 1730,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ah",
+        "faction": "cp",
+        "vp": 1
     },
     {
+        "id": 193,
         "map": "europe",
         "name": "Hermannstadt",
         "x": 2894,
         "y": 1888,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ah",
+        "faction": "cp",
+        "terrain": "mountain"
     },
     {
+        "id": 194,
         "map": "europe",
         "name": "Kronstadt",
         "x": 3048,
         "y": 1885,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ah",
+        "faction": "cp",
+        "terrain": "mountain"
     },
     {
+        "id": 195,
         "map": "europe",
         "name": "Targu Jiu",
         "x": 2798,
         "y": 2021,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ro",
+        "faction": "ap"
     },
     {
+        "id": 196,
         "map": "europe",
         "name": "Carte de Arges",
         "x": 2946,
         "y": 2012,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ro",
+        "faction": "ap",
+        "terrain": "mountain"
     },
     {
+        "id": 197,
         "map": "europe",
         "name": "Caracal",
         "x": 2976,
         "y": 2143,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ro",
+        "faction": "ap"
     },
     {
+        "id": 198,
         "map": "europe",
         "name": "Sofia",
         "x": 2886,
         "y": 2324,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "bu",
+        "faction": "cp",
+        "supply": true,
+        "vp": 1,
+        "capital": true
     },
     {
+        "id": 199,
         "map": "europe",
         "name": "Barlad",
         "x": 3260,
         "y": 1815,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ro",
+        "faction": "ap"
     },
     {
+        "id": 200,
         "map": "europe",
         "name": "Kishinev",
         "x": 3490,
         "y": 1738,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap"
     },
     {
+        "id": 201,
         "map": "europe",
         "name": "Ismail",
         "x": 3514,
         "y": 1901,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap"
     },
     {
+        "id": 202,
         "map": "europe",
         "name": "Galatz",
         "x": 3345,
         "y": 1984,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ro",
+        "faction": "ap"
     },
     {
+        "id": 203,
         "map": "europe",
         "name": "Ploesti",
         "x": 3165,
         "y": 1956,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ro",
+        "faction": "ap",
+        "terrain": "mountain",
+        "vp": 1
     },
     {
+        "id": 204,
         "map": "europe",
         "name": "Bucharest",
         "x": 3190,
         "y": 2107,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ro",
+        "faction": "ap",
+        "vp": 1,
+        "capital": true
     },
     {
+        "id": 205,
         "map": "europe",
         "name": "Constanta",
         "x": 3423,
         "y": 2118,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "ro",
+        "faction": "ap"
     },
     {
+        "id": 206,
         "map": "europe",
         "name": "Varna",
         "x": 3368,
         "y": 2269,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "bu",
+        "faction": "cp"
     },
     {
+        "id": 207,
         "map": "europe",
         "name": "Plevna",
         "x": 3054,
         "y": 2285,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "bu",
+        "faction": "cp"
     },
     {
+        "id": 208,
         "map": "europe",
         "name": "Kazanlik",
         "x": 3136,
         "y": 2425,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "bu",
+        "faction": "cp",
+        "terrain": "mountain"
     },
     {
+        "id": 209,
         "map": "europe",
         "name": "Burgas",
         "x": 3339,
         "y": 2403,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "bu",
+        "faction": "cp"
     },
     {
+        "id": 210,
         "map": "europe",
         "name": "Adrianople",
         "x": 3349,
         "y": 2551,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp"
     },
     {
+        "id": 211,
         "map": "europe",
         "name": "Philippoli",
         "x": 3112,
         "y": 2575,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "bu",
+        "faction": "cp",
+        "terrain": "mountain"
     },
     {
+        "id": 212,
         "map": "europe",
         "name": "Gallipoli",
         "x": 3215,
         "y": 2683,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp",
+        "terrain": "mountain"
     },
     {
+        "id": 213,
         "map": "europe",
         "name": "Cana Kale",
         "x": 3231,
         "y": 2811,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp"
     },
     {
+        "id": 214,
         "map": "europe",
         "name": "Balikesir",
         "x": 3392,
         "y": 2837,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp",
+        "terrain": "mountain"
     },
     {
+        "id": 215,
         "map": "europe",
         "name": "Izmir",
         "x": 3313,
         "y": 2989,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp"
     },
     {
+        "id": 216,
         "map": "europe",
         "name": "MEF1",
         "x": 3080,
         "y": 2764,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "none",
+        "faction": "ap"
     },
     {
+        "id": 217,
         "map": "europe",
         "name": "MEF2",
         "x": 3112,
         "y": 2895,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "none",
+        "faction": "ap"
     },
     {
+        "id": 218,
         "map": "europe",
         "name": "MEF3",
         "x": 3200,
         "y": 3091,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "none",
+        "faction": "ap"
     },
     {
-        "map": "europe",
-        "name": "North Sea",
-        "x": 1042,
-        "y": 730,
+        "id": 219,
+        "map": "neareast",
+        "name": "Constantinople",
+        "x": 3703,
+        "y": 2140,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp",
+        "supply": true,
+        "vp": 1,
+        "apport": true,
+        "capital": true
     },
     {
-        "map": "europe",
-        "name": "Near East Approach",
-        "x": 4324,
-        "y": 1779,
+        "id": 220,
+        "map": "neareast",
+        "name": "Bursa",
+        "x": 3712,
+        "y": 2289,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp"
     },
     {
-        "map": "europe",
-        "name": "Constantinople Virtual Space",
-        "x": 3510,
-        "y": 2601,
+        "id": 221,
+        "map": "neareast",
+        "name": "Adapazari",
+        "x": 3829,
+        "y": 2139,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp"
     },
     {
-        "map": "europe",
-        "name": "Bursa Virtual Space",
-        "x": 3516,
-        "y": 2738,
+        "id": 222,
+        "map": "neareast",
+        "name": "Eskidor",
+        "x": 3828,
+        "y": 2279,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp",
+        "terrain": "mountain"
     },
     {
-        "map": "europe",
-        "name": "France",
-        "x": 608,
-        "y": 1960,
+        "id": 223,
+        "map": "neareast",
+        "name": "Sinope",
+        "x": 3937,
+        "y": 2091,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp"
     },
     {
-        "map": "europe",
-        "name": "Russia",
-        "x": 3974,
-        "y": 974,
+        "id": 224,
+        "map": "neareast",
+        "name": "Ankara",
+        "x": 3943,
+        "y": 2245,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp",
+        "terrain": "mountain"
     },
     {
-        "map": "europe",
-        "name": "Austria",
-        "x": 2275,
-        "y": 1658,
+        "id": 225,
+        "map": "neareast",
+        "name": "Samsun",
+        "x": 4043,
+        "y": 2074,
         "w": 45,
-        "h": 45
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp"
+    },
+    {
+        "id": 226,
+        "map": "neareast",
+        "name": "Sivas",
+        "x": 4094,
+        "y": 2234,
+        "w": 45,
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp",
+        "terrain": "mountain"
+    },
+    {
+        "id": 227,
+        "map": "neareast",
+        "name": "Giresun",
+        "x": 4142,
+        "y": 2108,
+        "w": 45,
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp"
+    },
+    {
+        "id": 228,
+        "map": "neareast",
+        "name": "Trebizond",
+        "x": 4263,
+        "y": 2147,
+        "w": 45,
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp",
+        "fort": 1
+    },
+    {
+        "id": 229,
+        "map": "neareast",
+        "name": "Erzingan",
+        "x": 4267,
+        "y": 2275,
+        "w": 45,
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp",
+        "terrain": "mountain"
+    },
+    {
+        "id": 230,
+        "map": "neareast",
+        "name": "Rize",
+        "x": 4391,
+        "y": 2140,
+        "w": 45,
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp"
+    },
+    {
+        "id": 231,
+        "map": "neareast",
+        "name": "Batum",
+        "x": 4494,
+        "y": 2079,
+        "w": 45,
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap"
+    },
+    {
+        "id": 232,
+        "map": "neareast",
+        "name": "Kars",
+        "x": 4597,
+        "y": 2126,
+        "w": 45,
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap",
+        "terrain": "mountain"
+    },
+    {
+        "id": 233,
+        "map": "neareast",
+        "name": "Poti",
+        "x": 4414,
+        "y": 1910,
+        "w": 45,
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap",
+        "terrain": "mountain"
+    },
+    {
+        "id": 234,
+        "map": "neareast",
+        "name": "Grozny",
+        "x": 4630,
+        "y": 1920,
+        "w": 45,
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap",
+        "terrain": "mountain"
+    },
+    {
+        "id": 235,
+        "map": "neareast",
+        "name": "Petrovsk",
+        "x": 4838,
+        "y": 1956,
+        "w": 45,
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap"
+    },
+    {
+        "id": 236,
+        "map": "neareast",
+        "name": "Tbilisi",
+        "x": 4721,
+        "y": 2075,
+        "w": 45,
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap",
+        "terrain": "mountain"
+    },
+    {
+        "id": 237,
+        "map": "neareast",
+        "name": "Elizabethpol",
+        "x": 4834,
+        "y": 2158,
+        "w": 45,
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap"
+    },
+    {
+        "id": 238,
+        "map": "neareast",
+        "name": "Baku",
+        "x": 4956,
+        "y": 2237,
+        "w": 45,
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap",
+        "vp": 1
+    },
+    {
+        "id": 239,
+        "map": "neareast",
+        "name": "Erivan",
+        "x": 4721,
+        "y": 2208,
+        "w": 45,
+        "h": 45,
+        "nation": "ru",
+        "faction": "ap",
+        "terrain": "mountain"
+    },
+    {
+        "id": 240,
+        "map": "neareast",
+        "name": "Eleskirt",
+        "x": 4563,
+        "y": 2262,
+        "w": 45,
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp"
+    },
+    {
+        "id": 241,
+        "map": "neareast",
+        "name": "Erzerum",
+        "x": 4434,
+        "y": 2252,
+        "w": 45,
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp",
+        "terrain": "mountain",
+        "fort": 1
+    },
+    {
+        "id": 242,
+        "map": "neareast",
+        "name": "Dilman",
+        "x": 4714,
+        "y": 2355,
+        "w": 45,
+        "h": 45,
+        "nation": "pe",
+        "faction": "ap",
+        "terrain": "mountain"
+    },
+    {
+        "id": 243,
+        "map": "neareast",
+        "name": "Tabriz",
+        "x": 4828,
+        "y": 2441,
+        "w": 45,
+        "h": 45,
+        "nation": "pe",
+        "faction": "ap",
+        "terrain": "mountain"
+    },
+    {
+        "id": 244,
+        "map": "neareast",
+        "name": "Van",
+        "x": 4581,
+        "y": 2377,
+        "w": 45,
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp",
+        "terrain": "mountain"
+    },
+    {
+        "id": 245,
+        "map": "neareast",
+        "name": "Bitlis",
+        "x": 4467,
+        "y": 2385,
+        "w": 45,
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp",
+        "terrain": "mountain"
+    },
+    {
+        "id": 246,
+        "map": "neareast",
+        "name": "Diyarbakir",
+        "x": 4361,
+        "y": 2378,
+        "w": 45,
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp"
+    },
+    {
+        "id": 247,
+        "map": "neareast",
+        "name": "Kharput",
+        "x": 4247,
+        "y": 2387,
+        "w": 45,
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp"
+    },
+    {
+        "id": 248,
+        "map": "neareast",
+        "name": "Kayseri",
+        "x": 4129,
+        "y": 2373,
+        "w": 45,
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp"
+    },
+    {
+        "id": 249,
+        "map": "neareast",
+        "name": "Konya",
+        "x": 3996,
+        "y": 2394,
+        "w": 45,
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp",
+        "terrain": "mountain"
+    },
+    {
+        "id": 250,
+        "map": "neareast",
+        "name": "Adana",
+        "x": 4110,
+        "y": 2493,
+        "w": 45,
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp",
+        "terrain": "mountain"
+    },
+    {
+        "id": 251,
+        "map": "neareast",
+        "name": "Aleppo",
+        "x": 4235,
+        "y": 2548,
+        "w": 45,
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp"
+    },
+    {
+        "id": 252,
+        "map": "neareast",
+        "name": "Urfa",
+        "x": 4346,
+        "y": 2509,
+        "w": 45,
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp"
+    },
+    {
+        "id": 253,
+        "map": "neareast",
+        "name": "Mardin",
+        "x": 4470,
+        "y": 2506,
+        "w": 45,
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp"
+    },
+    {
+        "id": 254,
+        "map": "neareast",
+        "name": "Mosul",
+        "x": 4583,
+        "y": 2515,
+        "w": 45,
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp",
+        "vp": 1
+    },
+    {
+        "id": 255,
+        "map": "neareast",
+        "name": "Hamadan",
+        "x": 4881,
+        "y": 2603,
+        "w": 45,
+        "h": 45,
+        "nation": "pe",
+        "faction": "ap",
+        "terrain": "mountain"
+    },
+    {
+        "id": 256,
+        "map": "neareast",
+        "name": "Kermanshah",
+        "x": 4753,
+        "y": 2672,
+        "w": 45,
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp",
+        "terrain": "mountain"
+    },
+    {
+        "id": 257,
+        "map": "neareast",
+        "name": "Kirkuk",
+        "x": 4596,
+        "y": 2650,
+        "w": 45,
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp"
+    },
+    {
+        "id": 258,
+        "map": "neareast",
+        "name": "Damascus",
+        "x": 4250,
+        "y": 2650,
+        "w": 45,
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp",
+        "vp": 1
+    },
+    {
+        "id": 259,
+        "map": "neareast",
+        "name": "Beirut",
+        "x": 4130,
+        "y": 2621,
+        "w": 45,
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp"
+    },
+    {
+        "id": 260,
+        "map": "neareast",
+        "name": "MEF4",
+        "x": 3887,
+        "y": 2626,
+        "w": 45,
+        "h": 45,
+        "nation": "none",
+        "faction": "ap"
+    },
+    {
+        "id": 261,
+        "map": "neareast",
+        "name": "Nablus",
+        "x": 4081,
+        "y": 2768,
+        "w": 45,
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp",
+        "terrain": "mountain"
+    },
+    {
+        "id": 262,
+        "map": "neareast",
+        "name": "Amman",
+        "x": 4204,
+        "y": 2781,
+        "w": 45,
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp"
+    },
+    {
+        "id": 263,
+        "map": "neareast",
+        "name": "Baghdad",
+        "x": 4641,
+        "y": 2778,
+        "w": 45,
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp",
+        "vp": 1
+    },
+    {
+        "id": 264,
+        "map": "neareast",
+        "name": "Kut",
+        "x": 4749,
+        "y": 2827,
+        "w": 45,
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp"
+    },
+    {
+        "id": 265,
+        "map": "neareast",
+        "name": "Khorramabad",
+        "x": 4894,
+        "y": 2736,
+        "w": 45,
+        "h": 45,
+        "nation": "pe",
+        "faction": "ap"
+    },
+    {
+        "id": 266,
+        "map": "neareast",
+        "name": "Ahwaz",
+        "x": 4906,
+        "y": 2881,
+        "w": 45,
+        "h": 45,
+        "nation": "pe",
+        "faction": "ap"
+    },
+    {
+        "id": 267,
+        "map": "neareast",
+        "name": "Qurna",
+        "x": 4794,
+        "y": 2918,
+        "w": 45,
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp"
+    },
+    {
+        "id": 268,
+        "map": "neareast",
+        "name": "Samawah",
+        "x": 4590,
+        "y": 2917,
+        "w": 45,
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp",
+        "terrain": "desert"
+    },
+    {
+        "id": 269,
+        "map": "neareast",
+        "name": "Basra",
+        "x": 4878,
+        "y": 3031,
+        "w": 45,
+        "h": 45,
+        "nation": "pe",
+        "faction": "ap",
+        "vp": 1,
+        "fort": 1,
+        "apport": true
+    },
+    {
+        "id": 270,
+        "map": "neareast",
+        "name": "An Nasiriya",
+        "x": 4710,
+        "y": 3070,
+        "w": 45,
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp",
+        "terrain": "desert"
+    },
+    {
+        "id": 271,
+        "map": "neareast",
+        "name": "Arabia",
+        "x": 4359,
+        "y": 3027,
+        "w": 45,
+        "h": 45,
+        "nation": "ar",
+        "faction": "ap",
+        "terrain": "desert"
+    },
+    {
+        "id": 272,
+        "map": "neareast",
+        "name": "Medina",
+        "x": 4205,
+        "y": 3192,
+        "w": 45,
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp",
+        "terrain": "desert",
+        "vp": 1
+    },
+    {
+        "id": 273,
+        "map": "neareast",
+        "name": "Aqaba",
+        "x": 4054,
+        "y": 3111,
+        "w": 45,
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp",
+        "terrain": "desert",
+        "fort": 1
+    },
+    {
+        "id": 274,
+        "map": "neareast",
+        "name": "Beersheba",
+        "x": 4137,
+        "y": 3005,
+        "w": 45,
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp",
+        "terrain": "desert",
+        "fort": 2
+    },
+    {
+        "id": 275,
+        "map": "neareast",
+        "name": "Jerusalem",
+        "x": 4155,
+        "y": 2879,
+        "w": 45,
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp"
+    },
+    {
+        "id": 276,
+        "map": "neareast",
+        "name": "Gaza",
+        "x": 4025,
+        "y": 2911,
+        "w": 45,
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp",
+        "terrain": "desert",
+        "fort": 2
+    },
+    {
+        "id": 277,
+        "map": "neareast",
+        "name": "Sinai",
+        "x": 3935,
+        "y": 3016,
+        "w": 45,
+        "h": 45,
+        "nation": "tu",
+        "faction": "cp",
+        "terrain": "desert"
+    },
+    {
+        "id": 278,
+        "map": "neareast",
+        "name": "Cairo",
+        "x": 3826,
+        "y": 3073,
+        "w": 45,
+        "h": 45,
+        "nation": "eg",
+        "faction": "ap"
+    },
+    {
+        "id": 279,
+        "map": "neareast",
+        "name": "Port Said",
+        "x": 3815,
+        "y": 2934,
+        "w": 45,
+        "h": 45,
+        "nation": "eg",
+        "faction": "ap",
+        "apport": true
+    },
+    {
+        "id": 280,
+        "map": "neareast",
+        "name": "Alexandria",
+        "x": 3697,
+        "y": 2988,
+        "w": 45,
+        "h": 45,
+        "nation": "eg",
+        "faction": "ap",
+        "apport": true
+    },
+    {
+        "id": 281,
+        "map": "neareast",
+        "name": "Libya",
+        "x": 3555,
+        "y": 2972,
+        "w": 45,
+        "h": 45,
+        "nation": "eg",
+        "faction": "cp"
     }
 ]
+
+const edges = [
+    {
+        "a": 1,
+        "b": 2,
+        "factions": "br"
+    },
+    {
+        "a": 1,
+        "b": 11,
+        "factions": "br"
+    },
+    {
+        "a": 1,
+        "b": 17,
+        "factions": "br"
+    },
+    {
+        "a": 2,
+        "b": 3
+    },
+    {
+        "a": 3,
+        "b": 10
+    },
+    {
+        "a": 3,
+        "b": 12
+    },
+    {
+        "a": 4,
+        "b": 10
+    },
+    {
+        "a": 4,
+        "b": 5
+    },
+    {
+        "a": 5,
+        "b": 6
+    },
+    {
+        "a": 5,
+        "b": 9
+    },
+    {
+        "a": 5,
+        "b": 10
+    },
+    {
+        "a": 6,
+        "b": 7
+    },
+    {
+        "a": 6,
+        "b": 8
+    },
+    {
+        "a": 8,
+        "b": 9
+    },
+    {
+        "a": 9,
+        "b": 10
+    },
+    {
+        "a": 9,
+        "b": 13
+    },
+    {
+        "a": 9,
+        "b": 14
+    },
+    {
+        "a": 10,
+        "b": 12
+    },
+    {
+        "a": 10,
+        "b": 13
+    },
+    {
+        "a": 11,
+        "b": 12
+    },
+    {
+        "a": 12,
+        "b": 15
+    },
+    {
+        "a": 12,
+        "b": 16
+    },
+    {
+        "a": 13,
+        "b": 14
+    },
+    {
+        "a": 13,
+        "b": 15
+    },
+    {
+        "a": 13,
+        "b": 21
+    },
+    {
+        "a": 14,
+        "b": 22
+    },
+    {
+        "a": 15,
+        "b": 16
+    },
+    {
+        "a": 15,
+        "b": 20
+    },
+    {
+        "a": 15,
+        "b": 21
+    },
+    {
+        "a": 16,
+        "b": 17
+    },
+    {
+        "a": 16,
+        "b": 19
+    },
+    {
+        "a": 17,
+        "b": 18
+    },
+    {
+        "a": 17,
+        "b": 19
+    },
+    {
+        "a": 18,
+        "b": 31
+    },
+    {
+        "a": 18,
+        "b": 32
+    },
+    {
+        "a": 19,
+        "b": 20
+    },
+    {
+        "a": 19,
+        "b": 30
+    },
+    {
+        "a": 19,
+        "b": 31
+    },
+    {
+        "a": 20,
+        "b": 21
+    },
+    {
+        "a": 20,
+        "b": 29
+    },
+    {
+        "a": 20,
+        "b": 30
+    },
+    {
+        "a": 20,
+        "b": 34
+    },
+    {
+        "a": 21,
+        "b": 22
+    },
+    {
+        "a": 21,
+        "b": 29
+    },
+    {
+        "a": 22,
+        "b": 23
+    },
+    {
+        "a": 22,
+        "b": 28
+    },
+    {
+        "a": 23,
+        "b": 24
+    },
+    {
+        "a": 23,
+        "b": 27
+    },
+    {
+        "a": 24,
+        "b": 25
+    },
+    {
+        "a": 25,
+        "b": 26
+    },
+    {
+        "a": 26,
+        "b": 37
+    },
+    {
+        "a": 27,
+        "b": 37
+    },
+    {
+        "a": 28,
+        "b": 29
+    },
+    {
+        "a": 28,
+        "b": 36
+    },
+    {
+        "a": 29,
+        "b": 34
+    },
+    {
+        "a": 29,
+        "b": 35
+    },
+    {
+        "a": 30,
+        "b": 31
+    },
+    {
+        "a": 30,
+        "b": 33
+    },
+    {
+        "a": 30,
+        "b": 41
+    },
+    {
+        "a": 30,
+        "b": 40
+    },
+    {
+        "a": 30,
+        "b": 34
+    },
+    {
+        "a": 31,
+        "b": 32
+    },
+    {
+        "a": 31,
+        "b": 33
+    },
+    {
+        "a": 33,
+        "b": 41
+    },
+    {
+        "a": 33,
+        "b": 42
+    },
+    {
+        "a": 34,
+        "b": 35
+    },
+    {
+        "a": 34,
+        "b": 40
+    },
+    {
+        "a": 35,
+        "b": 36
+    },
+    {
+        "a": 35,
+        "b": 39
+    },
+    {
+        "a": 35,
+        "b": 40
+    },
+    {
+        "a": 36,
+        "b": 38
+    }
+]
+
+for (let i = 0; i < edges.length; i++) {
+    let edge = edges[i]
+    if (spaces[edge.a].connections === undefined) {
+        spaces[edge.a].connections = []
+    }
+    if (spaces[edge.b].connections === undefined) {
+        spaces[edge.b].connections = []
+    }
+    spaces[edge.a].connections.push(edge.b);
+    spaces[edge.b].connections.push(edge.a);
+}
 
 if (typeof module !== 'undefined') module.exports = {cards,pieces,spaces}

@@ -1,5 +1,6 @@
 "use strict"
 
+const DEBUG_SPACES = true
 const DEBUG_CONNECTIONS = true
 
 function check_menu(id, x) {
@@ -202,13 +203,26 @@ function on_focus_space(evt) {
     let space = spaces[id]
     let text = space.name
 
-    ui.status.textContent = text
-    if (DEBUG_CONNECTIONS) {
+    if (DEBUG_SPACES) {
+        text = `[${space.id}] ${space.name}`
+        if (space.capital !== undefined)
+            text += ` (${space.nation.toUpperCase()} Capital)`
+        else
+            text += ` (${space.nation.toUpperCase()})`
+        if (space.vp > 0) text += ` *VP*`
+        if (space.supply !== undefined) text += `, Supply Source`
+        if (space.terrain !== undefined) text += `, ${space.terrain}`
+        if (space.fort !== undefined) text += `, Fort Lvl ${space.fort}`
+        if (space.apport !== undefined) text += `, Allied Powers Port`
+        if (space.cpport !== undefined) text += `, Central Powers Port`
         space.element.classList.add('highlight')
-        //space.land.forEach(n => spaces[n].element.classList.add('highlight'))
-        //space.river.forEach(n => spaces[n].element.classList.add('highlight'))
-        //space.lakeshore.forEach(n => spaces[n].element.classList.add('highlight'))
     }
+    if (DEBUG_CONNECTIONS) {
+        if (space.connections !== undefined)
+            space.connections.forEach(n => spaces[n].element.classList.add('highlight'))
+    }
+
+    ui.status.textContent = text
 }
 
 function on_blur_space(evt) {
