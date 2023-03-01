@@ -3,8 +3,8 @@ aside { background-color: darkgray; }
 header { background-color: gainsboro; }
 body.AP header.your_turn { background-color: lightskyblue; }
 body.CP header.your_turn { background-color: darkgrey; }
-#role_France, #log .h2.france { background-color: #bdf; }
-#role_Britain, #log .h2.britain { background-color: #fcb; }
+#role_AP, #log .h2.ap { background-color: #bdf; }
+#role_CP, #log .h2.cp { background-color: #fcb; }
 
 aside { width: 220px; }
 
@@ -261,6 +261,15 @@ body.shift .highlight {
 
 .unit.activated {
     transform: rotate(20deg);
+}
+
+.unit.army {
+    width:45px;
+    height:45px;
+}
+.unit.corps {
+    width:36px;
+    height:36px;
 }
 
 /* FLAT STYLE */

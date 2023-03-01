@@ -75,7 +75,8 @@ exports.view = function(state, current) {
             deck: game.cp.deck.length,
             hand: game.cp.hand.length
         },
-        spaces: data.spaces
+        location: game.location,
+        reduced: game.reduced
     }
 
     if (current === AP) {
@@ -113,7 +114,7 @@ exports.setup = function (seed, scenario, options) {
         log: [],
         undo: [],
         active: CP,
-        state: null,
+        state: 'start',
         turn: 1,
         vp: 0,
         last_card: 0,
@@ -141,13 +142,48 @@ exports.setup = function (seed, scenario, options) {
 
     log_h1("Paths of Glory")
 
-    // TODO: Scenario setup
+    // TODO: Do real scenario setup and remove this
+    setup_piece('ge', '1 Army', 'Berlin')
+    setup_piece('ge', '2 Army', 'Sedan')
+    setup_piece('fr', '1 Army', 'Paris')
+    setup_piece('fr', '2 Army', 'Cambrai')
+    setup_piece('fr', 'FR Corps', 'Milan')
+    setup_piece('ge', 'GE Corps', 'Milan')
+    setup_piece('fr', 'FR Corps', 'Rome')
+    setup_piece('fr', 'FR Corps', 'Rome')
+    setup_piece('fr', 'FR Corps', 'Rome')
+    setup_piece('fr', 'FR Corps', 'Salonika')
 
     log(".h1 " + scenario)
 
     // TODO: Options and other setup
 
     return game
+}
+
+function setup_piece(nation, unit, space) {
+    let where = find_space(space)
+    let who = find_unused_piece(nation, unit)
+    game.location[who] = where
+}
+
+function find_unused_piece(nation, name) {
+    for (let i = 0; i < data.pieces.length; i++) {
+        let piece = data.pieces[i]
+        if (piece.name === name && piece.nation === nation && game.location[i] == 0) {
+            return i
+        }
+    }
+    throw new Error(`Could not find unused piece for nation ${nation} and name ${name}`)
+}
+
+function find_space(name) {
+    for (let i = 0; i < data.spaces.length; i++) {
+        if (data.spaces[i].name === name) {
+            return i
+        }
+    }
+    throw new Error(`Could not find space named ${name}`)
 }
 
 // === GAME STATES ===
@@ -164,6 +200,14 @@ exports.setup = function (seed, scenario, options) {
 //
 //  },
 //}
+
+states.start = {
+    inactive: "Inactive text for start state",
+    prompt() {
+        view.prompt = "This is the start state"
+    },
+
+}
 
 
 function gen_action_next() {

@@ -82,6 +82,11 @@ function on_blur_last_card() {
     document.getElementById("tooltip").classList = "card"
 }
 
+function sub_space_name(match, p1, offset, string) {
+    let s = p1 | 0
+    let n = spaces[s].name
+    return `<span class="spacetip" onmouseenter="on_focus_space_tip(${s})" onmouseleave="on_blur_space_tip(${s})" onclick="on_click_space_tip(${s})">${n}</span>`
+}
 
 function on_log(text) {
     let p = document.createElement("div")
@@ -450,7 +455,7 @@ function build_unit(id) {
     let unit = pieces[id]
     let elt = unit.element = document.createElement("div")
     elt.piece = id
-    elt.className = "offmap unit " + unit.faction + " " + unit.counter
+    elt.className = "offmap unit " + unit.type + " " + unit.counter
     elt.addEventListener("mousedown", on_click_piece)
     elt.addEventListener("mouseenter", on_focus_piece)
     elt.addEventListener("mouseleave", on_blur_piece)
@@ -522,6 +527,8 @@ const MAXX = 2550 - 15
 
 
 function layout_stack(stack, x, y, dx) {
+    console.log(`layout_stack: ${x}, ${y}, ${dx}. ${stack}`)
+
     let dim = style_dims[style]
     let z = (stack === focus) ? 101 : 1
 
@@ -582,6 +589,7 @@ function layout_stack(stack, x, y, dx) {
             ey += Math.floor((45-elt.my_size) / 2)
         }
 
+        console.log("ex: " + ex + " ey: " + ey);
         elt.style.left = Math.round(ex) + "px"
         elt.style.top = Math.round(ey) + "px"
         elt.style.zIndex = z
@@ -657,9 +665,8 @@ function update_space(s) {
     apStack.length = 0
     cpStack.length = 0
 
-    let sx = space.x + Math.round(space.w/2) - 24
-    let sy = space.y + Math.round(space.h/2) - 24
-    sy += 12; // make room for label
+    let sx = space.x/2 + Math.round(space.w/2) - 45
+    let sy = space.y/2 + Math.round(space.h/2) - 45
 
     function marker(type) {
         if (view.cp[type].includes(s))
