@@ -1,5 +1,6 @@
 
 const cards = [
+    {},
     {
         "num": 1,
         "faction": "ap",

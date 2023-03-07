@@ -154,7 +154,7 @@ exports.setup = function (seed, scenario, options) {
     setup_piece('fr', 'FR Corps', 'Rome')
     setup_piece('fr', 'FR Corps', 'Salonika')
 
-    log(".h1 " + scenario)
+    log_h1(scenario)
 
     // TODO: Options and other setup
 
