@@ -69,11 +69,13 @@ exports.view = function(state, current) {
         last_card: game.last_card,
         ap: {
             deck: game.ap.deck.length,
-            hand: game.ap.hand.length
+            hand: game.ap.hand.length,
+            mo: game.ap.mo
         },
         cp: {
             deck: game.cp.deck.length,
-            hand: game.cp.hand.length
+            hand: game.cp.hand.length,
+            mo: game.cp.mo
         },
         location: game.location,
         reduced: game.reduced
@@ -113,8 +115,8 @@ exports.setup = function (seed, scenario, options) {
         scenario: scenario,
         log: [],
         undo: [],
-        active: CP,
-        state: 'start',
+        active: null,
+        state: null,
         turn: 1,
         vp: 0,
         last_card: 0,
@@ -128,7 +130,8 @@ exports.setup = function (seed, scenario, options) {
             deck: [],
             discard: [],
             removed: [],
-            hand: []
+            hand: [],
+            mo: 'none'
         },
 
         // CP state
@@ -136,7 +139,8 @@ exports.setup = function (seed, scenario, options) {
             deck: [],
             discard: [],
             removed: [],
-            hand: []
+            hand: [],
+            mo: 'none'
         }
     }
 
@@ -158,7 +162,29 @@ exports.setup = function (seed, scenario, options) {
 
     // TODO: Options and other setup
 
+    deal_cards()
+
+    start_turn()
+
     return game
+}
+
+function start_turn() {
+    // TODO: Roll mandatory offensives
+
+    // TODO: Start action phase
+    game.state = 'action_phase'
+    game.active = CP
+}
+
+function deal_cards() {
+    // TODO
+}
+
+function end_turn() {
+    deal_cards()
+
+    // TODO: Check for end of game
 }
 
 function setup_piece(nation, unit, space) {
@@ -201,14 +227,17 @@ function find_space(name) {
 //  },
 //}
 
-states.start = {
-    inactive: "Inactive text for start state",
+states.action_phase = {
+    inactive: "Action Phase",
     prompt() {
-        view.prompt = "This is the start state"
+        view.prompt = "Action Phase: Play a card"
     },
-
 }
 
+function roll_mandated_offensives() {
+    game.ap.mo = 'AP MO' // TODO
+    game.cp.mo = 'CP MO' // TODO
+}
 
 function gen_action_next() {
     gen_action('next')
@@ -233,6 +262,8 @@ function gen_action_discard(c) {
 // === COMMON LIBRARY ===
 
 function gen_action(action, argument) {
+    if (!view.actions)
+        view.actions = {}
     if (argument !== undefined) {
         if (!(action in view.actions))
             view.actions[action] = []
