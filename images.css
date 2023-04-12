@@ -3,6 +3,16 @@
     #map{background-image:url(map150.jpg)}
 }*/
 
+.ap_mo{background-image:url(images/mandoffensive_ap.png)}
+.ap_mo.none{background-image:url(images/mandoffensive_ap_done.png)}
+.ap_mo.fr_mutiny{background-image:url(images/french_mutiny.png)}
+.ap_mo.fr_mutiny.none{background-image:url(images/mandoffensive_ap_done_fr.png)}
+
+.cp_mo{background-image:url(images/mandoffensive_cp.png)}
+.cp_mo.none{background-image:url(images/mandoffensive_cp_done.png)}
+
+.marker.vps{background-image:url(images/vp.png)}
+
 .ge_1_army{background-image:url(images/pieces/ge_army01.png)}
 .ge_1_army.reduced{background-image:url(images/pieces/ge_army01_back.png)}
 .ge_2_army{background-image:url(images/pieces/ge_army02.png)}

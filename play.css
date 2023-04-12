@@ -300,6 +300,44 @@ body.bevel .event {
 
 /* TRACKS */
 
+/* TODO */
+#vp_marker { left: 76px; top: 39px; }
+#vp_marker.vp_0 { top: 592px; }
+#vp_marker.vp_1 { top: 647px; }
+#vp_marker.vp_2 { top: 702px; }
+#vp_marker.vp_3 { top: 757px; }
+#vp_marker.vp_4 { top: 812px; }
+#vp_marker.vp_5 { top: 867px; }
+#vp_marker.vp_6 { top: 923px; }
+#vp_marker.vp_7 { top: 978px; }
+#vp_marker.vp_8 { top: 1033px; }
+#vp_marker.vp_9 { top: 1089px; }
+#vp_marker.vp_10 { top: 1144px; }
+#vp_marker.vp_11 { top: 1144px; }
+#vp_marker.vp_12 { top: 1144px; }
+#vp_marker.vp_13 { top: 1144px; }
+#vp_marker.vp_14 { top: 1144px; }
+#vp_marker.vp_15 { top: 1144px; }
+#vp_marker.vp_16 { top: 1144px; }
+#vp_marker.vp_17 { top: 1144px; }
+#vp_marker.vp_18 { top: 1144px; }
+#vp_marker.vp_19 { top: 1144px; }
+#vp_marker.vp_20 { top: 1144px; }
+
+#ap_mo { left: 1180px; top: 1542px; }
+#ap_mo.fr { left: 1180px; }
+#ap_mo.br { left: 1220px; }
+#ap_mo.it { left: 1260px; }
+#ap_mo.ru { left: 1300px; }
+#ap_mo.none { left: 1340px; }
+
+#cp_mo { left: 1210px; top: 72px; }
+#cp_mo.ah { left: 1050px; }
+#cp_mo.ah_it { left: 1090px; }
+#cp_mo.tu { left: 1130px; }
+#cp_mo.ge { left: 1170px; }
+#cp_mo.none { left: 1210px; }
+
 
 /* MARKERS */
 

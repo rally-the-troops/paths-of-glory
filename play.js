@@ -3,6 +3,9 @@
 const DEBUG_SPACES = true
 const DEBUG_CONNECTIONS = true
 
+const AP_MO_MARKER = "marker small ap_mo "
+const CP_MO_MARKER = "marker small cp_mo "
+
 function check_menu(id, x) {
     document.getElementById(id).className = x ? "menu_item checked" : "menu_item unchecked"
 }
@@ -780,6 +783,12 @@ function update_map() {
         focus_box.className = "show"
 
     ui.last_card.className = "card show card_" + faction_card_number(view.last_card)
+
+    let ap_mo = document.getElementById("ap_mo")
+    ap_mo.className = AP_MO_MARKER + view.ap.mo + (view.events.french_mutiny ? " fr_mutiny" : "")
+
+    let cp_mo = document.getElementById("cp_mo")
+    cp_mo.className = CP_MO_MARKER + view.cp.mo
 
     // TODO: Update VP and other tracks
 

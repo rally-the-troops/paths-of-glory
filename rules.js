@@ -6,10 +6,38 @@ let game, view
 
 let states = {}
 
-const AP = "AP"
-const CP = "CP"
+const AP = "ap"
+const CP = "cp"
 
-exports.scenarios = [ "Standard", "Historical" ]
+const FRANCE = "fr"
+const BRITAIN = "br"
+const BELGIUM = "be"
+const ITALY = "it"
+const GERMANY = "ge"
+const AUSTRIA_HUNGARY = "ah"
+const RUSSIA = "ru"
+const MONTENEGRO = "mn"
+const SERBIA = "sb"
+const BULGARIA = "bu"
+const ALBANIA = "al"
+const GREECE = "gr"
+const ROMANIA = "ro"
+const TURKEY = "tu"
+const PERSIA = "pe"
+const ARABIA = "ar"
+const EGYPT = "eg"
+
+const NONE = "none"
+
+const COMMITMENT_MOBILIZATION = "mobilization"
+const COMMITMENT_LIMITED = "limited"
+const COMMITMENT_TOTAL = "total"
+
+// Card indices
+const GUNS_OF_AUGUST = 66
+
+const HISTORICAL = "Historical"
+exports.scenarios = [ HISTORICAL ]
 
 exports.roles = [ AP, CP ]
 
@@ -70,15 +98,18 @@ exports.view = function(state, current) {
         ap: {
             deck: game.ap.deck.length,
             hand: game.ap.hand.length,
+            commitment: game.ap.commitment,
             mo: game.ap.mo
         },
         cp: {
             deck: game.cp.deck.length,
             hand: game.cp.hand.length,
+            commitment: game.cp.commitment,
             mo: game.cp.mo
         },
         location: game.location,
-        reduced: game.reduced
+        reduced: game.reduced,
+        events: game.events
     }
 
     if (current === AP) {
@@ -110,16 +141,20 @@ exports.view = function(state, current) {
 }
 
 exports.setup = function (seed, scenario, options) {
+    // TODO: Actually use scenarios
+    scenario = HISTORICAL
+
     game = {
         seed: seed,
         scenario: scenario,
+        options: options,
         log: [],
         undo: [],
         active: null,
         state: null,
         turn: 1,
         vp: 0,
-        last_card: 0,
+        events: {},
 
         // Units
         location: data.pieces.map(() => 0),
@@ -131,7 +166,8 @@ exports.setup = function (seed, scenario, options) {
             discard: [],
             removed: [],
             hand: [],
-            mo: 'none'
+            commitment: COMMITMENT_MOBILIZATION,
+            mo: NONE
         },
 
         // CP state
@@ -140,8 +176,9 @@ exports.setup = function (seed, scenario, options) {
             discard: [],
             removed: [],
             hand: [],
-            mo: 'none'
-        }
+            commitment: COMMITMENT_MOBILIZATION,
+            mo: NONE
+        },
     }
 
     log_h1("Paths of Glory")
@@ -160,25 +197,80 @@ exports.setup = function (seed, scenario, options) {
 
     log_h1(scenario)
 
-    // TODO: Options and other setup
+    if (game.scenario == HISTORICAL) {
+        game.options.hand_size = 8
+        game.options.start_with_guns_of_august = 1
+    } else {
+        game.options.hand_size = 7
+    }
 
-    deal_cards()
+    setup_initial_decks()
 
     start_turn()
 
     return game
 }
 
-function start_turn() {
-    // TODO: Roll mandatory offensives
+function setup_initial_decks() {
+    for (let i = 1; i < data.cards.length; i++) {
+        if (i == GUNS_OF_AUGUST && game.options.start_with_guns_of_august) {
+            game.cp.hand.push(i)
+        } else if (data.cards[i].commitment == COMMITMENT_MOBILIZATION) {
+            if (data.cards[i].faction == AP) {
+                game.ap.deck.push(i)
+            } else if (data.cards[i].faction == CP) {
+                game.cp.deck.push(i)
+            }
+        }
+    }
 
-    // TODO: Start action phase
+    shuffle(game.ap.deck)
+    shuffle(game.cp.deck)
+    deal_cards()
+}
+
+function start_turn() {
+    roll_mandated_offensives()
+
     game.state = 'action_phase'
     game.active = CP
 }
 
 function deal_cards() {
-    // TODO
+    while (game.ap.hand.length < game.options.hand_size) {
+        game.ap.hand.push(draw_card(game.cp.deck))
+    }
+    while (game.cp.hand.length < game.options.hand_size) {
+        game.cp.hand.push(draw_card(game.cp.deck))
+    }
+}
+
+function draw_card(deck) {
+    if (deck.length == 0) {
+        reshuffle_discard(deck)
+    }
+    let i = random(deck.length)
+    let c = deck[i]
+    deck.splice(i, 1)
+    return c
+}
+
+function reshuffle_discard(deck) {
+    let player
+
+    if (deck == game.ap.deck) {
+        player = game.ap
+        game.log.push("Allied Powers deck reshuffled")
+    } else if (deck == game.cp.deck) {
+        player = game.cp
+        game.log.push("Central Powers deck reshuffled")
+    } else {
+        throw new Error(`Attempt to reshuffle a deck that is not the ap or cp deck`)
+    }
+
+    game.last_card = 0
+    player.deck = player.deck.concat(player.discard)
+    player.discard = []
 }
 
 function end_turn() {
@@ -212,6 +304,85 @@ function find_space(name) {
     throw new Error(`Could not find space named ${name}`)
 }
 
+function nation_at_war(nation) {
+    // TODO
+    return true
+}
+
+// === Mandated Offensives ===
+
+const AP_MO_TABLE = {
+    1: FRANCE,
+    2: FRANCE,
+    3: BRITAIN,
+    4: ITALY,
+    5: ITALY,
+    6: RUSSIA,
+    7: NONE
+}
+
+const AH_IT = "ah_it"
+const CP_MO_TABLE = {
+    1: AUSTRIA_HUNGARY,
+    2: AH_IT,
+    3: TURKEY,
+    4: GERMANY,
+    5: NONE,
+    6: NONE
+}
+
+function roll_mandated_offensives() {
+    let ap_roll = roll_die(6)
+    let ap_index = ap_roll
+    let ap_mo = AP_MO_TABLE[ap_index]
+    while (!nation_eligible_for_mo(ap_mo) && ap_index < 7) {
+        ap_index++
+        ap_mo = AP_MO_TABLE[ap_index]
+    }
+
+    if (ap_mo == RUSSIA && game.events.bolshevik_revolution) {
+        ap_mo = NONE
+    }
+
+    if (game.turn == 1 && ap_mo == BRITAIN && game.scenario == HISTORICAL) {
+        ap_mo = FRANCE
+    }
+
+    let cp_roll = roll_die(6)
+    if (game.events.hoffman) {
+        cp_roll++;
+    }
+    let cp_index = cp_roll > 6 ? 6 : cp_roll;
+    let cp_mo = CP_MO_TABLE[cp_index]
+    while (!nation_eligible_for_mo(cp_mo) && cp_index < 6) {
+        cp_index++
+        cp_mo = CP_MO_TABLE[cp_index]
+    }
+
+    if (cp_mo == AH_IT && !nation_at_war(ITALY)) {
+        cp_mo = AUSTRIA_HUNGARY
+    }
+
+    if (cp_mo == GERMANY && game.events.h_l_take_command) {
+        cp_mo = NONE
+    }
+
+    log_h2(`AP rolled ${ap_roll} resulting in a mandated offensive for ${ap_mo}`)
+    log_h2(`CP rolled ${cp_roll} resulting in a mandated offensive for ${cp_mo}`)
+
+    game.ap.mo = ap_mo
+    game.cp.mo = cp_mo
+}
+
+function nation_eligible_for_mo(nation) {
+    if (nation == NONE) return true
+    if (nation == AH_IT) nation = AUSTRIA_HUNGARY
+
+    // TODO: If the nation's capital(s) is/are captured, it is not eligible
+    // TODO: If French Mutiny event has been played, France is not eligible
+    return true
+}
+
 // === GAME STATES ===
 
 //states.etc = {
@@ -232,11 +403,6 @@ states.action_phase = {
     prompt() {
         view.prompt = "Action Phase: Play a card"
     },
-}
-
-function roll_mandated_offensives() {
-    game.ap.mo = 'AP MO' // TODO
-    game.cp.mo = 'CP MO' // TODO
 }
 
 function gen_action_next() {
@@ -271,6 +437,10 @@ function gen_action(action, argument) {
     } else {
         view.actions[action] = 1
     }
+}
+
+function roll_die(sides) {
+    return random(sides) + 1;
 }
 
 function random(range) {
