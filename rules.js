@@ -26,6 +26,7 @@ const TURKEY = "tu"
 const PERSIA = "pe"
 const ARABIA = "ar"
 const EGYPT = "eg"
+const US = "us"
 
 const NONE = "none"
 
@@ -381,6 +382,69 @@ function nation_eligible_for_mo(nation) {
     // TODO: If the nation's capital(s) is/are captured, it is not eligible
     // TODO: If French Mutiny event has been played, France is not eligible
     return true
+}
+
+function satisfies_mo(mo, attackers, defenders, space) {
+    let attacker_nation = mo == AH_IT ? AUSTRIA_HUNGARY : mo;
+    let valid_attacker = attackers.find((a) => {
+        let piece = data.pieces[a]
+        if (piece.nation != attacker_nation)
+            return false
+        if (attacker_nation == BRITAIN &&
+            (piece.counter.startsWith('cnd') ||
+                piece.counter.startsWith('pt') ||
+                piece.counter.startsWith('aus') ||
+                piece.counter.startsWith('ana'))) {
+                return false
+        }
+        return true
+    })
+    if (valid_attacker === undefined)
+        return false
+
+    let valid_defender = defenders.find((d) => {
+        let piece = data.pieces[d]
+        if (attacker_nation == FRANCE || attacker_nation == BRITAIN) {
+            return piece.nation == GERMANY
+        }
+        if (attacker_nation == GERMANY) {
+            return piece.nation == BELGIUM || piece.nation == FRANCE || piece.nation == BRITAIN || piece.nation == US
+        }
+    })
+    if (valid_defender === undefined)
+        return false
+
+    let location = data.spaces[space].nation;
+    if (attacker_nation == FRANCE || attacker_nation == BRITAIN || attacker_nation == GERMANY) {
+        if (location != FRANCE && location != BELGIUM && location != GERMANY) {
+            return false
+        }
+    }
+
+    if (mo == AH_IT) {
+        // All other conditions have passed, so the attack satisfies the MO if the defender is Italian, the attacked
+        // space is Italian, *or* the attacked space traces supply through Italy
+        for (let d of defenders) {
+            if (data.pieces[d].nation == ITALY)
+                return true
+        }
+
+        if (location == ITALY)
+            return true
+
+        let supply_path = get_supply_path(AP, space)
+        for (let s of supply_path) {
+            if (data.pieces[s].nation == ITALY)
+                return true
+        }
+    }
+
+    return true
+}
+
+function get_supply_path(faction, space) {
+    // TODO
+    return []
 }
 
 // === GAME STATES ===
