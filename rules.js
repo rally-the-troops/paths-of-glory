@@ -1,10 +1,12 @@
 "use strict"
 
 const data = require("./data")
+const {cards} = require("../wilderness-war/data");
 
 let game, view
 
 let states = {}
+let events = {}
 
 const AP = "ap"
 const CP = "cp"
@@ -235,6 +237,9 @@ function start_turn() {
 
     game.state = 'action_phase'
     game.active = CP
+    log_br()
+    log_h2(`${game.active}`)
+    log_br()
 }
 
 function deal_cards() {
@@ -447,6 +452,28 @@ function get_supply_path(faction, space) {
     return []
 }
 
+function get_active_player() {
+    if (game.active == AP) {
+        return game.ap
+    }
+    if (game.active == CP) {
+        return game.cp
+    }
+    throw new Error("Active player is not AP or CP")
+}
+
+function play_card(card) {
+    log(`${game.active} played\n${card_name(card)}.`)
+    let active_player = get_active_player()
+    array_remove_item(active_player.hand, card)
+    game.last_card = card
+    // TODO: Deal with combat cards?
+    if (cards[card].remove)
+        active_player.removed.push(card)
+    else
+        active_player.discard.push(card)
+}
+
 // === GAME STATES ===
 
 //states.etc = {
@@ -465,8 +492,81 @@ function get_supply_path(faction, space) {
 states.action_phase = {
     inactive: "Action Phase",
     prompt() {
-        view.prompt = "Action Phase: Play a card"
+        view.prompt = "Action Phase: Play a card or choose an action."
+        let p = get_active_player()
+        for (let i = 0; i < p.hand.length; ++i)
+            gen_card_menu(p.hand[i])
+        if (game.options.can_offer_peace) // TODO: Check for appropriate conditions?
+            gen_action('offer_peace')
+        gen_action('single_op')
     },
+    play_event(card) {
+        push_undo()
+        log_br()
+        play_card(card)
+        events[data.cards[card].event].play()
+    },
+    play_ops(card) {
+        log_br()
+        goto_play_ops(card)
+    },
+    play_sr(card) {
+        log_br()
+        goto_play_sr(card)
+    },
+    play_rps(card) {
+        log_br()
+        goto_play_rps(card)
+    },
+    offer_peace() {
+        log_br()
+        goto_offer_peace()
+    },
+    single_op() {
+        log_br()
+        goto_play_ops(undefined)
+    }
+}
+
+function gen_card_menu(card) {
+    if (can_play_event(card))
+        gen_action('play_event', card)
+    gen_action('play_ops', card)
+    if (can_play_sr(card))
+        gen_action('play_sr', card)
+    if (can_play_rps(card))
+        gen_action('play_rps', card)
+}
+
+function can_play_event(card) {
+    let evt = events[data.cards[card]]
+    return (evt !== undefined && evt.can_play())
+}
+
+function can_play_sr(card) {
+    // TODO: Check if previous card was used for SR
+    return true
+}
+
+function can_play_rps(card) {
+    // TODO: Check if previous card was used for RPs
+    return true
+}
+
+function goto_play_ops(card) {
+
+}
+
+function goto_play_sr(card) {
+
+}
+
+function goto_play_rps(card) {
+
+}
+
+function goto_offer_peace() {
+
 }
 
 function gen_action_next() {
@@ -487,6 +587,10 @@ function gen_action_piece(p) {
 
 function gen_action_discard(c) {
     gen_action('card', c)
+}
+
+function card_name(card) {
+    return `#${card} ${cards[card].name} [${cards[card].ops}/${cards[card].sr}]`
 }
 
 // === COMMON LIBRARY ===

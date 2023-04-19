@@ -138,7 +138,7 @@ function show_card_list(id, list) {
         p.className = "tip"
         p.onmouseenter = () => on_focus_card_tip(c)
         p.onmouseleave = on_blur_card_tip
-        p.textContent = `#${c} ${cards[c].name} [${cards[c].activation}]`
+        p.textContent = `#${c} ${cards[c].name} [${cards[c].ops}/${cards[c].sr}]`
         body.appendChild(p)
     }
 }
@@ -334,7 +334,7 @@ function on_blur_marker(evt) {
 function on_focus_card(evt) {
     let id = evt.target.card
     let card = cards[id]
-    ui.status.textContent = `#${id} ${card.name} [${card.activation}]`
+    ui.status.textContent = `#${id} ${card.name} [${card.ops}/${card.sr}]`
 }
 
 function on_blur_card(evt) {
@@ -797,6 +797,9 @@ function update_map() {
     document.getElementById("ap_deck_size").textContent = view.ap.deck
     document.getElementById("cp_deck_size").textContent = view.cp.deck
 
+    action_button("offer_peace", "Offer Peace")
+    action_button("single_op", "Automatic Operation (1 Op)")
+    action_button("pass", "Pass")
     action_button("next", "Next")
     action_button("end_move", "End move")
     action_button("undo", "Undo")
