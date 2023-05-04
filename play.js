@@ -202,8 +202,60 @@ function on_click_space(evt) {
         if (view.actions && view.actions.space && view.actions.space.includes(evt.target.space)) {
             event.stopPropagation()
             send_action('space', evt.target.space)
+        } else if (view.actions && (view.actions.activate_move || view.actions.activate_attack || view.actions.deactivate)) {
+            let options = activation_menu_options.filter((option) => {
+                return view.actions[option] && view.actions[option].includes(evt.target.space)
+            })
+            if (options.length > 0) {
+                current_popup_card = 0
+                current_popup_space = evt.target.space
+                show_activation_menu(evt, options)
+            }
         }
     }
+}
+
+const activation_menu_options = [
+    'activate_move',
+    'activate_attack',
+    'deactivate'
+]
+
+let current_popup_space = 0
+
+function show_activation_menu(evt, list) {
+    document.querySelectorAll("#activation_popup div").forEach(e => e.classList.remove('enabled'))
+    for (let item of list) {
+        let e = document.getElementById("menu_" + item)
+        e.classList.add('enabled')
+    }
+    let popup = document.getElementById("activation_popup")
+    popup.style.display = 'block'
+    popup.style.left = (evt.clientX-50) + "px"
+    popup.style.top = (evt.clientY-12) + "px"
+}
+
+function hide_activation_menu() {
+    let popup = document.getElementById("activation_popup")
+    popup.style.display = 'none'
+}
+
+function on_activate_move() {
+    send_action('activate_move', current_popup_space)
+    hide_activation_menu()
+    current_popup_space = 0
+}
+
+function on_activate_attack() {
+    send_action('activate_attack', current_popup_space)
+    hide_activation_menu()
+    current_popup_space = 0
+}
+
+function on_deactivate() {
+    send_action('deactivate', current_popup_space)
+    hide_activation_menu()
+    current_popup_space = 0
 }
 
 function on_focus_space(evt) {
@@ -362,7 +414,8 @@ function show_popup_menu(evt, list) {
     popup.style.display = 'block'
     popup.style.left = (evt.clientX-50) + "px"
     popup.style.top = (evt.clientY-12) + "px"
-    cards[current_popup_card].element.classList.add("selected")
+    if (current_popup_card)
+        cards[current_popup_card].element.classList.add("selected")
 }
 
 function hide_popup_menu() {

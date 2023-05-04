@@ -154,14 +154,22 @@ exports.setup = function (seed, scenario, options) {
         log: [],
         undo: [],
         active: null,
+        phasing: null,
         state: null,
         turn: 1,
         vp: 0,
+        ops: 0,
         events: {},
 
         // Units
         location: data.pieces.map(() => 0),
         reduced: [],
+
+        // Spaces
+        activated: {
+            move: [],
+            attack: []
+        },
 
         // AP state
         ap: {
@@ -237,6 +245,7 @@ function start_turn() {
 
     game.state = 'action_phase'
     game.active = CP
+    game.phasing = CP
     log_br()
     log_h2(`${game.active}`)
     log_br()
@@ -259,6 +268,19 @@ function draw_card(deck) {
     let c = deck[i]
     deck.splice(i, 1)
     return c
+}
+
+function discard_card(card, reason) {
+    let active_player = get_active_player()
+
+    if (reason)
+        log(`${game.active} discarded\n${card_name(card)}\n${reason}.`)
+    else
+        log(`${game.active} discarded\n${card_name(card)}.`)
+
+    array_remove_item(active_player.hand, card)
+    game.last_card = card
+    active_player.discard.push(card)
 }
 
 function reshuffle_discard(deck) {
@@ -554,7 +576,13 @@ function can_play_rps(card) {
 }
 
 function goto_play_ops(card) {
-
+    if (card === undefined) {
+        game.ops = 1
+    } else {
+        discard_card(card, 'for ops')
+        game.ops = data.cards[card].ops
+    }
+    game.state = 'activate_spaces'
 }
 
 function goto_play_sr(card) {
@@ -567,6 +595,55 @@ function goto_play_rps(card) {
 
 function goto_offer_peace() {
 
+}
+
+states.activate_spaces = {
+    inactive: "Activate Spaces",
+    prompt() {
+        view.prompt = `Activate spaces: click spaces to activate (${game.ops} ops remaining)`
+        let spaces = []
+        game.location.forEach((loc, p) => {
+            if (loc != 0 && data.pieces[p].faction == game.active)
+                set_add(spaces, loc)
+        })
+        spaces.forEach((s) => {
+            if (set_has(game.activated.move, s) || set_has(game.activated.attack, s)) {
+                gen_action('deactivate', s)
+            } else if (game.ops >= cost_to_activate(s)) {
+                gen_action('activate_move', s)
+                gen_action('activate_attack', s)
+            }
+        })
+        gen_action_next()
+    },
+    deactivate(s) {
+        push_undo()
+        if (set_has(game.activated.move, s)) {
+            game.ops += cost_to_activate(s)
+            set_delete(game.activated.move, s)
+        } else if (set_has(game.activated.attack, s)) {
+            game.ops += cost_to_activate(s)
+            set_delete(game.activated.attack, s)
+        }
+    },
+    activate_move(s) {
+        push_undo()
+        set_add(game.activated.move, s)
+        game.ops -= cost_to_activate(s)
+    },
+    activate_attack(s) {
+        push_undo()
+        set_add(game.activated.attack, s)
+        game.ops -= cost_to_activate(s)
+    },
+    next() {
+        // TODO
+    }
+}
+
+function cost_to_activate(space) {
+    // TODO
+    return 1
 }
 
 function gen_action_next() {

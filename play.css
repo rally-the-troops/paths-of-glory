@@ -160,9 +160,9 @@ aside { width: 220px; }
 #removed { top: 100px; left: 100px; z-index: 98; }
 #discard { top: 100px; left: 425px; z-index: 99; }
 
-/* CARD MENU */
+/* POPUP MENUS */
 
-#popup {
+.popup_menu {
     position: fixed;
     user-select: none;
     background-color: white;
@@ -175,11 +175,11 @@ aside { width: 220px; }
     display: none;
     border: 1px solid black;
 }
-#popup div { padding: 3pt 8pt; color: gray; display: none; }
-#popup div.enabled { color: black; display: block; }
-#popup div.enabled:hover { background-color: black; color: white; }
-#popup div.always { display: block; }
-body:not(.shift) #popup #menu_discard { display: none; }
+.popup_menu div { padding: 3pt 8pt; color: gray; display: none; }
+.popup_menu div.enabled { color: black; display: block; }
+.popup_menu div.enabled:hover { background-color: black; color: white; }
+.popup_menu div.always { display: block; }
+body:not(.shift) .popup_menu #menu_discard { display: none; }
 
 /* MAP */
 

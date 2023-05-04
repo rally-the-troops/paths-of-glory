@@ -16,11 +16,17 @@
 </head>
 <body class="bevel">
 
-<div id="popup" onmouseleave="hide_popup_menu()">
+<div id="popup" class="popup_menu" onmouseleave="hide_popup_menu()">
   <div id="menu_play_event" class="always" onclick="on_play_event()">Play Event</div>
   <div id="menu_play_ops" class="always" onclick="on_play_ops()">Operations</div>
   <div id="menu_play_sr" class="always" onclick="on_play_sr()">Strategic Redeployment</div>
   <div id="menu_play_rps" class="always" onclick="on_play_rps()">Replacement Points</div>
+</div>
+
+<div id="activation_popup" class="popup_menu" onmouseleave="hide_activation_menu()">
+  <div id="menu_activate_move" class="always" onclick="on_activate_move()">Move</div>
+  <div id="menu_activate_attack" class="always" onclick="on_activate_attack()">Attack</div>
+  <div id="menu_deactivate" class="always" onclick="on_deactivate()">Deactivate</div>
 </div>
 
 <div id="removed" class="card_list_dialog hide">
