@@ -1,7 +1,10 @@
 "use strict"
 
-const DEBUG_SPACES = true
-const DEBUG_CONNECTIONS = true
+const DEBUG_SPACES = false
+const DEBUG_CONNECTIONS = false
+
+const AP = "ap"
+const CP = "cp"
 
 const AP_MO_MARKER = "marker small ap_mo "
 const CP_MO_MARKER = "marker small cp_mo "
@@ -85,6 +88,13 @@ function on_blur_last_card() {
     document.getElementById("tooltip").classList = "card"
 }
 
+function on_log_line(text, cn) {
+    let p = document.createElement("div")
+    if (cn) p.className = cn
+    p.innerHTML = text
+    return p
+}
+
 function sub_space_name(match, p1, offset, string) {
     let s = p1 | 0
     let n = spaces[s].name
@@ -163,14 +173,18 @@ const marker_info = {
     ap: {
     },
     cp: {
-    }
+    },
+    move: { name: "Move", counter: "marker small activate_move" },
+    attack: { name: "Attack", counter: "marker small activate_attack" }
 }
 
 let markers = {
     ap: {
     },
     cp: {
-    }
+    },
+    move: [],
+    attack: []
 }
 
 function toggle_counters() {
@@ -289,7 +303,7 @@ function on_blur_space(evt) {
     let id = evt.target.space
     ui.status.textContent = ""
 
-    if (DEBUG_CONNECTIONS) {
+    if (DEBUG_CONNECTIONS || DEBUG_SPACES) {
         spaces.forEach(n => n.element && n.element.classList.remove('highlight'))
     }
 }
@@ -311,7 +325,7 @@ function blur_stack() {
 }
 
 function is_small_stack(stk) {
-    return stk.length <= 1 || (stack_piece_count(stk) === 1 && stk.length <= 2)
+    return stk.length <= 1 //|| (stack_piece_count(stk) === 1 && stk.length <= 2)
 }
 
 function focus_stack(stack) {
@@ -326,7 +340,7 @@ function focus_stack(stack) {
 
 document.getElementById("map").addEventListener("mousedown", evt => {
     if (evt.button === 0) {
-        hide_supply()
+        //hide_supply()
         blur_stack()
     }
 })
@@ -476,6 +490,37 @@ function on_play_rps() {
 }
 
 // BUILD UI
+
+
+function build_activation_marker(space_id, activation_type) {
+    let list = markers[activation_type]
+    let marker = list.find(e => e.space_id === space_id)
+    if (marker)
+        return marker.element
+    marker = { space_id: space_id, name: marker_info[activation_type].name, type: activation_type, element: null }
+    let elt = marker.element = document.createElement("div")
+    elt.marker = marker
+    elt.className = marker_info[activation_type].counter
+    elt.addEventListener("mousedown", on_click_marker)
+    elt.addEventListener("mouseenter", on_focus_marker)
+    elt.addEventListener("mouseleave", on_blur_marker)
+    //if (what === 'raids')
+    //    elt.my_size = 36
+    //else
+    elt.my_size = 45
+    list.push(marker)
+    ui.markers.appendChild(elt)
+    return marker.element
+}
+
+function destroy_activation_marker(space_id, activation_type) {
+    let list = markers[activation_type]
+    let ix = list.findIndex(e => e.space_id === space_id)
+    if (ix >= 0) {
+        list[ix].element.remove()
+        list.splice(ix, 1)
+    }
+}
 
 function build_space(id) {
     let space = spaces[id]
@@ -724,6 +769,19 @@ function update_space(s) {
     let sx = space.x/2 + Math.round(space.w/2) - 45
     let sy = space.y/2 + Math.round(space.h/2) - 45
 
+    let activeStack = view.active == AP ? apStack : cpStack;
+    if (view.activated.move.includes(s)) {
+        push_stack(activeStack, 0, build_activation_marker(s, 'move'))
+    } else {
+        destroy_activation_marker(s, 'move')
+    }
+
+    if (view.activated.attack.includes(s)) {
+        push_stack(activeStack, 0, build_activation_marker(s, 'attack'))
+    } else {
+        destroy_activation_marker(s, 'attack')
+    }
+
     function marker(type) {
         if (view.cp[type].includes(s))
             push_stack(cpStack, 0, build_faction_marker(s, 'cp', type))
@@ -765,6 +823,15 @@ function update_space(s) {
         space.element.classList.add("highlight")
     else
         space.element.classList.remove("highlight")
+
+    if (view.actions &&
+        ((view.actions.activate_move && view.actions.activate_move.includes(s)) ||
+            (view.actions.activate_attack && view.actions.activate_attack.includes(s)) ||
+            (view.actions.deactivate && view.actions.deactivate.includes(s)))) {
+        space.element.classList.add("highlight")
+    } else {
+        space.element.classList.remove("highlight")
+    }
 
     if (view.where === s)
         space.element.classList.add("selected")

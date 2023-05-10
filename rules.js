@@ -98,6 +98,7 @@ exports.view = function(state, current) {
         turn: game.turn,
         vp: game.vp,
         last_card: game.last_card,
+        activated: game.activated,
         ap: {
             deck: game.ap.deck.length,
             hand: game.ap.hand.length,

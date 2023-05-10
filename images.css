@@ -13,6 +13,9 @@
 
 .marker.vps{background-image:url(images/vp.png)}
 
+.marker.activate_move{background-image:url(images/activate_move.png)}
+.marker.activate_attack{background-image:url(images/activate_attack.png)}
+
 .ge_1_army{background-image:url(images/pieces/ge_army01.png)}
 .ge_1_army.reduced{background-image:url(images/pieces/ge_army01_back.png)}
 .ge_2_army{background-image:url(images/pieces/ge_army02.png)}
