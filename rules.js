@@ -1,7 +1,7 @@
 "use strict"
 
 const data = require("./data")
-const {cards} = require("../wilderness-war/data");
+const {cards} = require("./data");
 
 let game, view
 
