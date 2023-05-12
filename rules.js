@@ -722,15 +722,16 @@ states.choose_move_space = {
 }
 
 states.choose_pieces_to_move = {
-    inactive: 'Choose Pieces to Move',
+    inactive: 'Choose Units to Move',
     prompt() {
-        view.prompt = 'Choose pieces to move'
+        view.prompt = `Choose the units to move from ${data.spaces[game.move.initial].name}`
         for_each_piece_in_space(game.move.initial, (p) => {
             if (get_piece_mf(p) > 0)
                 gen_action_piece(p)
         })
+        // TODO: Add an entrench action when appropriate
         if (game.move.pieces.length > 0)
-            gen_action_next()
+            gen_action('move')
         else
             gen_action('done')
         gen_action_undo()
@@ -742,7 +743,7 @@ states.choose_pieces_to_move = {
             game.move.pieces.push(p)
         }
     },
-    next() {
+    move() {
         push_undo()
         game.state = 'move_stack'
     },
@@ -779,17 +780,24 @@ states.move_stack = {
     piece(p) {
         push_undo()
         array_remove_item(game.move.pieces, p)
+        if (game.move.pieces.length == 0) {
+            end_move_stack()
+        }
     },
     end_move() {
         push_undo()
-        if (get_pieces_in_space(game.move.initial).length > 0) {
-            game.move.current = game.move.initial
-            game.move.pieces = []
-            game.state = 'choose_pieces_to_move'
-        } else {
-            end_move_activation()
-            goto_next_activation()
-        }
+        end_move_stack()
+    }
+}
+
+function end_move_stack() {
+    if (get_pieces_in_space(game.move.initial).length > 0) {
+        game.move.current = game.move.initial
+        game.move.pieces = []
+        game.state = 'choose_pieces_to_move'
+    } else {
+        end_move_activation()
+        goto_next_activation()
     }
 }
 
