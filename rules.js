@@ -674,9 +674,23 @@ states.activate_spaces = {
     }
 }
 
+function start_move_activation() {
+    game.move = {
+        initial: 0,
+        current: 0,
+        pieces: []
+    }
+    game.state = 'choose_move_space'
+}
+
+function end_move_activation() {
+    array_remove_item(game.activated.move, game.move.initial)
+    game.move = null
+}
+
 function goto_next_activation() {
     if (game.activated.move.length > 0) {
-        goto_move_phase()
+        start_move_activation()
     } else if (game.activated.attack.length > 0) {
         game.state = 'choose_attack_space'
     } else {
@@ -688,15 +702,6 @@ function goto_end_activations() {
     // TODO: This should go to the attrition phase
     game.active = game.active === CP ? AP : CP
     game.state = 'action_phase'
-}
-
-function goto_move_phase() {
-    game.move = {
-        initial: 0,
-        current: 0,
-        pieces: []
-    }
-    game.state = 'choose_move_space'
 }
 
 states.choose_move_space = {
@@ -743,8 +748,7 @@ states.choose_pieces_to_move = {
     },
     done() {
         push_undo()
-        array_remove_item(game.activated.move, game.move.initial)
-        game.move = null
+        end_move_activation()
         goto_next_activation()
     }
 }
@@ -770,6 +774,7 @@ states.move_stack = {
             game.location[p] = s
         })
         game.move.current = s
+        // TODO: Update control
     },
     piece(p) {
         push_undo()
@@ -777,9 +782,14 @@ states.move_stack = {
     },
     end_move() {
         push_undo()
-        game.move.current = game.move.initial
-        game.move.pieces = []
-        game.state = 'choose_pieces_to_move'
+        if (get_pieces_in_space(game.move.initial).length > 0) {
+            game.move.current = game.move.initial
+            game.move.pieces = []
+            game.state = 'choose_pieces_to_move'
+        } else {
+            end_move_activation()
+            goto_next_activation()
+        }
     }
 }
 
@@ -866,6 +876,8 @@ events.guns_of_august = {
         const KOBLENZ = 41
         const GE_1_ARMY = 1
         const GE_2_ARMY = 2
+
+        push_undo()
 
         // TODO: Destroy the Liege fort
         // TODO: Update war status?

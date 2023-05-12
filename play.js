@@ -808,14 +808,14 @@ function update_space(s) {
     })
 
     if (apStack.length > 0 && cpStack.length > 0) {
-        layout_stack(cpStack, sx - 27, sy, -1)
-        layout_stack(apStack, sx + 27, sy, 1)
+        layout_stack(cpStack, sx + 27, sy, 1)
+        layout_stack(apStack, sx - 27, sy, -1)
     } else {
         if (apStack.length > 0) {
             layout_stack(apStack, sx, sy, 1)
         }
         if (cpStack.length > 0) {
-            layout_stack(cpStack, sx, sy, -1)
+            layout_stack(cpStack, sx, sy, 1)
         }
     }
 
