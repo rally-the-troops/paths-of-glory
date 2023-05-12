@@ -196,16 +196,26 @@ exports.setup = function (seed, scenario, options) {
     log_h1("Paths of Glory")
 
     // TODO: Do real scenario setup and remove this
-    setup_piece('ge', '1 Army', 'Berlin')
-    setup_piece('ge', '2 Army', 'Sedan')
-    setup_piece('fr', '1 Army', 'Paris')
-    setup_piece('fr', '2 Army', 'Cambrai')
-    setup_piece('fr', 'FR Corps', 'Milan')
-    setup_piece('ge', 'GE Corps', 'Milan')
-    setup_piece('fr', 'FR Corps', 'Rome')
-    setup_piece('fr', 'FR Corps', 'Rome')
-    setup_piece('fr', 'FR Corps', 'Rome')
-    setup_piece('fr', 'FR Corps', 'Salonika')
+    setup_piece('ge', '1 Army', 'Aachen')
+    setup_piece('ge', '2 Army', 'Koblenz')
+    setup_piece('ge', '3 Army', 'Koblenz')
+    setup_piece('ge', '4 Army', 'Metz')
+    setup_piece('ge', '5 Army', 'Metz')
+    setup_piece('ge', '6 Army', 'Strasbourg')
+    setup_piece('ge', '7 Army', 'Mulhouse', true)
+    setup_piece('ge', 'GE Corps', 'Bremen', true)
+    setup_piece('fr', '1 Army', 'Nancy')
+    setup_piece('fr', '2 Army', 'Nancy')
+    setup_piece('fr', '3 Army', 'Verdun')
+    setup_piece('fr', '4 Army', 'Verdun')
+    setup_piece('fr', '5 Army', 'Sedan')
+    setup_piece('fr', '6 Army', 'Paris', true)
+    setup_piece('fr', '9 Army', 'Bar le Duc', true)
+    setup_piece('fr', 'FR Corps', 'Belfort')
+    setup_piece('fr', 'FR Corps', 'Belfort')
+    setup_piece('fr', 'FR Corps', 'Grenoble')
+    setup_piece('be', '1 Army', 'Antwerp')
+    setup_piece('br', 'BEF', 'Brussels')
 
     log_h1(scenario)
 
@@ -308,10 +318,13 @@ function end_turn() {
     // TODO: Check for end of game
 }
 
-function setup_piece(nation, unit, space) {
+function setup_piece(nation, unit, space, reduced) {
     let where = find_space(space)
     let who = find_unused_piece(nation, unit)
     game.location[who] = where
+    if (reduced) {
+        game.reduced.push(who)
+    }
 }
 
 function find_unused_piece(nation, name) {
@@ -579,7 +592,7 @@ function gen_card_menu(card) {
 }
 
 function can_play_event(card) {
-    let evt = events[data.cards[card]]
+    let evt = events[data.cards[card].event]
     return (evt !== undefined && evt.can_play())
 }
 
@@ -839,6 +852,31 @@ function gen_action_undo() {
 
 function card_name(card) {
     return `#${card} ${cards[card].name} [${cards[card].ops}/${cards[card].sr}]`
+}
+
+// === CARD EVENTS ===
+
+events.guns_of_august = {
+    can_play() {
+        // TODO: Check if it's the first action of the first turn
+        return true
+    },
+    play() {
+        const LIEGE = 33
+        const KOBLENZ = 41
+        const GE_1_ARMY = 1
+        const GE_2_ARMY = 2
+
+        // TODO: Destroy the Liege fort
+        // TODO: Update war status?
+
+        game.location[GE_1_ARMY] = LIEGE
+        game.location[GE_2_ARMY] = LIEGE
+        game.activated.attack.push(LIEGE)
+        game.activated.attack.push(KOBLENZ)
+
+        goto_next_activation()
+    }
 }
 
 // === COMMON LIBRARY ===

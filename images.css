@@ -24,6 +24,31 @@
 .ge_3_army.reduced{background-image:url(images/pieces/ge_army03_back.png)}
 .ge_4_army{background-image:url(images/pieces/ge_army04.png)}
 .ge_4_army.reduced{background-image:url(images/pieces/ge_army04_back.png)}
+.ge_5_army{background-image:url(images/pieces/ge_army05.png)}
+.ge_5_army.reduced{background-image:url(images/pieces/ge_army05_back.png)}
+.ge_6_army{background-image:url(images/pieces/ge_army06.png)}
+.ge_6_army.reduced{background-image:url(images/pieces/ge_army06_back.png)}
+.ge_7_army{background-image:url(images/pieces/ge_army07.png)}
+.ge_7_army.reduced{background-image:url(images/pieces/ge_army07_back.png)}
+.ge_8_army{background-image:url(images/pieces/ge_army08.png)}
+.ge_8_army.reduced{background-image:url(images/pieces/ge_army08_back.png)}
+.ge_9_army{background-image:url(images/pieces/ge_army09.png)}
+.ge_9_army.reduced{background-image:url(images/pieces/ge_army09_back.png)}
+.ge_10_army{background-image:url(images/pieces/ge_army10.png)}
+.ge_10_army.reduced{background-image:url(images/pieces/ge_army10_back.png)}
+.ge_11_army{background-image:url(images/pieces/ge_army11.png)}
+.ge_11_army.reduced{background-image:url(images/pieces/ge_army11_back.png)}
+.ge_12_army{background-image:url(images/pieces/ge_army12.png)}
+.ge_12_army.reduced{background-image:url(images/pieces/ge_army12_back.png)}
+.ge_14_army{background-image:url(images/pieces/ge_army14.png)}
+.ge_14_army.reduced{background-image:url(images/pieces/ge_army14_back.png)}
+.ge_17_army{background-image:url(images/pieces/ge_army17.png)}
+.ge_17_army.reduced{background-image:url(images/pieces/ge_army17_back.png)}
+.ge_18_army{background-image:url(images/pieces/ge_army18.png)}
+.ge_18_army.reduced{background-image:url(images/pieces/ge_army18_back.png)}
+
+.ge_corps{background-image:url(images/pieces/ge_corps.png)}
+.ge_corps.reduced{background-image:url(images/pieces/ge_corps_back.png)}
 
 .fr_1_army{background-image:url(images/pieces/fr_army01.png)}
 .fr_1_army.reduced{background-image:url(images/pieces/fr_army01_back.png)}
@@ -33,11 +58,39 @@
 .fr_3_army.reduced{background-image:url(images/pieces/fr_army03_back.png)}
 .fr_4_army{background-image:url(images/pieces/fr_army04.png)}
 .fr_4_army.reduced{background-image:url(images/pieces/fr_army04_back.png)}
+.fr_5_army{background-image:url(images/pieces/fr_army05.png)}
+.fr_5_army.reduced{background-image:url(images/pieces/fr_army05_back.png)}
+.fr_6_army{background-image:url(images/pieces/fr_army06.png)}
+.fr_6_army.reduced{background-image:url(images/pieces/fr_army06_back.png)}
+.fr_7_army{background-image:url(images/pieces/fr_army07.png)}
+.fr_7_army.reduced{background-image:url(images/pieces/fr_army07_back.png)}
+.fr_9_army{background-image:url(images/pieces/fr_army09.png)}
+.fr_9_army.reduced{background-image:url(images/pieces/fr_army09_back.png)}
+.fr_10_army{background-image:url(images/pieces/fr_army10.png)}
+.fr_10_army.reduced{background-image:url(images/pieces/fr_army10_back.png)}
+.fr_orient_army{background-image:url(images/pieces/orient_army.png)}
+.fr_orient_army.reduced{background-image:url(images/pieces/orient_army_back.png)}
 
-.ge_corps{background-image:url(images/pieces/ge_corps.png)}
-.ge_corps.reduced{background-image:url(images/pieces/ge_corps_back.png)}
 .fr_corps{background-image:url(images/pieces/fr_corps.png)}
 .fr_corps.reduced{background-image:url(images/pieces/fr_corps_back.png)}
+
+.be_1_army{background-image: url(images/pieces/be_army.png)}
+.be_1_army.reduced{background-image: url(images/pieces/be_army_back.png)}
+.be_corps{background-image: url(images/pieces/be_corps.png)}
+.be_corps.reduced{background-image: url(images/pieces/be_corps_back.png)}
+
+.br_bef_army{background-image: url(images/pieces/bef_army.png)}
+.br_bef_army.reduced{background-image: url(images/pieces/bef_army_back.png)}
+.br_1_army{background-image: url(images/pieces/br_army01.png)}
+.br_1_army.reduced{background-image: url(images/pieces/br_army01_back.png)}
+.br_2_army{background-image: url(images/pieces/br_army02.png)}
+.br_2_army.reduced{background-image: url(images/pieces/br_army02_back.png)}
+.br_3_army{background-image: url(images/pieces/br_army03.png)}
+.br_3_army.reduced{background-image: url(images/pieces/br_army03_back.png)}
+.br_4_army{background-image: url(images/pieces/br_army04.png)}
+.br_4_army.reduced{background-image: url(images/pieces/br_army04_back.png)}
+.br_5_army{background-image: url(images/pieces/br_army05.png)}
+.br_5_army.reduced{background-image: url(images/pieces/br_army05_back.png)}
 
 .card_ap_0{background-image:url(images/cards/cardback_ap.svg)}
 .card_ap_1{background-image:url(images/cards/card_ap01.svg)}

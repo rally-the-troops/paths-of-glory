@@ -948,6 +948,7 @@ const cards = [
         "rpge": 2,
         "rptu": 1,
         "name": "Guns of August",
+        "event": "guns_of_august",
         "effect": "May only be played in the first Action Round of the August 1914 turn. The Liege fort is destroyed. Place the GE 1st and 2nd Armies in the Liege space. The GE 1st, 2nd, and 3rd Armies are activated for Combat."
     },
     {
