@@ -922,6 +922,7 @@ function update_map() {
     action_button("pass", "Pass")
     action_button("next", "Next")
     action_button("end_move", "End move")
+    action_button("done", "Done")
     action_button("undo", "Undo")
 }
 

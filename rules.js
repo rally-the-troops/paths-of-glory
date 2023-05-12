@@ -333,6 +333,20 @@ function find_space(name) {
     throw new Error(`Could not find space named ${name}`)
 }
 
+function for_each_piece_in_space(s, f) {
+    for (let p = 1; p < data.pieces.length; ++p)
+        if (game.location[p] === s)
+            f(p)
+}
+
+function get_pieces_in_space(s) {
+    let pieces = []
+    for (let p = 1; p < data.pieces.length; ++p)
+        if (game.location[p] === s)
+            pieces.push(p)
+    return pieces
+}
+
 function nation_at_war(nation) {
     // TODO
     return true
@@ -475,6 +489,10 @@ function get_supply_path(faction, space) {
     return []
 }
 
+function get_piece_mf(p) {
+    return game.reduced.includes(p) ? data.pieces[p].rmf : data.pieces[p].mf
+}
+
 function get_active_player() {
     if (game.active == AP) {
         return game.ap
@@ -524,7 +542,6 @@ states.action_phase = {
         gen_action('single_op')
     },
     play_event(card) {
-        push_undo()
         log_br()
         play_card(card)
         events[data.cards[card].event].play()
@@ -587,15 +604,15 @@ function goto_play_ops(card) {
 }
 
 function goto_play_sr(card) {
-
+    // TODO
 }
 
 function goto_play_rps(card) {
-
+    // TODO
 }
 
 function goto_offer_peace() {
-
+    // TODO
 }
 
 states.activate_spaces = {
@@ -615,6 +632,7 @@ states.activate_spaces = {
                 gen_action('activate_attack', s)
             }
         })
+        gen_action_undo()
         gen_action_next()
     },
     deactivate(s) {
@@ -638,13 +656,156 @@ states.activate_spaces = {
         game.ops -= cost_to_activate(s)
     },
     next() {
-        // TODO
+        game.ops = 0
+        goto_next_activation()
     }
 }
 
-function cost_to_activate(space) {
-    // TODO
-    return 1
+function goto_next_activation() {
+    if (game.activated.move.length > 0) {
+        goto_move_phase()
+    } else if (game.activated.attack.length > 0) {
+        game.state = 'choose_attack_space'
+    } else {
+        goto_end_activations()
+    }
+}
+
+function goto_end_activations() {
+    // TODO: This should go to the attrition phase
+    game.active = game.active === CP ? AP : CP
+    game.state = 'action_phase'
+}
+
+function goto_move_phase() {
+    game.move = {
+        initial: 0,
+        current: 0,
+        pieces: []
+    }
+    game.state = 'choose_move_space'
+}
+
+states.choose_move_space = {
+    inactive: 'Choose Space to Move',
+    prompt() {
+        view.prompt = `Choose which space to begin moving`
+        game.activated.move.forEach((s) => {
+            gen_action_space(s)
+        })
+        gen_action_undo()
+    },
+    space(s) {
+        push_undo()
+        game.move.initial = s
+        game.move.current = s
+        game.state = 'choose_pieces_to_move'
+    }
+}
+
+states.choose_pieces_to_move = {
+    inactive: 'Choose Pieces to Move',
+    prompt() {
+        view.prompt = 'Choose pieces to move'
+        for_each_piece_in_space(game.move.initial, (p) => {
+            if (get_piece_mf(p) > 0)
+                gen_action_piece(p)
+        })
+        if (game.move.pieces.length > 0)
+            gen_action_next()
+        else
+            gen_action('done')
+        gen_action_undo()
+    },
+    piece(p) {
+        if (game.move.pieces.includes(p)) {
+            array_remove_item(game.move.pieces, p)
+        } else {
+            game.move.pieces.push(p)
+        }
+    },
+    next() {
+        push_undo()
+        game.state = 'move_stack'
+    },
+    done() {
+        push_undo()
+        array_remove_item(game.activated.move, game.move.initial)
+        game.move = null
+        goto_next_activation()
+    }
+}
+
+states.move_stack = {
+    inactive: 'Move Stack',
+    prompt() {
+        view.prompt = 'Move the stack'
+        let space = data.spaces[game.move.current]
+        space.connections.forEach((conn) => {
+            // TODO: Check for legality of move to each adjacent space
+            gen_action_space(conn)
+        })
+        game.move.pieces.forEach((p) => {
+            gen_action_piece(p)
+        })
+        gen_action_undo()
+        gen_action('end_move') // TODO: Only if it's legal to end the move here
+    },
+    space(s) {
+        push_undo()
+        game.move.pieces.forEach((p) => {
+            game.location[p] = s
+        })
+        game.move.current = s
+    },
+    piece(p) {
+        push_undo()
+        array_remove_item(game.move.pieces, p)
+    },
+    end_move() {
+        push_undo()
+        game.move.current = game.move.initial
+        game.move.pieces = []
+        game.state = 'choose_pieces_to_move'
+    }
+}
+
+const spaces_where_belgian_units_treated_as_british = [
+    16, // Amiens
+    17, // Calais
+    18, // Ostend
+    32  // Antwerp
+]
+
+function cost_to_activate(space, type) {
+    let nations = []
+    for_each_piece_in_space(space, (piece) => {
+        let n = data.pieces[piece].nation
+        if (n === "sn") n = TURKEY
+        if (n === MONTENEGRO) n = SERBIA
+        set_add(nations, n)
+    })
+    let cost = nations.length
+
+    if (spaces_where_belgian_units_treated_as_british.includes(space) &&
+        nations.includes(BRITAIN) &&
+        nations.includes(BELGIUM)) {
+        cost--
+    }
+
+    if ((data.spaces[space].nation == GERMANY || data.spaces[space].nation == FRANCE) &&
+        nations.includes(FRANCE) &&
+        nations.includes(US)) {
+        cost--
+    }
+
+    // TODO: Sud Army and 11th Army events modify the activation cost
+
+    // TODO: After Fall of the Tsar, spaces with Russian units cost 1 per unit for combat only
+
+    // TODO: Cost for activating the MEF army activating supply through the MEF beachhead
+
+    return cost;
 }
 
 function gen_action_next() {
@@ -665,6 +826,15 @@ function gen_action_piece(p) {
 
 function gen_action_discard(c) {
     gen_action('card', c)
+}
+
+function gen_action_undo() {
+    if (!view.actions)
+        view.actions = {}
+    if (game.undo && game.undo.length > 0)
+        view.actions.undo = 1
+    else
+        view.actions.undo = 0
 }
 
 function card_name(card) {
