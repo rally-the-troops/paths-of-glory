@@ -264,7 +264,7 @@ function start_turn() {
 
 function deal_cards() {
     while (game.ap.hand.length < game.options.hand_size) {
-        game.ap.hand.push(draw_card(game.cp.deck))
+        game.ap.hand.push(draw_card(game.ap.deck))
     }
     while (game.cp.hand.length < game.options.hand_size) {
         game.cp.hand.push(draw_card(game.cp.deck))
