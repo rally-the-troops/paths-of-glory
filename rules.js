@@ -99,6 +99,8 @@ exports.view = function(state, current) {
         vp: game.vp,
         last_card: game.last_card,
         activated: game.activated,
+        move: game.move,
+        combat: game.combat,
         ap: {
             deck: game.ap.deck.length,
             hand: game.ap.hand.length,
@@ -113,6 +115,7 @@ exports.view = function(state, current) {
         },
         location: game.location,
         reduced: game.reduced,
+        control: game.control,
         events: game.events
     }
 
@@ -171,6 +174,7 @@ exports.setup = function (seed, scenario, options) {
             move: [],
             attack: []
         },
+        control: data.spaces.map((s) => s.faction === CP ? 1 : 0),
 
         // AP state
         ap: {
@@ -634,8 +638,9 @@ states.activate_spaces = {
         view.prompt = `Activate spaces: click spaces to activate (${game.ops} ops remaining)`
         let spaces = []
         game.location.forEach((loc, p) => {
-            if (loc != 0 && data.pieces[p].faction == game.active)
+            if (loc != 0 && data.pieces[p].faction == game.active) {
                 set_add(spaces, loc)
+            }
         })
         spaces.forEach((s) => {
             if (set_has(game.activated.move, s) || set_has(game.activated.attack, s)) {
@@ -678,6 +683,7 @@ function start_move_activation() {
     game.move = {
         initial: 0,
         current: 0,
+        spaces_moved: 0,
         pieces: []
     }
     game.state = 'choose_move_space'
@@ -711,10 +717,22 @@ states.choose_move_space = {
         game.activated.move.forEach((s) => {
             gen_action_space(s)
         })
+        game.location.forEach((loc, piece) => {
+            if (game.activated.move.includes(loc)) {
+                gen_action_piece(piece)
+            }
+        })
         gen_action_undo()
     },
     space(s) {
         push_undo()
+        game.move.initial = s
+        game.move.current = s
+        game.state = 'choose_pieces_to_move'
+    },
+    piece(p) {
+        push_undo()
+        let s = game.location[p]
         game.move.initial = s
         game.move.current = s
         game.state = 'choose_pieces_to_move'
@@ -725,16 +743,30 @@ states.choose_pieces_to_move = {
     inactive: 'Choose Units to Move',
     prompt() {
         view.prompt = `Choose the units to move from ${data.spaces[game.move.initial].name}`
+
+        let selected_all = true
         for_each_piece_in_space(game.move.initial, (p) => {
-            if (get_piece_mf(p) > 0)
+            if (get_piece_mf(p) > 0) {
+                if (!game.move.pieces.includes(p))
+                    selected_all = false
                 gen_action_piece(p)
+            }
         })
         // TODO: Add an entrench action when appropriate
+
+        if (!selected_all)
+            gen_action('pick_up_all')
+
         if (game.move.pieces.length > 0)
             gen_action('move')
         else
             gen_action('done')
         gen_action_undo()
+    },
+    pick_up_all() {
+        for_each_piece_in_space(game.move.initial, (p) => {
+            game.move.pieces.push(p)
+        })
     },
     piece(p) {
         if (game.move.pieces.includes(p)) {
@@ -758,24 +790,39 @@ states.move_stack = {
     inactive: 'Move Stack',
     prompt() {
         view.prompt = 'Move the stack'
-        let space = data.spaces[game.move.current]
-        space.connections.forEach((conn) => {
-            // TODO: Check for legality of move to each adjacent space
-            gen_action_space(conn)
-        })
+        let lowest_mf = 1000
         game.move.pieces.forEach((p) => {
-            gen_action_piece(p)
+            let mf = get_piece_mf(p)
+            if (mf < lowest_mf)
+                lowest_mf = mf
         })
+
+        if (game.move.spaces_moved < lowest_mf) {
+            let space = data.spaces[game.move.current]
+            space.connections.forEach((conn) => {
+                if (can_move_to(conn))
+                    gen_action_space(conn)
+            })
+        }
+
+        game.move.pieces.forEach((p) => {
+            if (can_drop_piece(p, game.move.current))
+                gen_action_piece(p)
+        })
+
         gen_action_undo()
-        gen_action('end_move') // TODO: Only if it's legal to end the move here
+
+        if (can_end_move(game.move.current))
+            gen_action('end_move')
     },
     space(s) {
         push_undo()
         game.move.pieces.forEach((p) => {
             game.location[p] = s
         })
+        game.move.spaces_moved++
         game.move.current = s
-        // TODO: Update control
+        set_control(s, game.active)
     },
     piece(p) {
         push_undo()
@@ -790,9 +837,68 @@ states.move_stack = {
     }
 }
 
+function set_control(s, faction) {
+    // TODO: Handle special cases for control:
+    //
+    // The ANA unit is an exception to case 11.1.14. The ANA does not convert CP spaces it enters. Instead any CP space
+    // (except for a besieged fort space) the ANA occupies is considered under Allied control. The instant the ANA
+    // leaves such a space it reverts back to CP control. The ANA has no effect on spaces converted by other Allied
+    // units—these remain Allied after the ANA exits.
+    //
+    // The Turkish SN Corps converts spaces per 11.1.14. However, during the Attrition Phase, any spaces it converts
+    // (other than the space it occupies) that cannot trace a supply line suffer Attrition. The Libya space suffers
+    // normal attrition and can be controlled by the Allied player through normal movement.
+    game.control[s] = faction === CP ? 1 : 0
+}
+
+function can_move_to(s) {
+    let contains_enemy = false
+    for_each_piece_in_space(s, (p) => {
+        if (data.pieces[p].faction !== game.active)
+            contains_enemy = true
+    })
+    if (contains_enemy)
+        return false
+
+    // Dashed lines indicate there are restrictions as to which nationalities may move (or attack) across those lines.
+
+    // No units may enter a MEF space unless the MEF Beachhead marker is in the space.
+
+    // Units may not enter a space in a neutral nation, but all units may freely enter any nation immediately after it
+    // enters the war. Exceptions: Limited Greek Entry
+
+    // Units may always enter Albania. Albanian spaces are considered Allied Controlled at Start for SR purposes.
+    // Albanian spaces check Attrition supply by tracing normally to an Allied supply source or tracing to Taranto
+    // even while Italy is still Neutral.
+
+    // Neither the BEF Corps nor Army may move in or attack into any space outside Britain, France, Belgium, and
+    // Germany.
+
+    // TODO: Check for legality of move
+    return true
+}
+
+function can_drop_piece(p, s) {
+    // TODO: Determine if it's legal to drop units here
+    return true
+}
+
+function can_end_move(s) {
+    // TODO: Determine if it's legal to end the move here
+
+    // Units may move through but not end their movement in a space containing an Attack marker.
+
+    // Amiens, Calais & Ostend: Until either the Race to the Sea Event Card is played or the CP War Status is 4 or
+    // higher, Central Powers units may neither end their move nor SR into Amiens, Calais, or Ostend, except as a
+    // result of advance after combat. However they may move through and place control markers on these spaces.
+
+    return true
+}
+
 function end_move_stack() {
     if (get_pieces_in_space(game.move.initial).length > 0) {
         game.move.current = game.move.initial
+        game.move.spaces_moved = 0
         game.move.pieces = []
         game.state = 'choose_pieces_to_move'
     } else {

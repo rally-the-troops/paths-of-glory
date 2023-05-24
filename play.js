@@ -6,6 +6,9 @@ const DEBUG_CONNECTIONS = false
 const AP = "ap"
 const CP = "cp"
 
+const ARMY = "army"
+const CORPS = "corps"
+
 const AP_MO_MARKER = "marker small ap_mo "
 const CP_MO_MARKER = "marker small cp_mo "
 
@@ -175,7 +178,11 @@ const marker_info = {
     cp: {
     },
     move: { name: "Move", counter: "marker small activate_move" },
-    attack: { name: "Attack", counter: "marker small activate_attack" }
+    attack: { name: "Attack", counter: "marker small activate_attack" },
+    control: {
+        ap: { name: "AP Control", type: "ap_control", counter: "marker small control ap" },
+        cp: { name: "CP Control", type: "cp_control", counter: "marker small control cp" }
+    }
 }
 
 let markers = {
@@ -184,7 +191,11 @@ let markers = {
     cp: {
     },
     move: [],
-    attack: []
+    attack: [],
+    control: {
+        ap: [],
+        cp: []
+    }
 }
 
 function toggle_counters() {
@@ -522,6 +533,34 @@ function destroy_activation_marker(space_id, activation_type) {
     }
 }
 
+function build_control_marker(space_id, faction) {
+    let list = markers.control[faction]
+    let marker = list.find(e => e.space_id === space_id)
+    if (marker)
+        return marker.element
+    let info = marker_info.control[faction]
+    marker = { space_id: space_id, name: info.name, type: info.type, element: null }
+    let elt = marker.element = document.createElement("div")
+    elt.marker = marker
+    elt.className = info.counter
+    elt.addEventListener("mousedown", on_click_marker)
+    elt.addEventListener("mouseenter", on_focus_marker)
+    elt.addEventListener("mouseleave", on_blur_marker)
+    elt.my_size = 45
+    list.push(marker)
+    ui.markers.appendChild(elt)
+    return marker.element
+}
+
+function destroy_control_marker(space_id, faction) {
+    let list = markers.control[faction]
+    let ix = list.findIndex(e => e.space_id === space_id)
+    if (ix >= 0) {
+        list[ix].element.remove()
+        list.splice(ix, 1)
+    }
+}
+
 function build_space(id) {
     let space = spaces[id]
 
@@ -770,30 +809,23 @@ function update_space(s) {
     let sy = space.y/2 + Math.round(space.h/2) - 45
 
     let activeStack = view.active == AP ? apStack : cpStack;
-    if (view.activated.move.includes(s)) {
-        push_stack(activeStack, 0, build_activation_marker(s, 'move'))
-    } else {
-        destroy_activation_marker(s, 'move')
+
+    if (space.faction === AP) {
+        if (view.control[s])
+            push_stack(activeStack, 0, build_control_marker(s, CP))
+        else
+            destroy_control_marker(s, CP)
     }
 
-    if (view.activated.attack.includes(s)) {
-        push_stack(activeStack, 0, build_activation_marker(s, 'attack'))
-    } else {
-        destroy_activation_marker(s, 'attack')
-    }
-
-    function marker(type) {
-        if (view.cp[type].includes(s))
-            push_stack(cpStack, 0, build_faction_marker(s, 'cp', type))
+    if (space.faction === CP) {
+        if (!view.control[s])
+            push_stack(activeStack, 0, build_control_marker(s, AP))
         else
-            destroy_faction_marker(s, 'cp', type)
-        if (view.ap[type].includes(s))
-            push_stack(apStack, 0, build_faction_marker(s, 'ap', type))
-        else
-            destroy_faction_marker(s, 'ap', type)
+            destroy_control_marker(s, AP)
     }
 
     for_each_piece_in_space(s, p => {
+        let is_corps = pieces[p].type === CORPS
         let pe = pieces[p].element
         pe.classList.remove('offmap')
         pe.classList.remove("inside")
@@ -801,11 +833,24 @@ function update_space(s) {
             pe.classList.add("reduced")
         else
             pe.classList.remove("reduced")
-        if (pieces[p].faction === 'cp')
-            push_stack(cpStack, p, pe)
+        let stack = pieces[p].faction === CP ? cpStack : apStack
+        if (is_corps)
+            unshift_stack(stack, p, pe)
         else
-            push_stack(apStack, p, pe)
+            push_stack(stack, p, pe)
     })
+
+    if (view.activated.move.includes(s)) {
+        unshift_stack(activeStack, 0, build_activation_marker(s, 'move'))
+    } else {
+        destroy_activation_marker(s, 'move')
+    }
+
+    if (view.activated.attack.includes(s)) {
+        unshift_stack(activeStack, 0, build_activation_marker(s, 'attack'))
+    } else {
+        destroy_activation_marker(s, 'attack')
+    }
 
     if (apStack.length > 0 && cpStack.length > 0) {
         layout_stack(cpStack, sx + 27, sy, 1)
@@ -819,24 +864,34 @@ function update_space(s) {
         }
     }
 
-    if (view.actions && view.actions.space && view.actions.space.includes(s))
+    if (should_highlight_space(s))
         space.element.classList.add("highlight")
     else
         space.element.classList.remove("highlight")
-
-    if (view.actions &&
-        ((view.actions.activate_move && view.actions.activate_move.includes(s)) ||
-            (view.actions.activate_attack && view.actions.activate_attack.includes(s)) ||
-            (view.actions.deactivate && view.actions.deactivate.includes(s)))) {
-        space.element.classList.add("highlight")
-    } else {
-        space.element.classList.remove("highlight")
-    }
 
     if (view.where === s)
         space.element.classList.add("selected")
     else
         space.element.classList.remove("selected")
+}
+
+function should_highlight_space(s) {
+    if (!view.actions)
+        return false
+
+    if (view.actions.space && view.actions.space.includes(s))
+        return true
+
+    if (view.actions.activate_move && view.actions.activate_move.includes(s))
+        return true
+
+    if (view.actions.activate_attack && view.actions.activate_attack.includes(s))
+        return true
+
+    if (view.actions.deactivate && view.actions.deactivate.includes(s))
+        return true
+
+    return false
 }
 
 function update_card(id) {
@@ -861,10 +916,13 @@ function update_piece(id) {
         piece.element.classList.add('highlight')
     else
         piece.element.classList.remove('highlight')
-    if (view.activation && view.activation.includes(id))
+
+    if ((view.activation && view.activation.includes(id)) ||
+        (view.move && view.move.pieces.includes(id)))
         piece.element.classList.add('activated')
     else
         piece.element.classList.remove('activated')
+
     if (view.who === id)
         piece.element.classList.add('selected')
     else
@@ -921,8 +979,9 @@ function update_map() {
     action_button("single_op", "Automatic Operation (1 Op)")
     action_button("pass", "Pass")
     action_button("next", "Next")
-    action_button("move", "Move")
-    action_button("end_move", "End move")
+    action_button("pick_up_all", "Pick Up All")
+    action_button("move", "Begin Move")
+    action_button("end_move", "End Move")
     action_button("done", "Done")
     action_button("undo", "Undo")
 }
