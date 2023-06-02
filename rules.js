@@ -36,6 +36,15 @@ const COMMITMENT_MOBILIZATION = "mobilization"
 const COMMITMENT_LIMITED = "limited"
 const COMMITMENT_TOTAL = "total"
 
+const ACTION_EVENT = "evt"
+const ACTION_OP = "op"
+const ACTION_SR = "sr"
+const ACTION_RP = "rp"
+const ACTION_REINFORCEMENTS = "reinf"
+const ACTION_NEUTRAL_ENTRY = "entry"
+const ACTION_1_OP = "1op"
+const ACTION_PEACE_TERMS = "peace"
+
 // Card indices
 const GUNS_OF_AUGUST = 66
 
@@ -108,7 +117,8 @@ exports.view = function(state, current) {
             hand: game.ap.hand.length,
             commitment: game.ap.commitment,
             mo: game.ap.mo,
-            ws: game.ap.ws
+            ws: game.ap.ws,
+            actions: game.ap.actions
         },
         cp: {
             deck: game.cp.deck.length,
@@ -116,6 +126,7 @@ exports.view = function(state, current) {
             commitment: game.cp.commitment,
             mo: game.cp.mo,
             ws: game.cp.ws,
+            actions: game.ap.actions,
             ru_vp: game.cp.ru_vp
         },
         rp: game.rp,
@@ -189,7 +200,9 @@ exports.setup = function (seed, scenario, options) {
             it: 0,
             tu: 0,
             bu: 0,
-            us: 0
+            us: 0,
+            ro: 0,
+            gr: 0
         },
 
         // Units
@@ -211,7 +224,8 @@ exports.setup = function (seed, scenario, options) {
             hand: [],
             commitment: COMMITMENT_MOBILIZATION,
             mo: NONE,
-            ws: 0
+            ws: 0,
+            actions: []
         },
 
         // CP state
@@ -223,7 +237,8 @@ exports.setup = function (seed, scenario, options) {
             commitment: COMMITMENT_MOBILIZATION,
             mo: NONE,
             ws: 0,
-            ru_vp: 0
+            ru_vp: 0,
+            actions: []
         },
     }
 
@@ -395,8 +410,7 @@ function get_pieces_in_space(s) {
 }
 
 function nation_at_war(nation) {
-    // TODO
-    return true
+    return game.war[nation] !== 0
 }
 
 // === Mandated Offensives ===
@@ -562,20 +576,20 @@ function play_card(card) {
         active_player.discard.push(card)
 }
 
-// === GAME STATES ===
+function record_action(type, card) {
+    let actions = game.active == AP ? game.ap.actions : game.cp.actions
+    actions.push({ type: type, card: card })
+}
 
-//states.etc = {
-//  inactive: "some text",
-//  prompt() {
-//
-//  },
-//  example_action() {
-//
-//  },
-//  a_different_action() {
-//
-//  },
-//}
+function get_last_action() {
+    let actions = game.active == AP ? game.ap.actions : game.cp.actions
+    if (actions.length == 0)
+        return undefined
+
+    return actions[actions.length-1]
+}
+
+// === GAME STATES ===
 
 states.action_phase = {
     inactive: "Action Phase",
@@ -631,19 +645,21 @@ function can_play_event(card) {
 }
 
 function can_play_sr(card) {
-    // TODO: Check if previous card was used for SR
-    return true
+    let action = get_last_action()
+    return action === undefined || action.type != ACTION_SR
 }
 
 function can_play_rps(card) {
-    // TODO: Check if previous card was used for RPs
-    return true
+    let action = get_last_action()
+    return action === undefined || action.type != ACTION_RP
 }
 
 function goto_play_ops(card) {
     if (card === undefined) {
+        record_action(ACTION_1_OP, card)
         game.ops = 1
     } else {
+        record_action(ACTION_OP, card)
         discard_card(card, 'for ops')
         game.ops = data.cards[card].ops
     }
@@ -651,11 +667,26 @@ function goto_play_ops(card) {
 }
 
 function goto_play_sr(card) {
+    record_action(ACTION_SR, card)
     // TODO
 }
 
 function goto_play_rps(card) {
-    // TODO
+    record_action(ACTION_RP, card)
+    let card_data = data.cards[card]
+
+    game.rp.ge += card_data.rpge ?? 0
+    game.rp.ah += card_data.rpah ?? 0
+    game.rp.fr += card_data.rpfr ?? 0
+    game.rp.br += card_data.rpbr ?? 0
+    game.rp.ru += card_data.rpru ?? 0
+    game.rp.allied += card_data.rpa ?? 0
+    game.rp.bu += card_data.rpbu !== undefined && game.war.bu ? card_data.rpbu : 0
+    game.rp.it += card_data.rpit !== undefined && game.war.it ? card_data.rpit : 0
+    game.rp.tu += card_data.rptu !== undefined && game.war.tu ? card_data.rptu : 0
+
+    discard_card(card, 'for rps')
+    goto_end_action()
 }
 
 function goto_offer_peace() {
@@ -730,12 +761,12 @@ function goto_next_activation() {
     } else if (game.activated.attack.length > 0) {
         game.state = 'choose_attack_space'
     } else {
-        goto_end_activations()
+        goto_end_action()
     }
 }
 
-function goto_end_activations() {
-    // TODO: This should go to the attrition phase
+function goto_end_action() {
+    // TODO: Check number of actions and go to attrition phase if the action phase is over
     game.active = game.active === CP ? AP : CP
     game.state = 'action_phase'
 }

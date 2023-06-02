@@ -29,6 +29,19 @@
 .marker.it_rp{background-image:url(images/rp_it.png)}
 .marker.us_rp{background-image:url(images/rp_us.png)}
 
+.marker.action.ap.round1{background-image:url(images/action_ap1.png)}
+.marker.action.ap.round2{background-image:url(images/action_ap2.png)}
+.marker.action.ap.round3{background-image:url(images/action_ap3.png)}
+.marker.action.ap.round4{background-image:url(images/action_ap4.png)}
+.marker.action.ap.round5{background-image:url(images/action_ap5.png)}
+.marker.action.ap.round6{background-image:url(images/action_ap6.png)}
+.marker.action.cp.round1{background-image:url(images/action_cp1.png)}
+.marker.action.cp.round2{background-image:url(images/action_cp2.png)}
+.marker.action.cp.round3{background-image:url(images/action_cp3.png)}
+.marker.action.cp.round4{background-image:url(images/action_cp4.png)}
+.marker.action.cp.round5{background-image:url(images/action_cp5.png)}
+.marker.action.cp.round6{background-image:url(images/action_cp6.png)}
+
 #rc_marker.marker{background-image:url(images/russian_capit.png)}
 #us_commitment_marker.marker{background-image:url(images/us_entry.png)}
 

@@ -196,7 +196,8 @@ const marker_info = {
     tu_rp: { name: "Turkish Replacements", type: "tu_rp", counter: "marker tu_rp " },
     it_rp: { name: "Italian Replacements", type: "it_rp", counter: "marker it_rp " },
     us_rp: { name: "United States Replacements", type: "us_rp", counter: "marker us_rp " },
-    cp_ru_vp: { name: "CP Russian VP", type: "cp_ru_vp", counter: "marker cp_ru_vp " }
+    cp_ru_vp: { name: "CP Russian VP", type: "cp_ru_vp", counter: "marker cp_ru_vp " },
+    action: { name: "Action", counter: "marker small action " }
 }
 
 let markers = {
@@ -210,7 +211,8 @@ let markers = {
         ap: [],
         cp: []
     },
-    general_records: []
+    general_records: [],
+    actions: []
 }
 
 function toggle_counters() {
@@ -598,6 +600,36 @@ function build_general_records_marker(type) {
 function destroy_general_records_marker(type) {
     let list = markers.general_records
     let ix = list.findIndex(e => e.type === type)
+    if (ix >= 0) {
+        list[ix].element.remove()
+        list.splice(ix, 1)
+    }
+}
+
+function build_action_marker(faction, round) {
+    let list = markers.actions
+    let marker = list.find(e => e.faction === faction && e.round == round)
+    if (marker)
+        return marker.element
+    let info = marker_info.action
+    marker = { name: info.name, faction: faction, round: round, element: null }
+    let elt = marker.element = document.createElement("div")
+    elt.marker = marker
+    elt.className = info.counter
+    elt.classList.add(faction)
+    elt.classList.add(`round${round}`)
+    elt.addEventListener("mousedown", on_click_marker)
+    elt.addEventListener("mouseenter", on_focus_marker)
+    elt.addEventListener("mouseleave", on_blur_marker)
+    elt.my_size = 36
+    list.push(marker)
+    ui.markers.appendChild(elt)
+    return marker.element
+}
+
+function destroy_action_marker(faction, round) {
+    let list = markers.actions
+    let ix = list.findIndex(e => e.faction === faction && e.round == round)
     if (ix >= 0) {
         list[ix].element.remove()
         list.splice(ix, 1)
@@ -1040,6 +1072,32 @@ function update_general_records_track() {
     })
 }
 
+const ACTION_REINFORCEMENTS = "reinf"
+
+function update_action_round_marker(faction, round, action) {
+    let marker = build_action_marker(faction, round)
+    if (action.type === ACTION_REINFORCEMENTS) {
+        // TODO: Determine the nation and get the correct class to add
+    } else {
+        marker.classList.add(action.type)
+    }
+}
+
+function update_action_round_tracks() {
+    for (let i = 0; i < 6; ++i) {
+        if (i < view.ap.actions.length) {
+            update_action_round_marker(AP, i+1, view.ap.actions[i])
+        } else {
+            destroy_action_marker(AP, i+1)
+        }
+        if (i < view.cp.actions.length) {
+            update_action_round_marker(CP, i+1, view.cp.actions[i])
+        } else {
+            destroy_action_marker(CP, i+1)
+        }
+    }
+}
+
 function toggle_marker(id, show) {
     let element = document.getElementById(id)
     if (show)
@@ -1082,6 +1140,7 @@ function update_map() {
     usc_marker.className = USC_MARKER + view.usc
     let rc_marker = document.getElementById("rc_marker")
     rc_marker.className = RC_MARKER + view.rc
+    update_action_round_tracks()
 
 
     document.getElementById("cp_hand").textContent = view.cp.hand

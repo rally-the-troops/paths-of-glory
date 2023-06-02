@@ -375,6 +375,29 @@ body.bevel .event {
 #cp_mo.ge { left: 1170px; }
 #cp_mo.none { left: 1210px; }
 
+.action.cp.entry { left: 794px; top: 67px; }
+.action.cp.ge_reinf { left: 794px; top: 114px; }
+.action.cp.ah_reinf { left: 837px; top: 114px; }
+.action.cp.tu_reinf { left: 879px; top: 114px; }
+.action.cp.sr { left: 794px; top: 160px; }
+.action.cp.rp { left: 837px; top: 160px; }
+.action.cp.op { left: 794px; top: 208px; }
+.action.cp.evt { left: 837px; top: 208px; }
+.action.cp.oneop { left: 879px; top: 208px; }
+.action.cp.peace { left: 921px; top: 208px; }
+
+.action.ap.entry { left: 701px; top: 1414px; }
+.action.ap.fr_reinf { left: 701px; top: 1461px; }
+.action.ap.br_reinf { left: 743px; top: 1461px; }
+.action.ap.ru_reinf { left: 785px; top: 1461px; }
+.action.ap.it_reinf { left: 828px; top: 1461px; }
+.action.ap.us_reinf { left: 870px; top: 1461px; }
+.action.ap.sr { left: 701px; top: 1507px; }
+.action.ap.rp { left: 743px; top: 1507px; }
+.action.ap.op { left: 701px; top: 1554px; }
+.action.ap.evt { left: 743px; top: 1554px; }
+.action.ap.oneop { left: 785px; top: 1554px; }
+.action.ap.peace { left: 828px; top: 1554px; }
 
 /* MARKERS */
 
