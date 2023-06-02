@@ -184,7 +184,19 @@ const marker_info = {
     },
     vp: { name: "VP", type: "vp", counter: "marker vps " },
     ap_ws: { name: "AP War Status", type: "ap_ws", counter: "marker ap_ws " },
-    cp_ws: { name: "CP War Status", type: "cp_ws", counter: "marker cp_ws " }
+    cp_ws: { name: "CP War Status", type: "cp_ws", counter: "marker cp_ws " },
+    combined_ws: { name: "Combined War Status", type: "combined_ws", counter: "marker combined_ws " },
+    ge_rp: { name: "German Replacements", type: "ge_rp", counter: "marker ge_rp " },
+    ah_rp: { name: "Austria-Hungary Replacements", type: "ah_rp", counter: "marker ah_rp " },
+    fr_rp: { name: "French Replacements", type: "fr_rp", counter: "marker fr_rp " },
+    br_rp: { name: "British Replacements", type: "br_rp", counter: "marker br_rp " },
+    ru_rp: { name: "Russian Replacements", type: "ru_rp", counter: "marker ru_rp " },
+    allied_rp: { name: "Allied Replacements", type: "allied_rp", counter: "marker allied_rp " },
+    bu_rp: { name: "Bulgarian Replacements", type: "bu_rp", counter: "marker bu_rp " },
+    tu_rp: { name: "Turkish Replacements", type: "tu_rp", counter: "marker tu_rp " },
+    it_rp: { name: "Italian Replacements", type: "it_rp", counter: "marker it_rp " },
+    us_rp: { name: "United States Replacements", type: "us_rp", counter: "marker us_rp " },
+    cp_ru_vp: { name: "CP Russian VP", type: "cp_ru_vp", counter: "marker cp_ru_vp " }
 }
 
 let markers = {
@@ -978,24 +990,50 @@ for (let i = 0; i <= 40; ++i) {
 function general_records_pos(value) {
     let row = Math.floor(value / 10)
     let col = value % 10
+    if (value == 40) {
+        row = 3
+        col = 10
+    }
     let x = col * 56 + 62
     let y = row * 66 + 1350
     return [x, y]
 }
 
-function update_general_record(type, value) {
-    let marker = build_general_records_marker(type)
-    push_stack(general_records_stacks[value], 0, marker)
+function update_general_record(type, value, remove = false) {
+    if (remove) {
+        destroy_general_records_marker(type)
+    } else {
+        let marker = build_general_records_marker(type)
+        push_stack(general_records_stacks[value], 0, marker)
+    }
 }
 
 function update_general_records_track() {
     general_records_stacks.forEach((stack) => stack.length = 0)
+
     update_general_record("vp", view.vp)
+
+    update_general_record("combined_ws", view.cp.ws + view.ap.ws)
     update_general_record("ap_ws", view.ap.ws)
     update_general_record("cp_ws", view.cp.ws)
+    update_general_record("cp_ru_vp", view.cp.ru_vp)
+
+    // RPs
+    update_general_record("ge_rp", view.rp.ge)
+    update_general_record("ah_rp", view.rp.ah)
+    update_general_record("fr_rp", view.rp.fr)
+    update_general_record("br_rp", view.rp.br) // TODO: Check for uboats event and apply the uboats class
+    update_general_record("ru_rp", view.rp.ru)
+    update_general_record("allied_rp", view.rp.allied)
+
+    // RPs for countries that may not be at war: bu, tu, it, us
+    update_general_record("bu_rp", view.rp.bu, !view.war.bu)
+    update_general_record("tu_rp", view.rp.tu, !view.war.tu)
+    update_general_record("it_rp", view.rp.it, !view.war.it)
+    update_general_record("us_rp", view.rp.us, !view.war.us)
+
     general_records_stacks.forEach((stack, ix) => {
         if (stack.length > 0) {
-            console.log(`Laying out GR ${ix} with ${stack.length} elements`)
             let [x, y] = general_records_pos(ix)
             layout_stack(stack, x, y, 1)
         }

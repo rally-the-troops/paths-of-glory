@@ -115,8 +115,11 @@ exports.view = function(state, current) {
             hand: game.cp.hand.length,
             commitment: game.cp.commitment,
             mo: game.cp.mo,
-            ws: game.cp.ws
+            ws: game.cp.ws,
+            ru_vp: game.cp.ru_vp
         },
+        rp: game.rp,
+        war: game.war,
         location: game.location,
         reduced: game.reduced,
         control: game.control,
@@ -170,6 +173,24 @@ exports.setup = function (seed, scenario, options) {
         rc: 0, // Russian capitulation level
         ops: 0,
         events: {},
+        rp: {
+            ge: 0,
+            ah: 0,
+            fr: 0,
+            br: 0,
+            ru: 0,
+            allied: 0,
+            bu: 0,
+            tu: 0,
+            it: 0,
+            us: 0
+        },
+        war: {
+            it: 0,
+            tu: 0,
+            bu: 0,
+            us: 0
+        },
 
         // Units
         location: data.pieces.map(() => 0),
@@ -201,7 +222,8 @@ exports.setup = function (seed, scenario, options) {
             hand: [],
             commitment: COMMITMENT_MOBILIZATION,
             mo: NONE,
-            ws: 0
+            ws: 0,
+            ru_vp: 0
         },
     }
 

@@ -15,6 +15,19 @@
 .marker.ap_ws{background-image:url(images/warstatus_ap.png)}
 .marker.cp_ws{background-image:url(images/warstatus_cp.png)}
 .marker.combined_ws{background-image:url(images/warstatus_combined.png)}
+.marker.cp_ru_vp{background-image:url(images/russianvp_current.png)}
+
+.marker.ge_rp{background-image:url(images/rp_ge.png)}
+.marker.ah_rp{background-image:url(images/rp_ah.png)}
+.marker.fr_rp{background-image:url(images/rp_fr.png)}
+.marker.br_rp{background-image:url(images/rp_br.png)}
+.marker.br_rp.uboats{background-image:url(images/rp_br_uboats.png)}
+.marker.ru_rp{background-image:url(images/rp_ru.png)}
+.marker.allied_rp{background-image:url(images/rp_allied.png)}
+.marker.bu_rp{background-image:url(images/rp_bu.png)}
+.marker.tu_rp{background-image:url(images/rp_tu.png)}
+.marker.it_rp{background-image:url(images/rp_it.png)}
+.marker.us_rp{background-image:url(images/rp_us.png)}
 
 #rc_marker.marker{background-image:url(images/russian_capit.png)}
 #us_commitment_marker.marker{background-image:url(images/us_entry.png)}
