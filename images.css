@@ -12,6 +12,12 @@
 .cp_mo.none{background-image:url(images/mandoffensive_cp_done.png)}
 
 .marker.vps{background-image:url(images/vp.png)}
+.marker.ap_ws{background-image:url(images/warstatus_ap.png)}
+.marker.cp_ws{background-image:url(images/warstatus_cp.png)}
+.marker.combined_ws{background-image:url(images/warstatus_combined.png)}
+
+#rc_marker.marker{background-image:url(images/russian_capit.png)}
+#us_commitment_marker.marker{background-image:url(images/us_entry.png)}
 
 .marker.activate_move{background-image:url(images/activate_move.png)}
 .marker.activate_attack{background-image:url(images/activate_attack.png)}

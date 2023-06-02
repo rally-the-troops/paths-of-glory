@@ -97,6 +97,8 @@ exports.view = function(state, current) {
         actions: null,
         turn: game.turn,
         vp: game.vp,
+        usc: game.usc,
+        rc: game.rc,
         last_card: game.last_card,
         activated: game.activated,
         move: game.move,
@@ -105,13 +107,15 @@ exports.view = function(state, current) {
             deck: game.ap.deck.length,
             hand: game.ap.hand.length,
             commitment: game.ap.commitment,
-            mo: game.ap.mo
+            mo: game.ap.mo,
+            ws: game.ap.ws
         },
         cp: {
             deck: game.cp.deck.length,
             hand: game.cp.hand.length,
             commitment: game.cp.commitment,
-            mo: game.cp.mo
+            mo: game.cp.mo,
+            ws: game.cp.ws
         },
         location: game.location,
         reduced: game.reduced,
@@ -161,7 +165,9 @@ exports.setup = function (seed, scenario, options) {
         phasing: null,
         state: null,
         turn: 1,
-        vp: 0,
+        vp: 10,
+        usc: 0, // US commitment level
+        rc: 0, // Russian capitulation level
         ops: 0,
         events: {},
 
@@ -183,7 +189,8 @@ exports.setup = function (seed, scenario, options) {
             removed: [],
             hand: [],
             commitment: COMMITMENT_MOBILIZATION,
-            mo: NONE
+            mo: NONE,
+            ws: 0
         },
 
         // CP state
@@ -193,7 +200,8 @@ exports.setup = function (seed, scenario, options) {
             removed: [],
             hand: [],
             commitment: COMMITMENT_MOBILIZATION,
-            mo: NONE
+            mo: NONE,
+            ws: 0
         },
     }
 

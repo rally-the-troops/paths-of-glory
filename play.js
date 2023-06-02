@@ -12,6 +12,9 @@ const CORPS = "corps"
 const AP_MO_MARKER = "marker small ap_mo "
 const CP_MO_MARKER = "marker small cp_mo "
 
+const USC_MARKER = "marker usc_"
+const RC_MARKER = "marker rc_"
+
 function check_menu(id, x) {
     document.getElementById(id).className = x ? "menu_item checked" : "menu_item unchecked"
 }
@@ -168,21 +171,20 @@ let ui = {
     pieces: document.getElementById("pieces"),
     cards: document.getElementById("cards"),
     last_card: document.getElementById("last_card"),
+    general_records: document.getElementById("general_records"),
     space_list: [],
 }
 
-
 const marker_info = {
-    ap: {
-    },
-    cp: {
-    },
     move: { name: "Move", counter: "marker small activate_move" },
     attack: { name: "Attack", counter: "marker small activate_attack" },
     control: {
         ap: { name: "AP Control", type: "ap_control", counter: "marker small control ap" },
         cp: { name: "CP Control", type: "cp_control", counter: "marker small control cp" }
-    }
+    },
+    vp: { name: "VP", type: "vp", counter: "marker vps " },
+    ap_ws: { name: "AP War Status", type: "ap_ws", counter: "marker ap_ws " },
+    cp_ws: { name: "CP War Status", type: "cp_ws", counter: "marker cp_ws " }
 }
 
 let markers = {
@@ -195,7 +197,8 @@ let markers = {
     control: {
         ap: [],
         cp: []
-    }
+    },
+    general_records: []
 }
 
 function toggle_counters() {
@@ -561,6 +564,34 @@ function destroy_control_marker(space_id, faction) {
     }
 }
 
+function build_general_records_marker(type) {
+    let list = markers.general_records
+    let marker = list.find(e => e.type === type)
+    if (marker)
+        return marker.element
+    let info = marker_info[type]
+    marker = { name: info.name, type: type, element: null }
+    let elt = marker.element = document.createElement("div")
+    elt.marker = marker
+    elt.className = info.counter
+    elt.addEventListener("mousedown", on_click_marker)
+    elt.addEventListener("mouseenter", on_focus_marker)
+    elt.addEventListener("mouseleave", on_blur_marker)
+    elt.my_size = 45
+    list.push(marker)
+    ui.general_records.appendChild(elt)
+    return marker.element
+}
+
+function destroy_general_records_marker(type) {
+    let list = markers.general_records
+    let ix = list.findIndex(e => e.type === type)
+    if (ix >= 0) {
+        list[ix].element.remove()
+        list.splice(ix, 1)
+    }
+}
+
 function build_space(id) {
     let space = spaces[id]
 
@@ -796,6 +827,16 @@ function unshift_stack(stk, pc, elt) {
     elt.my_stack = stk
 }
 
+function remove_from_stack(elt) {
+    if (elt.my_stack === undefined)
+        return
+    let ix = elt.my_stack.find((e) => e[1] === elt)
+    if (ix >= 0) {
+        array_remove(elt.my_stack, ix)
+    }
+    elt.my_stack = undefined
+}
+
 function update_space(s) {
     let dim = style_dims[style]
     let space = spaces[s]
@@ -929,6 +970,38 @@ function update_piece(id) {
         piece.element.classList.remove('selected')
 }
 
+let general_records_stacks = new Array(41)
+for (let i = 0; i <= 40; ++i) {
+    general_records_stacks[i] = []
+}
+
+function general_records_pos(value) {
+    let row = Math.floor(value / 10)
+    let col = value % 10
+    let x = col * 56 + 62
+    let y = row * 66 + 1350
+    return [x, y]
+}
+
+function update_general_record(type, value) {
+    let marker = build_general_records_marker(type)
+    push_stack(general_records_stacks[value], 0, marker)
+}
+
+function update_general_records_track() {
+    general_records_stacks.forEach((stack) => stack.length = 0)
+    update_general_record("vp", view.vp)
+    update_general_record("ap_ws", view.ap.ws)
+    update_general_record("cp_ws", view.cp.ws)
+    general_records_stacks.forEach((stack, ix) => {
+        if (stack.length > 0) {
+            console.log(`Laying out GR ${ix} with ${stack.length} elements`)
+            let [x, y] = general_records_pos(ix)
+            layout_stack(stack, x, y, 1)
+        }
+    })
+}
+
 function toggle_marker(id, show) {
     let element = document.getElementById(id)
     if (show)
@@ -936,7 +1009,6 @@ function toggle_marker(id, show) {
     else
         element.classList.remove("show")
 }
-
 
 function update_map() {
     if (!view)
@@ -962,13 +1034,17 @@ function update_map() {
 
     ui.last_card.className = "card show card_" + faction_card_number(view.last_card)
 
+    // Update tracks
+    update_general_records_track()
     let ap_mo = document.getElementById("ap_mo")
     ap_mo.className = AP_MO_MARKER + view.ap.mo + (view.events.french_mutiny ? " fr_mutiny" : "")
-
     let cp_mo = document.getElementById("cp_mo")
     cp_mo.className = CP_MO_MARKER + view.cp.mo
+    let usc_marker = document.getElementById("us_commitment_marker")
+    usc_marker.className = USC_MARKER + view.usc
+    let rc_marker = document.getElementById("rc_marker")
+    rc_marker.className = RC_MARKER + view.rc
 
-    // TODO: Update VP and other tracks
 
     document.getElementById("cp_hand").textContent = view.cp.hand
     document.getElementById("ap_hand").textContent = view.ap.hand
