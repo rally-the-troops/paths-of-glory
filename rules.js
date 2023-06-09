@@ -42,7 +42,7 @@ const ACTION_SR = "sr"
 const ACTION_RP = "rp"
 const ACTION_REINFORCEMENTS = "reinf"
 const ACTION_NEUTRAL_ENTRY = "entry"
-const ACTION_1_OP = "1op"
+const ACTION_1_OP = "oneop"
 const ACTION_PEACE_TERMS = "peace"
 
 // Card indices
@@ -277,7 +277,7 @@ exports.setup = function (seed, scenario, options) {
 
     setup_initial_decks()
 
-    start_turn()
+    goto_start_turn()
 
     return game
 }
@@ -300,7 +300,7 @@ function setup_initial_decks() {
     deal_cards()
 }
 
-function start_turn() {
+function goto_start_turn() {
     roll_mandated_offensives()
 
     game.state = 'action_phase'
@@ -361,10 +361,16 @@ function reshuffle_discard(deck) {
     player.discard = []
 }
 
-function end_turn() {
-    deal_cards()
+function goto_end_turn() {
+    // TODO: Check for end of scenario
+    game.turn++
 
-    // TODO: Check for end of game
+    game.ap.actions = []
+    game.cp.actions = []
+
+    // TODO: Clean up other lingering game state
+
+    goto_start_turn()
 }
 
 function setup_piece(nation, unit, space, reduced) {
@@ -766,9 +772,12 @@ function goto_next_activation() {
 }
 
 function goto_end_action() {
-    // TODO: Check number of actions and go to attrition phase if the action phase is over
-    game.active = game.active === CP ? AP : CP
-    game.state = 'action_phase'
+    if (game.ap.actions.length < 6 || game.cp.actions.length < 6) {
+        game.active = game.active === CP ? AP : CP
+        game.state = 'action_phase'
+    } else {
+        goto_attrition_phase()
+    }
 }
 
 states.choose_move_space = {
@@ -1006,8 +1015,175 @@ function cost_to_activate(space, type) {
     return cost;
 }
 
+function goto_attrition_phase() {
+    game.attrition = {
+        ap: [],
+        cp: []
+    }
+    // TODO: Calculate the OOS units for both sides and save the lists in the game state
+
+    // TODO: Update control of spaces and save in the game state
+
+    if (game.attrition.ap.length > 0) {
+        game.state = 'attrition_phase'
+        game.active = AP
+    } else if (game.attrition.cp.length > 0) {
+        game.state = 'attrition_phase'
+        game.active = CP
+    } else {
+        goto_siege_phase()
+    }
+}
+
+states.attrition_phase = {
+    inactive: 'Remove OOS units',
+    prompt() {
+        view.prompt = 'Remove OOS units'
+
+        game.attrition[game.active].forEach((p) => { gen_action_piece(p) })
+
+        if (game.attrition[game.active].length == 0)
+            gen_action_done()
+    },
+    piece(p) {
+        array_remove(game.attrition[game.active], p)
+        // TODO: Eliminate selected piece, permanently for armies, to replaceable box for corps
+    },
+    done() {
+        if (game.active == AP && game.attrition.cp.length > 0) {
+            game.active == CP
+        } else {
+            goto_siege_phase()
+        }
+    }
+}
+
+function goto_siege_phase() {
+    game.siege = {
+        ap: [],
+        cp: []
+    }
+    // TODO: Determine which spaces need siege rolls
+
+    if (game.siege.ap.length > 0 || game.siege.cp.length > 0) {
+        game.state = 'siege_roll'
+        if (game.siege[game.active].length == 0)
+            game.active = game.active == CP ? AP : CP
+    } else {
+        goto_war_status_phase()
+    }
+}
+
+states.siege_roll = {
+    inactive: 'Roll sieges',
+    prompt() {
+        view.prompt = 'Roll sieges'
+
+        game.siege[game.active].forEach((s) => { gen_action_space(s) })
+
+        if (game.siege[game.active].length == 0)
+            gen_action_done()
+    },
+    space(p) {
+        array_remove(game.siege[game.active], s)
+        // TODO: Roll for siege in space
+    },
+    done() {
+        let other = game.active == CP ? AP : CP
+        if (game.siege[other].length > 0) {
+            game.active == other
+        } else {
+            goto_war_status_phase()
+        }
+    }
+}
+
+function goto_war_status_phase() {
+    // TODO: E. War Status Phase
+    // E.1. Check the Victory Point table and make any changes called for under the “During the War Status Phase”
+    // section of the table.
+    // E.2. Determine if either player has won an Automatic Victory.
+    // E.3. Determine if an Armistice has been declared.
+    // E.4. Each player determines if his War Commitment Level has increased. This is not checked on the August 1914
+    // turn (turn 1). If the appropriate War Status conditions are met, Limited War or Total War cards may be added
+    // to the Draw Pile at this time.
+
+    goto_replacement_phase()
+}
+
+function goto_replacement_phase() {
+    if (has_rps(AP)) {
+        game.active = AP
+        game.state = 'replacement_phase'
+    } else if (has_rps(CP)) {
+        game.active = CP
+        game.state = 'replacement_phase'
+    } else {
+        goto_draw_cards_phase()
+    }
+}
+
+function has_rps(faction) {
+    if (faction == AP) {
+        if (game.rp.fr > 0) return true
+        if (game.rp.br > 0) return true
+        if (game.rp.ru > 0) return true
+        if (game.rp.allied > 0) return true
+        if (game.rp.it > 0) return true
+    } else if (faction == CP) {
+        if (game.rp.ge > 0) return true
+        if (game.rp.ah > 0) return true
+        if (game.rp.bu > 0) return true
+        if (game.rp.tu > 0) return true
+    }
+    return false
+}
+
+function remove_rps(faction) {
+    if (faction == AP) {
+        game.rp.fr = 0
+        game.rp.br = 0
+        game.rp.ru = 0
+        game.rp.allied = 0
+        game.rp.it = 0
+    } else if (faction == CP) {
+        game.rp.ge = 0
+        game.rp.ah = 0
+        game.rp.bu = 0
+        game.rp.tu = 0
+    }
+}
+
+states.replacement_phase = {
+    inactive: 'Choose replacements',
+    prompt() {
+        view.prompt = 'Choose replacements'
+        // TODO: Highlight allowed actions
+        gen_action_done()
+    },
+    // TODO: do a replacement
+    done() {
+        remove_rps(game.active)
+        if (game.active == AP) {
+            game.active = CP
+        } else {
+            goto_draw_cards_phase()
+        }
+    }
+}
+
+function goto_draw_cards_phase() {
+    // TODO: If either player has active combat cards, let them discard them first
+    deal_cards()
+    goto_end_turn()
+}
+
 function gen_action_next() {
     gen_action('next')
+}
+
+function gen_action_done() {
+    gen_action('done')
 }
 
 function gen_action_pass() {

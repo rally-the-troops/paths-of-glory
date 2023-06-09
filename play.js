@@ -14,6 +14,7 @@ const CP_MO_MARKER = "marker small cp_mo "
 
 const USC_MARKER = "marker usc_"
 const RC_MARKER = "marker rc_"
+const TURN_MARKER = "marker turn_"
 
 function check_menu(id, x) {
     document.getElementById(id).className = x ? "menu_item checked" : "menu_item unchecked"
@@ -895,20 +896,6 @@ function update_space(s) {
 
     let activeStack = view.active == AP ? apStack : cpStack;
 
-    if (space.faction === AP) {
-        if (view.control[s])
-            push_stack(activeStack, 0, build_control_marker(s, CP))
-        else
-            destroy_control_marker(s, CP)
-    }
-
-    if (space.faction === CP) {
-        if (!view.control[s])
-            push_stack(activeStack, 0, build_control_marker(s, AP))
-        else
-            destroy_control_marker(s, AP)
-    }
-
     for_each_piece_in_space(s, p => {
         let is_corps = pieces[p].type === CORPS
         let pe = pieces[p].element
@@ -924,6 +911,20 @@ function update_space(s) {
         else
             push_stack(stack, p, pe)
     })
+
+    if (space.faction === AP) {
+        if (view.control[s])
+            push_stack(cpStack, 0, build_control_marker(s, CP))
+        else
+            destroy_control_marker(s, CP)
+    }
+
+    if (space.faction === CP) {
+        if (!view.control[s])
+            push_stack(apStack, 0, build_control_marker(s, AP))
+        else
+            destroy_control_marker(s, AP)
+    }
 
     if (view.activated.move.includes(s)) {
         unshift_stack(activeStack, 0, build_activation_marker(s, 'move'))
@@ -1140,6 +1141,8 @@ function update_map() {
     usc_marker.className = USC_MARKER + view.usc
     let rc_marker = document.getElementById("rc_marker")
     rc_marker.className = RC_MARKER + view.rc
+    let turn_marker = document.getElementById("turn_marker")
+    turn_marker.className = TURN_MARKER + view.turn
     update_action_round_tracks()
 
 

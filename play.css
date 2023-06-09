@@ -299,51 +299,73 @@ body.bevel .event {
 }
 
 /* TRACKS */
+/* Turn */
+.turn_1 { left: 71px; top: 106px; }
+.turn_2 { left: 130px; top: 106px; }
+.turn_3 { left: 189px; top: 106px; }
+.turn_4 { left: 248px; top: 106px; }
+.turn_5 { left: 307px; top: 106px; }
+.turn_6 { left: 71px; top: 198px; }
+.turn_7 { left: 130px; top: 198px; }
+.turn_8 { left: 189px; top: 198px; }
+.turn_9 { left: 248px; top: 198px; }
+.turn_10 { left: 307px; top: 198px; }
+.turn_11 { left: 71px; top: 290px; }
+.turn_12 { left: 130px; top: 290px; }
+.turn_13 { left: 189px; top: 290px; }
+.turn_14 { left: 248px; top: 290px; }
+.turn_15 { left: 307px; top: 290px; }
+.turn_16 { left: 71px; top: 382px; }
+.turn_17 { left: 130px; top: 382px; }
+.turn_18 { left: 189px; top: 382px; }
+.turn_19 { left: 248px; top: 382px; }
+.turn_20 { left: 307px; top: 382px; }
+
 /* General Records */
-.gr_0 { left: 62px; top: 1350px }
-.gr_1 { left: 118px; top: 1350px }
-.gr_2 { left: 174px; top: 1350px }
-.gr_3 { left: 230px; top: 1350px }
-.gr_4 { left: 286px; top: 1350px }
-.gr_5 { left: 342px; top: 1350px }
-.gr_6 { left: 398px; top: 1350px }
-.gr_7 { left: 454px; top: 1350px }
-.gr_8 { left: 510px; top: 1350px }
-.gr_9 { left: 566px; top: 1350px }
-.gr_10 { left: 62px; top: 1416px }
-.gr_11 { left: 118px; top: 1416px }
-.gr_12 { left: 174px; top: 1416px }
-.gr_13 { left: 230px; top: 1416px }
-.gr_14 { left: 286px; top: 1416px }
-.gr_15 { left: 342px; top: 1416px }
-.gr_16 { left: 398px; top: 1416px }
-.gr_17 { left: 454px; top: 1416px }
-.gr_18 { left: 510px; top: 1416px }
-.gr_19 { left: 566px; top: 1416px }
-.gr_20 { left: 62px; top: 1482px }
-.gr_21 { left: 118px; top: 1482px }
-.gr_22 { left: 174px; top: 1482px }
-.gr_23 { left: 230px; top: 1482px }
-.gr_24 { left: 286px; top: 1482px }
-.gr_25 { left: 342px; top: 1482px }
-.gr_26 { left: 398px; top: 1482px }
-.gr_27 { left: 454px; top: 1482px }
-.gr_28 { left: 510px; top: 1482px }
-.gr_29 { left: 566px; top: 1482px }
-.gr_30 { left: 62px; top: 1548px }
-.gr_31 { left: 118px; top: 1548px }
-.gr_32 { left: 174px; top: 1548px }
-.gr_33 { left: 230px; top: 1548px }
-.gr_34 { left: 286px; top: 1548px }
-.gr_35 { left: 342px; top: 1548px }
-.gr_36 { left: 398px; top: 1548px }
-.gr_37 { left: 454px; top: 1548px }
-.gr_38 { left: 510px; top: 1548px }
-.gr_39 { left: 566px; top: 1548px }
-.gr_40 { left: 622px; top: 1548px }
+.gr_0 { left: 62px; top: 1350px; }
+.gr_1 { left: 118px; top: 1350px; }
+.gr_2 { left: 174px; top: 1350px; }
+.gr_3 { left: 230px; top: 1350px; }
+.gr_4 { left: 286px; top: 1350px; }
+.gr_5 { left: 342px; top: 1350px; }
+.gr_6 { left: 398px; top: 1350px; }
+.gr_7 { left: 454px; top: 1350px; }
+.gr_8 { left: 510px; top: 1350px; }
+.gr_9 { left: 566px; top: 1350px; }
+.gr_10 { left: 62px; top: 1416px; }
+.gr_11 { left: 118px; top: 1416px; }
+.gr_12 { left: 174px; top: 1416px; }
+.gr_13 { left: 230px; top: 1416px; }
+.gr_14 { left: 286px; top: 1416px; }
+.gr_15 { left: 342px; top: 1416px; }
+.gr_16 { left: 398px; top: 1416px; }
+.gr_17 { left: 454px; top: 1416px; }
+.gr_18 { left: 510px; top: 1416px; }
+.gr_19 { left: 566px; top: 1416px; }
+.gr_20 { left: 62px; top: 1482px; }
+.gr_21 { left: 118px; top: 1482px; }
+.gr_22 { left: 174px; top: 1482px; }
+.gr_23 { left: 230px; top: 1482px; }
+.gr_24 { left: 286px; top: 1482px; }
+.gr_25 { left: 342px; top: 1482px; }
+.gr_26 { left: 398px; top: 1482px; }
+.gr_27 { left: 454px; top: 1482px; }
+.gr_28 { left: 510px; top: 1482px; }
+.gr_29 { left: 566px; top: 1482px; }
+.gr_30 { left: 62px; top: 1548px; }
+.gr_31 { left: 118px; top: 1548px; }
+.gr_32 { left: 174px; top: 1548px; }
+.gr_33 { left: 230px; top: 1548px; }
+.gr_34 { left: 286px; top: 1548px; }
+.gr_35 { left: 342px; top: 1548px; }
+.gr_36 { left: 398px; top: 1548px; }
+.gr_37 { left: 454px; top: 1548px; }
+.gr_38 { left: 510px; top: 1548px; }
+.gr_39 { left: 566px; top: 1548px; }
+.gr_40 { left: 622px; top: 1548px; }
 
 /* Russian Capitulation */
-#rc_marker { top: 1254px }
+#rc_marker { top: 1254px; }
 #rc_marker.rc_0 { left: 70px; }
 #rc_marker.rc_1 { left: 124px; }
 #rc_marker.rc_2 { left: 176px; }

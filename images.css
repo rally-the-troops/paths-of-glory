@@ -42,6 +42,7 @@
 .marker.action.cp.round5{background-image:url(images/action_cp5.png)}
 .marker.action.cp.round6{background-image:url(images/action_cp6.png)}
 
+#turn_marker.marker{background-image:url(images/blank.png)} /*TODO*/
 #rc_marker.marker{background-image:url(images/russian_capit.png)}
 #us_commitment_marker.marker{background-image:url(images/us_entry.png)}
 
