@@ -32,6 +32,8 @@ const US = "us"
 
 const NONE = "none"
 
+const STACKING_LIMIT = 3
+
 const COMMITMENT_MOBILIZATION = "mobilization"
 const COMMITMENT_LIMITED = "limited"
 const COMMITMENT_TOTAL = "total"
@@ -47,6 +49,11 @@ const ACTION_PEACE_TERMS = "peace"
 
 // Card indices
 const GUNS_OF_AUGUST = 66
+
+// Space indices
+const AMIENS = 16
+const CALAIS = 17
+const OSTEND = 18
 
 const HISTORICAL = "Historical"
 exports.scenarios = [ HISTORICAL ]
@@ -875,10 +882,10 @@ states.move_stack = {
             })
         }
 
-        game.move.pieces.forEach((p) => {
-            if (can_drop_piece(p, game.move.current))
-                gen_action_piece(p)
-        })
+        if (!is_fully_stacked(game.move.current, game.active)) {
+            game.move.pieces.forEach((p) => { gen_action_piece(p) })
+        }
+
 
         gen_action_undo()
 
@@ -948,19 +955,40 @@ function can_move_to(s) {
     return true
 }
 
-function can_drop_piece(p, s) {
-    // TODO: Determine if it's legal to drop units here
-    return true
+function is_fully_stacked(s, faction) {
+    let matches = 0
+    for (let p = 1; p < game.location.length; ++p) {
+        if (game.location[p] == s && data.pieces[p].faction == faction) {
+            matches++
+        }
+        if (matches == STACKING_LIMIT)
+            return true
+    }
+    return false
+}
+
+function is_overstacked(s, faction) {
+    let matches = 0
+    for (let p = 1; p < game.location.length; ++p) {
+        if (game.location[p] == s && data.pieces[p].faction == faction) {
+            matches++
+        }
+        if (matches > STACKING_LIMIT)
+            return true
+    }
+    return false
 }
 
 function can_end_move(s) {
-    // TODO: Determine if it's legal to end the move here
+    if (game.activated.attack.includes(s))
+        return false
 
-    // Units may move through but not end their movement in a space containing an Attack marker.
+    if ((s == AMIENS || s == CALAIS || s == OSTEND) && game.cp.ws < 4) {
+        return false
+    }
 
-    // Amiens, Calais & Ostend: Until either the Race to the Sea Event Card is played or the CP War Status is 4 or
-    // higher, Central Powers units may neither end their move nor SR into Amiens, Calais, or Ostend, except as a
-    // result of advance after combat. However they may move through and place control markers on these spaces.
+    if (is_overstacked(s, game.active))
+        return false
 
     return true
 }
