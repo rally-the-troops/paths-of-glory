@@ -926,14 +926,16 @@ function update_space(s) {
             destroy_control_marker(s, AP)
     }
 
+    let controllingStack = view.control[s] ? cpStack : apStack
+
     if (view.activated.move.includes(s)) {
-        unshift_stack(activeStack, 0, build_activation_marker(s, 'move'))
+        unshift_stack(controllingStack, 0, build_activation_marker(s, 'move'))
     } else {
         destroy_activation_marker(s, 'move')
     }
 
     if (view.activated.attack.includes(s)) {
-        unshift_stack(activeStack, 0, build_activation_marker(s, 'attack'))
+        unshift_stack(controllingStack, 0, build_activation_marker(s, 'attack'))
     } else {
         destroy_activation_marker(s, 'attack')
     }
@@ -1004,7 +1006,8 @@ function update_piece(id) {
         piece.element.classList.remove('highlight')
 
     if ((view.activation && view.activation.includes(id)) ||
-        (view.move && view.move.pieces.includes(id)))
+        (view.move && view.move.pieces.includes(id)) ||
+        (view.attack && view.attack.pieces.includes(id)))
         piece.element.classList.add('activated')
     else
         piece.element.classList.remove('activated')
@@ -1158,6 +1161,7 @@ function update_map() {
     action_button("pick_up_all", "Pick Up All")
     action_button("move", "Begin Move")
     action_button("end_move", "End Move")
+    action_button("finish_attacks", "Finish Attacks")
     action_button("done", "Done")
     action_button("undo", "Undo")
 }

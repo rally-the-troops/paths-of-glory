@@ -54,6 +54,12 @@ const GUNS_OF_AUGUST = 66
 const AMIENS = 16
 const CALAIS = 17
 const OSTEND = 18
+const LIEGE = 33
+const KOBLENZ = 41
+
+// Piece indices
+const GE_1_ARMY = 1
+const GE_2_ARMY = 2
 
 const HISTORICAL = "Historical"
 exports.scenarios = [ HISTORICAL ]
@@ -82,7 +88,7 @@ exports.resign = function (state, current) {
         game.state = "game_over"
         game.active = null
         game.state = "game_over"
-        game.result = (current === AP ? CP : AP)
+        game.result = other_faction(current)
         game.victory = current + " resigned."
     }
     return game
@@ -118,7 +124,7 @@ exports.view = function(state, current) {
         last_card: game.last_card,
         activated: game.activated,
         move: game.move,
-        combat: game.combat,
+        attack: game.attack,
         ap: {
             deck: game.ap.deck.length,
             hand: game.ap.hand.length,
@@ -590,12 +596,12 @@ function play_card(card) {
 }
 
 function record_action(type, card) {
-    let actions = game.active == AP ? game.ap.actions : game.cp.actions
+    let actions = game[game.active].actions
     actions.push({ type: type, card: card })
 }
 
 function get_last_action() {
-    let actions = game.active == AP ? game.ap.actions : game.cp.actions
+    let actions = game[game.active].actions
     if (actions.length == 0)
         return undefined
 
@@ -748,9 +754,19 @@ states.activate_spaces = {
         game.ops -= cost_to_activate(s)
     },
     next() {
-        game.ops = 0
-        goto_next_activation()
+        start_action_round()
     }
+}
+
+function start_action_round() {
+    game.ops = 0
+    game.eligible_attackers = []
+    game.location.forEach((s, p) => {
+        if (game.activated.attack.includes(s)) {
+            game.eligible_attackers.push(p)
+        }
+    })
+    goto_next_activation()
 }
 
 function start_move_activation() {
@@ -763,16 +779,30 @@ function start_move_activation() {
     game.state = 'choose_move_space'
 }
 
+function start_attack_activation() {
+    game.attack = {
+        pieces: [],
+        space: 0
+    }
+    game.state = 'choose_attackers'
+}
+
 function end_move_activation() {
     array_remove_item(game.activated.move, game.move.initial)
     game.move = null
+}
+
+function end_attack_activation() {
+    if (game.eligible_attackers.length == 0)
+        game.activated.attack = []
+    game.attack = null
 }
 
 function goto_next_activation() {
     if (game.activated.move.length > 0) {
         start_move_activation()
     } else if (game.activated.attack.length > 0) {
-        game.state = 'choose_attack_space'
+        start_attack_activation()
     } else {
         goto_end_action()
     }
@@ -780,7 +810,7 @@ function goto_next_activation() {
 
 function goto_end_action() {
     if (game.ap.actions.length < 6 || game.cp.actions.length < 6) {
-        game.active = game.active === CP ? AP : CP
+        game.active = other_faction(game.active)
         game.state = 'action_phase'
     } else {
         goto_attrition_phase()
@@ -983,6 +1013,7 @@ function can_end_move(s) {
     if (game.activated.attack.includes(s))
         return false
 
+    // TODO: Check if "Race to the Sea" has been played
     if ((s == AMIENS || s == CALAIS || s == OSTEND) && game.cp.ws < 4) {
         return false
     }
@@ -1001,6 +1032,206 @@ function end_move_stack() {
         game.state = 'choose_pieces_to_move'
     } else {
         end_move_activation()
+        goto_next_activation()
+    }
+}
+
+states.choose_attackers = {
+    inactive: 'Choose Units to Attack',
+    prompt() {
+        view.prompt = `Choose which units will attack`
+        game.eligible_attackers.forEach((p) => {
+            gen_action_piece(p)
+        })
+        gen_action_undo()
+        gen_action_next()
+        gen_action('finish_attacks')
+    },
+    piece(p) {
+        push_undo()
+        if (game.attack.pieces.includes(p))
+            array_remove_item(game.attack.pieces, p)
+        else
+            game.attack.pieces.push(p)
+    },
+    next() {
+        push_undo()
+        game.state = 'choose_defending_space'
+    },
+    finish_attacks() {
+        game.eligible_attackers = []
+        end_attack_activation()
+        goto_next_activation()
+    }
+}
+
+states.choose_defending_space = {
+    inactive: 'Choose Space to Attack',
+    prompt() {
+        view.prompt = `Choose which space to attack`
+
+        let attackable_spaces = get_attackable_spaces(game.attack.pieces)
+        attackable_spaces.forEach((s) => {
+            gen_action_space(s)
+        })
+
+        gen_action_undo()
+    },
+    space(s) {
+        push_undo()
+        game.attack.space = s
+        goto_attack()
+    },
+    piece(p) {
+        push_undo()
+        game.attack.space = game.location[p]
+        goto_attack()
+    }
+}
+
+function goto_attack() {
+    game.attack.pieces.forEach((p) => {
+        array_remove_item(game.eligible_attackers, p)
+    })
+    // TODO: if defending space has a trench, go to the state that allows the attacker to negate trenches
+    // TODO: if attacking pieces are eligible to flank, go to the state that lets the attacker choose to flank
+    // TODO: if defender has option to withdraw, go to state that allows withdrawal
+
+    game.state = 'attacker_combat_cards'
+}
+
+function get_attackable_spaces(attackers) {
+    let eligible_spaces = []
+    for (let i = 0; i < attackers.length; ++i) {
+        let attacker = attackers[i]
+        let attackable_spaces = get_attackable_spaces_for_piece(attacker)
+        if (i == 0) { // First attacker's spaces are all eligible
+            eligible_spaces.push(...attackable_spaces)
+        } else { // Subsequent attackers subtract ineligible spaces
+            let to_remove = []
+            eligible_spaces.forEach((s) => {
+                if (!attackable_spaces.includes(s)) {
+                    to_remove.push(s)
+                }
+            })
+            to_remove.forEach((s) => { array_remove_item(eligible_spaces, s) })
+        }
+    }
+
+    // TODO: Units in London may conduct a Combat only if the Combat also involves friendly units located in a
+    //  space in either France or Belgium. Italian units may attack across the Taranto–Valona dotted line without
+    //  friendly units located in Albania or Greece.
+
+    // TODO: Multi-national Attacks can occur from more than one space if one of the spaces in the attack contains
+    //  units of all involved nationalities. Any other space(s) involved in the same Combat may contain units from
+    //  any of the nationalities in the common space. Each participating nation must have a unit in the common
+    //  space participating in the attack. Due to this restriction and stacking limits, no Combat may involve more
+    //  than three nationalities on each side.
+
+    return eligible_spaces
+}
+
+function get_attackable_spaces_for_piece(p) {
+    let attackable_spaces = []
+    let s = game.location[p]
+    data.spaces[s].connections.forEach((conn) => {
+        // TODO: check for national restrictions on the connection
+
+        // TODO: Units may attack across dashed lines only if their nationality is indicated on the map adjacent to
+        //  the dashed lines. Russian Armies cannot make attacks from the Caucasus space to the Near East. One Russian
+        //  corps may attack/retreat between the Caucasus space and the Near East per turn; this counts as the
+        //  “one move” allowed under 11.3.2
+
+        if (can_be_attacked(conn))
+            set_add(attackable_spaces, conn)
+    })
+    return attackable_spaces
+}
+
+function can_be_attacked(s) {
+    let retval = false
+
+    // TODO: Check if space has an attackable fort
+
+    for (let p = 0; p < game.location.length; ++p) {
+        if (game.location[p] == s && data.pieces[p].faction !== game.active) {
+            retval = true
+            break
+        }
+    }
+
+    // TODO: Can't have only units that retreated this round
+    return retval
+}
+
+// TODO
+states.attacker_combat_cards = {
+    inactive: 'Attacker Combat Cards',
+    prompt() {
+        view.prompt = `Play combat cards`
+
+        gen_action_undo()
+        gen_action_next()
+    },
+    next() {
+        game.active = other_faction(game.active)
+        game.state = 'defender_combat_cards'
+    }
+}
+
+// TODO
+states.defender_combat_cards = {
+    inactive: 'Defender Combat Cards',
+    prompt() {
+        view.prompt = `Play combat cards`
+        gen_action_next()
+    },
+    next() {
+        resolve_attack()
+    }
+}
+
+function resolve_attack() {
+    // TODO: Resolve the attack and record losses to take for each side
+    // TODO: Determine winner and discard the loser's combat cards
+
+    game.state = 'apply_defender_losses'
+}
+
+// TODO
+states.apply_defender_losses = {
+    inactive: 'Defender Applying Losses',
+    prompt() {
+        view.prompt = `Take losses`
+        gen_action_next()
+    },
+    next() {
+        game.state = 'defender_retreat'
+    }
+}
+
+// TODO
+states.defender_retreat = {
+    inactive: 'Defender Retreating',
+    prompt() {
+        view.prompt = `Retreat or take an extra step loss to cancel the retreat`
+        gen_action_next()
+    },
+    next() {
+        game.active = other_faction(game.active)
+        game.state = 'attacker_advance'
+    }
+}
+
+// TODO
+states.attacker_advance = {
+    inactive: 'Attacker Advancing',
+    prompt() {
+        view.prompt = `Advance full strength attackers`
+        gen_action_next()
+    },
+    next() {
+        end_attack_activation()
         goto_next_activation()
     }
 }
@@ -1096,7 +1327,7 @@ function goto_siege_phase() {
     if (game.siege.ap.length > 0 || game.siege.cp.length > 0) {
         game.state = 'siege_roll'
         if (game.siege[game.active].length == 0)
-            game.active = game.active == CP ? AP : CP
+            game.active = other_faction(game.active)
     } else {
         goto_war_status_phase()
     }
@@ -1117,7 +1348,7 @@ states.siege_roll = {
         // TODO: Roll for siege in space
     },
     done() {
-        let other = game.active == CP ? AP : CP
+        let other = other_faction(game.active)
         if (game.siege[other].length > 0) {
             game.active == other
         } else {
@@ -1206,6 +1437,10 @@ function goto_draw_cards_phase() {
     goto_end_turn()
 }
 
+function other_faction(faction) {
+    return faction === CP ? AP : CP
+}
+
 function gen_action_next() {
     gen_action('next')
 }
@@ -1247,26 +1482,22 @@ function card_name(card) {
 
 events.guns_of_august = {
     can_play() {
-        // TODO: Check if it's the first action of the first turn
-        return true
+        return (game.turn == 1 && game.cp.actions.length == 0)
     },
     play() {
-        const LIEGE = 33
-        const KOBLENZ = 41
-        const GE_1_ARMY = 1
-        const GE_2_ARMY = 2
-
         push_undo()
 
         // TODO: Destroy the Liege fort
-        // TODO: Update war status?
+
+        game.cp.ws += data.cards[GUNS_OF_AUGUST].ws
 
         game.location[GE_1_ARMY] = LIEGE
         game.location[GE_2_ARMY] = LIEGE
         game.activated.attack.push(LIEGE)
         game.activated.attack.push(KOBLENZ)
+        game.control[LIEGE] = 1
 
-        goto_next_activation()
+        start_action_round()
     }
 }
 
