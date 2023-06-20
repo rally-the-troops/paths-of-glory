@@ -279,6 +279,50 @@ exports.setup = function (seed, scenario, options) {
     setup_piece('be', '1 Army', 'Antwerp')
     setup_piece('br', 'BEF', 'Brussels')
 
+    setup_piece('ge', '8 Army', 'Insterberg')
+    setup_piece('ge', 'GE Corps', 'Insterberg')
+    setup_piece('ge', 'GE Corps', 'Oppeln', true)
+    setup_piece('ah', 'A-H Corps', 'Cracow')
+    setup_piece('ah', '1 Army', 'Tarnow')
+    setup_piece('ah', '4 Army', 'Przemysl')
+    setup_piece('ah', 'A-H Corps', 'Stanislau')
+    setup_piece('ah', '2 Army', 'Munkacs', true)
+    setup_piece('ah', '3 Army', 'Tarnopol')
+    setup_piece('ah', 'A-H Corps', 'Czernowitz')
+    setup_piece('ah', 'A-H Corps', 'Timisvar')
+    setup_piece('ah', 'A-H Corps', 'Villach')
+    setup_piece('ah', '6 Army', 'Sarajevo')
+    setup_piece('ah', '5 Army', 'Novi Sad')
+
+    setup_piece('mn', 'MN Corps', 'Cetinje')
+    setup_piece('sb', '2 Army', 'Valjevo')
+    setup_piece('sb', '1 Army', 'Belgrade')
+
+    setup_piece('ru', 'RU Corps', 'Odessa')
+    setup_piece('ru', 'RU Corps', 'Lutsk')
+    setup_piece('ru', 'RU Corps', 'Szawli')
+    setup_piece('ru', 'RU Corps', 'Riga')
+    setup_piece('ru', 'RU Corps', 'Grodno')
+    setup_piece('ru', '1 Army', 'Kovno')
+    setup_piece('ru', '2 Army', 'Lomza')
+    setup_piece('ru', '4 Army', 'Ivangorod')
+    setup_piece('ru', '5 Army', 'Lublin')
+    setup_piece('ru', '3 Army', 'Dubno')
+    setup_piece('ru', '8 Army', 'Kamenets-Podolski')
+    setup_piece('ru', 'RU Corps', 'Kars')
+    setup_piece('ru', 'RU Corps', 'Erivan')
+
+    setup_piece('it', 'IT Corps', 'Rome')
+    setup_piece('it', 'IT Corps', 'Turin')
+    setup_piece('it', 'IT Corps', 'Taranto')
+    setup_piece('it', '1 Army', 'Verona', true)
+    setup_piece('it', '2 Army', 'Udine', true)
+    setup_piece('it', '3 Army', 'Maggiore', true)
+    setup_piece('it', '4 Army', 'Asiago', true)
+
+    // TODO: Turkish setup
+    // TODO: Near East setup
+
     log_h1(scenario)
 
     if (game.scenario == HISTORICAL) {

@@ -128,6 +128,29 @@
 .br_5_army{background-image: url(images/pieces/br_army05.png)}
 .br_5_army.reduced{background-image: url(images/pieces/br_army05_back.png)}
 
+.ah_corps{background-image:url(images/pieces/ah_corps.png)}
+.ah_corps.reduced{background-image:url(images/pieces/ah_corps_back.png)}
+.ah_1_army{background-image:url(images/pieces/ah_army01.png)}
+.ah_1_army.reduced{background-image:url(images/pieces/ah_army01_back.png)}
+.ah_2_army{background-image:url(images/pieces/ah_army02.png)}
+.ah_2_army.reduced{background-image:url(images/pieces/ah_army02_back.png)}
+.ah_3_army{background-image:url(images/pieces/ah_army03.png)}
+.ah_3_army.reduced{background-image:url(images/pieces/ah_army03_back.png)}
+.ah_4_army{background-image:url(images/pieces/ah_army04.png)}
+.ah_4_army.reduced{background-image:url(images/pieces/ah_army04_back.png)}
+.ah_5_army{background-image:url(images/pieces/ah_army05.png)}
+.ah_5_army.reduced{background-image:url(images/pieces/ah_army05_back.png)}
+.ah_6_army{background-image:url(images/pieces/ah_army06.png)}
+.ah_6_army.reduced{background-image:url(images/pieces/ah_army06_back.png)}
+.ah_7_army{background-image:url(images/pieces/ah_army07.png)}
+.ah_7_army.reduced{background-image:url(images/pieces/ah_army07_back.png)}
+.ah_10_army{background-image:url(images/pieces/ah_army10.png)}
+.ah_10_army.reduced{background-image:url(images/pieces/ah_army10_back.png)}
+.ah_11_army{background-image:url(images/pieces/ah_army11.png)}
+.ah_11_army.reduced{background-image:url(images/pieces/ah_army11_back.png)}
+
+/* TODO Italian units, Turkish units, Russian units, etc. */
+
 .card_ap_0{background-image:url(images/cards/cardback_ap.svg)}
 .card_ap_1{background-image:url(images/cards/card_ap01.svg)}
 .card_ap_2{background-image:url(images/cards/card_ap02.svg)}
