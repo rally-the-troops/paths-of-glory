@@ -117,6 +117,8 @@
 
 .br_bef_army{background-image: url(images/pieces/bef_army.png)}
 .br_bef_army.reduced{background-image: url(images/pieces/bef_army_back.png)}
+.br_bef_corps{background-image: url(images/pieces/bef_corps.png)}
+.br_bef_corps.reduced{background-image: url(images/pieces/bef_corps_back.png)}
 .br_1_army{background-image: url(images/pieces/br_army01.png)}
 .br_1_army.reduced{background-image: url(images/pieces/br_army01_back.png)}
 .br_2_army{background-image: url(images/pieces/br_army02.png)}
@@ -149,7 +151,93 @@
 .ah_11_army{background-image:url(images/pieces/ah_army11.png)}
 .ah_11_army.reduced{background-image:url(images/pieces/ah_army11_back.png)}
 
-/* TODO Italian units, Turkish units, Russian units, etc. */
+.it_corps{background-image:url(images/pieces/it_corps.png)}
+.it_corps.reduced{background-image:url(images/pieces/it_corps_back.png)}
+.it_1_army{background-image:url(images/pieces/it_army01.png)}
+.it_1_army.reduced{background-image:url(images/pieces/it_army01_back.png)}
+.it_2_army{background-image:url(images/pieces/it_army02.png)}
+.it_2_army.reduced{background-image:url(images/pieces/it_army02_back.png)}
+.it_3_army{background-image:url(images/pieces/it_army03.png)}
+.it_3_army.reduced{background-image:url(images/pieces/it_army03_back.png)}
+.it_4_army{background-image:url(images/pieces/it_army04.png)}
+.it_4_army.reduced{background-image:url(images/pieces/it_army04_back.png)}
+.it_5_army{background-image:url(images/pieces/it_army05.png)}
+.it_5_army.reduced{background-image:url(images/pieces/it_army05_back.png)}
+
+.tu_corps{background-image:url(images/pieces/tu_corps.png)}
+.tu_corps.reduced{background-image:url(images/pieces/tu_corps_back.png)}
+
+.ru_corps{background-image:url(images/pieces/ru_corps.png)}
+.ru_corps.reduced{background-image:url(images/pieces/ru_corps_back.png)}
+.ru_1_army{background-image:url(images/pieces/ru_army01.png)}
+.ru_1_army.reduced{background-image:url(images/pieces/ru_army01_back.png)}
+.ru_2_army{background-image:url(images/pieces/ru_army02.png)}
+.ru_2_army.reduced{background-image:url(images/pieces/ru_army02_back.png)}
+.ru_3_army{background-image:url(images/pieces/ru_army03.png)}
+.ru_3_army.reduced{background-image:url(images/pieces/ru_army03_back.png)}
+.ru_4_army{background-image:url(images/pieces/ru_army04.png)}
+.ru_4_army.reduced{background-image:url(images/pieces/ru_army04_back.png)}
+.ru_5_army{background-image:url(images/pieces/ru_army05.png)}
+.ru_5_army.reduced{background-image:url(images/pieces/ru_army05_back.png)}
+.ru_6_army{background-image:url(images/pieces/ru_army06.png)}
+.ru_6_army.reduced{background-image:url(images/pieces/ru_army06_back.png)}
+.ru_7_army{background-image:url(images/pieces/ru_army07.png)}
+.ru_7_army.reduced{background-image:url(images/pieces/ru_army07_back.png)}
+.ru_8_army{background-image:url(images/pieces/ru_army08.png)}
+.ru_8_army.reduced{background-image:url(images/pieces/ru_army08_back.png)}
+.ru_9_army{background-image:url(images/pieces/ru_army09.png)}
+.ru_9_army.reduced{background-image:url(images/pieces/ru_army09_back.png)}
+.ru_10_army{background-image:url(images/pieces/ru_army10.png)}
+.ru_10_army.reduced{background-image:url(images/pieces/ru_army10_back.png)}
+.ru_11_army{background-image:url(images/pieces/ru_army11.png)}
+.ru_11_army.reduced{background-image:url(images/pieces/ru_army11_back.png)}
+.ru_12_army{background-image:url(images/pieces/ru_army12.png)}
+.ru_12_army.reduced{background-image:url(images/pieces/ru_army12_back.png)}
+.ru_cav{background-image:url(images/pieces/ru_cav.png)}
+.ru_cav.reduced{background-image:url(images/pieces/ru_cav_back.png)}
+
+.sb_corps{background-image:url(images/pieces/sb_corps.png)}
+.sb_corps.reduced{background-image:url(images/pieces/sb_corps_back.png)}
+.sb_1_army{background-image:url(images/pieces/sb_army01.png)}
+.sb_1_army.reduced{background-image:url(images/pieces/sb_army01_back.png)}
+.sb_2_army{background-image:url(images/pieces/sb_army02.png)}
+.sb_2_army.reduced{background-image:url(images/pieces/sb_army02_back.png)}
+
+.us_corps{background-image:url(images/pieces/us_corps.png)}
+.us_corps.reduced{background-image:url(images/pieces/us_corps_back.png)}
+.us_1_army{background-image:url(images/pieces/us_army01.png)}
+.us_1_army.reduced{background-image:url(images/pieces/us_army01_back.png)}
+.us_2_army{background-image:url(images/pieces/us_army02.png)}
+.us_2_army.reduced{background-image:url(images/pieces/us_army02_back.png)}
+
+.ana_corps{background-image:url(images/pieces/ana_corps.png)}
+.ana_corps.reduced{background-image:url(images/pieces/ana_corps_back.png)}
+.aoi_army{background-image:url(images/pieces/aoi_army.png)}
+.aoi_army.reduced{background-image:url(images/pieces/aoi_army_back.png)}
+.aus_corps{background-image:url(images/pieces/aus_corps.png)}
+.aus_corps.reduced{background-image:url(images/pieces/aus_corps_back.png)}
+.bu_corps{background-image:url(images/pieces/bu_corps.png)}
+.bu_corps.reduced{background-image:url(images/pieces/bu_corps_back.png)}
+.cau_army{background-image:url(images/pieces/cau_army.png)}
+.cau_army.reduced{background-image:url(images/pieces/cau_army_back.png)}
+.cnd_corps{background-image:url(images/pieces/cnd_corps.png)}
+.cnd_corps.reduced{background-image:url(images/pieces/cnd_corps_back.png)}
+.gr_corps{background-image:url(images/pieces/gr_corps.png)}
+.gr_corps.reduced{background-image:url(images/pieces/gr_corps_back.png)}
+.mn_corps{background-image:url(images/pieces/mn_corps.png)}
+.mn_corps.reduced{background-image:url(images/pieces/mn_corps_back.png)}
+.ne_army{background-image:url(images/pieces/ne_army.png)}
+.ne_army.reduced{background-image:url(images/pieces/ne_army_back.png)}
+.pol_corps{background-image:url(images/pieces/pol_corps.png)}
+.pol_corps.reduced{background-image:url(images/pieces/pol_corps_back.png)}
+.pt_corps{background-image:url(images/pieces/pt_corps.png)}
+.pt_corps.reduced{background-image:url(images/pieces/pt_corps_back.png)}
+.ro_corps{background-image:url(images/pieces/ro_corps.png)}
+.ro_corps.reduced{background-image:url(images/pieces/ro_corps_back.png)}
+.sn_corps{background-image:url(images/pieces/sn_corps.png)}
+.sn_corps.reduced{background-image:url(images/pieces/sn_corps_back.png)}
+.yld_army{background-image:url(images/pieces/yld_army.png)}
+.yld_army.reduced{background-image:url(images/pieces/yld_army_back.png)}
 
 .card_ap_0{background-image:url(images/cards/cardback_ap.svg)}
 .card_ap_1{background-image:url(images/cards/card_ap01.svg)}
