@@ -311,6 +311,7 @@ exports.setup = function (seed, scenario, options) {
     setup_piece('ru', '8 Army', 'Kamenets-Podolski')
     setup_piece('ru', 'RU Corps', 'Kars')
     setup_piece('ru', 'RU Corps', 'Erivan')
+    setup_piece('ru', 'RU Corps', 'Batum')
 
     setup_piece('it', 'IT Corps', 'Rome')
     setup_piece('it', 'IT Corps', 'Turin')
@@ -320,8 +321,23 @@ exports.setup = function (seed, scenario, options) {
     setup_piece('it', '3 Army', 'Maggiore', true)
     setup_piece('it', '4 Army', 'Asiago', true)
 
-    // TODO: Turkish setup
-    // TODO: Near East setup
+    setup_piece('tu', 'TU Corps', 'Constantinople')
+    setup_piece('tu', 'TU Corps', 'Balikesir')
+    setup_piece('tu', 'TU Corps', 'Gallipoli')
+    setup_piece('tu', 'TU Corps', 'Ankara')
+    setup_piece('tu', 'TU Corps', 'Erzerum')
+    setup_piece('tu', 'TU Corps', 'Rize')
+    setup_piece('tu', 'TU Corps', 'Van')
+    setup_piece('tu', 'TU Corps', 'Adana')
+    setup_piece('tu', 'TU Corps', 'Mosul')
+    setup_piece('tu', 'TU Corps', 'Damascus')
+    setup_piece('tu', 'TU Corps', 'Gaza')
+    setup_piece('tu', 'TU Corps', 'Medina')
+    setup_piece('tu', 'TU Corps', 'Baghdad')
+
+    setup_piece('br', 'BR Corps', 'Basra')
+    setup_piece('br', 'BR Corps', 'Cairo', true)
+    setup_piece('br', 'BR Corps', 'Port Said', true)
 
     log_h1(scenario)
 

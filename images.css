@@ -115,6 +115,9 @@
 .be_corps{background-image: url(images/pieces/be_corps.png)}
 .be_corps.reduced{background-image: url(images/pieces/be_corps_back.png)}
 
+
+.br_corps{background-image: url(images/pieces/br_corps.png)}
+.br_corps.reduced{background-image: url(images/pieces/br_corps_back.png)}
 .br_bef_army{background-image: url(images/pieces/bef_army.png)}
 .br_bef_army.reduced{background-image: url(images/pieces/bef_army_back.png)}
 .br_bef_corps{background-image: url(images/pieces/bef_corps.png)}
