@@ -11,7 +11,7 @@ num,faction,commitment,ops,sr,remove,cc,ws,rp_a,rp_br,rp_fr,rp_it,rp_ru,rp_ah,rp
 10,ap,mobilization,3,4,TRUE,,,,1,1,1,2,,,,,French Reinforcements,,10th Army.
 11,ap,mobilization,3,4,TRUE,,,,1,1,1,2,,,,,Russian Reinforcements,,"9th Army, 10th Army."
 12,ap,mobilization,3,4,TRUE,,,,1,1,1,2,,,,,Entrench,,Place a Level 1 Trench in any space occupied by a supplied friendly Army. Both players may now Entrench.
-13,ap,mobilization,4,4,TRUE,,2,1,2,2,1,3,,,,,Rape of Belgium,,"May only be played if CP played ""Guns of August"". Subtract 1VP."
+13,ap,mobilization,4,4,TRUE,,2,1,2,2,1,3,,,,,Rape of Belgium,rape_of_belgium,"May only be played if CP played ""Guns of August"". Subtract 1VP."
 14,ap,mobilization,4,4,TRUE,,1,1,2,2,1,3,,,,,British Reinforcements,,"1st Army, 1 corps."
 56,ap,mobilization,2,2,TRUE,,,,1,1,,1,,,,,Paris Taxis,,Allied player receives 1 extra RP to immediately flip a reduced French Army in or adjacent to Paris to its full strength side. The RP may not be spent to replace an eliminated unit.
 57,ap,mobilization,3,4,TRUE,,,,1,1,1,2,,,,,Russian Cavalry,,Place the two Russian Cavalry corps in any one space inside Russia containing a supplied Russian Army. They may not be placed in violation of the stacking limit.

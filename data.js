@@ -184,6 +184,7 @@ const cards = [
         "rpit": 1,
         "rpru": 3,
         "name": "Rape of Belgium",
+        "event": "rape_of_belgium",
         "effect": "May only be played if CP played \"Guns of August\". Subtract 1VP."
     },
     {

@@ -1,7 +1,7 @@
 "use strict"
 
 const data = require("./data")
-const {cards} = require("./data");
+const {cards} = require("./data")
 
 let game, view
 
@@ -49,6 +49,7 @@ const ACTION_PEACE_TERMS = "peace"
 
 // Card indices
 const GUNS_OF_AUGUST = 66
+const RAPE_OF_BELGIUM = 13
 
 // Space indices
 const AMIENS = 16
@@ -629,8 +630,20 @@ function get_supply_path(faction, space) {
     return []
 }
 
+function is_unit_reduced(p) {
+    return game.reduced.includes(p)
+}
+
 function get_piece_mf(p) {
-    return game.reduced.includes(p) ? data.pieces[p].rmf : data.pieces[p].mf
+    return is_unit_reduced(p) ? data.pieces[p].rmf : data.pieces[p].mf
+}
+
+function get_piece_cf(p) {
+    return is_unit_reduced(p) ? data.pieces[p].rcf : data.pieces[p].cf
+}
+
+function get_piece_lf(p) {
+    return is_unit_reduced(p) ? data.pieces[p].rlf : data.pieces[p].lf
 }
 
 function get_active_player() {
@@ -684,6 +697,7 @@ states.action_phase = {
     play_event(card) {
         log_br()
         play_card(card)
+        record_action(ACTION_EVENT, card) // TODO: Might need to handle reinforcements differently
         events[data.cards[card].event].play()
     },
     play_ops(card) {
@@ -842,7 +856,8 @@ function start_move_activation() {
 function start_attack_activation() {
     game.attack = {
         pieces: [],
-        space: 0
+        space: 0,
+        attacker: game.active
     }
     game.state = 'choose_attackers'
 }
@@ -1073,8 +1088,7 @@ function can_end_move(s) {
     if (game.activated.attack.includes(s))
         return false
 
-    // TODO: Check if "Race to the Sea" has been played
-    if ((s == AMIENS || s == CALAIS || s == OSTEND) && game.cp.ws < 4) {
+    if (!game.events.race_to_the_sea && (s == AMIENS || s == CALAIS || s == OSTEND) && game.cp.ws < 4) {
         return false
     }
 
@@ -1099,7 +1113,7 @@ function end_move_stack() {
 states.choose_attackers = {
     inactive: 'Choose Units to Attack',
     prompt() {
-        view.prompt = `Choose which units will attack`
+        view.prompt = `Choose which units will attack next`
         game.eligible_attackers.forEach((p) => {
             gen_action_piece(p)
         })
@@ -1153,8 +1167,9 @@ function goto_attack() {
     game.attack.pieces.forEach((p) => {
         array_remove_item(game.eligible_attackers, p)
     })
-    // TODO: if defending space has a trench, go to the state that allows the attacker to negate trenches
-    // TODO: if attacking pieces are eligible to flank, go to the state that lets the attacker choose to flank
+
+    // TODO: if defending space has a trench, go to 'attacker_negate_trench'
+    // TODO: else if attacking pieces are eligible to flank, go to 'attacker_choose_flankers'
     // TODO: if defender has option to withdraw, go to state that allows withdrawal
 
     game.state = 'attacker_combat_cards'
@@ -1225,6 +1240,38 @@ function can_be_attacked(s) {
 }
 
 // TODO
+states.attacker_negate_trench = {
+    inactive: 'Attacker Choosing Whether to Negate Trenches',
+    prompt() {
+        // TODO: If attacker has a card that would negate trenches, allow them to play it
+        //view.prompt = 'Negate trenches?'
+        // else
+        view.prompt = 'You cannot negate trenches'
+        gen_action_undo()
+        gen_action_next()
+    },
+    next() {
+        // TODO: If the attacker can flank
+        game.state = 'attempt_flank_attack'
+        // else
+        //game.state = 'attacker_combat_cards'
+    }
+}
+
+// TODO
+states.attempt_flank_attack = {
+    inactive: 'Attacker Choosing Whether to Attempt a Flank Attack',
+    prompt() {
+        view.prompt = 'Flank?'
+        gen_action_undo()
+        gen_action_next()
+    },
+    next() {
+        game.state = 'attacker_combat_cards'
+    }
+}
+
+// TODO
 states.attacker_combat_cards = {
     inactive: 'Attacker Combat Cards',
     prompt() {
@@ -1234,7 +1281,7 @@ states.attacker_combat_cards = {
         gen_action_next()
     },
     next() {
-        game.active = other_faction(game.active)
+        game.active = other_faction(game.attack.attacker)
         game.state = 'defender_combat_cards'
     }
 }
@@ -1247,15 +1294,119 @@ states.defender_combat_cards = {
         gen_action_next()
     },
     next() {
-        resolve_attack()
+        resolve_fire()
     }
 }
 
-function resolve_attack() {
-    // TODO: Resolve the attack and record losses to take for each side
-    // TODO: Determine winner and discard the loser's combat cards
+function resolve_fire() {
+    if (game.attack.failed_flank) {
+        resolve_defenders_fire()
+        game.active = game.attack.attacker
+        game.state = 'apply_attacker_losses'
+    } else if (game.attack.is_flank) {
+        resolve_attackers_fire()
+        game.active = other_faction(game.attack.attacker)
+        game.state = 'apply_defender_losses'
+    } else {
+        resolve_attackers_fire()
+        resolve_defenders_fire()
+        game.active = other_faction(game.attack.attacker)
+        game.state = 'apply_defender_losses'
+    }
+}
 
-    game.state = 'apply_defender_losses'
+const fire_table = {
+    corps: [
+        {factors: 0, result: [0, 0, 0, 0, 1, 1]},
+        {factors: 1, result: [0, 0, 0, 1, 1, 1]},
+        {factors: 2, result: [0, 1, 1, 1, 1, 1]},
+        {factors: 3, result: [1, 1, 1, 1, 2, 2]},
+        {factors: 4, result: [1, 1, 1, 2, 2, 2]},
+        {factors: 5, result: [1, 1, 2, 2, 2, 3]},
+        {factors: 6, result: [1, 1, 2, 2, 3, 3]},
+        {factors: 7, result: [1, 2, 2, 3, 3, 4]},
+        {factors: 8, result: [2, 2, 3, 3, 4, 4]}
+    ],
+    army: [
+        {factors: 1, result:  [0, 1, 1, 1, 2, 2]},
+        {factors: 2, result:  [1, 1, 2, 2, 3, 3]},
+        {factors: 3, result:  [1, 2, 2, 3, 3, 4]},
+        {factors: 4, result:  [2, 2, 3, 3, 4, 4]},
+        {factors: 5, result:  [2, 3, 3, 4, 4, 5]},
+        {factors: 6, result:  [3, 3, 4, 4, 5, 5]},
+        {factors: 9, result:  [3, 4, 4, 5, 5, 7]},
+        {factors: 12, result: [4, 4, 5, 5, 7, 7]},
+        {factors: 15, result: [4, 5, 5, 7, 7, 7]},
+        {factors: 16, result: [5, 5, 7, 7, 7, 7]}
+    ]
+}
+
+function get_fire_result(t, cf, shifts, roll) {
+    let table = fire_table[t]
+    let col = 0
+    while (col < table.length) {
+        if (table[col].factors > cf) break
+        col++
+    }
+    col += shifts
+    col = col < 0 ? 0 : col >= table.length ? table.length-1 : col
+    return table[col].result[roll-1]
+}
+
+function resolve_attackers_fire() {
+    let attacker_cf = 0
+    let table = "corps"
+
+    for (let p of game.attack.pieces) {
+        attacker_cf += get_piece_cf(p)
+        if (data.pieces[p].type == "army")
+            table = "army"
+    }
+
+    // TODO: Determine DRM based on played combat cards
+    game.attack.attacker_drm = 0
+    // TODO: -3 DRM if all attackers are in the Sinai space
+
+    log_h2(`Attacking with ${attacker_cf} combat factors`)
+
+    let attacker_shifts = 0
+    let terrain = data.spaces[game.attack.space].terrain;
+    if (terrain == "mountain") attacker_shifts -= 1
+    if (terrain == "swamp") attacker_shifts -= 1
+    // TODO: apply attacker shifts for trenches
+
+    let roll = roll_die(6) + game.attack.attacker_drm
+    let clamped_roll = roll > 6 ? 6 : roll < 1 ? 1 : roll
+    game.attack.defender_losses = get_fire_result(table, attacker_cf, attacker_shifts, clamped_roll)
+
+    log_h2(`Roll of ${roll} on the ${table} table causes ${game.attack.defender_losses} losses for the defender`)
+}
+
+function resolve_defenders_fire() {
+    let defender_cf = 0
+    let table = "corps"
+
+    for_each_piece_in_space(game.attack.space, (p) => {
+        defender_cf += get_piece_cf(p)
+        if (data.pieces[p].type == "army")
+            table = "army"
+    })
+
+    // TODO: Add combat strength of fort, if any, to defender
+
+    log_h2(`Defending with ${defender_cf} combat factors`)
+
+    let defender_shifts = 0
+    // TODO: apply defender shifts for trenches
+
+    // TODO: Determine DRM based on played combat cards
+    game.attack.defender_drm = 0
+
+    let roll = roll_die(6) + game.attack.defender_drm
+    let clamped_roll = roll > 6 ? 6 : roll < 1 ? 1 : roll
+    game.attack.attacker_losses = get_fire_result(table, defender_cf, defender_shifts, clamped_roll)
+
+    log_h2(`Roll of ${roll} on the ${table} table causes ${game.attack.attacker_losses} losses for the attacker`)
 }
 
 // TODO
@@ -1266,7 +1417,64 @@ states.apply_defender_losses = {
         gen_action_next()
     },
     next() {
+        if (game.attack.failed_flank) {
+            determine_combat_winner()
+        } else if (game.attack.is_flank) {
+            resolve_defenders_fire()
+            game.active = game.attack.attacker
+            game.state = 'apply_attacker_losses'
+        } else {
+            game.active = game.attack.attacker
+            game.state = 'apply_attacker_losses'
+        }
+    }
+}
+
+// TODO
+states.apply_attacker_losses = {
+    inactive: 'Attacker Applying Losses',
+    prompt() {
+        view.prompt = `Take losses`
+        gen_action_next()
+    },
+    next() {
+        if (game.attack.failed_flank) {
+            resolve_attackers_fire()
+            game.active = other_faction(game.attack.attacker)
+            game.state = 'apply_defender_losses'
+        } else {
+            determine_combat_winner()
+        }
+    }
+}
+
+function determine_combat_winner() {
+    // TODO: "They shall not pass" is not discarded when losing the combat (12.2.11)
+    if (game.attack.defender_losses >= game.attack.attacker_losses) {
+        // TODO: Discard defender's combat cards
+    }
+    if (game.attack.attacker_losses >= game.attack.defender_losses) {
+        // TODO: Discard attacker's combat cards
+    }
+
+    let attacker_has_full_strength_unit = false
+    for (let p in game.attack.pieces) {
+        if (!is_unit_reduced(p)) {
+            attacker_has_full_strength_unit = true
+            break
+        }
+    }
+
+    let defender_pieces = get_pieces_in_space(game.attack.space)
+    if (game.attack.defender_losses > game.attack.attacker_losses && attacker_has_full_strength_unit) {
+        game.active = other_faction(game.attack.attacker)
         game.state = 'defender_retreat'
+    } else if (defender_pieces.length == 0) {
+        game.active = game.attack.attacker
+        game.state = 'attacker_advance'
+    } else {
+        end_attack_activation()
+        goto_next_activation()
     }
 }
 
@@ -1556,8 +1764,23 @@ events.guns_of_august = {
         game.activated.attack.push(LIEGE)
         game.activated.attack.push(KOBLENZ)
         game.control[LIEGE] = 1
+        game.events.guns_of_august = true
 
         start_action_round()
+    }
+}
+
+events.rape_of_belgium = {
+    can_play() {
+        return game.events.guns_of_august && game.ap.commitment == COMMITMENT_MOBILIZATION
+    },
+    play() {
+        push_undo()
+
+        game.ap.ws += data.cards[RAPE_OF_BELGIUM].ws
+        game.vp -= 1
+
+        goto_end_action()
     }
 }
 

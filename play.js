@@ -1161,7 +1161,7 @@ function update_map() {
     action_button("pick_up_all", "Pick Up All")
     action_button("move", "Begin Move")
     action_button("end_move", "End Move")
-    action_button("finish_attacks", "Finish Attacks")
+    action_button("finish_attacks", "End Attack Phase")
     action_button("done", "Done")
     action_button("undo", "Undo")
 }
