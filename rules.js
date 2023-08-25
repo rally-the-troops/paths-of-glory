@@ -1476,7 +1476,7 @@ function get_units_in_reserve() {
 // Recursively build a tree of possible options for choosing losses
 function build_loss_tree(parent, valid_paths) {
     // For all full strength units, build out the option tree if they are reduced
-    for (let i = 0; i < parent.full_strength.length) {
+    for (let i = 0; i < parent.full_strength.length; i++) {
         let unit = parent.full_strength[i]
         let unit_lf = data[unit].lf
         if (unit_lf <= parent.to_satisfy) {
@@ -1494,7 +1494,7 @@ function build_loss_tree(parent, valid_paths) {
     }
 
     // For all reduced units, build out the tree if they are eliminated and possibly replaced
-    for (let i = 0; i < parent.reduced.length) {
+    for (let i = 0; i < parent.reduced.length; i++) {
         let unit = parent.reduced[i]
         let unit_lf = data[u].rlf
 
