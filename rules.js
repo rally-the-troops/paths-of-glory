@@ -222,6 +222,7 @@ exports.setup = function (seed, scenario, options) {
         // Units
         location: data.pieces.map(() => 0),
         reduced: [],
+        removed: [],
 
         // Spaces
         activated: {
@@ -1378,6 +1379,9 @@ function resolve_attackers_fire() {
     let roll = roll_die(6) + game.attack.attacker_drm
     let clamped_roll = roll > 6 ? 6 : roll < 1 ? 1 : roll
     game.attack.defender_losses = get_fire_result(table, attacker_cf, attacker_shifts, clamped_roll)
+    game.attack.defender_losses_taken = 0
+
+    push_undo()
 
     log_h2(`Roll of ${roll} on the ${table} table causes ${game.attack.defender_losses} losses for the defender`)
 }
@@ -1405,18 +1409,42 @@ function resolve_defenders_fire() {
     let roll = roll_die(6) + game.attack.defender_drm
     let clamped_roll = roll > 6 ? 6 : roll < 1 ? 1 : roll
     game.attack.attacker_losses = get_fire_result(table, defender_cf, defender_shifts, clamped_roll)
+    game.attack.attacker_losses_taken = 0
+
+    push_undo()
 
     log_h2(`Roll of ${roll} on the ${table} table causes ${game.attack.attacker_losses} losses for the attacker`)
 }
 
-// TODO
 states.apply_defender_losses = {
     inactive: 'Defender Applying Losses',
     prompt() {
-        view.prompt = `Take losses`
-        gen_action_next()
+        view.prompt = `Take losses (${game.attack.defender_losses_taken}/${game.attack.defender_losses})`
+
+        let loss_options = []
+        if (game.attack.defender_losses - game.attack.defender_losses_taken > 0)
+            loss_options = get_loss_options(game.attack.defender_losses - game.attack.defender_losses_taken, get_pieces_in_space(game.attack.space))
+        if (loss_options.length > 0) {
+            loss_options.forEach((p) => {
+                gen_action_piece(p)
+            })
+        } else {
+            gen_action_undo()
+            gen_action_done()
+        }
     },
-    next() {
+    piece(p) {
+        game.attack.defender_losses_taken += get_piece_lf(p)
+        if (is_unit_reduced(p)) {
+            // TODO: eliminate piece. If there is an available replacement in the reserve box, place it and remove the
+            // eliminated piece to replaceable units, otherwise remove the piece permanently
+            game.removed.push(p)
+            game.location[p] = 0
+        } else {
+            game.reduced.push(p)
+        }
+    },
+    done() {
         if (game.attack.failed_flank) {
             determine_combat_winner()
         } else if (game.attack.is_flank) {
@@ -1430,14 +1458,36 @@ states.apply_defender_losses = {
     }
 }
 
-// TODO
 states.apply_attacker_losses = {
     inactive: 'Attacker Applying Losses',
     prompt() {
-        view.prompt = `Take losses`
-        gen_action_next()
+        view.prompt = `Take losses (${game.attack.attacker_losses_taken}/${game.attack.attacker_losses})`
+
+        let loss_options = []
+        if (game.attack.attacker_losses - game.attack.attacker_losses_taken > 0)
+            loss_options = get_loss_options(game.attack.attacker_losses - game.attack.attacker_losses_taken, game.attack.pieces)
+        if (loss_options.length > 0) {
+            loss_options.forEach((p) => {
+                gen_action_piece(p)
+            })
+        } else {
+            gen_action_undo()
+            gen_action_done()
+        }
     },
-    next() {
+    piece(p) {
+        game.attack.attacker_losses_taken += get_piece_lf(p)
+        if (is_unit_reduced(p)) {
+            // TODO: eliminate piece. If there is an available replacement in the reserve box, place it and remove the
+            // eliminated piece to replaceable units, otherwise remove the piece permanently
+            game.removed.push(p)
+            game.location[p] = 0
+            array_remove_item(game.attack.pieces, p)
+        } else {
+            game.reduced.push(p)
+        }
+    },
+    done() {
         if (game.attack.failed_flank) {
             resolve_attackers_fire()
             game.active = other_faction(game.attack.attacker)
@@ -1478,7 +1528,7 @@ function build_loss_tree(parent, valid_paths) {
     // For all full strength units, build out the option tree if they are reduced
     for (let i = 0; i < parent.full_strength.length; i++) {
         let unit = parent.full_strength[i]
-        let unit_lf = data[unit].lf
+        let unit_lf = data.pieces[unit].lf
         if (unit_lf <= parent.to_satisfy) {
             let node = {
                 picked: [...parent.picked, unit],
@@ -1496,7 +1546,7 @@ function build_loss_tree(parent, valid_paths) {
     // For all reduced units, build out the tree if they are eliminated and possibly replaced
     for (let i = 0; i < parent.reduced.length; i++) {
         let unit = parent.reduced[i]
-        let unit_lf = data[u].rlf
+        let unit_lf = data.pieces[unit].rlf
 
         if (unit_lf <= parent.to_satisfy) {
             let full_replacements = [...parent.full_replacements]
@@ -1530,12 +1580,12 @@ function build_loss_tree(parent, valid_paths) {
         let current_best = valid_paths.length == 0 ? parent.to_satisfy : valid_paths[0].to_satisfy
         let option = parent.options[i]
         if (option.to_satisfy < current_best) {
-            valid_paths = []
+            valid_paths.length = 0
         }
         if (option.to_satisfy <= current_best) {
             valid_paths.push(option)
         }
-        build_loss_tree(option)
+        build_loss_tree(option, valid_paths)
     }
 }
 
