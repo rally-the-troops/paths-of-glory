@@ -1448,6 +1448,101 @@ states.apply_attacker_losses = {
     }
 }
 
+function get_loss_options(to_satisfy, units) {
+    // TODO: Forts
+    let reserve_units = get_units_in_reserve()
+    let loss_tree = {
+        picked: [],
+        to_satisfy: to_satisfy,
+        full_strength: units.filter((u) => !is_unit_reduced(u)),
+        reduced: units.filter((u) => is_unit_reduced(u)),
+        full_replacements: reserve_units.filter((u) => !is_unit_reduced(u)),
+        reduced_replacements: reserve_units.filter((u) => is_unit_reduced(u)),
+        options: []
+    }
+
+    let valid_paths = []
+    build_loss_tree(loss_tree, valid_paths)
+
+    let valid_units = []
+    valid_paths.forEach((path) => valid_units.push(path.picked[0]))
+    return valid_units
+}
+
+function get_units_in_reserve() {
+    return [] // TODO
+}
+
+// Recursively build a tree of possible options for choosing losses
+function build_loss_tree(parent, valid_paths) {
+    // For all full strength units, build out the option tree if they are reduced
+    for (let i = 0; i < parent.full_strength.length) {
+        let unit = parent.full_strength[i]
+        let unit_lf = data[unit].lf
+        if (unit_lf <= parent.to_satisfy) {
+            let node = {
+                picked: [...parent.picked, unit],
+                to_satisfy: parent.to_satisfy - unit_lf,
+                full_strength: parent.full_strength.filter((u) => u != unit),
+                reduced: [...parent.reduced, unit],
+                full_replacements: [...parent.full_replacements],
+                reduced_replacements: [...parent.reduced_replacements],
+                options: []
+            }
+            parent.options.push(node)
+        }
+    }
+
+    // For all reduced units, build out the tree if they are eliminated and possibly replaced
+    for (let i = 0; i < parent.reduced.length) {
+        let unit = parent.reduced[i]
+        let unit_lf = data[u].rlf
+
+        if (unit_lf <= parent.to_satisfy) {
+            let full_replacements = [...parent.full_replacements]
+            let reduced_replacements = [...parent.reduced_replacements]
+            let selected_replacement = find_replacement(unit, full_replacements)
+            if (selected_replacement != 0) {
+                array_remove_item(full_replacements, selected_replacement)
+                reduced_replacements.push(selected_replacement)
+            } else {
+                selected_replacement = find_replacement(unit, reduced_replacements)
+                if (selected_replacement != 0) {
+                    array_remove_item(reduced_replacements, selected_replacement)
+                }
+            }
+
+            let node = {
+                picked: [...parent.picked, unit],
+                to_satisfy: parent.to_satisfy - unit_lf,
+                full_strength: [...parent.full_strength],
+                reduced: parent.reduced.filter((u) => u != unit),
+                full_replacements: full_replacements,
+                reduced_replacements: reduced_replacements,
+                options: []
+            }
+            parent.options.push(node)
+        }
+    }
+
+    // Recurse to continue building options, updating the best options as we go
+    for (let i = 0; i < parent.options.length; i++) {
+        let current_best = valid_paths.length == 0 ? parent.to_satisfy : valid_paths[0].to_satisfy
+        let option = parent.options[i]
+        if (option.to_satisfy < current_best) {
+            valid_paths = []
+        }
+        if (option.to_satisfy <= current_best) {
+            valid_paths.push(option)
+        }
+        build_loss_tree(option)
+    }
+}
+
+function find_replacement(unit, available_replacements) {
+    return 0 // TODO
+}
+
 function determine_combat_winner() {
     // TODO: "They shall not pass" is not discarded when losing the combat (12.2.11)
     if (game.attack.defender_losses >= game.attack.attacker_losses) {
