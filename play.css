@@ -67,16 +67,15 @@ aside { width: 220px; }
 }
 
 .card {
-    width: 240px;
-    height: 336px;
+    width: 250px;
+    height: 350px;
     border-radius: 16px;
     box-shadow: 1px 1px 5px rgba(0,0,0,0.5);
     transition: transform 100ms;
     background-color: #f1ead0;
-    background-size: cover;
+    background-size: 100%;
     background-repeat: no-repeat;
     border: 1px solid #655c4d;
-
 }
 
 .card.highlight {
