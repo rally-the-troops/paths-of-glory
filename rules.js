@@ -186,7 +186,7 @@ exports.setup = function (seed, scenario, options) {
     game = {
         seed: seed,
         scenario: scenario,
-        options: options,
+        options: object_copy(options),
         log: [],
         undo: [],
         active: null,
