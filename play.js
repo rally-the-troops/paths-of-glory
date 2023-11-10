@@ -9,12 +9,12 @@ const CP = "cp"
 const ARMY = "army"
 const CORPS = "corps"
 
-const AP_MO_MARKER = "marker small ap_mo "
-const CP_MO_MARKER = "marker small cp_mo "
+const AP_MO_MARKER = "marker ap_mandatory_offensive "
+const CP_MO_MARKER = "marker cp_mandatory_offensive "
 
 const USC_MARKER = "marker usc_"
 const RC_MARKER = "marker rc_"
-const TURN_MARKER = "marker turn_"
+const TURN_MARKER = "small marker game_turn turn_"
 
 function check_menu(id, x) {
     document.getElementById(id).className = x ? "menu_item checked" : "menu_item unchecked"
@@ -177,11 +177,11 @@ let ui = {
 }
 
 const marker_info = {
-    move: { name: "Move", counter: "marker small activate_move" },
-    attack: { name: "Attack", counter: "marker small activate_attack" },
+    move: { name: "Move", counter: "marker small move" },
+    attack: { name: "Attack", counter: "marker small attack" },
     control: {
-        ap: { name: "AP Control", type: "ap_control", counter: "marker small control ap" },
-        cp: { name: "CP Control", type: "cp_control", counter: "marker small control cp" }
+        ap: { name: "AP Control", type: "ap_control", counter: "marker small ap_control" },
+        cp: { name: "CP Control", type: "cp_control", counter: "marker small cp_control" }
     },
     vp: { name: "VP", type: "vp", counter: "marker vps " },
     ap_ws: { name: "AP War Status", type: "ap_ws", counter: "marker ap_ws " },

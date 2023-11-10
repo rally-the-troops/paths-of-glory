@@ -1,12 +1,10 @@
-main { background-color: steelblue; }
+main { background-color: dimgray; }
 aside { background-color: darkgray; }
 header { background-color: gainsboro; }
 body.AP header.your_turn { background-color: lightskyblue; }
 body.CP header.your_turn { background-color: darkgrey; }
 #role_AP, #log .h2.ap { background-color: #bdf; }
 #role_CP, #log .h2.cp { background-color: #fcb; }
-
-aside { width: 220px; }
 
 .checked::before { content: "\2714  " }
 .unchecked::before { content: "\2714  "; color:transparent; }
@@ -70,12 +68,11 @@ aside { width: 220px; }
     width: 250px;
     height: 350px;
     border-radius: 16px;
-    box-shadow: 1px 1px 5px rgba(0,0,0,0.5);
+    box-shadow: 1px 1px 4px #0004;
     transition: transform 100ms;
     background-color: #f1ead0;
     background-size: 100%;
     background-repeat: no-repeat;
-    border: 1px solid #655c4d;
 }
 
 .card.highlight {
@@ -271,6 +268,52 @@ body.shift .highlight {
     height:36px;
 }
 
+.unit.army_ix_1 { background-position: 0px 0px; }
+.unit.army_ix_2 { background-position: -45px 0px; }
+.unit.army_ix_3 { background-position: -90px 0px; }
+.unit.army_ix_4 { background-position: -135px 0px; }
+.unit.army_ix_5 { background-position: -180px 0px; }
+.unit.army_ix_6 { background-position: -225px 0px; }
+.unit.army_ix_7 { background-position: -270px 0px; }
+.unit.army_ix_8 { background-position: -315px 0px; }
+.unit.army_ix_9 { background-position: -360px 0px; }
+.unit.army_ix_10 { background-position: -405px 0px; }
+.unit.army_ix_11 { background-position: -495px 0px; }
+.unit.army_ix_12 { background-position: -540px 0px; }
+.unit.army_ix_13 { background-position: -585px 0px; }
+.unit.army_ix_14 { background-position: -630px 0px; }
+.unit.army_ix_15 { background-position: -675px 0px; }
+
+.unit.army_ix_1.reduced { background-position: 0px -45px; }
+.unit.army_ix_2.reduced { background-position: -45px -45px; }
+.unit.army_ix_3.reduced { background-position: -90px -45px; }
+.unit.army_ix_4.reduced { background-position: -135px -45px; }
+.unit.army_ix_5.reduced { background-position: -180px -45px; }
+.unit.army_ix_6.reduced { background-position: -225px -45px; }
+.unit.army_ix_7.reduced { background-position: -270px -45px; }
+.unit.army_ix_8.reduced { background-position: -315px -45px; }
+.unit.army_ix_9.reduced { background-position: -360px -45px; }
+.unit.army_ix_10.reduced { background-position: -405px -45px; }
+.unit.army_ix_11.reduced { background-position: -495px -45px; }
+.unit.army_ix_12.reduced { background-position: -540px -45px; }
+.unit.army_ix_13.reduced { background-position: -585px -45px; }
+.unit.army_ix_14.reduced { background-position: -630px -45px; }
+.unit.army_ix_15.reduced { background-position: -675px -45px; }
+
+.unit.corps_ix_1 { background-position: 0px 0px; }
+.unit.corps_ix_2 { background-position: -36px 0px; }
+.unit.corps_ix_3 { background-position: -72px 0px; }
+.unit.corps_ix_4 { background-position: -108px 0px; }
+.unit.corps_ix_5 { background-position: -144px 0px; }
+.unit.corps_ix_6 { background-position: -180px 0px; }
+
+.unit.corps_ix_1.reduced { background-position: 0px -36px; }
+.unit.corps_ix_2.reduced { background-position: -36px -36px; }
+.unit.corps_ix_3.reduced { background-position: -72px -36px; }
+.unit.corps_ix_4.reduced { background-position: -108px -36px; }
+.unit.corps_ix_5.reduced { background-position: -144px -36px; }
+.unit.corps_ix_6.reduced { background-position: -180px -36px; }
+
 /* FLAT STYLE */
 
 body.flat .unit,
@@ -427,32 +470,4 @@ body.bevel .event {
 
 .event{width:54px;height:54px;background-size:cover;display:none}
 .event.show{display:block}
-
-/* COLORS */
-
-
-/* MOBILE PHONE LAYOUT */
-
-@media (max-width: 640px) {
-    .hand .card {
-        width: 120px;
-        height: 168px;
-        border-radius: 8px;
-    }
-    .hand {
-        min-height: 168px;
-    }
-    #tooltip {
-        top: 10px;
-        right: 10px;
-    }
-    #removed, #discard {
-        position: static;
-        box-shadow: none;
-        border-top: none;
-        width: auto;
-    }
-    #removed { grid-row: 3; }
-    #discard { grid-row: 4; }
-}
 
