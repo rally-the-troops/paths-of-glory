@@ -2,95 +2,90 @@
 <!-- vim:set nowrap: -->
 <html>
 <head>
-  <meta name="viewport" content="width=device-width, user-scalable=no, interactive-widget=resizes-content, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, user-scalable=no, interactive-widget=resizes-content, viewport-fit=cover">
 <meta name="theme-color" content="#444">
-  <meta charset="UTF-8">
-  <title>Paths of Glory</title>
-  <link rel="icon" href="favicon.svg">
-  <link rel="stylesheet" href="/fonts/fonts.css">
-  <link rel="stylesheet" href="/common/client.css">
-  <link rel="stylesheet" href="play.css">
-  <link rel="stylesheet" href="images.css">
-  <script defer src="/common/client.js"></script>
-  <script defer src="data.js"></script>
-  <script defer src="play.js"></script>
+<meta charset="UTF-8">
+<title>Paths of Glory</title>
+<link rel="icon" href="favicon.svg">
+<link rel="stylesheet" href="/fonts/fonts.css">
+<link rel="stylesheet" href="/common/client.css">
+<link rel="stylesheet" href="play.css">
+<link rel="stylesheet" href="images.css">
+<script defer src="/common/client.js"></script>
+<script defer src="data.js"></script>
+<script defer src="play.js"></script>
 </head>
 <body class="bevel">
 
 <div id="popup" class="popup_menu" onmouseleave="hide_popup_menu()">
-  <div id="menu_play_event" class="always" onclick="on_play_event()">Play Event</div>
-  <div id="menu_play_ops" class="always" onclick="on_play_ops()">Operations</div>
-  <div id="menu_play_sr" class="always" onclick="on_play_sr()">Strategic Redeployment</div>
-  <div id="menu_play_rps" class="always" onclick="on_play_rps()">Replacement Points</div>
+	<div id="menu_play_event" class="always" onclick="on_play_event()">Play Event</div>
+	<div id="menu_play_ops" class="always" onclick="on_play_ops()">Operations</div>
+	<div id="menu_play_sr" class="always" onclick="on_play_sr()">Strategic Redeployment</div>
+	<div id="menu_play_rps" class="always" onclick="on_play_rps()">Replacement Points</div>
 </div>
 
 <div id="activation_popup" class="popup_menu" onmouseleave="hide_activation_menu()">
-  <div id="menu_activate_move" class="always" onclick="on_activate_move()">Move</div>
-  <div id="menu_activate_attack" class="always" onclick="on_activate_attack()">Attack</div>
-  <div id="menu_deactivate" class="always" onclick="on_deactivate()">Deactivate</div>
+	<div id="menu_activate_move" class="always" onclick="on_activate_move()">Move</div>
+	<div id="menu_activate_attack" class="always" onclick="on_activate_attack()">Attack</div>
+	<div id="menu_deactivate" class="always" onclick="on_deactivate()">Deactivate</div>
 </div>
 
 <div id="removed" class="card_list_dialog hide">
-  <div id="removed_x" class="card_list_x" onclick="hide_card_list('removed')">&#x274c;</div>
-  <div id="removed_header" class="card_list_header">Removed</div>
-  <div id="removed_body" class="card_list_body"></div>
+	<div id="removed_x" class="card_list_x" onclick="hide_card_list('removed')">&#x274c;</div>
+	<div id="removed_header" class="card_list_header">Removed</div>
+	<div id="removed_body" class="card_list_body"></div>
 </div>
 
 <div id="discard" class="card_list_dialog hide">
-  <div id="discard_x" class="card_list_x" onclick="hide_card_list('discard')">&#x274c;</div>
-  <div id="discard_header" class="card_list_header">Discard</div>
-  <div id="discard_body" class="card_list_body"></div>
+	<div id="discard_x" class="card_list_x" onclick="hide_card_list('discard')">&#x274c;</div>
+	<div id="discard_header" class="card_list_header">Discard</div>
+	<div id="discard_body" class="card_list_body"></div>
 </div>
 
 <header>
-  <div id="toolbar">
-    <details>
-      <summary><img src="/images/cog.svg"></summary>
-      <menu>
-        <li><a href="info/rules.html" target="_blank")">Rules</a>
-        <li><a href="info/pac.html" target="_blank")">Player Aid</a>
-        <li><a href="info/cards.html" target="_blank")">Cards</a>
-        <li class="resign separator">
-        <li class="resign" onclick="confirm_resign()">Resign
-      </menu>
-    </details>
-    <details>
-      <summary><img src="/images/stack.svg"></summary>
-      <menu>
-        <li id="stack_v" class="unchecked" onclick="set_layout(0)">Vertical
-        <li id="stack_h" class="unchecked" onclick="set_layout(1)">Horizontal
-        <li id="stack_d" class="unchecked" onclick="set_layout(2)">Diagonal
-        <li class="separator">
-        <li id="mouse_focus" class="unchecked" onclick="set_mouse_focus()">Mouse-focus
-        <li class="separator">
-        <li id="style_bevel" class="unchecked" onclick="set_style('bevel')">Beveled
-        <li id="style_flat" class="unchecked" onclick="set_style('flat')">Flat
-      </menu>
-    </details>
-    <button onclick="toggle_counters()"><img src="/images/earth-america.svg"></button>
-    <button onclick="toggle_log()"><img src="/images/scroll-quill.svg"></button>
-  </div>
+	<div id="toolbar">
+		<details>
+			<summary><img src="/images/cog.svg"></summary>
+			<menu>
+				<li><a href="info/rules.html" target="_blank")">Rules</a>
+				<li><a href="info/pac.html" target="_blank")">Player Aid</a>
+				<li><a href="info/cards.html" target="_blank")">Cards</a>
+				<li class="resign separator">
+				<li class="resign" onclick="confirm_resign()">Resign
+			</menu>
+		</details>
+		<details>
+			<summary><img src="/images/stack.svg"></summary>
+			<menu>
+				<li id="stack_v" class="unchecked" onclick="set_layout(0)">Vertical
+				<li id="stack_h" class="unchecked" onclick="set_layout(1)">Horizontal
+				<li id="stack_d" class="unchecked" onclick="set_layout(2)">Diagonal
+				<li class="separator">
+				<li id="mouse_focus" class="unchecked" onclick="set_mouse_focus()">Mouse-focus
+				<li class="separator">
+				<li id="style_bevel" class="unchecked" onclick="set_style('bevel')">Beveled
+				<li id="style_flat" class="unchecked" onclick="set_style('flat')">Flat
+			</menu>
+		</details>
+		<button onclick="toggle_counters()"><img src="/images/earth-america.svg"></button>
+	</div>
 </header>
 
 <aside>
-  <div id="log"></div>
-  <div id="roles">
-    <div class="role" id="role_AP">
-      <div class="role_name">
-        Allied Powers
-        <div id="ap_hand" class="role_vp">?</div>
-        <div class="role_user"></div>
-      </div>
-    </div>
-    <div class="role" id="role_CP">
-      <div class="role_name">
-        Central Powers
-        <div id="cp_hand" class="role_vp">?</div>
-        <div class="role_user"></div>
-      </div>
-    </div>
-    <div class="card_info"><div id="last_card" class="card show card_back"></div><div id="ap_deck_size">0</div></div><div id="cp_deck_size">0</div></div>
-  </div>
+	<div id="roles">
+		<div class="role" id="role_ap">
+			<div class="role_name">Allied Powers</div>
+			<div class="role_stat" id="ap_hand"></div>
+			<div class="role_user">-</div>
+		</div>
+		<div class="role" id="role_cp">
+			<div class="role_name">Central Powers</div>
+			<div class="role_stat" id="cp_hand"></div>
+			<div class="role_user">-</div>
+		</div>
+		<div id="turn_info"><div id="last_card" class="card show card_back"></div><div id="ap_deck_size">AP</div></div><div id="cp_deck_size">CP</div></div>
+	</div>
+	<div id="log"></div>
 </aside>
 
 <div id="tooltip" class="hide"></div>

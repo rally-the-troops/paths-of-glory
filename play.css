@@ -1,10 +1,10 @@
 main { background-color: dimgray; }
 aside { background-color: darkgray; }
 header { background-color: gainsboro; }
-body.AP header.your_turn { background-color: lightskyblue; }
-body.CP header.your_turn { background-color: darkgrey; }
-#role_AP, #log .h2.ap { background-color: #bdf; }
-#role_CP, #log .h2.cp { background-color: #fcb; }
+body.AP header.your_turn { background-color: pink; }
+body.CP header.your_turn { background-color: #c9e3f0; }
+#role_ap, #log .h2.ap { background-color: pink; }
+#role_cp, #log .h2.cp { background-color: #c9e3f0; }
 
 .checked::before { content: "\2714  " }
 .unchecked::before { content: "\2714  "; color:transparent; }
@@ -27,15 +27,15 @@ body.CP header.your_turn { background-color: darkgrey; }
     text-indent: -12px;
 }
 
-.card_info {
+#turn_info {
     position: relative;
 }
 
-.card_info:hover #ap_deck_size {
+#turn_info:hover #ap_deck_size {
     visibility: visible;
 }
 
-.card_info:hover #cp_deck_size {
+#turn_info:hover #cp_deck_size {
     visibility: visible;
 }
 
@@ -83,20 +83,16 @@ body.CP header.your_turn { background-color: darkgrey; }
     cursor: pointer;
 }
 
-.card.enabled:hover, .card.selected {
-    transform: translateY(-10px);
-}
-
 .hand .card { margin: 10px; }
 .hand .card { display: none; }
 .hand .card.show { display: block; }
 
-.card_info {
+#turn_info {
     border-bottom: 1px solid black;
     padding: 15px 0;
 }
 
-.card_info .card {
+#turn_info .card {
     width: 120px;
     height: 168px;
     border-radius: 8px;
