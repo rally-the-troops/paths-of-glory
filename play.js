@@ -12,8 +12,8 @@ const CORPS = "corps"
 const AP_MO_MARKER = "marker ap_mandatory_offensive "
 const CP_MO_MARKER = "marker cp_mandatory_offensive "
 
-const USC_MARKER = "marker usc_"
-const RC_MARKER = "marker rc_"
+const USC_MARKER = "marker small us_entry usc_"
+const RC_MARKER = "marker small russian_capitulation rc_"
 const TURN_MARKER = "small marker game_turn turn_"
 
 function check_menu(id, x) {
@@ -184,9 +184,9 @@ const marker_info = {
         cp: { name: "CP Control", type: "cp_control", counter: "marker small cp_control" }
     },
     vp: { name: "VP", type: "vp", counter: "marker vps " },
-    ap_ws: { name: "AP War Status", type: "ap_ws", counter: "marker ap_ws " },
-    cp_ws: { name: "CP War Status", type: "cp_ws", counter: "marker cp_ws " },
-    combined_ws: { name: "Combined War Status", type: "combined_ws", counter: "marker combined_ws " },
+    ap_war_status: { name: "AP War Status", type: "ap_war_status", counter: "marker ap_war_status " },
+    cp_war_status: { name: "CP War Status", type: "cp_war_status", counter: "marker cp_war_status " },
+    combined_war_status: { name: "Combined War Status", type: "combined_war_status", counter: "marker combined_war_status " },
     ge_rp: { name: "German Replacements", type: "ge_rp", counter: "marker ge_rp " },
     ah_rp: { name: "Austria-Hungary Replacements", type: "ah_rp", counter: "marker ah_rp " },
     fr_rp: { name: "French Replacements", type: "fr_rp", counter: "marker fr_rp " },
@@ -197,7 +197,7 @@ const marker_info = {
     tu_rp: { name: "Turkish Replacements", type: "tu_rp", counter: "marker tu_rp " },
     it_rp: { name: "Italian Replacements", type: "it_rp", counter: "marker it_rp " },
     us_rp: { name: "United States Replacements", type: "us_rp", counter: "marker us_rp " },
-    cp_ru_vp: { name: "CP Russian VP", type: "cp_ru_vp", counter: "marker cp_ru_vp " },
+    current_cp_russian_vp: { name: "CP Russian VP", type: "current_cp_russian_vp", counter: "marker small current_cp_russian_vp " },
     action: { name: "Action", counter: "marker small action " }
 }
 
@@ -554,6 +554,7 @@ function build_general_records_marker(type) {
     if (marker)
         return marker.element
     let info = marker_info[type]
+    console.log('building marker ' + type)
     marker = { name: info.name, type: type, element: null }
     let elt = marker.element = document.createElement("div")
     elt.marker = marker
@@ -1063,10 +1064,10 @@ function update_general_records_track() {
 
     update_general_record("vp", view.vp)
 
-    update_general_record("combined_ws", view.cp.ws + view.ap.ws)
-    update_general_record("ap_ws", view.ap.ws)
-    update_general_record("cp_ws", view.cp.ws)
-    update_general_record("cp_ru_vp", view.cp.ru_vp)
+    update_general_record("combined_war_status", view.cp.ws + view.ap.ws)
+    update_general_record("ap_war_status", view.ap.ws)
+    update_general_record("cp_war_status", view.cp.ws)
+    update_general_record("current_cp_russian_vp", view.cp.ru_vp)
 
     // RPs
     update_general_record("ge_rp", view.rp.ge)
@@ -1158,13 +1159,13 @@ function update_map() {
 
     // Update tracks
     update_general_records_track()
-    let ap_mo = document.getElementById("ap_mo")
+    let ap_mo = document.getElementById("ap_mandatory_offensive")
     ap_mo.className = AP_MO_MARKER + view.ap.mo + (view.events.french_mutiny ? " fr_mutiny" : "")
-    let cp_mo = document.getElementById("cp_mo")
+    let cp_mo = document.getElementById("cp_mandatory_offensive")
     cp_mo.className = CP_MO_MARKER + view.cp.mo
-    let usc_marker = document.getElementById("us_commitment_marker")
+    let usc_marker = document.getElementById("us_entry")
     usc_marker.className = USC_MARKER + view.usc
-    let rc_marker = document.getElementById("rc_marker")
+    let rc_marker = document.getElementById("russian_capitulation")
     rc_marker.className = RC_MARKER + view.rc
     let turn_marker = document.getElementById("turn_marker")
     turn_marker.className = TURN_MARKER + view.turn
