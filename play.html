@@ -2,33 +2,34 @@
 <!-- vim:set nowrap: -->
 <html>
 <head>
-<meta name="viewport" content="width=device-width, user-scalable=no, interactive-widget=resizes-content, viewport-fit=cover">
-<meta name="theme-color" content="#444">
-<meta charset="UTF-8">
-<title>Paths of Glory</title>
-<link rel="icon" href="favicon.svg">
-<link rel="stylesheet" href="/fonts/fonts.css">
-<link rel="stylesheet" href="/common/client.css">
-<link rel="stylesheet" href="play.css">
-<link rel="stylesheet" href="images.css">
-<script defer src="/common/client.js"></script>
-<script defer src="data.js"></script>
-<script defer src="play.js"></script>
+	<meta name="viewport" content="width=device-width, height=device-height, user-scalable=no, interactive-widget=resizes-content, viewport-fit=content, viewport-fit=cover">
+	<meta name="theme-color" content="#444">
+	<meta charset="UTF-8">
+	<title>Paths of Glory</title>
+	<link rel="icon" href="favicon.svg">
+	<link rel="stylesheet" href="/fonts/fonts.css">
+	<link rel="stylesheet" href="/common/client.css">
+	<link rel="stylesheet" href="play.css">
+	<link rel="stylesheet" href="images.css">
+	<script defer src="/common/client.js"></script>
+	<script defer src="data.js"></script>
+	<script defer src="play.js"></script>
 </head>
 <body class="bevel">
 
-<div id="popup" class="popup_menu" onmouseleave="hide_popup_menu()">
-	<div id="menu_play_event" class="always" onclick="on_play_event()">Play Event</div>
-	<div id="menu_play_ops" class="always" onclick="on_play_ops()">Operations</div>
-	<div id="menu_play_sr" class="always" onclick="on_play_sr()">Strategic Redeployment</div>
-	<div id="menu_play_rps" class="always" onclick="on_play_rps()">Replacement Points</div>
-</div>
-
-<div id="activation_popup" class="popup_menu" onmouseleave="hide_activation_menu()">
-	<div id="menu_activate_move" class="always" onclick="on_activate_move()">Move</div>
-	<div id="menu_activate_attack" class="always" onclick="on_activate_attack()">Attack</div>
-	<div id="menu_deactivate" class="always" onclick="on_deactivate()">Deactivate</div>
-</div>
+<menu id="popup">
+	<li class="title">CARD
+	<li class="separator">
+	<li data-action="play_event"> &#x1f3b4; &nbsp; Play Event
+	<li data-action="play_ops"> &#x1f464; &nbsp; Play for Operations
+	<li data-action="play_sr"> &#x1f465; &nbsp; Strategic Redeployment
+	<li data-action="play_rps"> &#x1f528; &nbsp; Replacement Points
+</menu>
+<menu id="activation_popup" class="popup_menu">
+	<li data-action="activate_move"> Activate to Move
+	<li data-action="activate_attack"> Activate to Attack
+	<li data-action="deactivate"> Deactivate
+</menu>
 
 <div id="removed" class="card_list_dialog hide">
 	<div id="removed_x" class="card_list_x" onclick="hide_card_list('removed')">&#x274c;</div>
@@ -54,20 +55,28 @@
 				<li class="resign" onclick="confirm_resign()">Resign
 			</menu>
 		</details>
-		<details>
+		<details id="stack_menu">
 			<summary><img src="/images/stack.svg"></summary>
 			<menu>
-				<li id="stack_v" class="unchecked" onclick="set_layout(0)">Vertical
-				<li id="stack_h" class="unchecked" onclick="set_layout(1)">Horizontal
-				<li id="stack_d" class="unchecked" onclick="set_layout(2)">Diagonal
+				<li class="unchecked" id="stack_v" onclick="set_layout(0)"> Vertical
+				<li class="unchecked" id="stack_h" onclick="set_layout(1)"> Horizontal
+				<li class="unchecked" id="stack_d" onclick="set_layout(2)"> Diagonal
 				<li class="separator">
-				<li id="mouse_focus" class="unchecked" onclick="set_mouse_focus()">Mouse-focus
+				<li class="unchecked" id="mouse_focus" onclick="set_mouse_focus()"> Mouse-focus
 				<li class="separator">
-				<li id="style_bevel" class="unchecked" onclick="set_style('bevel')">Beveled
-				<li id="style_flat" class="unchecked" onclick="set_style('flat')">Flat
+				<li class="unchecked" id="style_bevel" onclick="set_style('bevel')"> Beveled
+				<li class="unchecked" id="style_flat" onclick="set_style('flat')"> Flat
 			</menu>
 		</details>
-		<button onclick="toggle_counters()"><img src="/images/earth-america.svg"></button>
+		<details id="info_menu">
+			<summary><img src="/images/wooden-sign.svg"></summary>
+			<menu>
+				<li onclick="send_query('supply')"> Supply lines
+				<li onclick="send_query('removed')"> Removed
+				<li onclick="send_query('discard')"> Discard
+			</menu>
+		</details>
+		<button id="piece_button" onclick="toggle_counters()"><img src="/images/earth-america.svg"></button>
 	</div>
 </header>
 
@@ -90,37 +99,26 @@
 
 <div id="tooltip" class="hide"></div>
 
-<main>
-  <div id="mapwrap">
-    <div id="map">
-      <!--div id="events">
-        <div class="event" id="event_pitt"></div>
-        <div class="event" id="event_diplo"></div>
-        <div class="event" id="event_quiberon"></div>
-        <div class="event" id="british_card_held"></div>
-        <div class="event" id="french_card_held"></div>
-        <div class="event" id="event_no_fr_naval"></div>
-        <div class="event" id="event_no_amphib"></div>
-        <div class="event" id="event_cherokees"></div>
-        <div class="event" id="event_cherokee_uprising"></div>
-        <div class="event" id="event_british_blockhouses"></div>
-        <div class="event" id="event_french_blockhouses"></div>
-      </div-->
-      <div id="spaces"></div>
-      <div id="general_records"></div>
-      <div id="markers">
-        <div class="marker ap_mo none" id="ap_mo"></div>
-        <div class="marker cp_mo none" id="cp_mo"></div>
-        <div class="marker none usc_0" id="us_commitment_marker"></div>
-        <div class="marker none rc_0" id="rc_marker"></div>
-        <div class="marker turn" id="turn_marker"></div>
-      </div>
-      <div id="pieces">
-        <div id="focus" class="hide"></div>
-      </div>
-    </div>
-  </div>
-  <div id="cards" class="hand"></div>
+<main data-max-zoom="2" onclick="hide_popup_menu()">
+	<div id="mapwrap">
+		<div id="map">
+			<div id="events">
+			</div>
+			<div id="spaces"></div>
+			<div id="general_records"></div>
+			<div id="markers">
+				<div class="marker ap_mo none" id="ap_mo"></div>
+				<div class="marker cp_mo none" id="cp_mo"></div>
+				<div class="marker none usc_0" id="us_commitment_marker"></div>
+				<div class="marker none rc_0" id="rc_marker"></div>
+				<div class="marker turn" id="turn_marker"></div>
+			</div>
+			<div id="pieces">
+				<div id="focus" class="hide"></div>
+			</div>
+		</div>
+	</div>
+	<div id="cards" class="hand"></div>
 </main>
 
 <footer id="status"></footer>
