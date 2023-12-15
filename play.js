@@ -250,9 +250,7 @@ function on_click_space(evt) {
                 return view.actions[option] && view.actions[option].includes(evt.target.space)
             })
             if (options.length > 0) {
-                current_popup_card = 0
-                current_popup_space = evt.target.space
-                show_activation_menu(evt, options)
+                show_popup_menu(evt, "activation_popup", evt.target.space)
             }
         }
     }
@@ -263,43 +261,6 @@ const activation_menu_options = [
     'activate_attack',
     'deactivate'
 ]
-
-let current_popup_space = 0
-
-function show_activation_menu(evt, list) {
-    document.querySelectorAll("#activation_popup div").forEach(e => e.classList.remove('enabled'))
-    for (let item of list) {
-        let e = document.getElementById("menu_" + item)
-        e.classList.add('enabled')
-    }
-    let popup = document.getElementById("activation_popup")
-    popup.style.display = 'block'
-    popup.style.left = (evt.clientX-50) + "px"
-    popup.style.top = (evt.clientY-12) + "px"
-}
-
-function hide_activation_menu() {
-    let popup = document.getElementById("activation_popup")
-    popup.style.display = 'none'
-}
-
-function on_activate_move() {
-    send_action('activate_move', current_popup_space)
-    hide_activation_menu()
-    current_popup_space = 0
-}
-
-function on_activate_attack() {
-    send_action('activate_attack', current_popup_space)
-    hide_activation_menu()
-    current_popup_space = 0
-}
-
-function on_deactivate() {
-    send_action('deactivate', current_popup_space)
-    hide_activation_menu()
-    current_popup_space = 0
-}
 
 function on_focus_space(evt) {
     let id = evt.target.space
@@ -438,36 +399,69 @@ function on_blur_card(evt) {
 
 // CARD MENU
 
-const card_action_menu = [
-    'play_event',
-    'play_ops',
-    'play_sr',
-    'play_rps'
-]
+let card_action_menu = Array.from(document.getElementById("popup").querySelectorAll("li[data-action]")).map(e => e.dataset.action)
 
-let current_popup_card = 0
-
-function show_popup_menu(evt, list) {
-    document.querySelectorAll("#popup div").forEach(e => e.classList.remove('enabled'))
-    for (let item of list) {
-        let e = document.getElementById("menu_" + item)
-        e.classList.add('enabled')
+function is_popup_menu_action(menu_id, target_id) {
+    let menu = document.getElementById(menu_id)
+    for (let item of menu.querySelectorAll("li")) {
+        let action = item.dataset.action
+        if (action)
+            return true
     }
-    let popup = document.getElementById("popup")
-    popup.style.display = 'block'
-    popup.style.left = (evt.clientX-50) + "px"
-    popup.style.top = (evt.clientY-12) + "px"
-    if (current_popup_card)
-        cards[current_popup_card].element.classList.add("selected")
+    return false
+}
+
+function show_popup_menu(evt, menu_id, target_id, title) {
+    let menu = document.getElementById(menu_id)
+
+    let show = false
+    for (let item of menu.querySelectorAll("li")) {
+        let action = item.dataset.action
+        if (action) {
+            if (is_action(action, target_id)) {
+                show = true
+                item.classList.add("action")
+                item.classList.remove("disabled")
+                item.onclick = function () {
+                    send_action(action, target_id)
+                    hide_popup_menu()
+                    evt.stopPropagation()
+                }
+            } else {
+                item.classList.remove("action")
+                item.classList.add("disabled")
+                item.onclick = null
+            }
+        }
+    }
+
+    if (show) {
+        menu.onmouseleave = hide_popup_menu
+        menu.style.display = "block"
+        if (title) {
+            let item = menu.querySelector("li.title")
+            if (item) {
+                item.onclick = hide_popup_menu
+                item.textContent = title
+            }
+        }
+
+        let w = menu.clientWidth
+        let h = menu.clientHeight
+        let x = Math.max(5, Math.min(evt.clientX - w / 2, window.innerWidth - w - 5))
+        let y = Math.max(5, Math.min(evt.clientY - 12, window.innerHeight - h - 40))
+        menu.style.left = x + "px"
+        menu.style.top = y + "px"
+
+        evt.stopPropagation()
+    } else {
+        menu.style.display = "none"
+    }
 }
 
 function hide_popup_menu() {
-    let popup = document.getElementById("popup")
-    popup.style.display = 'none'
-    if (current_popup_card) {
-        cards[current_popup_card].element.classList.remove("selected")
-        current_popup_card = 0
-    }
+    document.getElementById("popup").style.display = "none"
+    document.getElementById("activation_popup").style.display = "none"
 }
 
 function is_card_enabled(card) {
@@ -480,42 +474,17 @@ function is_card_enabled(card) {
     return false
 }
 
-function is_card_action(action, card) {
+function is_action(action, card) {
     return view.actions && view.actions[action] && view.actions[action].includes(card)
 }
 
 function on_click_card(evt) {
     let card = evt.target.card
-    if (is_card_action('card', card)) {
+    if (is_action('card', card)) {
         send_action('card', card)
     } else {
-        let menu = card_action_menu.filter(a => is_card_action(a, card))
-        if (menu.length > 0) {
-            current_popup_card = card
-            show_popup_menu(evt, menu)
-        }
+        show_popup_menu(evt, "popup", card, cards[card].name)
     }
-}
-
-
-function on_play_event() {
-    send_action('play_event', current_popup_card)
-    hide_popup_menu()
-}
-
-function on_play_ops() {
-    send_action('play_ops', current_popup_card)
-    hide_popup_menu()
-}
-
-function on_play_sr() {
-    send_action('play_sr', current_popup_card)
-    hide_popup_menu()
-}
-
-function on_play_rps() {
-    send_action('play_rps', current_popup_card)
-    hide_popup_menu()
 }
 
 // BUILD UI
@@ -653,7 +622,6 @@ function build_space(id) {
 
     let elt = space.element = document.createElement("div")
     elt.space = id
-    elt.className = space.type
     elt.style.left = x + "px"
     elt.style.top = y + "px"
     elt.style.width = w + "px"
@@ -952,6 +920,52 @@ function update_space(s) {
         }
     }
 
+    update_space_highlight(s)
+}
+
+const AP_RESERVE_BOX = 282
+const CP_RESERVE_BOX = 283
+
+function update_reserve_boxes() {
+    let ap_space = spaces[AP_RESERVE_BOX]
+    let cp_space = spaces[CP_RESERVE_BOX]
+    let apStack = ap_space.apStack
+    let cpStack = cp_space.cpStack
+
+    apStack.length = 0
+    cpStack.length = 0
+
+    let insert_piece_in_stack = function (p) {
+        let is_corps = pieces[p].type === CORPS
+        let pe = pieces[p].element
+        pe.classList.remove('offmap')
+        pe.classList.remove("inside")
+        if (view.reduced.includes(p))
+            pe.classList.add("reduced")
+        else
+            pe.classList.remove("reduced")
+        let stack = pieces[p].faction === CP ? cpStack : apStack
+        if (is_corps)
+            unshift_stack(stack, p, pe)
+        else
+            push_stack(stack, p, pe)
+    }
+    for_each_piece_in_space(AP_RESERVE_BOX, insert_piece_in_stack)
+    for_each_piece_in_space(CP_RESERVE_BOX, insert_piece_in_stack)
+
+    if (apStack.length > 0) {
+        layout_stack(apStack, ap_space.x/2, ap_space.y/2, 1)
+    }
+    if (cpStack.length > 0) {
+        layout_stack(cpStack, cp_space.x/2, cp_space.y/2, 1)
+    }
+
+    update_space_highlight(AP_RESERVE_BOX)
+    update_space_highlight(CP_RESERVE_BOX)
+}
+
+function update_space_highlight(s) {
+    let space = spaces[s]
     if (should_highlight_space(s))
         space.element.classList.add("highlight")
     else
@@ -1110,6 +1124,10 @@ function toggle_marker(id, show) {
         element.classList.remove("show")
 }
 
+function on_click_space_tip(s) {
+    scroll_into_view(ui.space_list[s])
+}
+
 function update_map() {
     if (!view)
         return
@@ -1119,8 +1137,12 @@ function update_map() {
 
     for (let i = 1; i < cards.length; ++i)
         update_card(i)
-    for (let i = 1; i < spaces.length; ++i)
-        update_space(i, false)
+    for (let i = 1; i < spaces.length; ++i) {
+        if (i != AP_RESERVE_BOX && i != CP_RESERVE_BOX) {
+            update_space(i, false)
+        }
+    }
+    update_reserve_boxes()
     for (let i = 0; i < pieces.length; ++i)
         update_piece(i)
 
@@ -1175,3 +1197,4 @@ function on_update() {
 
 drag_element_with_mouse("#removed", "#removed_header")
 drag_element_with_mouse("#discard", "#discard_header")
+

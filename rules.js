@@ -31,6 +31,8 @@ const EGYPT = "eg"
 const US = "us"
 
 const NONE = "none"
+const ARMY = "army"
+const CORPS = "corps"
 
 const STACKING_LIMIT = 3
 
@@ -52,11 +54,24 @@ const GUNS_OF_AUGUST = 66
 const RAPE_OF_BELGIUM = 13
 
 // Space indices
+const LONDON = 1
 const AMIENS = 16
 const CALAIS = 17
 const OSTEND = 18
 const LIEGE = 33
 const KOBLENZ = 41
+const ESSEN = 43
+const BRESLAU = 94
+const BELGRADE = 125
+const PETROGRAD = 143
+const MOSCOW = 152
+const KHARKOV = 170
+const CAUCASUS = 186
+const SOFIA = 198
+const GALLIPOLI = 212
+const CONSTANTINOPLE = 219
+const AP_RESERVE_BOX = 282
+const CP_RESERVE_BOX = 283
 
 // Piece indices
 const GE_1_ARMY = 1
@@ -579,7 +594,7 @@ function satisfies_mo(mo, attackers, defenders, space) {
                 piece.counter.startsWith('pt') ||
                 piece.counter.startsWith('aus') ||
                 piece.counter.startsWith('ana'))) {
-                return false
+            return false
         }
         return true
     })
@@ -762,7 +777,110 @@ function goto_play_ops(card) {
 
 function goto_play_sr(card) {
     record_action(ACTION_SR, card)
-    // TODO
+    let card_data = data.cards[card]
+    game.sr = {
+        pts: card_data.sr,
+        unit: 0,
+        done: []
+    }
+
+    discard_card(card, 'for sr')
+    start_next_sr()
+}
+
+function start_next_sr() {
+    if (game.sr.pts <= 0) {
+        end_sr()
+        goto_end_action()
+    } else {
+        game.state = 'choose_sr_unit'
+    }
+}
+
+states.choose_sr_unit = {
+    inactive: "Selecting Unit to SR",
+    prompt() {
+        view.prompt = `Select a unit to move by SR (${game.sr.pts} points remaining)`
+        game.location.forEach((loc, p) => {
+            if (loc != 0 && data.pieces[p].faction == game.active && can_sr(p)) {
+                gen_action_piece(p)
+            }
+        })
+        gen_action_undo()
+        if (game.sr.unit != 0) {
+            gen_action_next()
+        } else {
+            gen_action_done()
+        }
+    },
+    piece(p) {
+        if (game.sr.unit != 0) {
+            push_undo()
+            game.sr.unit = p
+            game.sr.pts -= sr_cost(p)
+        } else if (game.sr.unit == p) {
+            game.sr.unit = 0
+            game.sr.pts += sr_cost(p)
+        }
+    },
+    next() {
+        push_undo()
+        game.state = 'choose_sr_destination'
+    },
+    done() {
+        end_sr()
+        goto_end_action()
+    }
+}
+
+function sr_cost(p) {
+    return data.pieces[p].type == ARMY ? 4 : 1;
+}
+
+function can_sr(p) {
+    let piece_data = data.pieces[p]
+    if (sr_cost(p) > game.sr.pts) return false
+    if (set_has(game.sr.done, p)) return false
+
+    // TODO: Additional restrictions on SR from 13.1 - 13.2
+    // TODO: if unit is out of supply, return false
+    // TODO: if unit is Russian, SR only if they are in Russia or Reserve Box (13.1.6)
+    // TODO: if enemy controls or besieges a nation's capital, no corps can SR from the Reserve Box (13.1.11)
+    // TODO: Units may not SR to or from Reserve Box if German/Austrian tracing supply from Sofia/Constantinople,
+    //  Turkish tracing supply to Essen, Breslau, or Sofia, Bulgarian tracing supply to Essen, Breslau, or
+    //  Constantinople, and Russian/Romanian tracing supply to Belgrade (13.1.12)
+
+    // TODO: No more than 1 British Corps (incl Aus, excl PT, CND, and BEF) may use SR to or from Near East or SR by sea
+    //  to or from Near East per turn (13.2.1)
+    // TODO: No sea or Reserve Box SR to or from NE for FR, IT, GR, RO, SB, US, BE, CND, PT, BEF (13.2.1)
+    // TODO: No sea SR for RU corps to or from NE (Reserve Box allowed) (13.2.1)
+    // TODO: No more than one RU corps to or from Near East map per turn (13.2.2)
+
+    // TODO: No more than one CP corps SR to or from NE map per turn (excl TU) (13.2.3)
+}
+
+states.choose_sr_destination = {
+    inactive: "Choosing destination for Strategic Redeployment",
+    prompt() {
+        view.prompt = `Choose destination for Strategic Redeployment`
+        let destinations = find_sr_destinations()
+        destinations.forEach(gen_action_space)
+    },
+    space(s) {
+        push_undo()
+        set_add(game.sr.done, game.sr.unit)
+        game.location[game.sr.unit] = s
+        start_next_sr()
+    }
+}
+
+function find_sr_destinations() {
+    // TODO: Find eligible SR destinations
+    return []
+}
+
+function end_sr() {
+    delete game.sr
 }
 
 function goto_play_rps(card) {
@@ -1436,8 +1554,7 @@ states.apply_defender_losses = {
     piece(p) {
         game.attack.defender_losses_taken += get_piece_lf(p)
         if (is_unit_reduced(p)) {
-            // TODO: eliminate piece. If there is an available replacement in the reserve box, place it and remove the
-            // eliminated piece to replaceable units, otherwise remove the piece permanently
+            // TODO: eliminate piece. If there is an available replacement in the reserve box, place it and remove the eliminated piece to replaceable units, otherwise remove the piece permanently
             game.removed.push(p)
             game.location[p] = 0
         } else {
@@ -1889,6 +2006,44 @@ function gen_action_undo() {
 
 function card_name(card) {
     return `#${card} ${cards[card].name} [${cards[card].ops}/${cards[card].sr}]`
+}
+
+// === SUPPLY ===
+
+function update_supply() {
+    let supplied_spaces = data.spaces.map((s) => {
+        return {
+            paths: {}
+        }
+    })
+
+    const cp_sources = [ESSEN, BRESLAU, SOFIA, CONSTANTINOPLE]
+    const ap_sources = [PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE, LONDON]
+
+    // TODO: For each supply source, recursively flood fill the spaces, tracking the shortest path to each space from
+    //  each supply source
+
+    // Trace supply through any number of friendly-controlled spaces
+    // Cannot trace supply through:
+    //      A space containing an enemy unit
+    //      An enemy controlled space, unless besieging an enemy fort in the space
+
+    // Can trace through friendly, unbesieged ports
+    //      CP can only use friendly ports in Germany and Russia
+    //      CP cannot use a besieged Riga for sea supply
+    //      Allies can use friendly ports NOT in Germany and Russia for supply (ex: Constantinople only if they control Gallipoli)
+
+    // Units always in supply:
+    //      Montenegrin, British ANA, and Turkish SN units
+    //      Serbian units in Serbia
+    //      Turkish units in Medina are always in supply for attrition purposes only (may not activate, SR, take replacements, or use combat cards)
+
+    // CP supply sources are Essen, Breslau, Sofia, and Constantinople
+    // Russian, Serbian, and Romanian supply sources are Belgrade and the Russian map edge spaces
+    // Serbian units may use Salonika as a supply source if Allies control
+    // All other Allies trace supply from London
+
+    // Spaces may use any of their side's supply sources when checking attrition
 }
 
 // === CARD EVENTS ===

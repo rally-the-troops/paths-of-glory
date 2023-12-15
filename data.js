@@ -7538,6 +7538,24 @@ const spaces = [
         "h": 45,
         "nation": "eg",
         "faction": "cp"
+    },
+    {
+        "id": 282,
+        "name": "AP Reserve Box",
+        "x": 4630,
+        "y": 1486,
+        "w": 370,
+        "h": 190,
+        faction: "ap"
+    },
+    {
+        "id": 283,
+        "name": "CP Reserve Box",
+        "x": 4630,
+        "y": 1042,
+        "w": 370,
+        "h": 190,
+        "faction": "cp"
     }
 ]
 
