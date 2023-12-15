@@ -3,9 +3,9 @@
 .marker.11th_army { background-image: url(pieces/11th_army.webp); background-size: 45px 45px; }
 .marker.action { background-image: url(pieces/action.webp); background-size: 216px 72px; }
 .marker.ah_rp { background-image: url(pieces/ah_rp.webp); background-size: 45px 45px; }
-.marker.allied_mandatory_offensive { background-image: url(pieces/allied_mandatory_offensive.webp); background-size: 45px 45px; }
+.marker.ap_mandatory_offensive { background-image: url(pieces/allied_mandatory_offensive.webp); background-size: 45px 45px; }
 .marker.allied_rp { background-image: url(pieces/allied_rp.webp); background-size: 45px 45px; }
-.marker.allied_war_status { background-image: url(pieces/allied_war_status.webp); background-size: 45px 45px; }
+.marker.ap_war_status { background-image: url(pieces/allied_war_status.webp); background-size: 45px 45px; }
 .marker.ap_bid { background-image: url(pieces/ap_bid.webp); background-size: 45px 45px; }
 .marker.ap_control { background-image: url(pieces/ap_control.webp); background-size: 45px 45px; }
 .marker.ap_missed_mo { background-image: url(pieces/ap_missed_mo.webp); background-size: 45px 45px; }

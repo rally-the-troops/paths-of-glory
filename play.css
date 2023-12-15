@@ -443,37 +443,37 @@ body.bevel .event {
 .gr_40 { left: 622px; top: 1548px; }
 
 /* Russian Capitulation */
-#rc_marker { top: 1254px; }
-#rc_marker.rc_0 { left: 70px; }
-#rc_marker.rc_1 { left: 124px; }
-#rc_marker.rc_2 { left: 176px; }
-#rc_marker.rc_3 { left: 228px; }
-#rc_marker.rc_4 { left: 280px; }
-#rc_marker.rc_5 { left: 332px; }
-#rc_marker.rc_6 { left: 384px; }
-#rc_marker.rc_7 { left: 436px; }
+.russian_capitulation { top: 1254px; }
+.russian_capitulation.rc_0 { left: 70px; }
+.russian_capitulation.rc_1 { left: 124px; }
+.russian_capitulation.rc_2 { left: 176px; }
+.russian_capitulation.rc_3 { left: 228px; }
+.russian_capitulation.rc_4 { left: 280px; }
+.russian_capitulation.rc_5 { left: 332px; }
+.russian_capitulation.rc_6 { left: 384px; }
+.russian_capitulation.rc_7 { left: 436px; }
 
 /* US Commitment */
-#us_commitment_marker { top: 1157px; }
-#us_commitment_marker.usc_0 { left: 64px; }
-#us_commitment_marker.usc_1 { left: 116px; }
-#us_commitment_marker.usc_2 { left: 168px; }
-#us_commitment_marker.usc_3 { left: 220px; }
+.us_entry { top: 1157px; }
+.us_entry.usc_0 { left: 64px; }
+.us_entry.usc_1 { left: 116px; }
+.us_entry.usc_2 { left: 168px; }
+.us_entry.usc_3 { left: 220px; }
 
 /* Mandated offensives */
-#ap_mo { left: 1180px; top: 1542px; }
-#ap_mo.fr { left: 1180px; }
-#ap_mo.br { left: 1220px; }
-#ap_mo.it { left: 1260px; }
-#ap_mo.ru { left: 1300px; }
-#ap_mo.none { left: 1340px; }
+.ap_mandatory_offensive { left: 1180px; top: 1542px; }
+.ap_mandatory_offensive.fr { left: 1180px; }
+.ap_mandatory_offensive.br { left: 1220px; }
+.ap_mandatory_offensive.it { left: 1260px; }
+.ap_mandatory_offensive.ru { left: 1300px; }
+.ap_mandatory_offensive.none { left: 1340px; }
 
-#cp_mo { left: 1210px; top: 72px; }
-#cp_mo.ah { left: 1050px; }
-#cp_mo.ah_it { left: 1090px; }
-#cp_mo.tu { left: 1130px; }
-#cp_mo.ge { left: 1170px; }
-#cp_mo.none { left: 1210px; }
+.cp_mandatory_offensive { left: 1210px; top: 72px; }
+.cp_mandatory_offensive.ah { left: 1050px; }
+.cp_mandatory_offensive.ah_it { left: 1090px; }
+.cp_mandatory_offensive.tu { left: 1130px; }
+.cp_mandatory_offensive.ge { left: 1170px; }
+.cp_mandatory_offensive.none { left: 1210px; }
 
 .action.cp.entry { left: 794px; top: 67px; }
 .action.cp.ge_reinf { left: 794px; top: 114px; }
