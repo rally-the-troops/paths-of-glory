@@ -55,6 +55,7 @@
 .marker.us_entry { background-image: url(pieces/us_entry.webp); background-size: 36px 36px; }
 .marker.us_points { background-image: url(pieces/us_points.webp); background-size: 36px 36px; }
 .marker.us_rp { background-image: url(pieces/us_rp.webp); background-size: 45px 45px; }
+.marker.vps { background-image: url(pieces/vp.webp); background-size: 45px 45px; }
 
 .army_ah { background-image: url(pieces/army_ah.webp); background-size: 405px 90px; }
 .army_be { background-image: url(pieces/army_be.webp); background-size: 45px 90px; }
