@@ -475,6 +475,21 @@ body.bevel .event {
 .cp_mandatory_offensive.ge { left: 1170px; }
 .cp_mandatory_offensive.none { left: 1210px; }
 
+/* Action markers */
+
+.marker.action.ap.round1{background-position: 0px 0px;}
+.marker.action.ap.round2{background-position: -36px 0px;}
+.marker.action.ap.round3{background-position: -72px 0px;}
+.marker.action.ap.round4{background-position: -108px 0px;}
+.marker.action.ap.round5{background-position: -144px 0px;}
+.marker.action.ap.round6{background-position: -180px 0px;}
+.marker.action.cp.round1{background-position: 0px -36px;}
+.marker.action.cp.round2{background-position: -36px -36px;}
+.marker.action.cp.round3{background-position: -72px -36px;}
+.marker.action.cp.round4{background-position: -108px -36px;}
+.marker.action.cp.round5{background-position: -144px -36px;}
+.marker.action.cp.round6{background-position: -180px -36px;}
+
 .action.cp.entry { left: 794px; top: 67px; }
 .action.cp.ge_reinf { left: 794px; top: 114px; }
 .action.cp.ah_reinf { left: 837px; top: 114px; }
