@@ -66,6 +66,32 @@ set_mouse_focus(window.localStorage[params.title_id + "/mouse_focus"] | 0)
 let focus = null
 let focus_box = document.getElementById("focus")
 
+// SUPPLY LINE DISPLAY
+
+let showing_supply = false
+
+function show_supply(supply) {
+    showing_supply = true
+    for (let s = 1; s <= last_space; ++s) {
+        spaces[s].element.classList.toggle("western_supply", supply.western.includes(s))
+        spaces[s].element.classList.toggle("eastern_supply", supply.eastern.includes(s))
+        spaces[s].element.classList.toggle("cp_supply", supply.cp.includes(s))
+        spaces[s].element.classList.toggle("no_supply", !supply.western.includes(s) && !supply.eastern.includes(s) && !supply.cp.includes(s))
+    }
+}
+
+function hide_supply() {
+    if (showing_supply) {
+        showing_supply = false
+        for (let s = 1; s <= last_space; ++s) {
+            spaces[s].element.classList.remove("western_supply")
+            spaces[s].element.classList.remove("eastern_supply")
+            spaces[s].element.classList.remove("cp_supply")
+            spaces[s].element.classList.remove("no_supply")
+        }
+    }
+}
+
 function print(x) {
     console.log(JSON.stringify(x, (k,v)=>k==='log'?undefined:v))
 }
@@ -162,6 +188,11 @@ function show_card_list(id, list) {
 
 function hide_card_list(id) {
     document.getElementById(id).classList.add("hide")
+}
+
+function on_reply(q, params) {
+    if (q === 'supply')
+        show_supply(params)
 }
 
 let ui = {
@@ -330,14 +361,14 @@ function focus_stack(stack) {
 
 document.getElementById("map").addEventListener("mousedown", evt => {
     if (evt.button === 0) {
-        //hide_supply()
+        hide_supply()
         blur_stack()
     }
 })
 
 function on_click_piece(evt) {
     if (evt.button === 0) {
-        //hide_supply()
+        hide_supply()
         event.stopPropagation()
         if (focus_stack(evt.target.my_stack)) {
             send_action('piece', evt.target.piece)
@@ -347,7 +378,7 @@ function on_click_piece(evt) {
 
 function on_click_marker(evt) {
     if (evt.button === 0) {
-        //hide_supply()
+        hide_supply()
         event.stopPropagation()
         focus_stack(evt.target.my_stack)
     }
@@ -1190,7 +1221,7 @@ function update_map() {
 }
 
 function on_update() {
-    //hide_supply()
+    hide_supply()
     update_map()
 }
 
