@@ -7,6 +7,7 @@ let game, view
 
 let states = {}
 let events = {}
+let supply_cache
 
 const AP = "ap"
 const CP = "cp"
@@ -115,6 +116,14 @@ exports.is_checkpoint = function (a, b) {
     if (x === ".h2 cp") return true
     if (x === ".h2 ap") return true
     return false
+}
+
+exports.query = function (state, current, q) {
+    if (q === 'supply') {
+        game = state
+        return query_supply()
+    }
+    return null
 }
 
 function inactive_prompt(name, who, where) {
@@ -1811,7 +1820,11 @@ function goto_attrition_phase() {
     }
     // TODO: Calculate the OOS units for both sides and save the lists in the game state
 
+    // TODO: Turkish units in Medina are always in supply for attrition purposes only (may not activate, SR, take
+    //  replacements, or use combat cards)
+
     // TODO: Update control of spaces and save in the game state
+    // Spaces may use any of their side's supply sources when checking attrition
 
     if (game.attrition.ap.length > 0) {
         game.state = 'attrition_phase'
@@ -2010,18 +2023,17 @@ function card_name(card) {
 
 // === SUPPLY ===
 
-function update_supply() {
-    let supplied_spaces = data.spaces.map((s) => {
-        return {
-            paths: {}
-        }
-    })
+const cp_supply_sources = [ESSEN, BRESLAU, SOFIA, CONSTANTINOPLE]
+// AP supply sources depend on nationality. Russian, Serbian, and Romanian units are supplied from the eastern supply
+// sources, all other AP units from the western supply source.
+const eastern_supply_sources = [PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE]
+const western_supply_sources = [LONDON]
 
-    const cp_sources = [ESSEN, BRESLAU, SOFIA, CONSTANTINOPLE]
-    const ap_sources = [PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE, LONDON]
+function search_supply_imp(faction, sources) {
+    let supplied_spaces = []
 
-    // TODO: For each supply source, recursively flood fill the spaces, tracking the shortest path to each space from
-    //  each supply source
+    // TODO: For each supply source, populate the set of supplied spaces
+    // Note that it might be necessary to track supply paths, not just supply state
 
     // Trace supply through any number of friendly-controlled spaces
     // Cannot trace supply through:
@@ -2033,17 +2045,38 @@ function update_supply() {
     //      CP cannot use a besieged Riga for sea supply
     //      Allies can use friendly ports NOT in Germany and Russia for supply (ex: Constantinople only if they control Gallipoli)
 
+    return supplied_spaces
+}
+
+function search_supply() {
+    supply_cache = {}
+    supply_cache.cp = search_supply_imp(CP, cp_supply_sources)
+    // TODO: if Allies control Salonika, Serbian units can draw supply from there in addition to the eastern supply sources
+    supply_cache.eastern = search_supply_imp(AP, eastern_supply_sources)
+    supply_cache.western = search_supply_imp(AP, western_supply_sources)
+}
+
+function is_unit_supplied(p) {
+    if (!supply_cache) search_supply()
+    // TODO
     // Units always in supply:
     //      Montenegrin, British ANA, and Turkish SN units
     //      Serbian units in Serbia
-    //      Turkish units in Medina are always in supply for attrition purposes only (may not activate, SR, take replacements, or use combat cards)
+    return false // TODO
+}
 
-    // CP supply sources are Essen, Breslau, Sofia, and Constantinople
-    // Russian, Serbian, and Romanian supply sources are Belgrade and the Russian map edge spaces
-    // Serbian units may use Salonika as a supply source if Allies control
-    // All other Allies trace supply from London
+function is_space_supplied(faction, s) {
+    if (!supply_cache) search_supply()
+    if (faction == CP) {
+        return set_has(supply_cache.cp, s)
+    } else {
+        return set_has(supply_cache.eastern, s) || set_has(supply_cache.western, s)
+    }
+}
 
-    // Spaces may use any of their side's supply sources when checking attrition
+function query_supply() {
+    if (!supply_cache) search_supply()
+    return supply_cache
 }
 
 // === CARD EVENTS ===
