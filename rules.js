@@ -2031,14 +2031,40 @@ const western_supply_sources = [LONDON]
 
 function search_supply_imp(faction, sources) {
     let supplied_spaces = []
-
-    // TODO: For each supply source, populate the set of supplied spaces
-    // Note that it might be necessary to track supply paths, not just supply state
+    let blocked_spaces = []
 
     // Trace supply through any number of friendly-controlled spaces
     // Cannot trace supply through:
     //      A space containing an enemy unit
+    for (let p = 1; p < data.pieces.length; ++p) {
+        if (game.location[p] != 0 && data.pieces[p].faction != faction) {
+            set_add(blocked_spaces, game.location[p])
+        }
+    }
     //      An enemy controlled space, unless besieging an enemy fort in the space
+    for (let s = 1; s < data.spaces.length; ++s) {
+        let enemy_control = faction == AP ? 1 : 0
+        if (game.control[s] == enemy_control) {
+            set_add(blocked_spaces, s)
+        }
+    }
+
+    // For each supply source, populate the set of supplied spaces
+    sources.forEach((source) => {
+        let frontier = [source]
+        while (frontier.length > 0) {
+            let current = frontier.pop()
+            if (!set_has(blocked_spaces, current)) {
+                set_add(supplied_spaces, current)
+                data.spaces[current].connections.forEach((conn) => {
+                    if (!set_has(supplied_spaces, conn)) {
+                        frontier.push(conn)
+                    }
+                })
+            }
+        }
+    })
+
 
     // Can trace through friendly, unbesieged ports
     //      CP can only use friendly ports in Germany and Russia
