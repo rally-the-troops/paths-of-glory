@@ -72,7 +72,7 @@ let showing_supply = false
 
 function show_supply(supply) {
     showing_supply = true
-    for (let s = 1; s <= last_space; ++s) {
+    for (let s = 1; s < spaces.length; ++s) {
         spaces[s].element.classList.toggle("western_supply", supply.western.includes(s))
         spaces[s].element.classList.toggle("eastern_supply", supply.eastern.includes(s))
         spaces[s].element.classList.toggle("cp_supply", supply.cp.includes(s))
@@ -83,7 +83,7 @@ function show_supply(supply) {
 function hide_supply() {
     if (showing_supply) {
         showing_supply = false
-        for (let s = 1; s <= last_space; ++s) {
+        for (let s = 1; s < spaces.length; ++s) {
             spaces[s].element.classList.remove("western_supply")
             spaces[s].element.classList.remove("eastern_supply")
             spaces[s].element.classList.remove("cp_supply")

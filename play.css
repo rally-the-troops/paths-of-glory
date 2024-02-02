@@ -279,6 +279,77 @@ body.shift .highlight {
     box-shadow: 0 0 10px white;
 }
 
+.western_supply {
+    border-width: 6px;
+    border-top-color: blue;
+    border-left-color: blue;
+    border-bottom-color: transparent;
+    border-right-color: transparent;
+    box-shadow: none;
+    border-style: solid;
+    border-radius: 10px;
+}
+
+.eastern_supply {
+    border-width: 6px;
+    border-top-color: darkred;
+    border-left-color: transparent;
+    border-bottom-color: transparent;
+    border-right-color: darkred;
+    box-shadow: none;
+    border-style: solid;
+    border-radius: 10px;
+}
+
+.cp_supply {
+    border-width: 6px;
+    border-top-color: dimgray;
+    border-left-color: dimgray;
+    border-bottom-color: dimgray;
+    border-right-color: dimgray;
+    box-shadow: none;
+    border-style: solid;
+    border-radius: 10px;
+}
+
+.western_supply.cp_supply {
+    border-width: 6px;
+    border-top-color: blue;
+    border-left-color: blue;
+    border-bottom-color: dimgray;
+    border-right-color: dimgray;
+    box-shadow: none;
+    border-style: solid;
+    border-radius: 10px;
+}
+
+.eastern_supply.cp_supply {
+    border-width: 6px;
+    border-top-color: darkred;
+    border-left-color: dimgray;
+    border-bottom-color: dimgray;
+    border-right-color: darkred;
+    box-shadow: none;
+    border-style: solid;
+    border-radius: 10px;
+}
+
+.western_supply.eastern_supply.cp_supply {
+    border-width: 6px;
+    border-top-color: dimgray;
+    border-left-color: blue;
+    border-bottom-color: dimgray;
+    border-right-color: darkred;
+    box-shadow: none;
+    border-style: solid;
+    border-radius: 10px;
+}
+
+.no_supply {
+    border-color: transparent;
+    box-shadow: none;
+}
+
 /* COUNTERS */
 
 .unit, .marker {
