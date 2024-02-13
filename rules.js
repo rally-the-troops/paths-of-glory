@@ -1159,6 +1159,7 @@ function set_control(s, faction) {
     // (other than the space it occupies) that cannot trace a supply line suffer Attrition. The Libya space suffers
     // normal attrition and can be controlled by the Allied player through normal movement.
     game.control[s] = faction === CP ? 1 : 0
+    supply_cache = null
 }
 
 function can_move_to(s) {
@@ -2088,12 +2089,6 @@ function search_supply_imp(faction, sources, use_ports) {
         }
     })
 
-
-    // Can trace through friendly, unbesieged ports
-    //      CP can only use friendly ports in Germany and Russia
-    //      CP cannot use a besieged Riga for sea supply
-    //      Allies can use friendly ports NOT in Germany and Russia for supply (ex: Constantinople only if they control Gallipoli)
-
     return supplied_spaces
 }
 
@@ -2134,7 +2129,7 @@ function is_unit_supplied(p) {
     if (set_has(cache, location))
         return true
 
-    return false // TODO
+    return false
 }
 
 function is_space_supplied(faction, s) {
