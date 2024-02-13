@@ -2029,23 +2029,38 @@ const cp_supply_sources = [ESSEN, BRESLAU, SOFIA, CONSTANTINOPLE]
 const eastern_supply_sources = [PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE]
 const western_supply_sources = [LONDON]
 
-function search_supply_imp(faction, sources) {
+function search_supply_imp(faction, sources, use_ports) {
     let supplied_spaces = []
     let blocked_spaces = []
+    let friendly_ports = []
 
-    // Trace supply through any number of friendly-controlled spaces
-    // Cannot trace supply through:
-    //      A space containing an enemy unit
+    // Block spaces containing an enemy unit
     for (let p = 1; p < data.pieces.length; ++p) {
         if (game.location[p] != 0 && data.pieces[p].faction != faction) {
             set_add(blocked_spaces, game.location[p])
         }
     }
-    //      An enemy controlled space, unless besieging an enemy fort in the space
+
+    // Block spaces that are in nations not yet at war
+    for (let s = 1; s < data.spaces.length; ++s) {
+        let nation = data.spaces[s].nation
+        if (!nation_at_war(nation))
+            set_add(blocked_spaces, s)
+    }
+
+    // Block enemy controlled spaces, unless besieging an enemy fort in the space
     for (let s = 1; s < data.spaces.length; ++s) {
         let enemy_control = faction == AP ? 1 : 0
+        // TODO: check if space is beseiged by friendly units
         if (game.control[s] == enemy_control) {
             set_add(blocked_spaces, s)
+        } else if (use_ports) {
+            // If this type of supply can use ports, build a set of friendly port spaces
+            if (faction == AP && data.spaces[s].apport) {
+                set_add(friendly_ports, s)
+            } else if (faction == CP && data.spaces[s].cpport) {
+                set_add(friendly_ports, s)
+            }
         }
     }
 
@@ -2056,11 +2071,19 @@ function search_supply_imp(faction, sources) {
             let current = frontier.pop()
             if (!set_has(blocked_spaces, current)) {
                 set_add(supplied_spaces, current)
+                // TODO: account for nation-specific connections
                 data.spaces[current].connections.forEach((conn) => {
                     if (!set_has(supplied_spaces, conn)) {
-                        frontier.push(conn)
+                        set_add(frontier, conn)
                     }
                 })
+                if (set_has(friendly_ports, current)) {
+                    friendly_ports.forEach((port) => {
+                        if (!set_has(supplied_spaces, port)) {
+                            set_add(frontier, port)
+                        }
+                    })
+                }
             }
         }
     })
@@ -2076,18 +2099,41 @@ function search_supply_imp(faction, sources) {
 
 function search_supply() {
     supply_cache = {}
-    supply_cache.cp = search_supply_imp(CP, cp_supply_sources)
+    supply_cache.cp = search_supply_imp(CP, cp_supply_sources, true)
     // TODO: if Allies control Salonika, Serbian units can draw supply from there in addition to the eastern supply sources
-    supply_cache.eastern = search_supply_imp(AP, eastern_supply_sources)
-    supply_cache.western = search_supply_imp(AP, western_supply_sources)
+    supply_cache.eastern = search_supply_imp(AP, eastern_supply_sources, false)
+    supply_cache.western = search_supply_imp(AP, western_supply_sources, true)
 }
 
 function is_unit_supplied(p) {
+    let faction = data.pieces[p].faction
+    let nation = data.pieces[p].nation
+    let location = game.location[p]
+    if (location == 0)
+        return true
+
     if (!supply_cache) search_supply()
-    // TODO
-    // Units always in supply:
-    //      Montenegrin, British ANA, and Turkish SN units
-    //      Serbian units in Serbia
+    let cache = (faction == CP) ? supply_cache.cp : supply_cache.western
+    if (nation == RUSSIA || nation == SERBIA || nation == ROMANIA) {
+        cache = supply_cache.eastern
+    }
+
+    if (nation == SERBIA && data.spaces[location].nation == SERBIA) {
+        return true // Serbian units are always in supply in Serbia
+    }
+
+    if (data.pieces[p].name == "ANA Corps" && data.spaces[location].map == "neareast")
+        return true
+
+    if (nation == MONTENEGRO)
+        return true
+
+    if (nation == "sn" && data.spaces[location].map == "neareast")
+        return true
+
+    if (set_has(cache, location))
+        return true
+
     return false // TODO
 }
 
