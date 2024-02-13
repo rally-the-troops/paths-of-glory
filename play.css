@@ -301,6 +301,17 @@ body.shift .highlight {
     border-radius: 10px;
 }
 
+.western_supply.eastern_supply {
+    border-width: 6px;
+    border-top-color: blue;
+    border-left-color: blue;
+    border-bottom-color: darkred;
+    border-right-color: darkred;
+    box-shadow: none;
+    border-style: solid;
+    border-radius: 10px;
+}
+
 .cp_supply {
     border-width: 6px;
     border-top-color: dimgray;
