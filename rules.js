@@ -264,7 +264,8 @@ exports.setup = function (seed, scenario, options) {
             commitment: COMMITMENT_MOBILIZATION,
             mo: NONE,
             ws: 0,
-            actions: []
+            actions: [],
+            shuffle: false
         },
 
         // CP state
@@ -277,7 +278,8 @@ exports.setup = function (seed, scenario, options) {
             mo: NONE,
             ws: 0,
             ru_vp: 0,
-            actions: []
+            actions: [],
+            shuffle: false
         },
     }
 
@@ -339,33 +341,11 @@ exports.setup = function (seed, scenario, options) {
     setup_piece('ru', 'RU Corps', 'Erivan')
     setup_piece('ru', 'RU Corps', 'Batum')
 
-    setup_piece('it', 'IT Corps', 'Rome')
-    setup_piece('it', 'IT Corps', 'Turin')
-    setup_piece('it', 'IT Corps', 'Taranto')
-    setup_piece('it', '1 Army', 'Verona', true)
-    setup_piece('it', '2 Army', 'Udine', true)
-    setup_piece('it', '3 Army', 'Maggiore', true)
-    setup_piece('it', '4 Army', 'Asiago', true)
-
-    setup_piece('tu', 'TU Corps', 'Constantinople')
-    setup_piece('tu', 'TU Corps', 'Balikesir')
-    setup_piece('tu', 'TU Corps', 'Gallipoli')
-    setup_piece('tu', 'TU Corps', 'Ankara')
-    setup_piece('tu', 'TU Corps', 'Erzerum')
-    setup_piece('tu', 'TU Corps', 'Rize')
-    setup_piece('tu', 'TU Corps', 'Van')
-    setup_piece('tu', 'TU Corps', 'Adana')
-    setup_piece('tu', 'TU Corps', 'Mosul')
-    setup_piece('tu', 'TU Corps', 'Damascus')
-    setup_piece('tu', 'TU Corps', 'Gaza')
-    setup_piece('tu', 'TU Corps', 'Medina')
-    setup_piece('tu', 'TU Corps', 'Baghdad')
-
     setup_piece('br', 'BR Corps', 'Basra')
     setup_piece('br', 'BR Corps', 'Cairo', true)
     setup_piece('br', 'BR Corps', 'Port Said', true)
 
-    log_h1(scenario)
+    log_h2(`${scenario} Scenario`)
 
     if (game.scenario == HISTORICAL) {
         game.options.hand_size = 8
@@ -396,7 +376,8 @@ function setup_initial_decks() {
 
     shuffle(game.ap.deck)
     shuffle(game.cp.deck)
-    deal_cards()
+    deal_ap_cards()
+    deal_cp_cards()
 }
 
 function goto_start_turn() {
@@ -406,23 +387,31 @@ function goto_start_turn() {
     game.active = CP
     game.phasing = CP
     log_br()
-    log_h2(`${game.active}`)
+    log_h1(`Turn ${game.turn}`)
     log_br()
 }
 
-function deal_cards() {
+function deal_ap_cards() {
     while (game.ap.hand.length < game.options.hand_size) {
+        if (game.ap.deck.length == 0)
+            reshuffle_discard(game.ap.deck)
+        if (game.ap.deck.length == 0)
+            break
         game.ap.hand.push(draw_card(game.ap.deck))
     }
+}
+
+function deal_cp_cards() {
     while (game.cp.hand.length < game.options.hand_size) {
+        if (game.cp.deck.length == 0)
+            reshuffle_discard(game.cp.deck)
+        if (game.cp.deck.length == 0)
+            break
         game.cp.hand.push(draw_card(game.cp.deck))
     }
 }
 
 function draw_card(deck) {
-    if (deck.length == 0) {
-        reshuffle_discard(deck)
-    }
     let i = random(deck.length)
     let c = deck[i]
     deck.splice(i, 1)
@@ -447,12 +436,10 @@ function reshuffle_discard(deck) {
 
     if (deck == game.ap.deck) {
         player = game.ap
-        game.log.push("Allied Powers deck reshuffled")
+        log("Allied Powers deck reshuffled")
     } else if (deck == game.cp.deck) {
         player = game.cp
-        game.log.push("Central Powers deck reshuffled")
-    } else {
-        throw new Error(`Attempt to reshuffle a deck that is not the ap or cp deck`)
+        log("Central Powers deck reshuffled")
     }
 
     game.last_card = 0
@@ -461,14 +448,19 @@ function reshuffle_discard(deck) {
 }
 
 function goto_end_turn() {
-    // TODO: Check for end of scenario
-    game.turn++
-
     game.ap.actions = []
     game.cp.actions = []
 
     // TODO: Clean up other lingering game state
 
+    // Check for game end
+    if (game.turn == 20) { // TODO: Other scenarios have other turn limits
+        let result = get_game_result_by_vp()
+        goto_game_over(result, get_result_message("Turn Limit: ", result))
+        return
+    }
+
+    game.turn++
     goto_start_turn()
 }
 
@@ -516,6 +508,38 @@ function get_pieces_in_space(s) {
 
 function nation_at_war(nation) {
     return game.war[nation] !== 0
+}
+
+function set_nation_at_war(nation) {
+    game.war[nation] = 1
+
+    if (nation == TURKEY) {
+        setup_piece('tu', 'TU Corps', 'Constantinople')
+        setup_piece('tu', 'TU Corps', 'Balikesir')
+        setup_piece('tu', 'TU Corps', 'Gallipoli')
+        setup_piece('tu', 'TU Corps', 'Ankara')
+        setup_piece('tu', 'TU Corps', 'Erzerum')
+        setup_piece('tu', 'TU Corps', 'Rize')
+        setup_piece('tu', 'TU Corps', 'Van')
+        setup_piece('tu', 'TU Corps', 'Adana')
+        setup_piece('tu', 'TU Corps', 'Mosul')
+        setup_piece('tu', 'TU Corps', 'Damascus')
+        setup_piece('tu', 'TU Corps', 'Gaza')
+        setup_piece('tu', 'TU Corps', 'Medina')
+        setup_piece('tu', 'TU Corps', 'Baghdad')
+    }
+
+    if (nation == ITALY) {
+        setup_piece('it', 'IT Corps', 'Rome')
+        setup_piece('it', 'IT Corps', 'Turin')
+        setup_piece('it', 'IT Corps', 'Taranto')
+        setup_piece('it', '1 Army', 'Verona', true)
+        setup_piece('it', '2 Army', 'Udine', true)
+        setup_piece('it', '3 Army', 'Maggiore', true)
+        setup_piece('it', '4 Army', 'Asiago', true)
+    }
+
+    // TODO: Setup for other neutral nations
 }
 
 // === Mandated Offensives ===
@@ -902,9 +926,9 @@ function goto_play_rps(card) {
     game.rp.br += card_data.rpbr ?? 0
     game.rp.ru += card_data.rpru ?? 0
     game.rp.allied += card_data.rpa ?? 0
-    game.rp.bu += card_data.rpbu !== undefined && game.war.bu ? card_data.rpbu : 0
-    game.rp.it += card_data.rpit !== undefined && game.war.it ? card_data.rpit : 0
-    game.rp.tu += card_data.rptu !== undefined && game.war.tu ? card_data.rptu : 0
+    game.rp.bu += card_data.rpbu !== undefined && nation_at_war(BULGARIA) ? card_data.rpbu : 0
+    game.rp.it += card_data.rpit !== undefined && nation_at_war(ITALY) ? card_data.rpit : 0
+    game.rp.tu += card_data.rptu !== undefined && nation_at_war(TURKEY) ? card_data.rptu : 0
 
     discard_card(card, 'for rps')
     goto_end_action()
@@ -1902,16 +1926,114 @@ states.siege_roll = {
 }
 
 function goto_war_status_phase() {
-    // TODO: E. War Status Phase
+    // E. War Status Phase
+    log_h1("War Status Phase")
+
     // E.1. Check the Victory Point table and make any changes called for under the “During the War Status Phase”
     // section of the table.
+    // TODO: If blockade event active and it's a winter turn, -1 VP
+    // TODO: If CP failed to conduct their mandated offensive, -1 VP
+    // TODO: If Italy is still neutral but AP at Total War, +1 VP
+    // TODO: If AP failed to conduct their mandated offensive, +1 VP (except FR after French Mutiny event)
+    // TODO: If French unit attacked without US support after French Mutiny, when FR MO, +1 VP
+
     // E.2. Determine if either player has won an Automatic Victory.
-    // E.3. Determine if an Armistice has been declared.
+    if (game.vp == 0) {
+        goto_game_over(AP, get_result_message("Automatic Victory: ", AP))
+        return
+    }
+    if (game.vp == 20) {
+        goto_game_over(CP, get_result_message("Automatic Victory: ", CP))
+        return
+    }
+
+    // E.3. Determine winner if an Armistice has been declared.
+    if (game.ap.ws + game.cp.ws >= 40) {
+        let result = get_game_result_by_vp()
+        goto_game_over(result, get_result_message("Armistice Declared: ", result))
+    }
+
     // E.4. Each player determines if his War Commitment Level has increased. This is not checked on the August 1914
     // turn (turn 1). If the appropriate War Status conditions are met, Limited War or Total War cards may be added
     // to the Draw Pile at this time.
+    if (game.turn != 1 /* TODO && scenario != Introductory */) {
+        if (game.ap.ws >= 4 && game.ap.commitment == COMMITMENT_MOBILIZATION) {
+            game.ap.commitment = COMMITMENT_LIMITED
+            log_h2("Allied Powers' War Commitment Level rises to Limited War")
+            add_cards_to_deck(AP, COMMITMENT_LIMITED, game.ap.deck)
+            game.ap.shuffle = true
+        }
+        if (game.cp.ws >= 4 && game.cp.commitment == COMMITMENT_MOBILIZATION) {
+            game.cp.commitment = COMMITMENT_LIMITED
+            log_h2("Central Powers' War Commitment Level rises to Limited War")
+            add_cards_to_deck(CP, COMMITMENT_LIMITED, game.cp.deck)
+            game.cp.shuffle = true
+            set_nation_at_war(TURKEY)
+        }
+        if (game.ap.ws >= 11 && game.ap.commitment == COMMITMENT_LIMITED) {
+            game.ap.commitment = COMMITMENT_TOTAL
+            log_h2("Allied Powers' War Commitment Level rises to Total War")
+            add_cards_to_deck(AP, COMMITMENT_TOTAL, game.ap.deck)
+            game.ap.shuffle = true
+        }
+        if (game.cp.ws >= 4 && game.cp.commitment == COMMITMENT_LIMITED) {
+            game.cp.commitment = COMMITMENT_TOTAL
+            log_h2("Central Powers' War Commitment Level rises to Total War")
+            add_cards_to_deck(CP, COMMITMENT_TOTAL, game.cp.deck)
+            game.cp.shuffle = true
+        }
+    }
 
     goto_replacement_phase()
+}
+
+function get_game_result_by_vp() {
+    // TODO: Other scenarios may have different VP counts
+    let cp_threshold = game.events.brest_litovsk == 1 ? 11 : 13
+    let ap_threshold = 9
+    if (game.vp >= cp_threshold) {
+        return CP
+    } else if (game.scenario == HISTORICAL || game.vp <= ap_threshold) {
+        return AP
+    } else {
+        return DRAW
+    }
+}
+
+function get_result_message(prefix, result) {
+    if (result == AP)
+        return `${prefix}Allied Powers win`
+    if (result == CP)
+        return `${prefix}Central Powers win`
+    if (result == DRAW)
+        return `${prefix}Game ends in a draw`
+    return `${prefix}Game result unknown`
+}
+
+function add_cards_to_deck(faction, commitment, deck) {
+    for (let i = 1; i < data.cards.length; i++) {
+        if (data.cards[i].commitment == commitment && data.cards[i].faction == faction) {
+            deck.push(i)
+        }
+    }
+}
+
+function goto_game_over(result, victory) {
+    log_br()
+    log(victory)
+    game.state = 'game_over'
+    game.active = 'None'
+    game.result = result
+    game.victory = victory
+}
+
+states.game_over = {
+    inactive() {
+        view.prompt = game.victory
+    },
+    prompt() {
+        view.prompt = game.victory
+    }
 }
 
 function goto_replacement_phase() {
@@ -1976,9 +2098,36 @@ states.replacement_phase = {
 }
 
 function goto_draw_cards_phase() {
-    // TODO: If either player has active combat cards, let them discard them first
-    deal_cards()
-    goto_end_turn()
+    game.state = 'draw_cards_phase'
+    game.active = AP
+}
+
+states.draw_cards_phase = {
+    inactive: 'Discarding combat cards',
+    prompt() {
+        view.prompt = 'Discard any Combat Cards you wish before drawing new cards'
+        // TODO: Highlight cards that can be discarded, including combat cards and the Italy and Romania cards under certain circumstances
+        gen_action_done()
+    },
+    // TODO: discard a card
+    done() {
+        if (game.active == AP) {
+            if (game.ap.shuffle) {
+                // Shuffle required because new cards added, but must be delayed until now to pick up CC discards, according to 2018 rules change
+                reshuffle_discard(game.ap.deck)
+                game.ap.shuffle = false
+            }
+            deal_ap_cards()
+            game.active = CP
+        } else {
+            if (game.cp.shuffle) { // Same as AP shuffle above
+                reshuffle_discard(game.cp.deck)
+                game.cp.shuffle = false
+            }
+            deal_cp_cards()
+            goto_end_turn()
+        }
+    }
 }
 
 function other_faction(faction) {

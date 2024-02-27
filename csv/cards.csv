@@ -13,8 +13,6 @@ num,faction,commitment,ops,sr,remove,cc,ws,rp_a,rp_br,rp_fr,rp_it,rp_ru,rp_ah,rp
 12,ap,mobilization,3,4,TRUE,,,,1,1,1,2,,,,,Entrench,,Place a Level 1 Trench in any space occupied by a supplied friendly Army. Both players may now Entrench.
 13,ap,mobilization,4,4,TRUE,,2,1,2,2,1,3,,,,,Rape of Belgium,rape_of_belgium,"May only be played if CP played ""Guns of August"". Subtract 1VP."
 14,ap,mobilization,4,4,TRUE,,1,1,2,2,1,3,,,,,British Reinforcements,,"1st Army, 1 corps."
-56,ap,mobilization,2,2,TRUE,,,,1,1,,1,,,,,Paris Taxis,,Allied player receives 1 extra RP to immediately flip a reduced French Army in or adjacent to Paris to its full strength side. The RP may not be spent to replace an eliminated unit.
-57,ap,mobilization,3,4,TRUE,,,,1,1,1,2,,,,,Russian Cavalry,,Place the two Russian Cavalry corps in any one space inside Russia containing a supplied Russian Army. They may not be placed in violation of the stacking limit.
 15,ap,limited,3,4,TRUE,,,,1,1,1,2,,,,,British Reinforcements,,"4th Army, 1 corps."
 16,ap,limited,5,5,TRUE,,1,1,3,3,2,4,,,,,Romania,,"May not be played after ""Fall of the Tsar"". Romania joins the Allies."
 17,ap,limited,5,5,TRUE,,2,1,3,3,,4,,,,,Italy,,Italy joins the Allies. Add 1 VP during the War Status Phase of each turn if unplayed after Allied War Commitment Level is Total War.
@@ -35,10 +33,6 @@ num,faction,commitment,ops,sr,remove,cc,ws,rp_a,rp_br,rp_fr,rp_it,rp_ru,rp_ah,rp
 32,ap,limited,2,2,TRUE,,,,1,1,,1,,,,,Russian Reinforcements,,12th Army.
 33,ap,limited,2,2,TRUE,,,,1,1,,1,,,,,Grand Fleet,,"If played in the Allied Action Round immediately following the ""High Seas Fleet"", cancel that card."
 34,ap,limited,3,4,TRUE,,,,1,1,1,2,,,,,British Reinforcements,,"3rd Army, 2 corps."
-58,ap,limited,2,2,TRUE,TRUE,,,1,1,,1,,,,,Russian Guards,,A Russian attack adds +1drm.
-59,ap,limited,2,2,,TRUE,,,1,1,,1,,,,,Alpine Troops,,An attack with IT units (only) adds +1drm.
-60,ap,limited,3,4,TRUE,,,,1,1,1,2,,,,,Czech Legion,,Remove from the game 1 AH Corps from the CP Eliminated/Replacement Box. Add the RU Czech Legion orps to the Allied Reserve Box.
-61,ap,limited,4,4,TRUE,TRUE,,1,2,2,1,3,,,,,Maude,,Any one attack made by BR units tracing supply to Basra may fire on the Army Table.
 35,ap,total,4,4,TRUE,,,1,2,2,1,3,,,,,Yanks and Tanks,,Allied player conducts Operations using this card and all Combats involving a US unit during this Action Round get a +2 drm.
 36,ap,total,2,2,,TRUE,,,1,1,,1,,,,,Mine Attack,,A BR attack vs. an entrenched Defender adds a +1 drm. May only be used in one Combat per turn.
 37,ap,total,2,2,TRUE,,1,,1,1,,1,,,,,Independent Air Force,,Cancel or prevent Rathenau Event bonus GE RP.
@@ -60,6 +54,12 @@ num,faction,commitment,ops,sr,remove,cc,ws,rp_a,rp_br,rp_fr,rp_it,rp_ru,rp_ah,rp
 53,ap,total,5,5,TRUE,,,1,3,3,2,4,,,,,Army of the Orient (FR Reinforcements),,"Place the French Orient Army in the Salonika space if Allied controlled, subject to stacking limits."
 54,ap,total,5,5,TRUE,,2,1,3,3,2,4,,,,,Zimmermann Telegram,,"May only be played if U.S. entry marker is in the ""Zimmerman Telegram Allowed"" box. Subtract 1 VP. US joins the Allies. Allows play of ""Over There"" card on any following turn."
 55,ap,total,5,5,TRUE,,,1,3,3,2,4,,,,,Over There,,"May only be played after ""Zimmerman Telegram"". Allows play of ""US Reinforcements"" on any following turns. ALL Allied RP cards played now include 1 US RP."
+56,ap,mobilization,2,2,TRUE,,,,1,1,,1,,,,,Paris Taxis,,Allied player receives 1 extra RP to immediately flip a reduced French Army in or adjacent to Paris to its full strength side. The RP may not be spent to replace an eliminated unit.
+57,ap,mobilization,3,4,TRUE,,,,1,1,1,2,,,,,Russian Cavalry,,Place the two Russian Cavalry corps in any one space inside Russia containing a supplied Russian Army. They may not be placed in violation of the stacking limit.
+58,ap,limited,2,2,TRUE,TRUE,,,1,1,,1,,,,,Russian Guards,,A Russian attack adds +1drm.
+59,ap,limited,2,2,,TRUE,,,1,1,,1,,,,,Alpine Troops,,An attack with IT units (only) adds +1drm.
+60,ap,limited,3,4,TRUE,,,,1,1,1,2,,,,,Czech Legion,,Remove from the game 1 AH Corps from the CP Eliminated/Replacement Box. Add the RU Czech Legion orps to the Allied Reserve Box.
+61,ap,limited,4,4,TRUE,TRUE,,1,2,2,1,3,,,,,Maude,,Any one attack made by BR units tracing supply to Basra may fire on the Army Table.
 62,ap,total,2,2,TRUE,,1,,1,1,,1,,,,,The Sixtus Affair,,Roll on the Allied 0-19 Peace Term Table. This is not a normal Peace Offer and may not be accepted for a draw.
 63,ap,total,3,4,TRUE,TRUE,,,1,1,1,2,,,,,Backs To The Wall,,A space with a BR Army in France/Belgium may cancel any one mandated retreat.
 64,ap,total,3,4,TRUE,,,,1,1,1,2,,,,,USA Reinforcements,,May only be played after 'Over There'. 2 Corps [2-1-4/1-1-4]
@@ -78,8 +78,6 @@ num,faction,commitment,ops,sr,remove,cc,ws,rp_a,rp_br,rp_fr,rp_it,rp_ru,rp_ah,rp
 12,cp,mobilization,4,4,TRUE,,,,,,,,2,1,3,1,German Reinforcements,,"10th Army, 2 corps."
 13,cp,mobilization,4,4,TRUE,,2,,,,,,2,1,3,1,Falkenhayn,,"May only be played on Aug/Sep 1914 turns only after the ""Moltke"" is played or without restriction beginning in Fall 1914. Cancels the effects of ""Moltke"". Allows play of ""Place of Execution"""
 14,cp,mobilization,4,4,TRUE,,,,,,,,2,1,3,1,Austria,,"Hungary Reinforcements - 7th Army, 2 corps."
-56,cp,mobilization,2,2,TRUE,TRUE,,,,,,,,,1,,Withdrawal,,"Defending units negate one required Corps step loss and instead retreat 1 space. This also cancels any retreat caused by losing the combat. If no Corps step(s) lost, an Army step loss may be negated."
-57,cp,mobilization,3,4,TRUE,TRUE,,,,,,,1,,2,1,Kaisertreu,,An AH attack or defence adds +1drm.
 15,cp,limited,2,2,TRUE,TRUE,,,,,,,,,1,,Chlorine Gas,,A GE attack adds +1 drm.
 16,cp,limited,2,2,TRUE,TRUE,,,,,,,,,1,,Liman Von Sanders,,A TU attack or defense adds a +1 drm.
 17,cp,limited,2,2,TRUE,,,,,,,,,,1,,Mata Hari,,CP player may examine all cards in the Allied player's hand and then conduct Operations using this card.
@@ -100,10 +98,6 @@ num,faction,commitment,ops,sr,remove,cc,ws,rp_a,rp_br,rp_fr,rp_it,rp_ru,rp_ah,rp
 32,cp,limited,3,4,TRUE,,1,,,,,,1,,2,1,War in Africa,,Permanently remove 1 BR corps from the game or add 1 VP (Allied choice).
 33,cp,limited,5,5,TRUE,,1,,,,,,3,1,4,2,Walter Rathenau,,Add 1 extra GE RP during the Replacement Phase of every turn.
 34,cp,limited,5,5,TRUE,,1,,,,,,3,,4,2,Bulgaria,,Bulgaria joins the CP.
-58,cp,limited,2,2,,,,,,,,,,,1,,Stavka Timidity,,"May be played after ""Tsar Takes Command"". No RU attacks vs. entrenched GE units (only) the rest of this turn. Mixed CP stacks may be attacked."
-59,cp,limited,3,4,TRUE,,,,,,,,1,,2,1,Polish Restoration,,May be played if the CP currently controls Warsaw. Subtract 1 VP. Add the three Polish Corps to the CP Reserve Box. These Corps are treated as German for all purposes but may not be relpaced if Warsaw is Allied.
-60,cp,limited,3,4,TRUE,TRUE,,,,,,,1,,2,1,Turk Determination,,A TU Defender in any non-trench space is considered at Trench Level 1 for all purposes for that combat only.
-61,cp,limited,4,4,TRUE,,,,,,,,2,1,3,1,Haig,,"Entrenched GE units in France/Belgium/Germany may ignore all retreat results vs. attacks with BR units this turn. No effect after play of Michel, Blucher, Peace Offensive."
 35,cp,total,2,2,TRUE,TRUE,,,,,,,,,1,,Mustard Gas,,A GE attack adds a +1 drm.
 36,cp,total,2,2,TRUE,,2,,,,,,,,1,,U-Boats Unleashed,,"May only be played after ""H-L Take Command"". Subtract 1 BR RP during the Repl. Phase of each turn and prevent play of US Reinforcements until ""Convoy"" is played."
 37,cp,total,2,2,TRUE,,1,,,,,,,,1,,Hoffman,,"May only be played after ""H-L Take Command"". Adds +1 to all future CP Mandated Offensive die rolls."
@@ -125,6 +119,12 @@ num,faction,commitment,ops,sr,remove,cc,ws,rp_a,rp_br,rp_fr,rp_it,rp_ru,rp_ah,rp
 53,cp,total,5,5,TRUE,,,,,,,,3,1,4,2,Bolshevik Revolution,,"May only be played if Russian Capitulation marker is in the ""Bolshevik Revolution Allowed"" box. No more than 1 RU RP may be spent each turn."
 54,cp,total,5,5,TRUE,,2,,,,,,3,1,4,2,H-L Take Command,,"Allows play of ""Michel"", ""Blucher"", ""Peace Offensive"", ""Hoffman"", and ""U-Boats Unleashed"". Prevents play of ""Place of Execution""."
 55,cp,total,4,4,TRUE,,,,,,,,2,1,3,1,Lloyd George,,"No BR attacks vs. Level 2 entrenched GE units may be made for the rest of this turn. This effect is canceled by play of MICHEL, BLUCHER, or PEACE OFFENSIVE events."
+56,cp,mobilization,2,2,TRUE,TRUE,,,,,,,,,1,,Withdrawal,,"Defending units negate one required Corps step loss and instead retreat 1 space. This also cancels any retreat caused by losing the combat. If no Corps step(s) lost, an Army step loss may be negated."
+57,cp,mobilization,3,4,TRUE,TRUE,,,,,,,1,,2,1,Kaisertreu,,An AH attack or defence adds +1drm.
+58,cp,limited,2,2,,,,,,,,,,,1,,Stavka Timidity,,"May be played after ""Tsar Takes Command"". No RU attacks vs. entrenched GE units (only) the rest of this turn. Mixed CP stacks may be attacked."
+59,cp,limited,3,4,TRUE,,,,,,,,1,,2,1,Polish Restoration,,May be played if the CP currently controls Warsaw. Subtract 1 VP. Add the three Polish Corps to the CP Reserve Box. These Corps are treated as German for all purposes but may not be relpaced if Warsaw is Allied.
+60,cp,limited,3,4,TRUE,TRUE,,,,,,,1,,2,1,Turk Determination,,A TU Defender in any non-trench space is considered at Trench Level 1 for all purposes for that combat only.
+61,cp,limited,4,4,TRUE,,,,,,,,2,1,3,1,Haig,,"Entrenched GE units in France/Belgium/Germany may ignore all retreat results vs. attacks with BR units this turn. No effect after play of Michel, Blucher, Peace Offensive."
 62,cp,total,2,2,TRUE,TRUE,,,,,,,,,1,,Achtung: Panzer,,A GE attack vs. a clear space adds +1 drm.
 63,cp,total,3,4,TRUE,,,,,,,,1,,2,1,Russian Desertions,,"May be played after ""Fall Of The Tsar"".  CP may reduce four 2-step RU units."
 64,cp,total,3,4,TRUE,TRUE,,,,,,,1,,2,1,Alberich,,"May not be used if Allies play ""Royal Tank Corps"" or ""Yanks and Tanks"".  Cancels any one Allied attack in France/Belgium. Any Allied CC cards are considered not played."
