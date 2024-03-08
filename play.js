@@ -229,7 +229,9 @@ const marker_info = {
     it_rp: { name: "Italian Replacements", type: "it_rp", counter: "marker it_rp " },
     us_rp: { name: "United States Replacements", type: "us_rp", counter: "marker us_rp " },
     current_cp_russian_vp: { name: "CP Russian VP", type: "current_cp_russian_vp", counter: "marker small current_cp_russian_vp " },
-    action: { name: "Action", counter: "marker small action " }
+    action: { name: "Action", counter: "marker small action " },
+    fort_destroyed: { name: "Destroyed Fort", counter: "marker fort_destroyed " },
+    fort_besieged: { name: "Besieged Fort", counter: "marker fort_besieged " },
 }
 
 let markers = {
@@ -244,7 +246,11 @@ let markers = {
         cp: []
     },
     general_records: [],
-    actions: []
+    actions: [],
+    forts: {
+        destroyed: [],
+        besieged: []
+    }
 }
 
 function toggle_counters() {
@@ -579,6 +585,61 @@ function destroy_control_marker(space_id, faction) {
     }
 }
 
+function build_fort_destroyed_marker(space_id) {
+    let list = markers.forts.destroyed
+    let marker = list.find(e => e.space_id === space_id)
+    if (marker)
+        return marker.element
+    let info = marker_info.fort_destroyed
+    marker = { space_id: space_id, name: info.name, element: null }
+    let elt = marker.element = document.createElement("div")
+    elt.marker = marker
+    elt.className = info.counter
+    //elt.addEventListener("mousedown", on_click_marker)
+    //elt.addEventListener("mouseenter", on_focus_marker)
+    //elt.addEventListener("mouseleave", on_blur_marker)
+    elt.my_size = 45
+    list.push(marker)
+    ui.markers.appendChild(elt)
+    return marker.element
+}
+
+function destroy_fort_destroyed_marker(space_id) {
+    let list = markers.forts.destroyed
+    let ix = list.findIndex(e => e.space_id === space_id)
+    if (ix >= 0) {
+        list[ix].element.remove()
+        list.splice(ix, 1)
+    }
+}
+
+function build_fort_besieged_marker(space_id) {
+    let list = markers.forts.besieged
+    let marker = list.find(e => e.space_id === space_id)
+    if (marker)
+        return marker.element
+    let info = marker_info.fort_besieged
+    marker = { space_id: space_id, name: info.name, element: null }
+    let elt = marker.element = document.createElement("div")
+    elt.marker = marker
+    elt.className = info.counter
+    //elt.addEventListener("mousedown", on_click_marker)
+    //elt.addEventListener("mouseenter", on_focus_marker)
+    //elt.addEventListener("mouseleave", on_blur_marker)
+    elt.my_size = 45
+    list.push(marker)
+    ui.markers.appendChild(elt)
+    return marker.element
+}
+
+function destroy_fort_besieged_marker(space_id) {
+    let list = markers.forts.besieged
+    let ix = list.findIndex(e => e.space_id === space_id)
+    if (ix >= 0) {
+        list[ix].element.remove()
+        list.splice(ix, 1)
+    }
+}
 function build_general_records_marker(type) {
     let list = markers.general_records
     let marker = list.find(e => e.type === type)
@@ -927,6 +988,18 @@ function update_space(s) {
     }
 
     let controllingStack = view.control[s] ? cpStack : apStack
+
+    if (view.forts.destroyed.includes(s)) {
+        push_stack(controllingStack, 0, build_fort_destroyed_marker(s))
+    } else {
+        destroy_fort_destroyed_marker(s)
+    }
+
+    if (view.forts.besieged.includes(s)) {
+        push_stack(controllingStack, 0, build_fort_besieged_marker(s))
+    } else {
+        destroy_fort_besieged_marker(s)
+    }
 
     if (view.activated.move.includes(s)) {
         unshift_stack(controllingStack, 0, build_activation_marker(s, 'move'))

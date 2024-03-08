@@ -7,7 +7,7 @@
 .marker.allied_rp { background-image: url(pieces/allied_rp.webp); background-size: 45px 45px; }
 .marker.ap_war_status { background-image: url(pieces/allied_war_status.webp); background-size: 45px 45px; }
 .marker.ap_bid { background-image: url(pieces/ap_bid.webp); background-size: 45px 45px; }
-.marker.ap_control { background-image: url(pieces/ap_control.webp); background-size: 45px 45px; }
+.marker.ap_control { background-image: url(pieces/ap_control.webp); background-size: 36px 36px; }
 .marker.ap_missed_mo { background-image: url(pieces/ap_missed_mo.webp); background-size: 45px 45px; }
 .marker.ap_oos { background-image: url(pieces/ap_oos.webp); background-size: 45px 45px; }
 .marker.ap_trench_1 { background-image: url(pieces/ap_trench_1.webp); background-size: 45px 45px; }
@@ -20,7 +20,7 @@
 .marker.combined_war_status { background-image: url(pieces/combined_war_status.webp); background-size: 45px 45px; }
 .marker.combined_war_status_back { background-image: url(pieces/combined_war_status_back.webp); background-size: 45px 45px; }
 .marker.cp_bid { background-image: url(pieces/cp_bid.webp); background-size: 45px 45px; }
-.marker.cp_control { background-image: url(pieces/cp_control.webp); background-size: 45px 45px; }
+.marker.cp_control { background-image: url(pieces/cp_control.webp); background-size: 36px 36px; }
 .marker.cp_done { background-image: url(pieces/cp_done.webp); background-size: 45px 45px; }
 .marker.cp_mandatory_offensive { background-image: url(pieces/cp_mandatory_offensive.webp); background-size: 45px 45px; }
 .marker.cp_missed_mo { background-image: url(pieces/cp_missed_mo.webp); background-size: 45px 45px; }
