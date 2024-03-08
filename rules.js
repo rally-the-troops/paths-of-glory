@@ -1164,7 +1164,9 @@ states.move_stack = {
         })
         game.move.spaces_moved++
         game.move.current = s
-        set_control(s, game.active)
+        if (data.spaces[s].fort <= 0 || set_has(game.forts.destroyed, s)) {
+            set_control(s, game.active)
+        }
     },
     piece(p) {
         push_undo()
@@ -1195,7 +1197,7 @@ function set_control(s, faction) {
 }
 
 function is_friendly_control(s, faction) {
-    return game.control[s] == (faction == AP ? 0 : 1)
+    return game.control[s] == (faction == CP ? 1 : 0)
 }
 
 function is_enemy_control(s, faction) {
