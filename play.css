@@ -275,7 +275,8 @@ body.shift .highlight {
 #spaces div.highlight {
     cursor: pointer;
     border-color: yellow;
-    border-radius: 8px;
+    border-radius: 6px;
+    border-style: solid;
     box-shadow: 0 0 10px white;
 }
 

@@ -171,6 +171,10 @@ exports.view = function(state, current) {
         war: game.war,
         location: game.location,
         reduced: game.reduced,
+        forts: {
+            destroyed: game.forts.destroyed,
+            besieged: game.forts.besieged
+        },
         control: game.control,
         events: game.events
     }
@@ -254,6 +258,10 @@ exports.setup = function (seed, scenario, options) {
             attack: []
         },
         control: data.spaces.map((s) => s.faction === CP ? 1 : 0),
+        forts: {
+            destroyed: [],
+            besieged: []
+        },
 
         // AP state
         ap: {
@@ -2304,7 +2312,7 @@ events.guns_of_august = {
     play() {
         push_undo()
 
-        // TODO: Destroy the Liege fort
+        set_add(game.forts.destroyed, LIEGE)
 
         game.cp.ws += data.cards[GUNS_OF_AUGUST].ws
 
