@@ -1194,6 +1194,14 @@ function set_control(s, faction) {
     supply_cache = null
 }
 
+function is_friendly_control(s, faction) {
+    return game.control[s] == (faction == AP ? 0 : 1)
+}
+
+function is_enemy_control(s, faction) {
+    return !is_friendly_control(s, faction)
+}
+
 function can_move_to(s) {
     let contains_enemy = false
     for_each_piece_in_space(s, (p) => {
@@ -1378,8 +1386,12 @@ function get_attackable_spaces_for_piece(p) {
         //  corps may attack/retreat between the Caucasus space and the Near East per turn; this counts as the
         //  “one move” allowed under 11.3.2
 
-        if (can_be_attacked(conn))
+        if (can_be_attacked(conn)) {
+            // TODO: 15.1.11: German units may not attack spaces containing Russian forts until the OberOst Event Card
+            //  is played or the Central Powers War Status is 4 or higher. German units may, however, besiege unoccupied
+            //  Russian forts. Austro- Hungarian units are not restricted by this rule.
             set_add(attackable_spaces, conn)
+        }
     })
     return attackable_spaces
 }
@@ -1387,7 +1399,10 @@ function get_attackable_spaces_for_piece(p) {
 function can_be_attacked(s) {
     let retval = false
 
-    // TODO: Check if space has an attackable fort
+    // Check if space has an attackable fort
+    if (data.spaces[s].fort > 0 && is_enemy_control(s, game.active) && !set_has(game.forts.destroyed, s) && !set_has(game.forts.besieged)) {
+        return true
+    }
 
     for (let p = 0; p < game.location.length; ++p) {
         if (game.location[p] == s && data.pieces[p].faction !== game.active) {
@@ -1556,7 +1571,10 @@ function resolve_defenders_fire() {
             table = "army"
     })
 
-    // TODO: Add combat strength of fort, if any, to defender
+    const space_data = data.spaces[game.attack.space]
+    if (space_data.fort > 0 && !set_has(game.forts.destroyed, game.attack.space)) {
+        defender_cf += space_data.fort
+    }
 
     log_h2(`Defending with ${defender_cf} combat factors`)
 
@@ -2208,9 +2226,7 @@ function search_supply_imp(faction, sources, use_ports) {
 
     // Block enemy controlled spaces, unless besieging an enemy fort in the space
     for (let s = 1; s < data.spaces.length; ++s) {
-        let enemy_control = faction == AP ? 1 : 0
-        // TODO: check if space is beseiged by friendly units
-        if (game.control[s] == enemy_control) {
+        if (is_enemy_control(s, faction) && !set_has(game.forts.besieged, s)) {
             set_add(blocked_spaces, s)
         } else if (use_ports) {
             // If this type of supply can use ports, build a set of friendly port spaces
