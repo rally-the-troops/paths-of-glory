@@ -156,7 +156,8 @@ exports.view = function(state, current) {
             commitment: game.ap.commitment,
             mo: game.ap.mo,
             ws: game.ap.ws,
-            actions: game.ap.actions
+            actions: game.ap.actions,
+            trenches: game.ap.trenches
         },
         cp: {
             deck: game.cp.deck.length,
@@ -165,7 +166,8 @@ exports.view = function(state, current) {
             mo: game.cp.mo,
             ws: game.cp.ws,
             actions: game.ap.actions,
-            ru_vp: game.cp.ru_vp
+            ru_vp: game.cp.ru_vp,
+            trenches: game.cp.trenches
         },
         rp: game.rp,
         war: game.war,
@@ -273,7 +275,8 @@ exports.setup = function (seed, scenario, options) {
             mo: NONE,
             ws: 0,
             actions: [],
-            shuffle: false
+            shuffle: false,
+            trenches: {}
         },
 
         // CP state
@@ -287,7 +290,8 @@ exports.setup = function (seed, scenario, options) {
             ws: 0,
             ru_vp: 0,
             actions: [],
-            shuffle: false
+            shuffle: false,
+            trenches: {}
         },
     }
 
@@ -352,6 +356,28 @@ exports.setup = function (seed, scenario, options) {
     setup_piece('br', 'BR Corps', 'Basra')
     setup_piece('br', 'BR Corps', 'Cairo', true)
     setup_piece('br', 'BR Corps', 'Port Said', true)
+
+    set_trench_level(find_space('Strasbourg'), 1, CP)
+    set_trench_level(find_space('Mulhouse'), 1, CP)
+    set_trench_level(find_space('Metz'), 1, CP)
+    set_trench_level(find_space('Trent'), 1, CP)
+    set_trench_level(find_space('Trieste'), 1, CP)
+    set_trench_level(find_space('Villach'), 1, CP)
+    set_trench_level(find_space('Cracow'), 1, CP)
+    set_trench_level(find_space('Konigsberg'), 1, CP)
+    set_trench_level(find_space('Verona'), 1, AP)
+    set_trench_level(find_space('Asiago'), 1, AP)
+    set_trench_level(find_space('Maggiore'), 1, AP)
+    set_trench_level(find_space('Udine'), 1, AP)
+    set_trench_level(find_space('Verdun'), 1, AP)
+    set_trench_level(find_space('Nancy'), 1, AP)
+    set_trench_level(find_space('Paris'), 1, AP)
+    set_trench_level(find_space('Belfort'), 1, AP)
+    set_trench_level(find_space('Odessa'), 1, AP)
+    set_trench_level(find_space('Riga'), 1, AP)
+    set_trench_level(find_space('Port Said'), 1, AP)
+    set_trench_level(find_space('Cairo'), 1, AP)
+    set_trench_level(find_space('Basra'), 1, AP)
 
     log_h2(`${scenario} Scenario`)
 
@@ -736,6 +762,23 @@ function get_last_action() {
         return undefined
 
     return actions[actions.length-1]
+}
+
+// === Trenches ===
+
+function set_trench_level(s, level, faction) {
+    if (faction === undefined)
+        faction = is_friendly_control(s, AP) ? AP : CP
+
+    game[faction].trenches[s] = level
+}
+
+function get_trench_level(s, faction) {
+    if (faction === undefined)
+        faction = is_friendly_control(s, AP) ? AP : CP
+
+    let level = game[faction].trenches[s]
+    return level ?? 0
 }
 
 // === GAME STATES ===

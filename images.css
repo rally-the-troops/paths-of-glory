@@ -10,8 +10,8 @@
 .marker.ap_control { background-image: url(pieces/ap_control.webp); background-size: 36px 36px; }
 .marker.ap_missed_mo { background-image: url(pieces/ap_missed_mo.webp); background-size: 45px 45px; }
 .marker.ap_oos { background-image: url(pieces/ap_oos.webp); background-size: 45px 45px; }
-.marker.ap_trench_1 { background-image: url(pieces/ap_trench_1.webp); background-size: 45px 45px; }
-.marker.ap_trench_2 { background-image: url(pieces/ap_trench_2.webp); background-size: 45px 45px; }
+.marker.ap_trench_1 { background-image: url(pieces/ap_trench_1.webp); background-size: 36px 36px; }
+.marker.ap_trench_2 { background-image: url(pieces/ap_trench_2.webp); background-size: 36px 36px; }
 .marker.attack { background-image: url(pieces/attack.webp); background-size: 36px 36px; }
 .marker.blockade_vps { background-image: url(pieces/blockade_vps.webp); background-size: 45px 45px; }
 .marker.br_rp { background-image: url(pieces/br_rp.webp); background-size: 45px 45px; }
@@ -25,8 +25,8 @@
 .marker.cp_mandatory_offensive { background-image: url(pieces/cp_mandatory_offensive.webp); background-size: 45px 45px; }
 .marker.cp_missed_mo { background-image: url(pieces/cp_missed_mo.webp); background-size: 45px 45px; }
 .marker.cp_oos { background-image: url(pieces/cp_oos.webp); background-size: 45px 45px; }
-.marker.cp_trench_1 { background-image: url(pieces/cp_trench_1.webp); background-size: 45px 45px; }
-.marker.cp_trench_2 { background-image: url(pieces/cp_trench_2.webp); background-size: 45px 45px; }
+.marker.cp_trench_1 { background-image: url(pieces/cp_trench_1.webp); background-size: 36px 36px; }
+.marker.cp_trench_2 { background-image: url(pieces/cp_trench_2.webp); background-size: 36px 36px; }
 .marker.cp_war_status { background-image: url(pieces/cp_war_status.webp); background-size: 45px 45px; }
 .marker.current_cp_russian_vp { background-image: url(pieces/current_cp_russian_vp.webp); background-size: 36px 36px; }
 .marker.fort_besieged { background-image: url(pieces/fort_besieged.webp); background-size: 45px 45px; }

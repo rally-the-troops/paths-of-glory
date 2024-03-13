@@ -214,6 +214,16 @@ const marker_info = {
         ap: { name: "AP Control", type: "ap_control", counter: "marker small ap_control" },
         cp: { name: "CP Control", type: "cp_control", counter: "marker small cp_control" }
     },
+    trench: {
+        ap: {
+            1: { name: "AP Trench Level 1", type: "ap_trench_1", counter: "marker small ap_trench_1" },
+            2: { name: "AP Trench Level 2", type: "ap_trench_2", counter: "marker small ap_trench_2" }
+        },
+        cp: {
+            1: { name: "CP Trench Level 1", type: "cp_trench_1", counter: "marker small cp_trench_1" },
+            2: { name: "CP Trench Level 2", type: "cp_trench_2", counter: "marker small cp_trench_2" }
+        }
+    },
     vp: { name: "VP", type: "vp", counter: "marker vps " },
     ap_war_status: { name: "AP War Status", type: "ap_war_status", counter: "marker ap_war_status " },
     cp_war_status: { name: "CP War Status", type: "cp_war_status", counter: "marker cp_war_status " },
@@ -250,6 +260,10 @@ let markers = {
     forts: {
         destroyed: [],
         besieged: []
+    },
+    trench: {
+        ap: { 1: [], 2: [] },
+        cp: { 1: [], 2: [] }
     }
 }
 
@@ -582,6 +596,36 @@ function destroy_control_marker(space_id, faction) {
     if (ix >= 0) {
         list[ix].element.remove()
         list.splice(ix, 1)
+    }
+}
+
+function build_trench_marker(space_id, level, faction) {
+    let list = markers.trench[faction][level]
+    let marker = list.find(e => e.space_id === space_id)
+    if (marker)
+        return marker.element
+    let info = marker_info.trench[faction][level]
+    marker = { space_id: space_id, name: info.name, type: info.type, element: null }
+    let elt = marker.element = document.createElement("div")
+    elt.marker = marker
+    elt.className = info.counter
+    //elt.addEventListener("mousedown", on_click_marker)
+    //elt.addEventListener("mouseenter", on_focus_marker)
+    //elt.addEventListener("mouseleave", on_blur_marker)
+    elt.my_size = 45
+    list.push(marker)
+    ui.markers.appendChild(elt)
+    return marker.element
+}
+
+function destroy_trench_marker(space_id, faction) {
+    for (let level = 1; level <= 2; level++) {
+        let list = markers.trench[faction][level]
+        let ix = list.findIndex(e => e.space_id === space_id)
+        if (ix >= 0) {
+            list[ix].element.remove()
+            list.splice(ix, 1)
+        }
     }
 }
 
@@ -999,6 +1043,18 @@ function update_space(s) {
         push_stack(controllingStack, 0, build_fort_besieged_marker(s))
     } else {
         destroy_fort_besieged_marker(s)
+    }
+
+    if (view.ap.trenches[s] !== undefined) {
+        push_stack(apStack, 0, build_trench_marker(s, view.ap.trenches[s], AP))
+    } else {
+        destroy_trench_marker(s, AP)
+    }
+
+    if (view.cp.trenches[s] !== undefined) {
+        push_stack(cpStack, 0, build_trench_marker(s, view.cp.trenches[s], CP))
+    } else {
+        destroy_trench_marker(s, CP)
     }
 
     if (view.activated.move.includes(s)) {
