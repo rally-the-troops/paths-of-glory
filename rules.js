@@ -1637,10 +1637,26 @@ function resolve_attackers_fire() {
     log_h2(`Attacking with ${attacker_cf} combat factors`)
 
     let attacker_shifts = 0
+
+    // Terrain shifts
     let terrain = data.spaces[game.attack.space].terrain;
-    if (terrain == "mountain") attacker_shifts -= 1
-    if (terrain == "swamp") attacker_shifts -= 1
-    // TODO: apply attacker shifts for trenches
+    if (terrain == "mountain") {
+        attacker_shifts -= 1
+        log(`Attacker's fire shifts 1L for Mountains`)
+    }
+    if (terrain == "swamp") {
+        attacker_shifts -= 1
+        log(`Attacker's fire shifts 1L for Swamps`)
+    }
+
+    // Trench shifts
+    if (get_trench_level(game.attack.space, other_faction(game.attack.attacker)) == 2) {
+        attacker_shifts -= 2
+        log(`Attacker's fire shifts 2L for Trenches`)
+    } else if (get_trench_level(game.attack.space, other_faction(game.attack.attacker)) == 1) {
+        attacker_shifts -= 1
+        log(`Attacker's fire shifts 1L for Trenches`)
+    }
 
     let roll = roll_die(6) + game.attack.attacker_drm
     let clamped_roll = roll > 6 ? 6 : roll < 1 ? 1 : roll
@@ -1670,7 +1686,10 @@ function resolve_defenders_fire() {
     log_h2(`Defending with ${defender_cf} combat factors`)
 
     let defender_shifts = 0
-    // TODO: apply defender shifts for trenches
+    if (get_trench_level(game.attack.space, other_faction(game.attack.attacker)) > 0) {
+        defender_shifts += 1
+        log(`Defender's fire shifts 1R for trench`)
+    }
 
     // TODO: Determine DRM based on played combat cards
     game.attack.defender_drm = 0
