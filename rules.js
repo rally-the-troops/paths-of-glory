@@ -357,6 +357,16 @@ exports.setup = function (seed, scenario, options) {
     setup_piece('br', 'BR Corps', 'Cairo', true)
     setup_piece('br', 'BR Corps', 'Port Said', true)
 
+    setup_piece('br', 'BEF Corps', 'AP Reserve Box')
+    setup_reserve_corps(ITALY, 4)
+    setup_reserve_corps(FRANCE, 7)
+    setup_reserve_corps(BRITAIN, 1)
+    setup_reserve_corps(RUSSIA, 5)
+    setup_reserve_corps(BELGIUM, 1)
+    setup_reserve_corps(SERBIA, 2)
+    setup_reserve_corps(AUSTRIA_HUNGARY, 4)
+    setup_reserve_corps(GERMANY, 8)
+
     set_trench_level(find_space('Strasbourg'), 1, CP)
     set_trench_level(find_space('Mulhouse'), 1, CP)
     set_trench_level(find_space('Metz'), 1, CP)
@@ -504,6 +514,42 @@ function setup_piece(nation, unit, space, reduced) {
     game.location[who] = where
     if (reduced) {
         game.reduced.push(who)
+    }
+}
+
+function setup_reserve_corps(nation, quantity) {
+    let unit = ''
+    let space = 'AP Reserve Box'
+    switch (nation) {
+        case ITALY:
+            unit = 'IT Corps'
+            break
+        case FRANCE:
+            unit = 'FR Corps'
+            break
+        case BRITAIN:
+            unit = 'BR Corps'
+            break
+        case RUSSIA:
+            unit = 'RU Corps'
+            break
+        case BELGIUM:
+            unit = 'BE Corps'
+            break
+        case SERBIA:
+            unit = 'SB Corps'
+            break
+        case AUSTRIA_HUNGARY:
+            unit = 'A-H Corps'
+            space = 'CP Reserve Box'
+            break
+        case GERMANY:
+            unit = 'GE Corps'
+            space - 'CP Reserve Box'
+            break
+    }
+    for (let i = 0; i < quantity; ++i) {
+        setup_piece(nation, unit, space)
     }
 }
 
