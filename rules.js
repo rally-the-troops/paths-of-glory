@@ -1333,14 +1333,24 @@ function is_fully_stacked(s, faction) {
 }
 
 function is_overstacked(s, faction) {
+    return would_overstack(s, [], faction)
+}
+
+function would_overstack(s, pieces, faction) {
     let matches = 0
+    pieces.forEach((p) => {
+        if (data.pieces[p].faction == faction) {
+            matches++
+        }
+    })
     for (let p = 1; p < game.location.length; ++p) {
         if (game.location[p] == s && data.pieces[p].faction == faction) {
             matches++
         }
-        if (matches > STACKING_LIMIT)
-            return true
     }
+
+    if (matches > STACKING_LIMIT)
+        return true
     return false
 }
 
@@ -1898,9 +1908,12 @@ function determine_combat_winner() {
     }
 
     let defender_pieces = get_pieces_in_space(game.attack.space)
-    if (game.attack.defender_losses > game.attack.attacker_losses && attacker_has_full_strength_unit) {
+    if (game.attack.defender_losses > game.attack.attacker_losses && attacker_has_full_strength_unit && defender_pieces.length > 0) {
         game.active = other_faction(game.attack.attacker)
+        game.attack.to_retreat = defender_pieces
+        game.attack.retreating_pieces = []
         game.state = 'defender_retreat'
+        push_undo()
     } else if (defender_pieces.length == 0) {
         game.active = game.attack.attacker
         game.state = 'attacker_advance'
@@ -1910,17 +1923,129 @@ function determine_combat_winner() {
     }
 }
 
-// TODO
 states.defender_retreat = {
     inactive: 'Defender Retreating',
     prompt() {
-        view.prompt = `Retreat or take an extra step loss to cancel the retreat`
-        gen_action_next()
+        view.prompt = `Select unit(s) to retreat`
+        game.attack.to_retreat.forEach((p) => {
+            gen_action_piece(p)
+        })
+        game.attack.retreating_pieces.forEach((p) => {
+            gen_action_piece(p)
+        })
+        gen_action_undo()
+        if (game.attack.retreating_pieces.length > 0) {
+            gen_action_next()
+        } else {
+            gen_action_done()
+        }
+    },
+    piece(p) {
+        if (set_has(game.attack.retreating_pieces, p)) {
+            set_delete(game.attack.retreating_pieces, p)
+            set_add(game.attack.to_retreat, p)
+        } else {
+            set_delete(game.attack.to_retreat, p)
+            set_add(game.attack.retreating_pieces, p)
+        }
     },
     next() {
+        push_undo()
+        game.attack.retreat_length = game.attack.defender_losses - game.attack.attacker_losses == 1 ? 1 : 2
+        game.state = 'choose_retreat_path'
+    },
+    done() {
         game.active = other_faction(game.active)
         game.state = 'attacker_advance'
     }
+}
+
+states.choose_retreat_path = {
+    inactive: 'Defender Retreating',
+    prompt() {
+        if (game.attack.retreat_length == 0) {
+            view.prompt = `End retreat?`
+        } else {
+            if (game.attack.retreat_length > 1) {
+                view.prompt = `Choose space to retreat through`
+            } else {
+                view.prompt = `Choose space to retreat to`
+            }
+
+            let options = get_retreat_options()
+            options.forEach((s) => {
+                gen_action_space(s)
+            })
+        }
+        gen_action_undo()
+        if (game.attack.retreat_length == 0) {
+            gen_action_done()
+        }
+    },
+    space(s) {
+        push_undo()
+        game.attack.retreat_length--
+        game.attack.retreating_pieces.forEach((p) => {
+            game.location[p] = s
+        })
+    },
+    done() {
+        game.attack.retreating_pieces.length = 0
+        if (game.attack.to_retreat.length > 0) {
+            game.state = 'defender_retreat'
+        } else {
+            game.active = other_faction(game.active)
+            game.state = 'attacker_advance'
+        }
+    }
+}
+
+function get_retreat_options() {
+    let p = game.attack.retreating_pieces[0]
+    let options = []
+    let s = game.location[p]
+    let has_friendly_option = false
+    let has_in_supply_option = false
+
+    data.spaces[s].connections.forEach((conn) => {
+        // TODO: check for national restrictions on the connection
+
+        if (conn == game.attack.space)
+            return
+
+        if (game.attack.retreat_length == 1 && would_overstack(conn, game.attack.retreating_pieces, game.active))
+            return
+
+        if (game.attack.retreat_length == 1 && is_enemy_control(conn, game.active))
+            return
+
+        if (is_friendly_control(conn, game.active))
+            has_friendly_option = true
+
+        if (is_space_supplied(game.active, conn))
+            has_in_supply_option = true
+
+        set_add(options, conn)
+    })
+
+    // if any options are friendly controlled, remove all enemy-controlled options
+    if (has_friendly_option) {
+        options = options.filter((s) => {
+            return is_friendly_control(s, game.active)
+        })
+    }
+
+    // if any spaces are in supply, remove all oos spaces
+    if (has_in_supply_option) {
+        options = options.filter((s) => {
+            return is_space_supplied(game.active, s)
+        })
+    }
+
+    // TODO: if any enemy spaces would result in the retreating unit being in supply, remove enemy spaces that would
+    //  leave the retreating unit oos
+
+    return options
 }
 
 // TODO
