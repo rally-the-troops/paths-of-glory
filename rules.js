@@ -1673,7 +1673,7 @@ function resolve_attackers_fire() {
     game.attack.defender_losses = get_fire_result(table, attacker_cf, attacker_shifts, clamped_roll)
     game.attack.defender_losses_taken = 0
 
-    push_undo()
+    clear_undo()
 
     log_h2(`Roll of ${roll} on the ${table} table causes ${game.attack.defender_losses} losses for the defender`)
 }
@@ -1709,7 +1709,7 @@ function resolve_defenders_fire() {
     game.attack.attacker_losses = get_fire_result(table, defender_cf, defender_shifts, clamped_roll)
     game.attack.attacker_losses_taken = 0
 
-    push_undo()
+    clear_undo()
 
     log_h2(`Roll of ${roll} on the ${table} table causes ${game.attack.attacker_losses} losses for the attacker`)
 }
@@ -1734,9 +1734,17 @@ states.apply_defender_losses = {
     piece(p) {
         game.attack.defender_losses_taken += get_piece_lf(p)
         if (is_unit_reduced(p)) {
-            // TODO: eliminate piece. If there is an available replacement in the reserve box, place it and remove the eliminated piece to replaceable units, otherwise remove the piece permanently
-            game.removed.push(p)
-            game.location[p] = 0
+            let replacement = find_replacement(p, get_units_in_reserve())
+            if (replacement == 0) {
+                // eliminate piece
+                game.removed.push(p)
+                game.location[p] = 0
+            } else {
+                game.location[replacement] = game.location[p]
+                // TODO: put p in the replaceable units box instead of removing it
+                game.removed.push(p)
+                game.location[p] = 0
+            }
         } else {
             game.reduced.push(p)
         }
@@ -1775,10 +1783,17 @@ states.apply_attacker_losses = {
     piece(p) {
         game.attack.attacker_losses_taken += get_piece_lf(p)
         if (is_unit_reduced(p)) {
-            // TODO: eliminate piece. If there is an available replacement in the reserve box, place it and remove the
-            // eliminated piece to replaceable units, otherwise remove the piece permanently
-            game.removed.push(p)
-            game.location[p] = 0
+            let replacement = find_replacement(p, get_units_in_reserve())
+            if (replacement == 0) {
+                // eliminate piece
+                game.removed.push(p)
+                game.location[p] = 0
+            } else {
+                game.location[replacement] = game.location[p]
+                // TODO: put p in the replaceable units box instead of removing it
+                game.removed.push(p)
+                game.location[p] = 0
+            }
             array_remove_item(game.attack.pieces, p)
         } else {
             game.reduced.push(p)
@@ -1817,7 +1832,14 @@ function get_loss_options(to_satisfy, units) {
 }
 
 function get_units_in_reserve() {
-    return [] // TODO
+    let reserve = []
+    for_each_piece_in_space(AP_RESERVE_BOX, (p) => {
+        reserve.push(p)
+    })
+    for_each_piece_in_space(CP_RESERVE_BOX, (p) => {
+        reserve.push(p)
+    })
+    return reserve
 }
 
 // Recursively build a tree of possible options for choosing losses
@@ -1886,8 +1908,51 @@ function build_loss_tree(parent, valid_paths) {
     }
 }
 
+function find_bef_army() {
+    for (let i = 1; i < data.pieces.length; ++i) {
+        if (data.pieces[i].name == "BEF Army") return i
+    }
+    return 0
+}
+
+function find_bef_corps() {
+    for (let i = 1; i < data.pieces.length; ++i) {
+        if (data.pieces[i].name == "BEF Corps") return i
+    }
+    return 0
+}
+
 function find_replacement(unit, available_replacements) {
-    return 0 // TODO
+    let unit_data = data.pieces[unit]
+    if (unit_data.type != ARMY)
+        return 0
+
+    if (unit == find_bef_army()) {
+        let bef_corps = find_bef_corps()
+        if (available_replacements.includes(bef_corps))
+            return bef_corps
+        else
+            return 0
+    }
+
+    // British armies cannot be replaced by CND, AUS, or PT corps, so selecting on the name instead of nation
+    if (unit_data.nation == BRITAIN) {
+        for (let i = 0; i < available_replacements.length; ++i) {
+            let replacement_data = data.pieces[available_replacements[i]]
+            if (replacement_data.name == "BR Corps") {
+                return available_replacements[i]
+            }
+        }
+        return 0
+    }
+
+    for (let i = 0; i < available_replacements.length; ++i) {
+        let replacement_data = data.pieces[available_replacements[i]]
+        if (replacement_data.type == CORPS && replacement_data.nation == unit_data.nation) {
+            return available_replacements[i]
+        }
+    }
+    return 0
 }
 
 function determine_combat_winner() {
