@@ -1049,6 +1049,7 @@ const cards = [
         "rpge": 3,
         "rptu": 1,
         "name": "Reichstag Truce",
+        "event": "reichstag_truce",
         "effect": "May not be played after CP War Commitment Level is Total War. Add 1 VP."
     },
     {
