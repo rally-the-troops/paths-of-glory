@@ -1253,7 +1253,7 @@ states.move_stack = {
         })
         game.move.spaces_moved++
         game.move.current = s
-        if (data.spaces[s].fort <= 0 || set_has(game.forts.destroyed, s)) {
+        if (!data.spaces[s].fort || set_has(game.forts.destroyed, s)) {
             set_control(s, game.active)
         }
     },
@@ -2053,6 +2053,8 @@ states.choose_retreat_path = {
         game.attack.retreating_pieces.forEach((p) => {
             game.location[p] = s
         })
+        if (game.attack.retreat_length > 0)
+            game.attack.first_retreat_space = s
     },
     done() {
         game.attack.retreating_pieces.length = 0
@@ -2113,17 +2115,86 @@ function get_retreat_options() {
     return options
 }
 
-// TODO
 states.attacker_advance = {
     inactive: 'Attacker Advancing',
     prompt() {
-        view.prompt = `Advance full strength attackers`
+        view.prompt = `Choose which units to advance`
+        game.attack.pieces.forEach((p) => {
+            if (!is_unit_reduced(p))
+                gen_action_piece(p)
+        })
         gen_action_next()
     },
+    piece(p) {
+        if (!game.attack.advancing_units)
+            game.attack.advancing_units = []
+        if (set_has(game.attack.advancing_units, p))
+            set_delete(game.attack.advancing_units, p)
+        else
+            set_add(game.attack.advancing_units, p)
+    },
     next() {
+        if (game.attack.advancing_units && game.attack.advancing_units.length > 0)
+            game.state = 'perform_advance'
+        else {
+            end_attack_activation()
+            goto_next_activation()
+        }
+    }
+}
+
+states.perform_advance = {
+    inactive: 'Attacker Advancing',
+    prompt() {
+        view.prompt = `Choose next space to advance`
+        get_possible_advance_spaces().forEach(gen_action_space)
+        gen_action_done()
+    },
+    space(s) {
+        push_undo()
+        game.attack.advancing_units.forEach((p) => {
+            game.location[p] = s
+            set_control(s, game.attack.attacker)
+        })
+    },
+    done() {
         end_attack_activation()
         goto_next_activation()
     }
+}
+
+
+
+function get_possible_advance_spaces() {
+    let spaces = []
+    if (game.attack.advancing_units.length > 0) {
+        let location_of_advancing_units = game.location[game.attack.advancing_units[0]]
+        let terrain = data.spaces[game.attack.space]
+        let terrain_allows_advance = terrain != "mountain" && terrain != "swamp" && terrain != "forest" && terrain != "desert"
+        if (game.attack.space != location_of_advancing_units) {
+            spaces.push(game.attack.space)
+        } else if (game.attack.first_retreat_space && terrain_allows_advance) {
+            // 12.7.7 Central Powers units may advance into Amiens, Calais, or Ostend only if one of the following applies:
+            // • if it was the defending space in the Combat.
+            // • if the Race to the Sea Event has been played.
+            // • if the Central Powers War Status is 4 or higher.
+            const cp_restricted_advance = [
+                16, // Amiens
+                17, // Calais
+                18, // Ostend
+            ]
+            if (game.attack.attacker === CP && cp_restricted_advance.includes(game.attack.first_retreat_space)) {
+                if (game.events.race_to_the_sea || game.cp.ws >= 4) {
+                    spaces.push(game.attack.first_retreat_space)
+                }
+            }
+            else
+                spaces.push(game.attack.first_retreat_space)
+
+            // TODO: Advance into a fort is only allowed if you have sufficient advancing units to besiege the fort (12.7.6)
+        }
+    }
+    return spaces
 }
 
 const spaces_where_belgian_units_treated_as_british = [
