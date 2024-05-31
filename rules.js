@@ -2167,34 +2167,78 @@ states.perform_advance = {
 
 function get_possible_advance_spaces() {
     let spaces = []
-    if (game.attack.advancing_units.length > 0) {
-        let location_of_advancing_units = game.location[game.attack.advancing_units[0]]
-        let terrain = data.spaces[game.attack.space]
-        let terrain_allows_advance = terrain != "mountain" && terrain != "swamp" && terrain != "forest" && terrain != "desert"
-        if (game.attack.space != location_of_advancing_units) {
-            spaces.push(game.attack.space)
-        } else if (game.attack.first_retreat_space && terrain_allows_advance) {
-            // 12.7.7 Central Powers units may advance into Amiens, Calais, or Ostend only if one of the following applies:
-            // • if it was the defending space in the Combat.
-            // • if the Race to the Sea Event has been played.
-            // • if the Central Powers War Status is 4 or higher.
-            const cp_restricted_advance = [
-                16, // Amiens
-                17, // Calais
-                18, // Ostend
-            ]
-            if (game.attack.attacker === CP && cp_restricted_advance.includes(game.attack.first_retreat_space)) {
-                if (game.events.race_to_the_sea || game.cp.ws >= 4) {
-                    spaces.push(game.attack.first_retreat_space)
-                }
-            }
-            else
-                spaces.push(game.attack.first_retreat_space)
+    if (game.attack.advancing_units.length == 0)
+        return spaces
 
-            // TODO: Advance into a fort is only allowed if you have sufficient advancing units to besiege the fort (12.7.6)
+    let location_of_advancing_units = game.location[game.attack.advancing_units[0]]
+
+    // If advancing units are not in the space where the attack occurred, they can only advance to that space
+    if (game.attack.space != location_of_advancing_units) {
+        if (has_undestroyed_fort(game.attack.space, other_faction(game.attack.attacker))) {
+            // Advance into a fort is only allowed if you have sufficient advancing units to besiege the fort (12.7.6)
+            if (could_besiege(game.attack.space, game.attack.advancing_units)) {
+                spaces.push(game.attack.space)
+            }
+        } else {
+            spaces.push(game.attack.space)
         }
+        return spaces
+    }
+
+    let terrain= data.spaces[game.attack.space]
+    let terrain_allows_advance = terrain != "mountain" && terrain != "swamp" && terrain != "forest" && terrain != "desert"
+
+    // If the first_retreat_space is not set (retreat was one space), or if the terrain prevents a second advance
+    if (!game.attack.first_retreat_space || !terrain_allows_advance)
+        return spaces
+
+    // 12.7.7 Central Powers units may advance into Amiens, Calais, or Ostend only if one of the following applies:
+    // • if it was the defending space in the Combat.
+    // • if the Race to the Sea Event has been played.
+    // • if the Central Powers War Status is 4 or higher.
+    const cp_restricted_advance = [
+        16, // Amiens
+        17, // Calais
+        18, // Ostend
+    ]
+    if (game.attack.attacker === CP && cp_restricted_advance.includes(game.attack.first_retreat_space)) {
+        if (game.events.race_to_the_sea || game.cp.ws >= 4) {
+            spaces.push(game.attack.first_retreat_space) // Don't need to worry about forts here because these spaces do not have forts
+        }
+        return spaces
+    }
+
+    if (has_undestroyed_fort(game.attack.first_retreat_space, other_faction(game.attack.attacker))) {
+        // Advance into a fort is only allowed if you have sufficient advancing units to besiege the fort (12.7.6)
+        if (could_besiege(game.attack.first_retreat_space, game.attack.advancing_units)) {
+            spaces.push(game.attack.first_retreat_space)
+        }
+    } else {
+        spaces.push(game.attack.first_retreat_space)
     }
     return spaces
+}
+
+function has_undestroyed_fort(space, faction) {
+    let space_data = data.spaces[space]
+    return space_data.fort > 0 && space_data.faction == faction && !set_has(game.forts.destroyed, space)
+}
+
+function could_besiege(space, units) {
+    let retval = false
+    let count_corps = 0
+    units.forEach((p) => {
+        if (data.pieces[p].type == ARMY) {
+            retval = true
+            return
+        } else {
+            count_corps++
+        }
+    })
+    if (!retval && count_corps >= data.space[space].fort) {
+        retval = true
+    }
+    return retval
 }
 
 const spaces_where_belgian_units_treated_as_british = [
