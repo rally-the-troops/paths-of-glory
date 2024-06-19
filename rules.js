@@ -78,6 +78,39 @@ const CP_RESERVE_BOX = 283
 const GE_1_ARMY = 1
 const GE_2_ARMY = 2
 
+function nation_name(nation) {
+    switch (nation) {
+        case FRANCE: return "France"
+        case BRITAIN: return "Britain"
+        case BELGIUM: return "Belgium"
+        case ITALY: return "Italy"
+        case GERMANY: return "Germany"
+        case AUSTRIA_HUNGARY: return "Austria-Hungary"
+        case RUSSIA: return "Russia"
+        case SERBIA: return "Serbia"
+        case MONTENEGRO: return "Montenegro"
+        case BULGARIA: return "Bulgaria"
+        case ROMANIA: return "Romania"
+        case GREECE: return "Greece"
+        case TURKEY: return "Turkey"
+        case PERSIA: return "Persia"
+        case ARABIA: return "Arabia"
+        case EGYPT: return "Egypt"
+        case US: return "US"
+        case NONE: return "None"
+        case AH_IT: return "Austria-Hungary (Italy)"
+        default: return nation
+    }
+}
+
+function faction_name(faction) {
+    switch (faction) {
+        case AP: return "Allied Powers"
+        case CP: return "Central Powers"
+        default: return faction
+    }
+}
+
 const HISTORICAL = "Historical"
 exports.scenarios = [ HISTORICAL ]
 
@@ -659,12 +692,30 @@ function roll_mandated_offensives() {
     let ap_roll = roll_die(6)
     let ap_index = ap_roll
     let ap_mo = AP_MO_TABLE[ap_index]
+
+    if (ap_mo == ITALY && !nation_at_war(ITALY)) {
+        ap_mo = NONE
+    }
+
     while (!nation_eligible_for_mo(ap_mo) && ap_index < 7) {
         ap_index++
         ap_mo = AP_MO_TABLE[ap_index]
     }
 
-    if (ap_mo == RUSSIA && game.events.bolshevik_revolution) {
+    if (ap_mo == FRANCE && all_capitals_occupied(FRANCE)) {
+        ap_mo = BRITAIN
+    }
+    if (ap_mo == BRITAIN && all_capitals_occupied(BRITAIN)) {
+        ap_mo = ITALY
+    }
+    if (ap_mo == ITALY) {
+        if (!nation_at_war(ITALY)) {
+            ap_mo = NONE
+        } else if (all_capitals_occupied(ITALY)) {
+            ap_mo = RUSSIA
+        }
+    }
+    if (ap_mo == RUSSIA && (all_capitals_occupied(RUSSIA) || game.events.bolshevik_revolution)) {
         ap_mo = NONE
     }
 
@@ -678,9 +729,19 @@ function roll_mandated_offensives() {
     }
     let cp_index = cp_roll > 6 ? 6 : cp_roll;
     let cp_mo = CP_MO_TABLE[cp_index]
-    while (!nation_eligible_for_mo(cp_mo) && cp_index < 6) {
-        cp_index++
-        cp_mo = CP_MO_TABLE[cp_index]
+
+    if ((cp_mo == AUSTRIA_HUNGARY || cp_mo == AH_IT) && all_capitals_occupied(AUSTRIA_HUNGARY)) {
+        cp_mo = TURKEY
+    }
+    if (cp_mo == TURKEY) {
+        if (!nation_at_war(TURKEY)) {
+            cp_mo = NONE
+        } else if (all_capitals_occupied(TURKEY)) {
+            cp_mo = GERMANY
+        }
+    }
+    if (cp_mo == GERMANY && all_capitals_occupied(GERMANY)) {
+        cp_mo = NONE
     }
 
     if (cp_mo == AH_IT && !nation_at_war(ITALY)) {
@@ -691,20 +752,43 @@ function roll_mandated_offensives() {
         cp_mo = NONE
     }
 
-    log_h2(`AP rolled ${ap_roll} resulting in a mandated offensive for ${ap_mo}`)
-    log_h2(`CP rolled ${cp_roll} resulting in a mandated offensive for ${cp_mo}`)
+    log_h2(`AP rolled ${ap_roll} resulting in a mandated offensive for ${nation_name(ap_mo)}`)
+    log_h2(`CP rolled ${cp_roll} resulting in a mandated offensive for ${nation_name(cp_mo)}`)
 
     game.ap.mo = ap_mo
     game.cp.mo = cp_mo
 }
 
-function nation_eligible_for_mo(nation) {
-    if (nation == NONE) return true
-    if (nation == AH_IT) nation = AUSTRIA_HUNGARY
+function get_capitals(nation) {
+    let capitals = []
+    for (let i = 1; i < data.spaces.length; i++) {
+        if (data.spaces[i].capital && data.spaces[i].nation == nation) {
+            capitals.push(i)
+        }
+    }
+    return capitals
+}
 
-    // TODO: If the nation's capital(s) is/are captured, it is not eligible
-    // TODO: If French Mutiny event has been played, France is not eligible
+function all_capitals_occupied(nation) {
+    const capitals = get_capitals(nation)
+    const faction = data.spaces[capitals[0]].faction
+    for (let c of capitals) {
+        if (is_friendly_control(c, faction)) {
+            return false
+        }
+    }
     return true
+}
+
+function any_capitals_occupied(nation) {
+    const capitals = get_capitals(nation)
+    const faction = data.spaces[capitals[0]].faction
+    for (let c of capitals) {
+        if (is_enemy_control(c, faction)) {
+            return true
+        }
+    }
+    return false
 }
 
 function satisfies_mo(mo, attackers, defenders, space) {
@@ -797,7 +881,7 @@ function get_active_player() {
 }
 
 function play_card(card) {
-    log(`${game.active} played\n${card_name(card)}.`)
+    log(`${faction_name(game.active)} played\n${card_name(card)}.`)
     let active_player = get_active_player()
     array_remove_item(active_player.hand, card)
     game.last_card = card
@@ -926,16 +1010,7 @@ function goto_play_sr(card) {
     }
 
     discard_card(card, 'for sr')
-    start_next_sr()
-}
-
-function start_next_sr() {
-    if (game.sr.pts <= 0) {
-        end_sr()
-        goto_end_action()
-    } else {
-        game.state = 'choose_sr_unit'
-    }
+    game.state = 'choose_sr_unit'
 }
 
 states.choose_sr_unit = {
@@ -1018,7 +1093,7 @@ states.choose_sr_destination = {
         game.location[game.sr.unit] = s
         game.sr.unit = 0
         game.who = 0
-        start_next_sr()
+        game.state = 'choose_sr_unit'
     }
 }
 
@@ -1545,6 +1620,14 @@ function goto_attack() {
     game.attack.pieces.forEach((p) => {
         array_remove_item(game.eligible_attackers, p)
     })
+
+    const mo = game.active == AP ? game.ap.mo : game.cp.mo
+    if (mo != NONE && satisfies_mo(mo, game.attack.pieces, get_pieces_in_space(game.attack.space), game.attack.space)) {
+        if (game.active == AP)
+            game.ap.mo = NONE
+        if (game.active == CP)
+            game.cp.mo = NONE
+    }
 
     // TODO: if defending space has a trench, go to 'attacker_negate_trench'
     // TODO: else if attacking pieces are eligible to flank, go to 'attacker_choose_flankers'
@@ -2477,10 +2560,26 @@ function goto_war_status_phase() {
 
     // E.1. Check the Victory Point table and make any changes called for under the “During the War Status Phase”
     // section of the table.
-    // TODO: If blockade event active and it's a winter turn, -1 VP
-    // TODO: If CP failed to conduct their mandated offensive, -1 VP
-    // TODO: If Italy is still neutral but AP at Total War, +1 VP
-    // TODO: If AP failed to conduct their mandated offensive, +1 VP (except FR after French Mutiny event)
+    // If blockade event active and it's a winter turn, -1 VP
+    if (game.events.blockade == 1 && game.turn % 4 == 0) {
+        game.vp -= 1
+        log_h2("Blockade event in effect during winter turn, -1 VP")
+    }
+    // If CP failed to conduct their mandated offensive, -1 VP
+    if (game.cp.mo != NONE) {
+        game.vp -= 1
+        log_h2(`${faction_name(CP)} failed to conduct their mandated offensive, -1 VP`)
+    }
+    // If Italy is still neutral but AP at Total War, +1 VP
+    if (!nation_at_war(ITALY) && game.ap.commitment == COMMITMENT_TOTAL) {
+        game.vp += 1
+        log_h2(`${nation_name(ITALY)} is still neutral but ${faction_name(AP)} at Total War, +1 VP`)
+    }
+    // If AP failed to conduct their mandated offensive, +1 VP (except FR after French Mutiny event)
+    if (game.ap.mo != NONE && !(game.ap.mo == FRANCE && game.events.french_mutiny)) {
+        game.vp += 1
+        log_h2(`${faction_name(AP)} failed to conduct their mandated offensive, +1 VP`)
+    }
     // TODO: If French unit attacked without US support after French Mutiny, when FR MO, +1 VP
 
     // E.2. Determine if either player has won an Automatic Victory.
@@ -2502,7 +2601,7 @@ function goto_war_status_phase() {
     // E.4. Each player determines if his War Commitment Level has increased. This is not checked on the August 1914
     // turn (turn 1). If the appropriate War Status conditions are met, Limited War or Total War cards may be added
     // to the Draw Pile at this time.
-    if (game.turn != 1 /* TODO && scenario != Introductory */) {
+    if (game.turn != 1) {
         if (game.ap.ws >= 4 && game.ap.commitment == COMMITMENT_MOBILIZATION) {
             game.ap.commitment = COMMITMENT_LIMITED
             log_h2("Allied Powers' War Commitment Level rises to Limited War")
