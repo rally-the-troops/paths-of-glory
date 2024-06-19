@@ -245,6 +245,7 @@ const cards = [
         "rpit": 2,
         "rpru": 4,
         "name": "Romania",
+        "event": "romania_entry",
         "effect": "May not be played after \"Fall of the Tsar\". Romania joins the Allies."
     },
     {
@@ -260,6 +261,7 @@ const cards = [
         "rpfr": 3,
         "rpru": 4,
         "name": "Italy",
+        "event": "italy_entry",
         "effect": "Italy joins the Allies. Add 1 VP during the War Status Phase of each turn if unplayed after Allied War Commitment Level is Total War."
     },
     {
@@ -658,6 +660,7 @@ const cards = [
         "rpit": 1,
         "rpru": 2,
         "name": "Greece",
+        "event": "greece_entry",
         "effect": "Greece joins the Allies."
     },
     {
@@ -814,6 +817,7 @@ const cards = [
         "rpit": 2,
         "rpru": 4,
         "name": "Zimmermann Telegram",
+        "event": "zimmerman_telegram",
         "effect": "May only be played if U.S. entry marker is in the \"Zimmerman Telegram Allowed\" box. Subtract 1 VP. US joins the Allies. Allows play of \"Over There\" card on any following turn."
     },
     {
@@ -1430,6 +1434,7 @@ const cards = [
         "rpge": 4,
         "rptu": 2,
         "name": "Bulgaria",
+        "event": "bulgaria_entry",
         "effect": "Bulgaria joins the CP."
     },
     {

@@ -995,8 +995,11 @@ function goto_play_event(card) {
     else
         active_player.discard.push(card)
 
+    const card_data = data.cards[card]
+    if (card_data.ws) {
+        active_player.ws += card_data.ws
+    }
     record_action(ACTION_EVENT, card)
-    let card_data= data.cards[card]
     let evt = events[card_data.event]
     evt.play()
 }
@@ -1236,10 +1239,15 @@ function goto_play_reinf(card) {
     log(`${faction_name(game.active)} played\n${card_name(card)} for reinforcements`)
     let active_player = get_active_player()
     array_remove_item(active_player.hand, card)
+    game.last_card = card
     if (card.removed)
         active_player.removed.push(card)
     else
         active_player.discard.push(card)
+
+    if (card_data.ws) {
+        active_player.ws += card_data.ws
+    }
 
     game.reinforcements = []
     card_data.reinf.split('|').forEach((name) => {
@@ -3082,8 +3090,6 @@ events.guns_of_august = {
 
         set_add(game.forts.destroyed, LIEGE)
 
-        game.cp.ws += data.cards[GUNS_OF_AUGUST].ws
-
         game.location[GE_1_ARMY] = LIEGE
         game.location[GE_2_ARMY] = LIEGE
         game.activated.attack.push(LIEGE)
@@ -3101,10 +3107,51 @@ events.rape_of_belgium = {
     },
     play() {
         push_undo()
-
-        game.ap.ws += data.cards[RAPE_OF_BELGIUM].ws
         game.vp -= 1
+        goto_end_action()
+    }
+}
 
+events.bulgaria_entry = {
+    can_play() {
+        return true
+    },
+    play() {
+        push_undo()
+        set_nation_at_war(BULGARIA)
+        goto_end_action()
+    }
+}
+
+events.italy_entry = {
+    can_play() {
+        return true
+    },
+    play() {
+        push_undo()
+        set_nation_at_war(ITALY)
+        goto_end_action()
+    }
+}
+
+events.romania_entry = {
+    can_play() {
+        return !game.events.fall_of_the_tsar
+    },
+    play() {
+        push_undo()
+        set_nation_at_war(ROMANIA)
+        goto_end_action()
+    }
+}
+
+events.greece_entry = {
+    can_play() {
+        return true
+    },
+    play() {
+        push_undo()
+        set_nation_at_war(GREECE)
         goto_end_action()
     }
 }
