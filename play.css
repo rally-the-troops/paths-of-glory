@@ -574,9 +574,9 @@ body.bevel .event {
 .marker.action.cp.round6{background-position: -180px -36px;}
 
 .action.cp.entry { left: 794px; top: 67px; }
-.action.cp.ge_reinf { left: 794px; top: 114px; }
-.action.cp.ah_reinf { left: 837px; top: 114px; }
-.action.cp.tu_reinf { left: 879px; top: 114px; }
+.action.cp.reinf.ge { left: 794px; top: 114px; }
+.action.cp.reinf.ah { left: 837px; top: 114px; }
+.action.cp.reinf.tu { left: 879px; top: 114px; }
 .action.cp.sr { left: 794px; top: 160px; }
 .action.cp.rp { left: 837px; top: 160px; }
 .action.cp.op { left: 794px; top: 208px; }
@@ -585,11 +585,11 @@ body.bevel .event {
 .action.cp.peace { left: 921px; top: 208px; }
 
 .action.ap.entry { left: 701px; top: 1414px; }
-.action.ap.fr_reinf { left: 701px; top: 1461px; }
-.action.ap.br_reinf { left: 743px; top: 1461px; }
-.action.ap.ru_reinf { left: 785px; top: 1461px; }
-.action.ap.it_reinf { left: 828px; top: 1461px; }
-.action.ap.us_reinf { left: 870px; top: 1461px; }
+.action.ap.reinf.fr { left: 701px; top: 1461px; }
+.action.ap.reinf.br { left: 743px; top: 1461px; }
+.action.ap.reinf.ru { left: 785px; top: 1461px; }
+.action.ap.reinf.it { left: 828px; top: 1461px; }
+.action.ap.reinf.us { left: 870px; top: 1461px; }
 .action.ap.sr { left: 701px; top: 1507px; }
 .action.ap.rp { left: 743px; top: 1507px; }
 .action.ap.op { left: 701px; top: 1554px; }

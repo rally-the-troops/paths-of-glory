@@ -1253,14 +1253,13 @@ function update_general_records_track() {
     })
 }
 
-const ACTION_REINFORCEMENTS = "reinf"
+const ACTION_REINF = "reinf"
 
 function update_action_round_marker(faction, round, action) {
     let marker = build_action_marker(faction, round)
-    if (action.type === ACTION_REINFORCEMENTS) {
-        // TODO: Determine the nation and get the correct class to add
-    } else {
-        marker.classList.add(action.type)
+    marker.classList.add(action.type)
+    if (action.type === ACTION_REINF) {
+        marker.classList.add(cards[action.card].reinfnation)
     }
 }
 

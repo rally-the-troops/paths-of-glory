@@ -45,7 +45,7 @@ const ACTION_EVENT = "evt"
 const ACTION_OP = "op"
 const ACTION_SR = "sr"
 const ACTION_RP = "rp"
-const ACTION_REINFORCEMENTS = "reinf"
+const ACTION_REINF = "reinf"
 const ACTION_NEUTRAL_ENTRY = "entry"
 const ACTION_1_OP = "oneop"
 const ACTION_PEACE_TERMS = "peace"
@@ -198,7 +198,7 @@ exports.view = function(state, current) {
             commitment: game.cp.commitment,
             mo: game.cp.mo,
             ws: game.cp.ws,
-            actions: game.ap.actions,
+            actions: game.cp.actions,
             ru_vp: game.cp.ru_vp,
             trenches: game.cp.trenches
         },
@@ -327,6 +327,8 @@ exports.setup = function (seed, scenario, options) {
             shuffle: false,
             trenches: {}
         },
+
+        reinf_this_turn: {},
     }
 
     log_h1("Paths of Glory")
@@ -423,8 +425,6 @@ exports.setup = function (seed, scenario, options) {
     set_trench_level(find_space('Cairo'), 1, AP)
     set_trench_level(find_space('Basra'), 1, AP)
 
-    log_h2(`${scenario} Scenario`)
-
     if (game.scenario == HISTORICAL) {
         game.options.hand_size = 8
         game.options.start_with_guns_of_august = 1
@@ -500,9 +500,9 @@ function discard_card(card, reason) {
     let active_player = get_active_player()
 
     if (reason)
-        log(`${game.active} discarded\n${card_name(card)}\n${reason}.`)
+        log(`${game.active} discarded\n${card_name(card)}\n${reason}`)
     else
-        log(`${game.active} discarded\n${card_name(card)}.`)
+        log(`${game.active} discarded\n${card_name(card)}`)
 
     array_remove_item(active_player.hand, card)
     game.last_card = card
@@ -528,6 +528,8 @@ function reshuffle_discard(deck) {
 function goto_end_turn() {
     game.ap.actions = []
     game.cp.actions = []
+
+    game.reinf_this_turn = {}
 
     // TODO: Clean up other lingering game state
 
@@ -695,11 +697,6 @@ function roll_mandated_offensives() {
 
     if (ap_mo == ITALY && !nation_at_war(ITALY)) {
         ap_mo = NONE
-    }
-
-    while (!nation_eligible_for_mo(ap_mo) && ap_index < 7) {
-        ap_index++
-        ap_mo = AP_MO_TABLE[ap_index]
     }
 
     if (ap_mo == FRANCE && all_capitals_occupied(FRANCE)) {
@@ -880,18 +877,6 @@ function get_active_player() {
     throw new Error("Active player is not AP or CP")
 }
 
-function play_card(card) {
-    log(`${faction_name(game.active)} played\n${card_name(card)}.`)
-    let active_player = get_active_player()
-    array_remove_item(active_player.hand, card)
-    game.last_card = card
-    // TODO: Deal with combat cards?
-    if (cards[card].remove)
-        active_player.removed.push(card)
-    else
-        active_player.discard.push(card)
-}
-
 function record_action(type, card) {
     let actions = game[game.active].actions
     actions.push({ type: type, card: card })
@@ -936,29 +921,25 @@ states.action_phase = {
         gen_action('single_op')
     },
     play_event(card) {
-        log_br()
-        play_card(card)
-        record_action(ACTION_EVENT, card) // TODO: Might need to handle reinforcements differently
-        events[data.cards[card].event].play()
+        if (data.cards[card].reinfnation) {
+            goto_play_reinf(card)
+        } else {
+            goto_play_event(card)
+        }
     },
     play_ops(card) {
-        log_br()
         goto_play_ops(card)
     },
     play_sr(card) {
-        log_br()
         goto_play_sr(card)
     },
     play_rps(card) {
-        log_br()
         goto_play_rps(card)
     },
     offer_peace() {
-        log_br()
         goto_offer_peace()
     },
     single_op() {
-        log_br()
         goto_play_ops(undefined)
     }
 }
@@ -974,6 +955,22 @@ function gen_card_menu(card) {
 }
 
 function can_play_event(card) {
+    const card_data = data.cards[card]
+
+    if (card_data.reinfnation) {
+        // TODO: Uncomment this. It is commented out for now to make testing easier
+        //if (game.turn == 1)
+        //    return false
+
+        if (game.reinf_this_turn && game.reinf_this_turn[card_data.reinfnation])
+            return false
+
+        if (!nation_at_war(card_data.reinfnation))
+            return false
+
+        return true
+    }
+
     let evt = events[data.cards[card].event]
     return (evt !== undefined && evt.can_play())
 }
@@ -986,6 +983,23 @@ function can_play_sr(card) {
 function can_play_rps(card) {
     let action = get_last_action()
     return action === undefined || action.type != ACTION_RP
+}
+
+function goto_play_event(card) {
+    log(`${faction_name(game.active)} played\n${card_name(card)} for the event`)
+    let active_player = get_active_player()
+    array_remove_item(active_player.hand, card)
+    game.last_card = card
+    // TODO: Deal with combat cards?
+    if (cards[card].remove)
+        active_player.removed.push(card)
+    else
+        active_player.discard.push(card)
+
+    record_action(ACTION_EVENT, card)
+    let card_data= data.cards[card]
+    let evt = events[card_data.event]
+    evt.play()
 }
 
 function goto_play_ops(card) {
@@ -1212,6 +1226,117 @@ function goto_play_rps(card) {
 
     discard_card(card, 'for rps')
     goto_end_action()
+}
+
+function goto_play_reinf(card) {
+    push_undo()
+    const card_data = data.cards[card]
+    record_action(ACTION_REINF, card)
+    game.reinf_this_turn[card_data.reinfnation] = 1
+
+    log(`${faction_name(game.active)} played\n${card_name(card)} for reinforcements`)
+    let active_player = get_active_player()
+    array_remove_item(active_player.hand, card)
+    if (card.removed)
+        active_player.removed.push(card)
+    else
+        active_player.discard.push(card)
+
+    game.reinforcements = []
+    card_data.reinf.split('|').forEach((name) => {
+        let p = find_unused_piece(card_data.reinfnation, name)
+        game.reinforcements.push(p)
+    })
+    game.state = 'place_reinforcements'
+}
+
+states.place_reinforcements = {
+    inactive: "Place Reinforcements",
+    prompt() {
+        if (game.reinforcements.length > 0) {
+            const first_piece = game.reinforcements[0]
+            const first_piece_data = data.pieces[first_piece]
+            view.prompt = `Place reinforcements: ${nation_name(first_piece_data.nation)} ${first_piece_data.name}`
+
+            const spaces = get_available_reinforcement_spaces(first_piece)
+            spaces.forEach((s) => {
+                gen_action_space(s)
+            })
+            gen_action_undo()
+        } else {
+            gen_action_undo()
+            gen_action_done()
+        }
+    },
+    space(s) {
+        push_undo()
+        const p = game.reinforcements.shift()
+        game.location[p] = s
+    },
+    done() {
+        clear_undo()
+        goto_end_action()
+    }
+}
+
+function get_available_reinforcement_spaces(p) {
+    const piece_data = data.pieces[p]
+    const nation = piece_data.nation
+    const spaces = []
+
+    // TODO: Special placement rules for certain corps units
+
+    // Corps can be placed in the reserve box
+    if (piece_data.type == CORPS) {
+        // TODO: Handle special corps placement rules
+        if (piece_data.faction == AP)
+            spaces.push(AP_RESERVE_BOX)
+        else
+            spaces.push(CP_RESERVE_BOX)
+        return spaces
+    }
+
+    // TODO: Special placement rules for French Orient Army, British NE Army, Russian CAU Army, and British MEF Army
+
+    // US Armies can only be placed at unbesieged ports in France
+    if (nation == US) {
+        for (let s = 1; s < data.spaces.length; s++) {
+            const space = data.spaces[s]
+            if (space.nation == FRANCE && space.apport && is_friendly_control(s, game.active) && !is_besieged(s)) {
+                spaces.push(s)
+            }
+        }
+        return spaces
+    }
+
+    // Friendly-controlled capitals can receive armies
+    const capitals = get_capitals(nation)
+    for (let c of capitals) {
+        if (is_friendly_control(c, game.active) && is_space_supplied(game.active, c) && !is_fully_stacked(c, game.active)) {
+            spaces.push(c)
+        }
+    }
+
+    // Friendly supply sources in the right nation can receive armies
+    for (let s = 1; s < data.spaces.length; s++) {
+        const space = data.spaces[s]
+        if (space.nation == nation && space.supply && is_friendly_control(s, game.active) && is_space_supplied(game.active, s) && !is_fully_stacked(s, game.active)) {
+            spaces.push(s)
+        }
+    }
+
+    // If Paris is fully stacked, but not besieged or captured, French reinforcements can go in Orleans
+    const paris = find_space('Paris')
+    const orleans = find_space('Orleans')
+    if (nation == FRANCE &&
+        is_fully_stacked(paris, game.active) &&
+        is_friendly_control(paris, game.active) &&
+        is_friendly_control(orleans, game.active &&
+        is_space_supplied(game.active, orleans))) {
+        spaces.push(orleans)
+    }
+
+    return spaces
 }
 
 function goto_offer_peace() {
@@ -1832,7 +1957,7 @@ function resolve_attackers_fire() {
     game.attack.attacker_drm = 0
     // TODO: -3 DRM if all attackers are in the Sinai space
 
-    log_h2(`Attacking with ${attacker_cf} combat factors`)
+    log(`Attacking with ${attacker_cf} combat factors`)
 
     let attacker_shifts = 0
 
@@ -1863,7 +1988,7 @@ function resolve_attackers_fire() {
 
     clear_undo()
 
-    log_h2(`Roll of ${roll} on the ${table} table causes ${game.attack.defender_losses} losses for the defender`)
+    log(`Roll of ${roll} on the ${table} table causes ${game.attack.defender_losses} losses for the defender`)
 }
 
 function resolve_defenders_fire() {
@@ -1881,7 +2006,7 @@ function resolve_defenders_fire() {
         defender_cf += space_data.fort
     }
 
-    log_h2(`Defending with ${defender_cf} combat factors`)
+    log(`Defending with ${defender_cf} combat factors`)
 
     let defender_shifts = 0
     if (get_trench_level(game.attack.space, other_faction(game.attack.attacker)) > 0) {
@@ -1899,7 +2024,7 @@ function resolve_defenders_fire() {
 
     clear_undo()
 
-    log_h2(`Roll of ${roll} on the ${table} table causes ${game.attack.attacker_losses} losses for the attacker`)
+    log(`Roll of ${roll} on the ${table} table causes ${game.attack.attacker_losses} losses for the attacker`)
 }
 
 states.apply_defender_losses = {
