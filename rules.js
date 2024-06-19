@@ -51,139 +51,8 @@ const ACTION_1_OP = "oneop"
 const ACTION_PEACE_TERMS = "peace"
 
 // Card indices
-// Central powers
 const GUNS_OF_AUGUST = 66
-const WIRELESS_INTERCEPTS = 67
-const VON_FRANCOIS = 68
-const SEVERE_WEATHER_CP = 69
-const LANDWEHR = 70
-const ENTRENCH_CP = 71
-const GERMAN_REINFORCEMENTS_1 = 72
-const RACE_TO_THE_SEA = 73
-const REICHSTAG_TRUCE = 74
-const SUD_ARMY = 75
-const OBEROST = 76
-const GERMAN_REINFORCEMENTS_2 = 77 
-const FALKENHAYN = 78
-const AH_REINFORCEMENTS_1 = 79
-const CHLORINE_GAS = 80
-const LIMAN_VON_SANDERS = 81
-const MATA_HARI = 82
-const FORTIFIED_MACHINE_GUNS = 83
-const FLAMETHROWERS = 84
-const AH_REINFORCEMENTS_2 = 85
-const GERMAN_REINFORCEMENTS_3 = 86
-const GERMAN_REINFORCEMENTS_4 = 87
-const AH_REINFORCEMENTS_3 = 88
-const LYBIAN_REVOLT = 89
-const HIGH_SEAS_FLEET = 90
-const PLACE_OF_EXECUTION = 91
-const ZEPPELIN_RAIDS = 92
-const TSAR_TAKES_COMMAND = 93
-const ELEVENTH_ARMY = 94
-const ALPENKORPS = 95
-const KEMAL = 96
-const WAR_IN_AFRICA = 97
-const WALTER_RATHENAU = 98
-const BULGARIA_ENTRY = 99
-const MUSTARD_GAS = 100
-const U_BOATS_UNLEASHED = 101
-const HOFFMAN = 102
-const GERMAN_REINFORCEMENTS_5 = 103
-const GERMAN_REINFORCEMENTS_6 = 104
-const AIR_SUPERIORITY_CP = 105
-const GERMAN_REINFORCEMENTS_7 = 106
-const TURKISH_REINFORCEMENTS_1 = 107
-const VON_BELOW = 108
-const VON_HUTIER = 109
-const TREATY_OF_BRESK_LITOVSK = 110
-const GERMAN_REINFORCEMENTS_8 = 111
-const FRENCH_MUTINY = 112
-const TURKISH_REINFORCEMENTS_2 = 113
-const MICHAEL = 114
-const BLUCHER = 115
-const PEACE_OFFENSIVE = 116
-const FALL_OF_THE_TSAR = 117
-const BOLSHEVIK_REVOLUTION = 118
-const H_L_TAKES_COMMAND = 119
-const LLOYD_GEORGE = 120
-const WITHDRAWAL_CP = 121
-const KAISERTREU = 122
-const STAVKA_TIMIDITY = 123
-const POLISH_RESTORATION = 124
-const TURK_DETERMINATION = 125
-const HAIG = 126
-const ACHTUNG_PANZER = 127
-const RUSSIAN_DESERTIONS = 128
-const ALBERICH = 129
-const PRINCE_MAX = 130
-// Allied powers
-
-const BRITISH_REINFORCEMENTS_1 = 1
-const BLOCKADE = 2
-const RUSSIAN_REINFORCEMENTS_1 = 3
-const PLEVE = 4
-const PUTNIK = 5
-const WITHDRAWAL_AP = 6
-const SEVERE_WEATHER_AP = 7
-const RUSSIAN_REINFORCEMENTS_2 = 8
-const MOLTKE = 9
-const FRENCH_REINFORCEMENTS_1 = 10
-const RUSSIAN_REINFORCEMENTS_3 = 11
-const ENTRENCH_AP = 12
 const RAPE_OF_BELGIUM = 13
-const BRITISH_REINFORCEMENTS_2 = 14
-const BRITISH_REINFORCEMENTS_3 = 15
-const ROMANIA_ENTRY = 16
-const ITALY_ENTRY = 17
-const HURRICANE_BARRAGE = 18
-const AIR_SUPERIORITY_AP = 19
-const BRITISH_REINFORCEMENTS_4 = 20
-const PHOSGENE_GAS = 21
-const ITALIAN_REINFORCEMENTS_1 = 22
-const CLOAK_AND_DAGGER = 23
-const FRENCH_REINFORCEMENTS_2 = 24
-const RUSSIAN_REINFORCEMENTS_4 = 25
-const LUSITANIA = 26
-const GREAT_RETREAT = 27
-const LANDSHIPS = 28
-const YUDENITCH = 29
-const SALONIKA = 30
-const MEF = 31
-const RUSSIAN_REINFORCEMENTS_5 = 32
-const GRAND_FLEET = 33
-const BRITISH_REINFORCEMENTS_5 = 34
-const YANKS_AND_TANKS = 35
-const MINE_ATTACK = 36
-const INDEPENDANT_AIR_FORCE = 37
-const USA_REINFORCEMENTS_1 = 38
-const THEY_SHALL_NOT_PASS = 39
-const FOURTEEN_POINTS = 40
-const ARAB_NORTHERN_ARMY = 41
-const BRITISH_REINFORCEMENTS_6 = 42
-const USA_REINFORCEMENTS_2 = 43
-const GREECE_ENTRY = 44
-const KERENSKY_OFFENSIVE = 45
-const BRUSILOV_OFFENSIVE = 46
-const USA_REINFORCEMENTS_3 = 47
-const ROYAL_TANK_CORPS = 48
-const SINAI_PIPELINE = 49
-const ALLEBY = 50
-const EVERYONE_INTO_BATTLE = 51
-const CONVOY = 52
-const ARMY_OF_THE_ORIENT = 53
-const ZIMMERMANN_TELEGRAM = 54
-const OVER_THERE = 55
-const PARIS_TAXIS = 56
-const RUSSIAN_CAVALRY = 57
-const RUSSIAN_GUARDS = 58
-const ALPINE_TROOPS = 59
-const CZECH_LEGION = 60
-const MAUDE = 61
-const THE_SIXTUS_AFFAIR = 62
-const BACKS_TO_THE_WALL = 63
-const USA_REINFORCEMENTS_4 = 64
-const INFLUENZA = 65
 
 // Space indices
 const LONDON = 1
@@ -309,7 +178,8 @@ exports.view = function(state, current) {
             besieged: game.forts.besieged
         },
         control: game.control,
-        events: game.events
+        events: game.events,
+        who: game.who
     }
 
     if (current === AP) {
@@ -694,6 +564,16 @@ function find_unused_piece(nation, name) {
     throw new Error(`Could not find unused piece for nation ${nation} and name ${name}`)
 }
 
+function find_piece(nation, name) {
+    for (let i = 0; i < data.pieces.length; i++) {
+        let piece = data.pieces[i]
+        if (piece.name === name && piece.nation === nation) {
+            return i
+        }
+    }
+    throw new Error(`Could not find piece for nation ${nation} and name ${name}`)
+}
+
 function find_space(name) {
     for (let i = 0; i < data.spaces.length; i++) {
         if (data.spaces[i].name === name) {
@@ -1068,24 +948,15 @@ states.choose_sr_unit = {
             }
         })
         gen_action_undo()
-        if (game.sr.unit != 0) {
-            gen_action_next()
-        } else {
-            gen_action_done()
-        }
+        gen_action_done()
     },
     piece(p) {
-        if (game.sr.unit != 0) {
+        if (game.sr.unit == 0) {
             push_undo()
             game.sr.unit = p
             game.sr.pts -= sr_cost(p)
-        } else if (game.sr.unit == p) {
-            game.sr.unit = 0
-            game.sr.pts += sr_cost(p)
+            game.who = p
         }
-    },
-    next() {
-        push_undo()
         game.state = 'choose_sr_destination'
     },
     done() {
@@ -1102,14 +973,25 @@ function can_sr(p) {
     let piece_data = data.pieces[p]
     if (sr_cost(p) > game.sr.pts) return false
     if (set_has(game.sr.done, p)) return false
+    if (game.location[p] == AP_RESERVE_BOX || game.location[p] == CP_RESERVE_BOX) {
+        // TODO: if enemy controls or besieges a nation's capital, no corps can SR from the Reserve Box (13.1.11)
 
-    // TODO: Additional restrictions on SR from 13.1 - 13.2
-    // TODO: if unit is out of supply, return false
-    // TODO: if unit is Russian, SR only if they are in Russia or Reserve Box (13.1.6)
-    // TODO: if enemy controls or besieges a nation's capital, no corps can SR from the Reserve Box (13.1.11)
-    // TODO: Units may not SR to or from Reserve Box if German/Austrian tracing supply from Sofia/Constantinople,
-    //  Turkish tracing supply to Essen, Breslau, or Sofia, Bulgarian tracing supply to Essen, Breslau, or
-    //  Constantinople, and Russian/Romanian tracing supply to Belgrade (13.1.12)
+        // TODO: Units may not SR to or from Reserve Box if German/Austrian tracing supply from Sofia/Constantinople,
+        //  Turkish tracing supply to Essen, Breslau, or Sofia, Bulgarian tracing supply to Essen, Breslau, or
+        //  Constantinople, and Russian/Romanian tracing supply to Belgrade (13.1.12)
+    } else {
+        // If not in reserve box, must be supplied
+        if (!is_unit_supplied(p)) return false
+    }
+
+    // if unit is from a nation not at war
+    if (!nation_at_war(piece_data.nation)) return false
+
+    // If unit is Russian, SR only if they are in Russia or Reserve Box (13.1.6)
+    if (piece_data.nation == RUSSIA &&
+        !(game.location[p] == AP_RESERVE_BOX || data.spaces[game.location[p]].nation == RUSSIA)) {
+        return false
+    }
 
     // TODO: No more than 1 British Corps (incl Aus, excl PT, CND, and BEF) may use SR to or from Near East or SR by sea
     //  to or from Near East per turn (13.2.1)
@@ -1118,6 +1000,8 @@ function can_sr(p) {
     // TODO: No more than one RU corps to or from Near East map per turn (13.2.2)
 
     // TODO: No more than one CP corps SR to or from NE map per turn (excl TU) (13.2.3)
+
+    return true
 }
 
 states.choose_sr_destination = {
@@ -1126,18 +1010,111 @@ states.choose_sr_destination = {
         view.prompt = `Choose destination for Strategic Redeployment`
         let destinations = find_sr_destinations()
         destinations.forEach(gen_action_space)
+        gen_action_undo()
     },
     space(s) {
         push_undo()
         set_add(game.sr.done, game.sr.unit)
         game.location[game.sr.unit] = s
+        game.sr.unit = 0
+        game.who = 0
         start_next_sr()
     }
 }
 
+const BRITISH_ANA_CORPS = find_piece(BRITAIN, 'ANA Corps')
+const TURKISH_SN_CORPS = find_piece('sn', 'SN Corps')
+
 function find_sr_destinations() {
-    // TODO: Find eligible SR destinations
-    return []
+    let destinations = []
+    const start = game.location[game.sr.unit]
+    const nation = data.pieces[game.sr.unit].nation
+
+    if (start == AP_RESERVE_BOX || start == CP_RESERVE_BOX) {
+        // Add all spaces containing a supplied unit of the correct nationality, except ANA Corps and SN Corps
+        for (let i = 0; i < game.location.length; i++) {
+            if (game.location[i] != 0 &&
+                data.pieces[i].nation == nation &&
+                is_unit_supplied(i) &&
+                i != BRITISH_ANA_CORPS &&
+                i != TURKISH_SN_CORPS) {
+                set_add(destinations, game.location[i])
+            }
+        }
+
+        // Add all capitals and supply sources in the nation, as long as they are in supply
+        for (let s = 1; s < data.spaces.length; s++) {
+            if (data.spaces[s].nation == nation &&
+                is_space_supplied(game.active, s) &&
+                (data.spaces[s].capital == true || data.spaces[s].supply == true)) {
+                set_add(destinations, s)
+            }
+        }
+
+        // If the nation is Serbia, add Salonika, when it is controlled by the allies and in supply
+        const salonika = find_space('Salonika')
+        if (nation == SERBIA && is_space_supplied(AP, salonika) && is_friendly_control(salonika, AP)) {
+            set_add(destinations, salonika)
+        }
+
+        // If the nation is the US, add all Allied-controlled ports in France
+        if (nation == US) {
+            for (let s = 1; s < data.spaces.length; s++) {
+                if (data.spaces[s].nation == FRANCE &&
+                    is_friendly_control(s, AP) &&
+                    data.spaces[s].port == true) {
+                    set_add(destinations, s)
+                }
+            }
+        }
+    } else if (data.pieces[game.sr.unit].type == CORPS) {
+        // Corps can SR to the reserve box
+        if (game.active == AP) {
+            set_add(destinations, AP_RESERVE_BOX)
+        } else {
+            set_add(destinations, CP_RESERVE_BOX)
+        }
+    }
+
+    // Add spaces that have an overland path
+    let frontier = [start]
+    while (frontier.length > 0) {
+        let current = frontier.pop()
+        get_connected_spaces(current, nation).forEach((n) => {
+            // TODO: Check for restrictions based on besieged forts
+            if (!set_has(destinations, n) && is_space_supplied(game.active, n)) {
+                if (nation == RUSSIA && data.spaces[n].nation != RUSSIA)
+                    return
+                set_add(destinations, n)
+                set_add(frontier, n)
+            }
+        })
+    }
+
+    // AP can SR Corps to any friendly-controlled port, CP can SR using ports in Germany and Russia
+    if (data.spaces[start].port &&
+        data.pieces[game.sr.unit].type == CORPS &&
+        (game.active == AP || data.spaces[start].nation != RUSSIA || data.spaces[start].nation != GERMANY)) {
+        for (let s = 1; s < data.spaces.length; s++) {
+            if (data.spaces[s].port == true &&
+                is_friendly_control(s, game.active) &&
+                (game.active == AP || data.spaces[s].nation != RUSSIA) || data.spaces[s].nation != GERMANY) {
+                set_add(destinations, s)
+            }
+        }
+    }
+
+    // TODO: 13.1.11 Capitals and SR: If the enemy controls or besieges a nation’s capital (Paris in the case of France,
+    // Vienna or Budapest in the case of A-H), no Corps of that nation may SR to or from the Reserve Box as long as the
+    // enemy control lasts. Exception: Belgian and Serb units are not affected by this restriction. The MN unit may not
+    // use SR overland. It may SR to and from the Reserve Box.
+
+    // TODO: 13.1.12 Units may not SR to or from the Reserve box under the following conditions: German and Austrian
+    //  units tracing supply to Sofia or Constantinople, Turkish units tracing supply to Essen, Breslau or Sofia,
+    //  Bulgarian units tracing supply to Essen, Breslau or Constantinople, and Russian and Romanian units tracing
+    //  supply to Belgrade.
+
+    return destinations
 }
 
 function end_sr() {
@@ -1360,8 +1337,8 @@ states.move_stack = {
         })
 
         if (game.move.spaces_moved < lowest_mf) {
-            let space = data.spaces[game.move.current]
-            space.connections.forEach((conn) => {
+            // TODO: Pass nation to get_connected_spaces if appropriate
+            get_connected_spaces(game.move.current).forEach((conn) => {
                 if (can_move_to(conn))
                     gen_action_space(conn)
             })
@@ -1610,11 +1587,8 @@ function get_attackable_spaces(attackers) {
 function get_attackable_spaces_for_piece(p) {
     let attackable_spaces = []
     let s = game.location[p]
-    data.spaces[s].connections.forEach((conn) => {
-        // TODO: check for national restrictions on the connection
-
-        // TODO: Units may attack across dashed lines only if their nationality is indicated on the map adjacent to
-        //  the dashed lines. Russian Armies cannot make attacks from the Caucasus space to the Near East. One Russian
+    get_connected_spaces(s, data.pieces[p].nation).forEach((conn) => {
+        // TODO: Russian Armies cannot make attacks from the Caucasus space to the Near East. One Russian
         //  corps may attack/retreat between the Caucasus space and the Near East per turn; this counts as the
         //  “one move” allowed under 11.3.2
 
@@ -2205,7 +2179,7 @@ function get_retreat_options() {
     let has_friendly_option = false
     let has_in_supply_option = false
 
-    data.spaces[s].connections.forEach((conn) => {
+    get_connected_spaces(s).forEach((conn) => {
         // TODO: check for national restrictions on the connection
 
         if (conn == game.attack.space)
@@ -2743,6 +2717,15 @@ function card_name(card) {
     return `#${card} ${cards[card].name} [${cards[card].ops}/${cards[card].sr}]`
 }
 
+function get_connected_spaces(s, nation) {
+    if (nation !== undefined) {
+        // TODO: account for nation-specific connections
+    }
+    if (data.spaces[s].connections)
+        return data.spaces[s].connections
+    return []
+}
+
 // === SUPPLY ===
 
 const cp_supply_sources = [ESSEN, BRESLAU, SOFIA, CONSTANTINOPLE]
@@ -2792,7 +2775,7 @@ function search_supply_imp(faction, sources, use_ports) {
             if (!set_has(blocked_spaces, current)) {
                 set_add(supplied_spaces, current)
                 // TODO: account for nation-specific connections
-                data.spaces[current].connections.forEach((conn) => {
+                get_connected_spaces(current).forEach((conn) => {
                     if (!set_has(supplied_spaces, conn)) {
                         set_add(frontier, conn)
                     }
@@ -2867,13 +2850,9 @@ function query_supply() {
 
 // === CARD EVENTS ===
 
-// === CENTRAL POWER EVENTS ===
-
-
-// CP #1
 events.guns_of_august = {
     can_play() {
-        return (game.turn === 1 && game.cp.actions.length === 0)
+        return (game.turn == 1 && game.cp.actions.length == 0)
     },
     play() {
         push_undo()
@@ -2893,39 +2872,9 @@ events.guns_of_august = {
     }
 }
 
-// CP #9
-
-events.reichstag_truce = {
-    can_play() {
-        if (game.turn === 1 & game.cp.actions.length > 0) {
-            if (game.cp.commitment !== COMMITMENT_TOTAL) 
-                return true
-        }
-        else {
-            if (game.cp.commitment !== COMMITMENT_TOTAL)  
-                return true
-        }    
-        return false
-    },
-    play() {
-        push_undo()
-        game.cp.ws += data.cards[REICHSTAG_TRUCE].ws
-        game.vp += 1
-        start_action_round()
-    }
-}
-
-
-
-// === ALLIED POWER EVENTS ===
-
-
-
-// AP #13
-
 events.rape_of_belgium = {
     can_play() {
-        return game.events.guns_of_august && game.ap.commitment === COMMITMENT_MOBILIZATION
+        return game.events.guns_of_august && game.ap.commitment == COMMITMENT_MOBILIZATION
     },
     play() {
         push_undo()
