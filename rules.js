@@ -958,9 +958,8 @@ function can_play_event(card) {
     const card_data = data.cards[card]
 
     if (card_data.reinfnation) {
-        // TODO: Uncomment this. It is commented out for now to make testing easier
-        //if (game.turn == 1)
-        //    return false
+        if (game.turn == 1)
+            return false
 
         if (game.reinf_this_turn && game.reinf_this_turn[card_data.reinfnation])
             return false
