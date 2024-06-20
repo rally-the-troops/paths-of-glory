@@ -33,6 +33,7 @@ const cards = [
         "rpit": 1,
         "rpru": 3,
         "name": "Blockade",
+        "event": "blockade",
         "effect": "Subtract 1 VP during the War Status Phase of each Winter turn."
     },
     {
@@ -63,6 +64,7 @@ const cards = [
         "rpfr": 1,
         "rpru": 1,
         "name": "Pleve",
+        "event": "pleve",
         "effect": "A RU attack or defense adds a +1 drm."
     },
     {
@@ -76,6 +78,7 @@ const cards = [
         "rpfr": 1,
         "rpru": 1,
         "name": "Putnik",
+        "event": "putnik",
         "effect": "May only be played in 1914 and 1915. A SB attack or defense adds a +1 drm."
     },
     {
@@ -90,6 +93,7 @@ const cards = [
         "rpfr": 1,
         "rpru": 1,
         "name": "Withdrawal",
+        "event": "ap_withdrawal",
         "effect": "Defending units negate one required Corps step loss and instead retreat 1 space. This also cancels any retreat caused by losing the combat. If not Corps step(s) lost, an Army step loss may be negated."
     },
     {
@@ -103,6 +107,7 @@ const cards = [
         "rpfr": 1,
         "rpru": 1,
         "name": "Severe Weather",
+        "event": "severe_weather",
         "effect": "Defending units in a mountain space in Fall/Winter or a swamp space in Spring/Fall get a +2 drm."
     },
     {
@@ -132,6 +137,7 @@ const cards = [
         "rpit": 1,
         "rpru": 2,
         "name": "Moltke",
+        "event": "moltke",
         "effect": "May only be played in August or September 1914. CP Activation in Belgium or France costs 1 OPS per unit (not space) until the Falkenhayn card is played."
     },
     {
@@ -178,6 +184,7 @@ const cards = [
         "rpit": 1,
         "rpru": 2,
         "name": "Entrench",
+        "event": "ap_entrench",
         "effect": "Place a Level 1 Trench in any space occupied by a supplied friendly Army. Both players may now Entrench."
     },
     {
@@ -275,6 +282,7 @@ const cards = [
         "rpfr": 1,
         "rpru": 1,
         "name": "Hurricane Barrage",
+        "event": "hurricane_barrage",
         "effect": "A BR attack adds a +1 drm."
     },
     {
@@ -288,6 +296,7 @@ const cards = [
         "rpfr": 1,
         "rpru": 1,
         "name": "Air Superiority",
+        "event": "ap_air_superiority",
         "effect": "A BR or FR attack adds +1 drm."
     },
     {
@@ -317,6 +326,7 @@ const cards = [
         "rpfr": 1,
         "rpru": 1,
         "name": "Phosgene Gas",
+        "event": "phosphene_gas",
         "effect": "A FR attack adds +1 drm."
     },
     {
@@ -346,6 +356,7 @@ const cards = [
         "rpfr": 1,
         "rpru": 1,
         "name": "Cloak and Dagger",
+        "event": "cloak_and_dagger",
         "effect": "Allied player may examine all cards in the CP player's hand and then conduct Operations using this card."
     },
     {
@@ -393,6 +404,7 @@ const cards = [
         "rpit": 1,
         "rpru": 2,
         "name": "Lusitania",
+        "event": "lusitania",
         "effect": "May only be played after \"Blockade\" and before \"Zimmermann Telegram\". Subtract 1 VP."
     },
     {
@@ -408,6 +420,7 @@ const cards = [
         "rpit": 1,
         "rpru": 2,
         "name": "Great Retreat",
+        "event": "great_retreat",
         "effect": "All RU units attacked this turn may retreat before combat. This must be announced before the die is rolled for each combat. No combat takes place. The RU unit(s) must retreat 1 space. Full strength CP units may advance."
     },
     {
@@ -423,6 +436,7 @@ const cards = [
         "rpit": 1,
         "rpru": 3,
         "name": "Landships",
+        "event": "landships",
         "effect": "Allows play of \"Royal Tank Corps\"."
     },
     {
@@ -456,6 +470,7 @@ const cards = [
         "rpit": 1,
         "rpru": 3,
         "name": "Salonika",
+        "event": "salonika",
         "effect": "May SR up to 3 BR/FR Corps (from the map and/or Reserve) to Salonika. This card counts as a SR card play."
     },
     {
@@ -502,6 +517,7 @@ const cards = [
         "rpfr": 1,
         "rpru": 1,
         "name": "Grand Fleet",
+        "event": "grand_fleet",
         "effect": "If played in the Allied Action Round immediately following the \"High Seas Fleet\", cancel that card."
     },
     {
@@ -533,6 +549,7 @@ const cards = [
         "rpit": 1,
         "rpru": 3,
         "name": "Yanks and Tanks",
+        "event": "yanks_and_tanks",
         "effect": "Allied player conducts Operations using this card and all Combats involving a US unit during this Action Round get a +2 drm."
     },
     {
@@ -546,6 +563,7 @@ const cards = [
         "rpfr": 1,
         "rpru": 1,
         "name": "Mine Attack",
+        "event": "mine_attack",
         "effect": "A BR attack vs. an entrenched Defender adds a +1 drm. May only be used in one Combat per turn."
     },
     {
@@ -560,6 +578,7 @@ const cards = [
         "rpfr": 1,
         "rpru": 1,
         "name": "Independent Air Force",
+        "event": "independent_air_force",
         "effect": "Cancel or prevent Rathenau Event bonus GE RP."
     },
     {
@@ -573,7 +592,9 @@ const cards = [
         "rpfr": 1,
         "rpru": 1,
         "name": "USA Reinforcements",
-        "effect": "May only be played after \"Over There\". 1 corps."
+        "effect": "May only be played after \"Over There\". 1 corps.",
+        "reinfnation": "us",
+        "reinf": "US Corps"
     },
     {
         "num": 39,
@@ -586,6 +607,7 @@ const cards = [
         "rpfr": 1,
         "rpru": 1,
         "name": "They Shall Not Pass",
+        "event": "they_shall_not_pass",
         "effect": "Cancels any retreat for losing a combat if defending in a FR fort space."
     },
     {
@@ -599,6 +621,7 @@ const cards = [
         "rpfr": 1,
         "rpru": 1,
         "name": "14 Points",
+        "event": "fourteen_points",
         "effect": "May only be played after \"Zimmermann Telegram\". Only the Allied player may offer Peace Terms for the rest of the game. Subtract 1 VP."
     },
     {
@@ -613,7 +636,9 @@ const cards = [
         "rpit": 1,
         "rpru": 2,
         "name": "Arab Northern Army (BR Reinforcements)",
-        "effect": "May only be played if Turkey is at war. Place the British ANA Corps in the Arabia space."
+        "effect": "May only be played if Turkey is at war. Place the British ANA Corps in the Arabia space.",
+        "reinfnation": "br",
+        "reinf": "ANA Corps"
     },
     {
         "num": 42,
@@ -676,6 +701,7 @@ const cards = [
         "rpit": 1,
         "rpru": 2,
         "name": "Kerensky Offensive",
+        "event": "kerensky_offensive",
         "effect": "May only be played after \"Fall of Tsar\" and before the \"Bolshevik Revolution\". Allied player conducts Operations using this card and one RU attack vs. a space with any AH, BU or TU units adds a +2 drm."
     },
     {
@@ -692,6 +718,7 @@ const cards = [
         "rpit": 1,
         "rpru": 3,
         "name": "Brusilov Offensive",
+        "event": "brusilov_offensive",
         "effect": "Allied player conducts Operations using this card and adds a +1 drm to ALL RU attacks this Action Round. Also, for 1 RU attack vs. only non-GE CP units cancel all trench effects."
     },
     {
@@ -722,6 +749,7 @@ const cards = [
         "rpit": 1,
         "rpru": 3,
         "name": "Royal Tank Corps",
+        "event": "royal_tank_corps",
         "effect": "May only be played after \"Landships\". Cancels trench column shifts for a BR attack against a clear space in France/Belgium. May only be used in 1 Combat per turn."
     },
     {
@@ -737,6 +765,7 @@ const cards = [
         "rpit": 1,
         "rpru": 3,
         "name": "Sinai Pipeline",
+        "event": "sinai_pipeline",
         "effect": "Cancels Sinai -3 drm for Allied units only. Summer turn desert effects remain. Allows play of \"Allenby\"."
     },
     {
@@ -753,7 +782,9 @@ const cards = [
         "rpit": 1,
         "rpru": 3,
         "name": "Allenby (BR Reinforcements)",
-        "effect": "May only be played after \"Sinai Pipeline\". Place the British NE Army in Alexandria."
+        "effect": "May only be played after \"Sinai Pipeline\". Place the British NE Army in Alexandria.",
+        "reinfnation": "br",
+        "reinf": "NE Army"
     },
     {
         "num": 51,
@@ -769,6 +800,7 @@ const cards = [
         "rpit": 1,
         "rpru": 3,
         "name": "Everyone Into Battle",
+        "event": "everyone_into_battle",
         "effect": "May only be played after at least one of the following has occurred: \"Blucher,\" \"Michel\" or \"Peace Offensive\". Allied units in Italy, France and Belgium are considered one nationality for Activation for the rest of this turn (only)."
     },
     {
@@ -784,6 +816,7 @@ const cards = [
         "rpit": 1,
         "rpru": 3,
         "name": "Convoy",
+        "event": "convoy",
         "effect": "May only be played after \"U-Boats Unleashed\". Cancels effects of that card. Subtract 1VP."
     },
     {
@@ -833,6 +866,7 @@ const cards = [
         "rpit": 2,
         "rpru": 4,
         "name": "Over There",
+        "event": "over_there",
         "effect": "May only be played after \"Zimmerman Telegram\". Allows play of \"US Reinforcements\" on any following turns. ALL Allied RP cards played now include 1 US RP."
     },
     {
@@ -846,6 +880,7 @@ const cards = [
         "rpfr": 1,
         "rpru": 1,
         "name": "Paris Taxis",
+        "event": "paris_taxis",
         "effect": "Allied player receives 1 extra RP to immediately flip a reduced French Army in or adjacent to Paris to its full strength side. The RP may not be spent to replace an eliminated unit."
     },
     {
@@ -860,6 +895,7 @@ const cards = [
         "rpit": 1,
         "rpru": 2,
         "name": "Russian Cavalry",
+        "event": "russian_cavalry",
         "effect": "Place the two Russian Cavalry corps in any one space inside Russia containing a supplied Russian Army. They may not be placed in violation of the stacking limit."
     },
     {
@@ -874,6 +910,7 @@ const cards = [
         "rpfr": 1,
         "rpru": 1,
         "name": "Russian Guards",
+        "event": "russian_guards",
         "effect": "A Russian attack adds +1drm."
     },
     {
@@ -887,6 +924,7 @@ const cards = [
         "rpfr": 1,
         "rpru": 1,
         "name": "Alpine Troops",
+        "event": "alpine_troops",
         "effect": "An attack with IT units (only) adds +1drm."
     },
     {
@@ -901,6 +939,7 @@ const cards = [
         "rpit": 1,
         "rpru": 2,
         "name": "Czech Legion",
+        "event": "czech_legion",
         "effect": "Remove from the game 1 AH Corps from the CP Eliminated/Replacement Box. Add the RU Czech Legion orps to the Allied Reserve Box."
     },
     {
@@ -917,6 +956,7 @@ const cards = [
         "rpit": 1,
         "rpru": 3,
         "name": "Maude",
+        "event": "maude",
         "effect": "Any one attack made by BR units tracing supply to Basra may fire on the Army Table."
     },
     {
@@ -931,6 +971,7 @@ const cards = [
         "rpfr": 1,
         "rpru": 1,
         "name": "The Sixtus Affair",
+        "event": "the_sixtus_affair",
         "effect": "Roll on the Allied 0-19 Peace Term Table. This is not a normal Peace Offer and may not be accepted for a draw."
     },
     {
@@ -946,6 +987,7 @@ const cards = [
         "rpit": 1,
         "rpru": 2,
         "name": "Backs To The Wall",
+        "event": "backs_to_the_wall",
         "effect": "A space with a BR Army in France/Belgium may cancel any one mandated retreat."
     },
     {
@@ -977,6 +1019,7 @@ const cards = [
         "rpit": 1,
         "rpru": 3,
         "name": "Influenza",
+        "event": "influenza",
         "effect": "May be played if Combined War status is 30+. Neither side may perform RP actions for the rest of this turn. Already played RPs are not lost."
     },
     {
@@ -1004,6 +1047,7 @@ const cards = [
         "cc": true,
         "rpge": 1,
         "name": "Wireless Intercepts",
+        "event": "wireless_intercepts",
         "effect": "A GE Flank Attack Attempt vs. a space containing only RU units is automatically successful."
     },
     {
@@ -1015,6 +1059,7 @@ const cards = [
         "cc": true,
         "rpge": 1,
         "name": "Von Francois",
+        "event": "von_francois",
         "effect": "A GE attack vs. RU units adds a +1 drm."
     },
     {
@@ -1026,6 +1071,7 @@ const cards = [
         "cc": true,
         "rpge": 1,
         "name": "Severe Weather",
+        "event": "severe_weather",
         "effect": "Defending units in a mountain space in Fall/Winter or a swamp space in Spring/Fall get a +2 drm."
     },
     {
@@ -1037,6 +1083,7 @@ const cards = [
         "remove": true,
         "rpge": 1,
         "name": "Landwehr",
+        "event": "landwehr",
         "effect": "CP player receives 2 extra RPs to immediately flip reduced strength units to their full side. They may not be spent to replace eliminated units."
     },
     {
@@ -1050,6 +1097,7 @@ const cards = [
         "rpge": 2,
         "rptu": 1,
         "name": "Entrench",
+        "event": "cp_entrench",
         "effect": "Place a Level 1 Trench in any space occupied by a supplied friendly Army. Both players may now Entrench."
     },
     {
@@ -1078,6 +1126,7 @@ const cards = [
         "rpge": 2,
         "rptu": 1,
         "name": "Race to the Sea",
+        "event": "race_to_the_sea",
         "effect": "CP units may now end movement in Ostend, Calais, and Amiens."
     },
     {
@@ -1093,6 +1142,7 @@ const cards = [
         "rpge": 3,
         "rptu": 1,
         "name": "Reichstag Truce",
+        "event": "reichstag_truce",
         "effect": "May not be played after CP War Commitment Level is Total War. Add 1 VP."
     },
     {
@@ -1106,6 +1156,7 @@ const cards = [
         "rpge": 2,
         "rptu": 1,
         "name": "SUD Army",
+        "event": "sud_army",
         "effect": "Up to 2 GE corps may stack with any 1 AH unit and be Activated as a single nationality. A different stack may be chosen each Action Round."
     },
     {
@@ -1118,6 +1169,7 @@ const cards = [
         "ws": 1,
         "rpge": 1,
         "name": "Oberost",
+        "event": "oberost",
         "effect": "German units may now attack spaces containing RU forts. (They may always besiege such spaces.)"
     },
     {
@@ -1149,6 +1201,7 @@ const cards = [
         "rpge": 3,
         "rptu": 1,
         "name": "Falkenhayn",
+        "event": "falkenhayn",
         "effect": "May only be played on Aug/Sep 1914 turns only after the \"Moltke\" is played or without restriction beginning in Fall 1914. Cancels the effects of \"Moltke\". Allows play of \"Place of Execution\""
     },
     {
@@ -1177,6 +1230,7 @@ const cards = [
         "cc": true,
         "rpge": 1,
         "name": "Chlorine Gas",
+        "event": "chlorine_gas",
         "effect": "A GE attack adds +1 drm."
     },
     {
@@ -1189,6 +1243,7 @@ const cards = [
         "cc": true,
         "rpge": 1,
         "name": "Liman Von Sanders",
+        "event": "liman_von_sanders",
         "effect": "A TU attack or defense adds a +1 drm."
     },
     {
@@ -1200,6 +1255,7 @@ const cards = [
         "remove": true,
         "rpge": 1,
         "name": "Mata Hari",
+        "event": "mata_hari",
         "effect": "CP player may examine all cards in the Allied player's hand and then conduct Operations using this card."
     },
     {
@@ -1211,6 +1267,7 @@ const cards = [
         "cc": true,
         "rpge": 1,
         "name": "Fortified Machine Guns",
+        "event": "fortified_machine_guns",
         "effect": "A GE entrenched defender adds a +1 drm."
     },
     {
@@ -1223,6 +1280,7 @@ const cards = [
         "cc": true,
         "rpge": 1,
         "name": "Flamethrowers",
+        "event": "flamethrowers",
         "effect": "A GE attack adds +1 drm."
     },
     {
@@ -1296,7 +1354,9 @@ const cards = [
         "rpge": 2,
         "rptu": 1,
         "name": "Libyan Revolt (TU Reinforcements)",
-        "effect": "(May only be played if there are no Allied units in the Libya space.) Place the SN unit in Libya."
+        "effect": "(May only be played if there are no Allied units in the Libya space.) Place the SN unit in Libya.",
+        "reinfnation": "tu",
+        "reinf": "SN Corps"
     },
     {
         "num": 25,
@@ -1310,6 +1370,7 @@ const cards = [
         "rpge": 3,
         "rptu": 1,
         "name": "High Seas Fleet",
+        "event": "high_seas_fleet",
         "effect": "High Seas Fleet sorties. Unless the Allied player plays the \"Grand Fleet\" as his next action, add 1 VP."
     },
     {
@@ -1326,6 +1387,7 @@ const cards = [
         "rpge": 3,
         "rptu": 1,
         "name": "Place of Execution",
+        "event": "place_of_execution",
         "effect": "May only be played after the \"Falkenhayn\" and before the \"H-L Take Command\". An attack vs. FR fort space adds a +2 drm."
     },
     {
@@ -1341,6 +1403,7 @@ const cards = [
         "rpge": 3,
         "rptu": 1,
         "name": "Zeppelin Raids",
+        "event": "zeppelin_raids",
         "effect": "Subtract 4 BR RPs (down to 0) during the Replacement Phase of this turn."
     },
     {
@@ -1356,6 +1419,7 @@ const cards = [
         "rpge": 3,
         "rptu": 1,
         "name": "Tsar Takes Command",
+        "event": "tsar_takes_command",
         "effect": "May only be played if the Russian Capitulation marker is in the \"Tsar Takes Command Allowed\" box."
     },
     {
@@ -1367,6 +1431,7 @@ const cards = [
         "remove": true,
         "rpge": 1,
         "name": "11th Army",
+        "event": "eleventh_army",
         "effect": "The GE 11th Army (only) may freely stack with any CP corps and be treated as 1 unit for Activation purposes."
     },
     {
@@ -1378,6 +1443,7 @@ const cards = [
         "cc": true,
         "rpge": 1,
         "name": "Alpenkorps",
+        "event": "alpenkorps",
         "effect": "A GE attack to or from a mountain space adds +1 drm."
     },
     {
@@ -1391,6 +1457,7 @@ const cards = [
         "rpge": 2,
         "rptu": 1,
         "name": "Kemal",
+        "event": "kemal",
         "effect": "A TU defender with a combat factor of 1 or more may fire on the Army Table. May only be used in one Combat per turn."
     },
     {
@@ -1405,6 +1472,7 @@ const cards = [
         "rpge": 2,
         "rptu": 1,
         "name": "War in Africa",
+        "event": "war_in_africa",
         "effect": "Permanently remove 1 BR corps from the game or add 1 VP (Allied choice)."
     },
     {
@@ -1420,6 +1488,7 @@ const cards = [
         "rpge": 4,
         "rptu": 2,
         "name": "Walter Rathenau",
+        "event": "walter_rathenau",
         "effect": "Add 1 extra GE RP during the Replacement Phase of every turn."
     },
     {
@@ -1447,6 +1516,7 @@ const cards = [
         "cc": true,
         "rpge": 1,
         "name": "Mustard Gas",
+        "event": "mustard_gas",
         "effect": "A GE attack adds a +1 drm."
     },
     {
@@ -1459,6 +1529,7 @@ const cards = [
         "ws": 2,
         "rpge": 1,
         "name": "U-Boats Unleashed",
+        "event": "uboats_unleashed",
         "effect": "May only be played after \"H-L Take Command\". Subtract 1 BR RP during the Repl. Phase of each turn and prevent play of US Reinforcements until \"Convoy\" is played."
     },
     {
@@ -1471,6 +1542,7 @@ const cards = [
         "ws": 1,
         "rpge": 1,
         "name": "Hoffman",
+        "event": "hoffman",
         "effect": "May only be played after \"H-L Take Command\". Adds +1 to all future CP Mandated Offensive die rolls."
     },
     {
@@ -1510,6 +1582,7 @@ const cards = [
         "rpge": 2,
         "rptu": 1,
         "name": "Air Superiority",
+        "event": "cp_air_superiority",
         "effect": "A GE attack adds +1 drm."
     },
     {
@@ -1554,6 +1627,7 @@ const cards = [
         "rpge": 2,
         "rptu": 1,
         "name": "Von Below",
+        "event": "von_below",
         "effect": "Cancels all trench effects for 1 attack against only IT unit(s)."
     },
     {
@@ -1568,6 +1642,7 @@ const cards = [
         "rpge": 2,
         "rptu": 1,
         "name": "Von Hutier",
+        "event": "von_hutier",
         "effect": "Attacker fires first and cancels all trench effects for an attack against RU unit(s)."
     },
     {
@@ -1583,6 +1658,7 @@ const cards = [
         "rpge": 3,
         "rptu": 1,
         "name": "Treaty of Brest Litovsk",
+        "event": "treaty_of_brest_litovsk",
         "effect": "May only be played after \"Bolshevik Revolution\". RU units may no longer attack. CP units may not attack RU units except TU units may attack on the Near East map. Also see 5.5.2."
     },
     {
@@ -1614,6 +1690,7 @@ const cards = [
         "rpge": 3,
         "rptu": 1,
         "name": "French Mutiny",
+        "event": "french_mutiny",
         "effect": "Effects of Mandated FR Offensives are reversed. If any FR units not stacked with US units attack on a FR MO turn, add 1 VP."
     },
     {
@@ -1646,6 +1723,7 @@ const cards = [
         "rpge": 3,
         "rptu": 1,
         "name": "Michel",
+        "event": "michel",
         "effect": "May only be played after \"H-L Take Command\". Cancels all trench effects fro 1 GE attack and adds a + 1 drm for that attack."
     },
     {
@@ -1661,6 +1739,7 @@ const cards = [
         "rpge": 3,
         "rptu": 1,
         "name": "Blucher",
+        "event": "blucher",
         "effect": "May only be played after \"H-L Take Command\". Cancels all trench effects for 1 GE attack."
     },
     {
@@ -1676,6 +1755,7 @@ const cards = [
         "rpge": 3,
         "rptu": 1,
         "name": "Peace Offensive",
+        "event": "peace_offensive",
         "effect": "May only be played after \"H-L Take Command\". Cancels all trench effects for 1 GE attack. If attacker does not advance into the space, subtract 1 VP."
     },
     {
@@ -1690,6 +1770,7 @@ const cards = [
         "rpge": 4,
         "rptu": 2,
         "name": "Fall of the Tsar",
+        "event": "fall_of_the_tsar",
         "effect": "May only be played if Russian Capitulation marker is in the \"Fall of Tsar Allowed\" box. Add 1 VP plus an additional 2 VP if RO is still neutral. RU Activation costs 1 OPS per unit, not space, for Combat only."
     },
     {
@@ -1704,6 +1785,7 @@ const cards = [
         "rpge": 4,
         "rptu": 2,
         "name": "Bolshevik Revolution",
+        "event": "bolshevik_revolution",
         "effect": "May only be played if Russian Capitulation marker is in the \"Bolshevik Revolution Allowed\" box. No more than 1 RU RP may be spent each turn."
     },
     {
@@ -1719,6 +1801,7 @@ const cards = [
         "rpge": 4,
         "rptu": 2,
         "name": "H-L Take Command",
+        "event": "h_l_take_command",
         "effect": "Allows play of \"Michel\", \"Blucher\", \"Peace Offensive\", \"Hoffman\", and \"U-Boats Unleashed\". Prevents play of \"Place of Execution\"."
     },
     {
@@ -1733,6 +1816,7 @@ const cards = [
         "rpge": 3,
         "rptu": 1,
         "name": "Lloyd George",
+        "event": "lloyd_george",
         "effect": "No BR attacks vs. Level 2 entrenched GE units may be made for the rest of this turn. This effect is canceled by play of MICHEL, BLUCHER, or PEACE OFFENSIVE events."
     },
     {
@@ -1745,6 +1829,7 @@ const cards = [
         "cc": true,
         "rpge": 1,
         "name": "Withdrawal",
+        "event": "cp_withdrawal",
         "effect": "Defending units negate one required Corps step loss and instead retreat 1 space. This also cancels any retreat caused by losing the combat. If no Corps step(s) lost, an Army step loss may be negated."
     },
     {
@@ -1759,6 +1844,7 @@ const cards = [
         "rpge": 2,
         "rptu": 1,
         "name": "Kaisertreu",
+        "event": "kaisertreu",
         "effect": "An AH attack or defence adds +1drm."
     },
     {
@@ -1769,6 +1855,7 @@ const cards = [
         "sr": 2,
         "rpge": 1,
         "name": "Stavka Timidity",
+        "event": "stavka_timidity",
         "effect": "May be played after \"Tsar Takes Command\". No RU attacks vs. entrenched GE units (only) the rest of this turn. Mixed CP stacks may be attacked."
     },
     {
@@ -1782,6 +1869,7 @@ const cards = [
         "rpge": 2,
         "rptu": 1,
         "name": "Polish Restoration",
+        "event": "polish_restoration",
         "effect": "May be played if the CP currently controls Warsaw. Subtract 1 VP. Add the three Polish Corps to the CP Reserve Box. These Corps are treated as German for all purposes but may not be relpaced if Warsaw is Allied."
     },
     {
@@ -1796,6 +1884,7 @@ const cards = [
         "rpge": 2,
         "rptu": 1,
         "name": "Turk Determination",
+        "event": "turk_determination",
         "effect": "A TU Defender in any non-trench space is considered at Trench Level 1 for all purposes for that combat only."
     },
     {
@@ -1810,6 +1899,7 @@ const cards = [
         "rpge": 3,
         "rptu": 1,
         "name": "Haig",
+        "event": "haig",
         "effect": "Entrenched GE units in France/Belgium/Germany may ignore all retreat results vs. attacks with BR units this turn. No effect after play of Michel, Blucher, Peace Offensive."
     },
     {
@@ -1822,6 +1912,7 @@ const cards = [
         "cc": true,
         "rpge": 1,
         "name": "Achtung: Panzer",
+        "event": "achtung_panzer",
         "effect": "A GE attack vs. a clear space adds +1 drm."
     },
     {
@@ -1835,6 +1926,7 @@ const cards = [
         "rpge": 2,
         "rptu": 1,
         "name": "Russian Desertions",
+        "event": "russian_desertions",
         "effect": "May be played after \"Fall Of The Tsar\".  CP may reduce four 2-step RU units."
     },
     {
@@ -1849,6 +1941,7 @@ const cards = [
         "rpge": 2,
         "rptu": 1,
         "name": "Alberich",
+        "event": "alberich",
         "effect": "May not be used if Allies play \"Royal Tank Corps\" or \"Yanks and Tanks\".  Cancels any one Allied attack in France/Belgium. Any Allied CC cards are considered not played."
     },
     {
@@ -1863,6 +1956,7 @@ const cards = [
         "rpge": 3,
         "rptu": 1,
         "name": "Prince Max",
+        "event": "prince_max",
         "effect": "May not be played after \"H-L Take Command\" or on or after Turn 13. The \"H-L Take Command\" card is permanently removed from the game. A draw is treated as a CP Victory (including tournament play)."
     }
 ]
