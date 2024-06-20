@@ -353,7 +353,7 @@ exports.setup = function (seed, scenario, options) {
     setup_piece('fr', 'FR Corps', 'Belfort')
     setup_piece('fr', 'FR Corps', 'Grenoble')
     setup_piece('be', '1 Army', 'Antwerp')
-    setup_piece('br', 'BEF', 'Brussels')
+    setup_piece('br', 'BEF Army', 'Brussels')
 
     setup_piece('ge', '8 Army', 'Insterberg')
     setup_piece('ge', 'GE Corps', 'Insterberg')
@@ -665,7 +665,23 @@ function set_nation_at_war(nation) {
         setup_piece('it', '4 Army', 'Asiago', true)
     }
 
-    // TODO: Setup for other neutral nations
+    if (nation == BULGARIA) {
+        setup_piece(BULGARIA, 'BU Corps', 'Sofia')
+        setup_piece(BULGARIA, 'BU Corps', 'Sofia')
+        // Other 4 Bulgarian pieces are setup by player choice
+    }
+
+    if (nation == ROMANIA) {
+        setup_piece(ROMANIA, 'RO Corps', 'Bucharest')
+        setup_piece(ROMANIA, 'RO Corps', 'Bucharest')
+        // Other 4 Romanian pieces are setup by player choice
+    }
+
+    if (nation == GREECE) {
+        setup_piece(GREECE, 'GR Corps', 'Athens')
+        setup_piece(GREECE, 'GR Corps', 'Florina')
+        setup_piece(GREECE, 'GR Corps', 'Larisa')
+    }
 }
 
 // === Mandated Offensives ===
@@ -3119,6 +3135,7 @@ events.bulgaria_entry = {
     play() {
         push_undo()
         set_nation_at_war(BULGARIA)
+        // TODO: Player places four Bulgarian corps in spaces of their choice
         goto_end_action()
     }
 }
@@ -3141,6 +3158,7 @@ events.romania_entry = {
     play() {
         push_undo()
         set_nation_at_war(ROMANIA)
+        // TODO: Player places four other Romanian corps in spaces of their choice
         goto_end_action()
     }
 }

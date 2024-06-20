@@ -2249,7 +2249,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "tu",
-        "name": "YLD",
+        "name": "YLD Army",
         "type": "army",
         "counter": "army_tu army_ix_1",
         "cf": 1,
@@ -2264,7 +2264,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "tu",
-        "name": "AoI",
+        "name": "AoI Army",
         "type": "army",
         "counter": "army_tu army_ix_2",
         "cf": 1,
@@ -2396,7 +2396,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "fr",
-        "name": "Orient",
+        "name": "Orient Army",
         "type": "army",
         "counter": "army_fr army_ix_10",
         "cf": 3,
@@ -2476,7 +2476,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "br",
-        "name": "BEF",
+        "name": "BEF Army",
         "type": "army",
         "counter": "army_br army_ix_6",
         "cf": 5,
@@ -2490,7 +2490,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "br",
-        "name": "NE",
+        "name": "NE Army",
         "type": "army",
         "counter": "army_br army_ix_8",
         "cf": 4,
@@ -2505,7 +2505,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "br",
-        "name": "MEF",
+        "name": "MEF Army",
         "type": "army",
         "counter": "army_br army_ix_7",
         "cf": 1,
@@ -2702,7 +2702,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ru",
-        "name": "Cau",
+        "name": "CAU Army",
         "type": "army",
         "counter": "army_ru army_ix_13",
         "cf": 3,

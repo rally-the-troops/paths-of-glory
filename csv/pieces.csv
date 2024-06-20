@@ -28,8 +28,8 @@ ap,it,2 Army,army,army_it army_ix_2,2,2,3,1,2,3,,
 ap,it,3 Army,army,army_it army_ix_3,2,2,3,1,2,3,,
 ap,it,4 Army,army,army_it army_ix_4,2,2,3,1,2,3,,
 ap,it,5 Army,army,army_it army_ix_5,2,2,3,1,2,3,,
-cp,tu,YLD,army,army_tu army_ix_1,1,2,3,1,2,2,TRUE,TRUE
-cp,tu,AoI,army,army_tu army_ix_2,1,2,3,1,2,2,TRUE,TRUE
+cp,tu,YLD Army,army,army_tu army_ix_1,1,2,3,1,2,2,TRUE,TRUE
+cp,tu,AoI Army,army,army_tu army_ix_2,1,2,3,1,2,2,TRUE,TRUE
 ap,fr,1 Army,army,army_fr army_ix_1,3,3,3,2,3,3,,
 ap,fr,2 Army,army,army_fr army_ix_2,3,3,3,2,3,3,,
 ap,fr,3 Army,army,army_fr army_ix_3,3,3,3,2,3,3,,
@@ -39,15 +39,15 @@ ap,fr,6 Army,army,army_fr army_ix_6,3,3,3,2,3,3,,
 ap,fr,7 Army,army,army_fr army_ix_7,3,3,3,2,3,3,,
 ap,fr,9 Army,army,army_fr army_ix_8,3,3,3,2,3,3,,
 ap,fr,10 Army,army,army_fr army_ix_9,3,3,3,2,3,3,,
-ap,fr,Orient,army,army_fr army_ix_10,3,3,3,2,3,3,TRUE,TRUE
+ap,fr,Orient Army,army,army_fr army_ix_10,3,3,3,2,3,3,TRUE,TRUE
 ap,br,1 Army,army,army_br army_ix_1,4,3,3,3,3,3,,
 ap,br,2 Army,army,army_br army_ix_2,4,3,3,3,3,3,,
 ap,br,3 Army,army,army_br army_ix_3,4,3,3,3,3,3,,
 ap,br,4 Army,army,army_br army_ix_4,4,3,3,3,3,3,,
 ap,br,5 Army,army,army_br army_ix_5,4,3,3,3,3,3,,
-ap,br,BEF,army,army_br army_ix_6,5,3,3,4,3,3,TRUE,
-ap,br,NE,army,army_br army_ix_8,4,3,3,3,3,3,TRUE,TRUE
-ap,br,MEF,army,army_br army_ix_7,1,2,3,1,2,3,TRUE,TRUE
+ap,br,BEF Army,army,army_br army_ix_6,5,3,3,4,3,3,TRUE,
+ap,br,NE Army,army,army_br army_ix_8,4,3,3,3,3,3,TRUE,TRUE
+ap,br,MEF Army,army,army_br army_ix_7,1,2,3,1,2,3,TRUE,TRUE
 ap,us,1 Army,army,army_us army_ix_1,5,3,3,3,3,3,,
 ap,us,2 Army,army,army_us army_ix_2,5,3,3,3,3,3,,
 ap,ru,1 Army,army,army_ru army_ix_1,3,2,3,2,2,3,,
@@ -62,7 +62,7 @@ ap,ru,9 Army,army,army_ru army_ix_9,3,2,3,2,2,3,,
 ap,ru,10 Army,army,army_ru army_ix_10,3,2,3,2,2,3,,
 ap,ru,11 Army,army,army_ru army_ix_11,3,2,3,2,2,3,,
 ap,ru,12 Army,army,army_ru army_ix_12,3,2,3,2,2,3,,
-ap,ru,Cau,army,army_ru army_ix_13,3,2,3,2,2,3,TRUE,TRUE
+ap,ru,CAU Army,army,army_ru army_ix_13,3,2,3,2,2,3,TRUE,TRUE
 ap,be,1 Army,army,army_be army_ix_1,2,3,3,1,3,3,,
 ap,sb,1 Army,army,army_sb army_ix_1,2,2,3,1,2,3,,
 ap,sb,2 Army,army,army_sb army_ix_2,2,2,3,1,2,3,,
