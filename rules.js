@@ -376,89 +376,7 @@ exports.setup = function (seed, scenario, options) {
     // TODO: Actually use scenarios
     scenario = HISTORICAL
 
-    game = {
-        seed: seed,
-        scenario: scenario,
-        options: object_copy(options),
-        log: [],
-        undo: [],
-        active: null,
-        phasing: null,
-        state: null,
-        turn: 1,
-        vp: 10,
-        usc: 0, // US commitment level
-        rc: 0, // Russian capitulation level
-        ops: 0,
-        events: {},
-        rp: {
-            ge: 0,
-            ah: 0,
-            fr: 0,
-            br: 0,
-            ru: 0,
-            allied: 0,
-            bu: 0,
-            tu: 0,
-            it: 0,
-            us: 0
-        },
-        war: {
-            it: 0,
-            tu: 0,
-            bu: 0,
-            us: 0,
-            ro: 0,
-            gr: 0
-        },
-
-        // Units
-        location: data.pieces.map(() => 0),
-        reduced: [],
-        removed: [],
-
-        // Spaces
-        activated: {
-            move: [],
-            attack: []
-        },
-        control: data.spaces.map((s) => s.faction === CP ? 1 : 0),
-        forts: {
-            destroyed: [],
-            besieged: []
-        },
-
-        // AP state
-        ap: {
-            deck: [],
-            discard: [],
-            removed: [],
-            hand: [],
-            commitment: COMMITMENT_MOBILIZATION,
-            mo: NONE,
-            ws: 0,
-            actions: [],
-            shuffle: false,
-            trenches: {}
-        },
-
-        // CP state
-        cp: {
-            deck: [],
-            discard: [],
-            removed: [],
-            hand: [],
-            commitment: COMMITMENT_MOBILIZATION,
-            mo: NONE,
-            ws: 0,
-            ru_vp: 0,
-            actions: [],
-            shuffle: false,
-            trenches: {}
-        },
-
-        reinf_this_turn: {},
-    }
+    game = create_empty_game_state(seed, scenario, options)
 
     log_h1("Paths of Glory")
 
@@ -568,6 +486,98 @@ exports.setup = function (seed, scenario, options) {
     return game
 }
 
+function create_empty_game_state(seed, scenario, options) {
+    return {
+        seed: seed,
+        scenario: scenario,
+        options: object_copy(options),
+        log: [],
+        undo: [],
+
+        active: null, // Active faction, AP or CP
+        state: null, // Current state in the state machine
+
+        turn: 1, // Turn number
+        vp: 10, // Current VP, can move up or down
+        usc: 0, // US commitment level
+        rc: 0, // Russian capitulation level
+        ops: 0, // Ops points for the current action
+
+        events: {}, // Event flags for remembering which events have been played
+
+        // Replacement points
+        rp: {
+            ge: 0,
+                ah: 0,
+                fr: 0,
+                br: 0,
+                ru: 0,
+                allied: 0,
+                bu: 0,
+                tu: 0,
+                it: 0,
+                us: 0
+        },
+
+        // Which nations are at war
+        war: {
+            it: 0,
+            tu: 0,
+            bu: 0,
+            us: 0,
+            ro: 0,
+            gr: 0
+        },
+
+        // Units
+        location: data.pieces.map(() => 0),
+        reduced: [],
+        removed: [],
+
+        // Spaces
+        activated: {
+            move: [], // Spaces activated for movement
+            attack: [] // Spaces activated for attack
+        },
+        control: data.spaces.map((s) => s.faction === CP ? 1 : 0), // Current control of each space
+        forts: { // data for spaces tells you strength of forts per space
+            destroyed: [], // Spaces with destroyed forts
+            besieged: [] // Spaces with besieged forts
+        },
+
+        // Allied Powers' state
+        ap: {
+            deck: [], // Cards in the deck
+            discard: [], // Cards in the discard pile
+            removed: [], // Cards that have been removed from the game
+            hand: [], // Cards in the hand
+            commitment: COMMITMENT_MOBILIZATION, // Current commitment level
+            mo: NONE, // Mandatory offensive for this turn. Is set to None once it has been satisfied
+            ws: 0, // War status level
+            actions: [], // Actions played this turn, tracked for display on the action round tracker and to limit which actions are available
+            shuffle: false, // Should the deck be shuffled before the next draw
+            trenches: {} // Trench levels per space
+        },
+
+        // Central Powers' state (same as Allied Powers)
+        cp: {
+            deck: [],
+            discard: [],
+            removed: [],
+            hand: [],
+            commitment: COMMITMENT_MOBILIZATION,
+            mo: NONE,
+            ws: 0,
+            ru_vp: 0,
+            actions: [],
+            shuffle: false,
+            trenches: {}
+        },
+
+        reinf_this_turn: {}, // Which nations have received reinforcements this turn
+    }
+}
+
 function setup_initial_decks() {
     for (let i = 1; i < data.cards.length; i++) {
         if (i == GUNS_OF_AUGUST && game.options.start_with_guns_of_august) {
@@ -592,7 +602,6 @@ function goto_start_turn() {
 
     game.state = 'action_phase'
     game.active = CP
-    game.phasing = CP
     log_br()
     log_h1(`Turn ${game.turn}`)
     log_br()
