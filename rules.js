@@ -289,7 +289,7 @@ exports.query = function (state, current, q) {
 }
 
 function inactive_prompt(name, who, where) {
-    view.prompt = `Waiting for ${game.active} \u2014 ${name}...`
+    view.prompt = `Waiting for ${faction_name(game.active)} \u2014 ${name}...`
     if (who)
         view.who = who
     if (where)
