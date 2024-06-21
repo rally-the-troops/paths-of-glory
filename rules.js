@@ -1307,7 +1307,7 @@ function find_sr_destinations() {
             for (let s = 1; s < data.spaces.length; s++) {
                 if (data.spaces[s].nation == FRANCE &&
                     is_friendly_control(s, AP) &&
-                    data.spaces[s].port == true) {
+                    data.spaces[s].apport == true) {
                     set_add(destinations, s)
                 }
             }
@@ -1337,14 +1337,20 @@ function find_sr_destinations() {
     }
 
     // AP can SR Corps to any friendly-controlled port, CP can SR using ports in Germany and Russia
-    if (data.spaces[start].port &&
-        data.pieces[game.sr.unit].type == CORPS &&
-        (game.active == AP || data.spaces[start].nation != RUSSIA || data.spaces[start].nation != GERMANY)) {
-        for (let s = 1; s < data.spaces.length; s++) {
-            if (data.spaces[s].port == true &&
-                is_friendly_control(s, game.active) &&
-                (game.active == AP || data.spaces[s].nation != RUSSIA) || data.spaces[s].nation != GERMANY) {
-                set_add(destinations, s)
+    if (data.pieces[game.sr.unit].type == CORPS) {
+        if (game.active == AP && data.spaces[start].apport == true) {
+            for (let s = 1; s < data.spaces.length; s++) {
+                if (data.spaces[s].apport == true &&
+                    is_friendly_control(s, AP)) {
+                    set_add(destinations, s)
+                }
+            }
+        } else if (game.active == CP && data.spaces[start].cpport == true) {
+            for (let s = 1; s < data.spaces.length; s++) {
+                if (data.spaces[s].cpport == true &&
+                    is_friendly_control(s, CP)) {
+                    set_add(destinations, s)
+                }
             }
         }
     }
