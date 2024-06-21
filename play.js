@@ -1154,7 +1154,7 @@ function get_reserve_box_stack(nation) {
 function update_reserve_boxes() {
     let ap_space = spaces[AP_RESERVE_BOX]
     let cp_space = spaces[CP_RESERVE_BOX]
-    const ap_order = [ITALY, BRITAIN, FRANCE, RUSSIA, MINOR]
+    const ap_order = [ITALY, FRANCE, BRITAIN, RUSSIA, MINOR]
     const cp_order = [GERMANY, AUSTRIA_HUNGARY, TURKEY, MINOR]
 
     for (let nation of ap_order)
@@ -1337,8 +1337,6 @@ function update_general_records_track() {
 }
 
 const ACTION_REINF = "reinf"
-const ACTION_EVENT = "evt"
-const neutral_entry_cards = []
 
 function update_action_round_marker(faction, round, action) {
     let marker = build_action_marker(faction, round)
