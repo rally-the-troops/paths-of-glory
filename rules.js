@@ -3313,6 +3313,19 @@ events.bulgaria_entry = {
 
 // === ALLIED POWER EVENTS ===
 
+// AP #2
+events.blockade = {
+    can_play() {
+        return true
+    },
+    play() {
+        push_undo()
+        game.events.blockade = 1
+        // TODO: Add blockade marker to the Turn Track
+        goto_end_action()
+    }
+}
+
 // AP #13
 events.rape_of_belgium = {
     can_play() {
