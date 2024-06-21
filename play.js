@@ -16,6 +16,18 @@ const USC_MARKER = "marker small us_entry usc_"
 const RC_MARKER = "marker small russian_capitulation rc_"
 const TURN_MARKER = "small marker game_turn turn_"
 
+const AP_RESERVE_BOX = 282
+const CP_RESERVE_BOX = 283
+
+const ITALY = 'it'
+const BRITAIN = 'br'
+const FRANCE = 'fr'
+const RUSSIA = 'ru'
+const GERMANY = 'ge'
+const AUSTRIA_HUNGARY = 'ah'
+const TURKEY = 'tu'
+const MINOR = 'minor'
+
 function check_menu(id, x) {
     document.getElementById(id).className = x ? "menu_item checked" : "menu_item unchecked"
 }
@@ -772,6 +784,44 @@ function build_space(id) {
     ui.space_list[id] = elt
 }
 
+function build_reserve_box(id) {
+    let space = spaces[id]
+
+    let w = space.w
+    let h = space.h
+
+    let x = space.x - w / 2 - 4
+    let y = space.y - h / 2 - 4 // 4 px border space
+
+    space.stacks = {}
+    if (id === AP_RESERVE_BOX) {
+        space.stacks[ITALY] = []
+        space.stacks[BRITAIN] = []
+        space.stacks[FRANCE] = []
+        space.stacks[RUSSIA] = []
+        space.stacks[MINOR] = []
+    } else {
+        space.stacks[GERMANY] = []
+        space.stacks[AUSTRIA_HUNGARY] = []
+        space.stacks[TURKEY] = []
+        space.stacks[MINOR] = []
+    }
+
+    let elt = space.element = document.createElement("div")
+    elt.space = id
+    elt.style.left = x + "px"
+    elt.style.top = y + "px"
+    elt.style.width = w + "px"
+    elt.style.height = h + "px"
+    elt.addEventListener("mousedown", on_click_space)
+    elt.addEventListener("mouseenter", on_focus_space)
+    elt.addEventListener("mouseleave", on_blur_space)
+
+    ui.spaces.appendChild(elt)
+
+    ui.space_list[id] = elt
+}
+
 function build_unit(id) {
     let unit = pieces[id]
     let elt = unit.element = document.createElement("div")
@@ -796,8 +846,12 @@ function build_card(id) {
 
 for (let c = 1; c < cards.length; ++c)
     build_card(c)
-for (let s = 1; s < spaces.length; ++s)
-    build_space(s)
+for (let s = 1; s < spaces.length; ++s) {
+    if (s == AP_RESERVE_BOX || s == CP_RESERVE_BOX)
+        build_reserve_box(s)
+    else
+        build_space(s)
+}
 for (let p = 0; p < pieces.length; ++p)
     build_unit(p)
 
@@ -1084,17 +1138,29 @@ function update_space(s) {
     update_space_highlight(s)
 }
 
-const AP_RESERVE_BOX = 282
-const CP_RESERVE_BOX = 283
+function get_reserve_box_stack(nation) {
+    switch (nation) {
+        case ITALY: return ITALY
+        case BRITAIN: return BRITAIN
+        case FRANCE: return FRANCE
+        case RUSSIA: return RUSSIA
+        case GERMANY: return GERMANY
+        case AUSTRIA_HUNGARY: return AUSTRIA_HUNGARY
+        case TURKEY: return TURKEY
+        default: return MINOR
+    }
+}
 
 function update_reserve_boxes() {
     let ap_space = spaces[AP_RESERVE_BOX]
     let cp_space = spaces[CP_RESERVE_BOX]
-    let apStack = ap_space.apStack
-    let cpStack = cp_space.cpStack
+    const ap_order = [ITALY, BRITAIN, FRANCE, RUSSIA, MINOR]
+    const cp_order = [GERMANY, AUSTRIA_HUNGARY, TURKEY, MINOR]
 
-    apStack.length = 0
-    cpStack.length = 0
+    for (let nation of ap_order)
+        ap_space.stacks[nation].length = 0
+    for (let nation of cp_order)
+        cp_space.stacks[nation].length = 0
 
     let insert_piece_in_stack = function (p) {
         let is_corps = pieces[p].type === CORPS
@@ -1105,7 +1171,10 @@ function update_reserve_boxes() {
             pe.classList.add("reduced")
         else
             pe.classList.remove("reduced")
-        let stack = pieces[p].faction === CP ? cpStack : apStack
+
+        const nation = pieces[p].nation
+        const space = pieces[p].faction === CP ? cp_space : ap_space
+        let stack = space.stacks[get_reserve_box_stack(nation)]
         if (is_corps)
             unshift_stack(stack, p, pe)
         else
@@ -1114,11 +1183,25 @@ function update_reserve_boxes() {
     for_each_piece_in_space(AP_RESERVE_BOX, insert_piece_in_stack)
     for_each_piece_in_space(CP_RESERVE_BOX, insert_piece_in_stack)
 
-    if (apStack.length > 0) {
-        layout_stack(apStack, ap_space.x, ap_space.y, 1)
+
+    const stride = 60
+    const ap_x = ap_space.x - stride * 2.5
+    const ap_y = ap_space.y
+    for (let i = 0; i < ap_order.length; ++i) {
+        let nation = ap_order[i]
+        let stack = ap_space.stacks[nation]
+        if (stack.length > 0) {
+            layout_stack(stack, ap_x+i*stride, ap_y, 1)
+        }
     }
-    if (cpStack.length > 0) {
-        layout_stack(cpStack, cp_space.x, cp_space.y, 1)
+    const cp_x = cp_space.x - stride * 2
+    const cp_y = cp_space.y
+    for (let i = 0; i < cp_order.length; ++i) {
+        let nation = cp_order[i]
+        let stack = cp_space.stacks[nation]
+        if (stack.length > 0) {
+            layout_stack(stack, cp_x+i*stride, cp_y, 1)
+        }
     }
 
     update_space_highlight(AP_RESERVE_BOX)
