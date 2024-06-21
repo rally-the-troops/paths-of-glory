@@ -270,96 +270,76 @@ body.shift .highlight {
 
 #spaces div {
     position: absolute;
+    border-width: 4px;
+    border-style: solid;
+    border-color: transparent;
+    box-shadow: none;
+    border-radius: 10px;
 }
 
 #spaces div.highlight {
     cursor: pointer;
     border-color: yellow;
-    border-radius: 6px;
-    border-style: solid;
-    box-shadow: 0 0 10px white;
 }
 
-.western_supply {
-    border-width: 6px;
+#spaces div.western_supply {
     border-top-color: blue;
     border-left-color: blue;
     border-bottom-color: transparent;
     border-right-color: transparent;
-    box-shadow: none;
-    border-style: solid;
-    border-radius: 10px;
+    border-style: dotted;
 }
 
-.eastern_supply {
-    border-width: 6px;
+#spaces div.eastern_supply {
     border-top-color: darkred;
     border-left-color: transparent;
     border-bottom-color: transparent;
     border-right-color: darkred;
-    box-shadow: none;
-    border-style: solid;
-    border-radius: 10px;
+    border-style: dotted;
 }
 
-.western_supply.eastern_supply {
-    border-width: 6px;
+#spaces div.western_supply.eastern_supply {
     border-top-color: blue;
     border-left-color: blue;
     border-bottom-color: darkred;
     border-right-color: darkred;
-    box-shadow: none;
-    border-style: solid;
-    border-radius: 10px;
+    border-style: dotted;
 }
 
-.cp_supply {
-    border-width: 6px;
+#spaces div.cp_supply {
     border-top-color: dimgray;
     border-left-color: dimgray;
     border-bottom-color: dimgray;
     border-right-color: dimgray;
-    box-shadow: none;
-    border-style: solid;
-    border-radius: 10px;
+    border-style: dotted;
 }
 
-.western_supply.cp_supply {
-    border-width: 6px;
+#spaces div.western_supply.cp_supply {
     border-top-color: blue;
     border-left-color: blue;
     border-bottom-color: dimgray;
     border-right-color: dimgray;
-    box-shadow: none;
-    border-style: solid;
-    border-radius: 10px;
+    border-style: dotted;
 }
 
-.eastern_supply.cp_supply {
-    border-width: 6px;
+#spaces div.eastern_supply.cp_supply {
     border-top-color: darkred;
     border-left-color: dimgray;
     border-bottom-color: dimgray;
     border-right-color: darkred;
-    box-shadow: none;
-    border-style: solid;
-    border-radius: 10px;
+    border-style: dotted;
 }
 
-.western_supply.eastern_supply.cp_supply {
-    border-width: 6px;
+#spaces div.western_supply.eastern_supply.cp_supply {
     border-top-color: dimgray;
     border-left-color: blue;
     border-bottom-color: dimgray;
     border-right-color: darkred;
-    box-shadow: none;
-    border-style: solid;
-    border-radius: 10px;
+    border-style: dotted;
 }
 
-.no_supply {
+#spaces div.no_supply {
     border-color: transparent;
-    box-shadow: none;
 }
 
 /* COUNTERS */

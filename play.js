@@ -749,8 +749,8 @@ function build_space(id) {
     let w = space.w
     let h = space.h
 
-    let x = space.x / 2 - w / 2
-    let y = space.y / 2 - h / 2
+    let x = space.x - w / 2 - 4
+    let y = space.y - h / 2 - 4 // 4 px border space
 
     space.apStack = []
     space.apStack.name = spaces[id].name + "/ap"
@@ -996,8 +996,8 @@ function update_space(s) {
     apStack.length = 0
     cpStack.length = 0
 
-    let sx = space.x/2 + Math.round(space.w/2) - 45
-    let sy = space.y/2 + Math.round(space.h/2) - 45
+    let sx = space.x + Math.round(space.w/2) - 45
+    let sy = space.y + Math.round(space.h/2) - 45
 
     let activeStack = view.active == AP ? apStack : cpStack;
 
@@ -1115,10 +1115,10 @@ function update_reserve_boxes() {
     for_each_piece_in_space(CP_RESERVE_BOX, insert_piece_in_stack)
 
     if (apStack.length > 0) {
-        layout_stack(apStack, ap_space.x/2, ap_space.y/2, 1)
+        layout_stack(apStack, ap_space.x, ap_space.y, 1)
     }
     if (cpStack.length > 0) {
-        layout_stack(cpStack, cp_space.x/2, cp_space.y/2, 1)
+        layout_stack(cpStack, cp_space.x, cp_space.y, 1)
     }
 
     update_space_highlight(AP_RESERVE_BOX)
