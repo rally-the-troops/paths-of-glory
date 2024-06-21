@@ -1078,8 +1078,8 @@ function get_trench_level(s, faction) {
 states.action_phase = {
     inactive: "Action Phase",
     prompt() {
-        view.prompt = "Action Phase: Play a card or choose an action."
         let p = get_active_player()
+        view.prompt = `Action Phase ${p.actions.length+1}: Play a card or choose an action`
         for (let i = 0; i < p.hand.length; ++i)
             gen_card_menu(p.hand[i])
         if (game.options.can_offer_peace) // TODO: Check for appropriate conditions?
