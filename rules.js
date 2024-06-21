@@ -1044,6 +1044,18 @@ function get_last_action() {
     return actions[actions.length-1]
 }
 
+function can_play_neutral_entry() {
+    for (let action of game.ap.actions) {
+        if (action.type == ACTION_NEUTRAL_ENTRY)
+            return false
+    }
+    for (let action of game.cp.actions) {
+        if (action.type == ACTION_NEUTRAL_ENTRY)
+            return false
+    }
+    return true
+}
+
 // === Trenches ===
 
 function set_trench_level(s, level, faction) {
@@ -1153,8 +1165,12 @@ function goto_play_event(card) {
     if (card_data.ws) {
         active_player.ws += card_data.ws
     }
-    record_action(ACTION_EVENT, card)
+
     let evt = events[card_data.event]
+    if (evt.is_neutral_entry)
+        record_action(ACTION_NEUTRAL_ENTRY, card)
+    else
+        record_action(ACTION_EVENT, card)
     evt.play()
 }
 
@@ -3283,8 +3299,9 @@ events.reichstag_truce = {
 }
 
 events.bulgaria_entry = {
+    is_neutral_entry: true,
     can_play() {
-        return true
+        return can_play_neutral_entry()
     },
     play() {
         push_undo()
@@ -3310,8 +3327,9 @@ events.rape_of_belgium = {
 
 
 events.italy_entry = {
+    is_neutral_entry: true,
     can_play() {
-        return true
+        return can_play_neutral_entry()
     },
     play() {
         push_undo()
@@ -3321,8 +3339,9 @@ events.italy_entry = {
 }
 
 events.romania_entry = {
+    is_neutral_entry: true,
     can_play() {
-        return !game.events.fall_of_the_tsar
+        return can_play_neutral_entry() && !game.events.fall_of_the_tsar
     },
     play() {
         push_undo()
@@ -3333,8 +3352,9 @@ events.romania_entry = {
 }
 
 events.greece_entry = {
+    is_neutral_entry: true,
     can_play() {
-        return true
+        return can_play_neutral_entry()
     },
     play() {
         push_undo()

@@ -1337,6 +1337,8 @@ function update_general_records_track() {
 }
 
 const ACTION_REINF = "reinf"
+const ACTION_EVENT = "evt"
+const neutral_entry_cards = []
 
 function update_action_round_marker(faction, round, action) {
     let marker = build_action_marker(faction, round)
