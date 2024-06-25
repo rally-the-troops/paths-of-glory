@@ -728,13 +728,27 @@ function setup_reserve_corps(nation, quantity) {
 }
 
 function find_unused_piece(nation, name) {
+    const pieces = find_n_unused_pieces(nation, name, 1)
+    if (pieces.length == 0) {
+        throw new Error(`Could not find unused piece for nation ${nation} and name ${name}`)
+    }
+    return pieces[0]
+}
+
+function find_n_unused_pieces(nation, name, n) {
+    let pieces = []
+    let found = 0
     for (let i = 0; i < data.pieces.length; i++) {
         let piece = data.pieces[i]
         if (piece.name === name && piece.nation === nation && game.location[i] == 0) {
-            return i
+            pieces.push(i)
+            found++
+        }
+        if (found == n) {
+            return pieces
         }
     }
-    throw new Error(`Could not find unused piece for nation ${nation} and name ${name}`)
+    throw new Error(`Could not find ${n} unused pieces for nation ${nation} and name ${name}`)
 }
 
 function find_piece(nation, name) {
@@ -1151,6 +1165,7 @@ function can_play_rps(card) {
 }
 
 function goto_play_event(card) {
+    push_undo()
     log(`${faction_name(game.active)} played\n${card_name(card)} for the event`)
     let active_player = get_active_player()
     array_remove_item(active_player.hand, card)
@@ -3133,6 +3148,42 @@ function get_connected_spaces(s, nation) {
     return []
 }
 
+states.place_new_neutral_units = {
+    inactive: 'Place new units',
+    prompt() {
+        if (game.units_to_place.length > 0) {
+            view.prompt = `Place ${game.units_to_place.length} new units`
+            let available_spaces = []
+            const nation = data.pieces[game.units_to_place[0]].nation
+            for (let s = 1; s < data.spaces.length; ++s) {
+                if (data.spaces[s].nation == nation) {
+                    set_add(available_spaces, s)
+                }
+            }
+            for (let i = 0; i < game.location.length; ++i) {
+                set_delete(available_spaces, game.location[i])
+            }
+            available_spaces.forEach((s) => {
+                gen_action_space(s)
+            })
+        } else {
+            view.prompt = 'Done placing new units'
+            gen_action_done()
+        }
+        gen_action_undo()
+
+    },
+    space(s) {
+        push_undo()
+        let p = game.units_to_place.shift()
+        game.location[p] = s
+    },
+    done() {
+        clear_undo()
+        goto_end_action()
+    }
+}
+
 // === SUPPLY ===
 
 const cp_supply_sources = [ESSEN, BRESLAU, SOFIA, CONSTANTINOPLE]
@@ -3304,10 +3355,9 @@ events.bulgaria_entry = {
         return can_play_neutral_entry()
     },
     play() {
-        push_undo()
         set_nation_at_war(BULGARIA)
-        // TODO: Player places four Bulgarian corps in spaces of their choice
-        goto_end_action()
+        game.units_to_place = find_n_unused_pieces(BULGARIA, 'BU Corps', 4)
+        game.state = 'place_new_neutral_units'
     }
 }
 
@@ -3345,7 +3395,6 @@ events.italy_entry = {
         return can_play_neutral_entry()
     },
     play() {
-        push_undo()
         set_nation_at_war(ITALY)
         goto_end_action()
     }
@@ -3357,10 +3406,9 @@ events.romania_entry = {
         return can_play_neutral_entry() && !game.events.fall_of_the_tsar
     },
     play() {
-        push_undo()
         set_nation_at_war(ROMANIA)
-        // TODO: Player places four other Romanian corps in spaces of their choice
-        goto_end_action()
+        game.units_to_place = find_n_unused_pieces(ROMANIA, 'RO Corps', 4)
+        game.state = 'place_new_neutral_units'
     }
 }
 
@@ -3370,7 +3418,6 @@ events.greece_entry = {
         return can_play_neutral_entry()
     },
     play() {
-        push_undo()
         set_nation_at_war(GREECE)
         goto_end_action()
     }
