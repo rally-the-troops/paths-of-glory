@@ -2944,7 +2944,7 @@ function goto_war_status_phase() {
             add_cards_to_deck(AP, COMMITMENT_TOTAL, game.ap.deck)
             game.ap.shuffle = true
         }
-        if (game.cp.ws >= 4 && game.cp.commitment == COMMITMENT_LIMITED) {
+        if (game.cp.ws >= 11 && game.cp.commitment == COMMITMENT_LIMITED) {
             game.cp.commitment = COMMITMENT_TOTAL
             log_h2("Central Powers' War Commitment Level rises to Total War")
             add_cards_to_deck(CP, COMMITMENT_TOTAL, game.cp.deck)
