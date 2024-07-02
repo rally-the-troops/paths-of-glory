@@ -1417,6 +1417,8 @@ function goto_play_rps(card) {
     game.rp.it += card_data.rpit !== undefined && nation_at_war(ITALY) ? card_data.rpit : 0
     game.rp.tu += card_data.rptu !== undefined && nation_at_war(TURKEY) ? card_data.rptu : 0
 
+    // TODO: If "over there" is in effect, add 1 to the US RP total
+
     discard_card(card, 'for rps')
     goto_end_action()
 }
@@ -3047,22 +3049,170 @@ function remove_rps(faction) {
     }
 }
 
+function get_rps_of_type(type) {
+    return game.rp[type]
+}
+
+function set_rps_of_type(type, value) {
+    game.rp[type] = value
+}
+
 states.replacement_phase = {
     inactive: 'Choose replacements',
     prompt() {
-        view.prompt = 'Choose replacements'
-        // TODO: Highlight allowed actions
+        view.prompt = 'Choose a unit to receive replacements, or choose an eliminated unit to return to play'
+        let units = get_replaceable_units()
+        units.forEach((p) => {
+            gen_action_piece(p)
+        })
         gen_action_done()
     },
     // TODO: do a replacement
+    // Flip 1 reduced-strength Army to its full-strength side
+    // Flip 2 reduced-strength Corps to their full-strength side
+    // Place 1 eliminated Corps at full strength in the Reserve Box
+    // Place 2 eliminated Corps at reduced strength in the Reserve Box
+    // Flip 1 reduced Corps to full strength on the map and place one eliminated Corps at reduced strength in the Reserve Box
+    // Recreate 1 eliminated Army at reduced strength
+    // Recreate 1 eliminated Army at Full strength (2 replacement points)
+    piece(p) {
+        push_undo()
+        const piece_data = data.pieces[p]
+        if (game.location[p] == AP_REPLACEMENTS_BOX || game.location[p] == CP_REPLACEMENTS_BOX) {
+            // Selected a piece in the replacements box,
+            // if it's a corps, prompt for returning it at reduced or full strength
+            // if it's an army and there are enough points, prompt for returning it at reduced strength
+        } else {
+            // Selected a reduced piece on the map,
+            // if it's an army, flip it to full strength
+            if (piece_data.type == ARMY) {
+                array_remove_item(game.reduced, p)
+                spend_rps(get_rp_type(p), 1)
+            } else { // if it's a corps, select a second corps to flip to full strength
+                game.who = p
+                game.state = 'select_second_replacement_corps'
+            }
+        }
+    },
     done() {
         remove_rps(game.active)
         if (game.active == AP) {
             game.active = CP
-        } else {
-            goto_draw_cards_phase()
+        }
+        goto_replacement_phase()
+    }
+}
+
+function get_replaceable_units() {
+    let units = []
+    for (let i = 1; i < data.pieces.length; ++i) {
+        const piece_data = data.pieces[i]
+        if (piece_data.faction !== game.active)
+            continue
+
+        if (piece_data.notreplaceable)
+            continue
+
+        const rp_type = get_rp_type(i)
+        if (get_rps_of_type(rp_type) == 0)
+            continue
+
+        if (game.location == 0 || game.location != AP_RESERVE_BOX || game.location != CP_RESERVE_BOX)
+            continue
+
+        if (game.location[i] == AP_ELIMINATED_BOX ||
+            game.location[i] == CP_ELIMINATED_BOX ||
+            is_unit_reduced(i)) {
+            // TODO: check for valid supply path if on map
+            // TODO: check for capital control
+            units.push(i)
         }
     }
+
+    return units
+}
+
+function get_rp_type(piece) {
+    const piece_data = data.pieces[piece]
+    switch (piece_data.nation) {
+        case FRANCE:
+            return 'fr'
+        case BRITAIN:
+            return 'br'
+        case RUSSIA:
+            return 'ru'
+        case ITALY:
+            return 'it'
+        case GERMANY:
+            return 'ge'
+        case AUSTRIA_HUNGARY:
+            return 'ah'
+        case BULGARIA:
+            return 'bu'
+        case TURKEY:
+            return 'tu'
+        case US:
+            return 'us'
+    }
+    return 'allied'
+}
+
+function spend_rps(type, amount) {
+    set_rps_of_type(type, get_rps_of_type(type) - amount)
+}
+
+states.select_second_replacement_corps = {
+    inactive: 'Choose second corps to flip',
+    prompt() {
+        view.prompt = 'Choose a second corps to flip to full strength'
+        let units = get_replaceable_units()
+        const rp_type = get_rp_type(game.who)
+        units.forEach((p) => {
+            if (data.pieces[p].type == CORPS &&
+                game.location[p] != AP_ELIMINATED_BOX &&
+                game.location[p] != CP_ELIMINATED_BOX &&
+                get_rp_type(p) == rp_type) {
+                gen_action_piece(p)
+            }
+        })
+        gen_action_undo()
+        gen_action_done()
+    },
+    piece(p) {
+        push_undo()
+        array_remove_item(game.reduced, game.who)
+        array_remove_item(game.reduced, p)
+        spend_rps(get_rp_type(game.who), 1)
+        game.who = 0
+        game.state = 'replacement_phase'
+    },
+    done() {
+        push_undo()
+        array_remove_item(game.reduced, game.who)
+        spend_rps(get_rp_type(game.who), 1)
+        game.who = 0
+        game.state = 'replacement_phase'
+    }
+}
+
+states.choose_replacement_strength = {
+    inactive: 'Choose replacement strength',
+    prompt() {
+        view.prompt = 'Choose replacement strength'
+        gen_action('full')
+        gen_action('reduced')
+        gen_action_undo()
+    },
+    full() {
+        // TODO
+    },
+    reduced() {
+        // TODO
+    }
+}
+
+states.choose_replacement_location = {
+    // TODO
 }
 
 function goto_draw_cards_phase() {
