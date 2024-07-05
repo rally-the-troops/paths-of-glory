@@ -1974,7 +1974,8 @@ const pieces = [
         "mf": 3,
         "rcf": 3,
         "rlf": 3,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ge"
     },
     {
         "faction": "cp",
@@ -1987,7 +1988,8 @@ const pieces = [
         "mf": 3,
         "rcf": 3,
         "rlf": 3,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ge"
     },
     {
         "faction": "cp",
@@ -2000,7 +2002,8 @@ const pieces = [
         "mf": 3,
         "rcf": 3,
         "rlf": 3,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ge"
     },
     {
         "faction": "cp",
@@ -2013,7 +2016,8 @@ const pieces = [
         "mf": 3,
         "rcf": 3,
         "rlf": 3,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ge"
     },
     {
         "faction": "cp",
@@ -2026,7 +2030,8 @@ const pieces = [
         "mf": 3,
         "rcf": 3,
         "rlf": 3,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ge"
     },
     {
         "faction": "cp",
@@ -2039,7 +2044,8 @@ const pieces = [
         "mf": 3,
         "rcf": 3,
         "rlf": 3,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ge"
     },
     {
         "faction": "cp",
@@ -2052,7 +2058,8 @@ const pieces = [
         "mf": 3,
         "rcf": 3,
         "rlf": 3,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ge"
     },
     {
         "faction": "cp",
@@ -2065,7 +2072,8 @@ const pieces = [
         "mf": 3,
         "rcf": 3,
         "rlf": 3,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ge"
     },
     {
         "faction": "cp",
@@ -2078,7 +2086,8 @@ const pieces = [
         "mf": 3,
         "rcf": 3,
         "rlf": 3,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ge"
     },
     {
         "faction": "cp",
@@ -2091,7 +2100,8 @@ const pieces = [
         "mf": 3,
         "rcf": 3,
         "rlf": 3,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ge"
     },
     {
         "faction": "cp",
@@ -2104,7 +2114,8 @@ const pieces = [
         "mf": 3,
         "rcf": 3,
         "rlf": 3,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ge"
     },
     {
         "faction": "cp",
@@ -2117,7 +2128,8 @@ const pieces = [
         "mf": 3,
         "rcf": 3,
         "rlf": 3,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ge"
     },
     {
         "faction": "cp",
@@ -2130,7 +2142,8 @@ const pieces = [
         "mf": 3,
         "rcf": 3,
         "rlf": 3,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ge"
     },
     {
         "faction": "cp",
@@ -2143,7 +2156,8 @@ const pieces = [
         "mf": 3,
         "rcf": 3,
         "rlf": 3,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ge"
     },
     {
         "faction": "cp",
@@ -2156,7 +2170,8 @@ const pieces = [
         "mf": 3,
         "rcf": 3,
         "rlf": 3,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ge"
     },
     {
         "faction": "cp",
@@ -2169,7 +2184,8 @@ const pieces = [
         "mf": 3,
         "rcf": 1,
         "rlf": 2,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ah"
     },
     {
         "faction": "cp",
@@ -2182,7 +2198,8 @@ const pieces = [
         "mf": 3,
         "rcf": 1,
         "rlf": 2,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ah"
     },
     {
         "faction": "cp",
@@ -2195,7 +2212,8 @@ const pieces = [
         "mf": 3,
         "rcf": 1,
         "rlf": 2,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ah"
     },
     {
         "faction": "cp",
@@ -2208,7 +2226,8 @@ const pieces = [
         "mf": 3,
         "rcf": 1,
         "rlf": 2,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ah"
     },
     {
         "faction": "cp",
@@ -2221,7 +2240,8 @@ const pieces = [
         "mf": 3,
         "rcf": 1,
         "rlf": 2,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ah"
     },
     {
         "faction": "cp",
@@ -2234,7 +2254,8 @@ const pieces = [
         "mf": 3,
         "rcf": 1,
         "rlf": 2,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ah"
     },
     {
         "faction": "cp",
@@ -2247,7 +2268,8 @@ const pieces = [
         "mf": 3,
         "rcf": 1,
         "rlf": 2,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ah"
     },
     {
         "faction": "cp",
@@ -2260,7 +2282,8 @@ const pieces = [
         "mf": 3,
         "rcf": 1,
         "rlf": 2,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ah"
     },
     {
         "faction": "cp",
@@ -2273,7 +2296,8 @@ const pieces = [
         "mf": 3,
         "rcf": 1,
         "rlf": 2,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ah"
     },
     {
         "faction": "ap",
@@ -2286,7 +2310,8 @@ const pieces = [
         "mf": 3,
         "rcf": 1,
         "rlf": 2,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "it"
     },
     {
         "faction": "ap",
@@ -2299,7 +2324,8 @@ const pieces = [
         "mf": 3,
         "rcf": 1,
         "rlf": 2,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "it"
     },
     {
         "faction": "ap",
@@ -2312,7 +2338,8 @@ const pieces = [
         "mf": 3,
         "rcf": 1,
         "rlf": 2,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "it"
     },
     {
         "faction": "ap",
@@ -2325,7 +2352,8 @@ const pieces = [
         "mf": 3,
         "rcf": 1,
         "rlf": 2,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "it"
     },
     {
         "faction": "ap",
@@ -2338,7 +2366,8 @@ const pieces = [
         "mf": 3,
         "rcf": 1,
         "rlf": 2,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "it"
     },
     {
         "faction": "cp",
@@ -2381,7 +2410,8 @@ const pieces = [
         "mf": 3,
         "rcf": 2,
         "rlf": 3,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "fr"
     },
     {
         "faction": "ap",
@@ -2394,7 +2424,8 @@ const pieces = [
         "mf": 3,
         "rcf": 2,
         "rlf": 3,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "fr"
     },
     {
         "faction": "ap",
@@ -2407,7 +2438,8 @@ const pieces = [
         "mf": 3,
         "rcf": 2,
         "rlf": 3,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "fr"
     },
     {
         "faction": "ap",
@@ -2420,7 +2452,8 @@ const pieces = [
         "mf": 3,
         "rcf": 2,
         "rlf": 3,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "fr"
     },
     {
         "faction": "ap",
@@ -2433,7 +2466,8 @@ const pieces = [
         "mf": 3,
         "rcf": 2,
         "rlf": 3,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "fr"
     },
     {
         "faction": "ap",
@@ -2446,7 +2480,8 @@ const pieces = [
         "mf": 3,
         "rcf": 2,
         "rlf": 3,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "fr"
     },
     {
         "faction": "ap",
@@ -2459,7 +2494,8 @@ const pieces = [
         "mf": 3,
         "rcf": 2,
         "rlf": 3,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "fr"
     },
     {
         "faction": "ap",
@@ -2472,7 +2508,8 @@ const pieces = [
         "mf": 3,
         "rcf": 2,
         "rlf": 3,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "fr"
     },
     {
         "faction": "ap",
@@ -2485,7 +2522,8 @@ const pieces = [
         "mf": 3,
         "rcf": 2,
         "rlf": 3,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "fr"
     },
     {
         "faction": "ap",
@@ -2513,7 +2551,8 @@ const pieces = [
         "mf": 3,
         "rcf": 3,
         "rlf": 3,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "br"
     },
     {
         "faction": "ap",
@@ -2526,7 +2565,8 @@ const pieces = [
         "mf": 3,
         "rcf": 3,
         "rlf": 3,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "br"
     },
     {
         "faction": "ap",
@@ -2539,7 +2579,8 @@ const pieces = [
         "mf": 3,
         "rcf": 3,
         "rlf": 3,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "br"
     },
     {
         "faction": "ap",
@@ -2552,7 +2593,8 @@ const pieces = [
         "mf": 3,
         "rcf": 3,
         "rlf": 3,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "br"
     },
     {
         "faction": "ap",
@@ -2565,7 +2607,8 @@ const pieces = [
         "mf": 3,
         "rcf": 3,
         "rlf": 3,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "br"
     },
     {
         "faction": "ap",
@@ -2622,7 +2665,8 @@ const pieces = [
         "mf": 3,
         "rcf": 3,
         "rlf": 3,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "us"
     },
     {
         "faction": "ap",
@@ -2635,7 +2679,8 @@ const pieces = [
         "mf": 3,
         "rcf": 3,
         "rlf": 3,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "us"
     },
     {
         "faction": "ap",
@@ -2648,7 +2693,8 @@ const pieces = [
         "mf": 3,
         "rcf": 2,
         "rlf": 2,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ru"
     },
     {
         "faction": "ap",
@@ -2661,7 +2707,8 @@ const pieces = [
         "mf": 3,
         "rcf": 2,
         "rlf": 2,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ru"
     },
     {
         "faction": "ap",
@@ -2674,7 +2721,8 @@ const pieces = [
         "mf": 3,
         "rcf": 2,
         "rlf": 2,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ru"
     },
     {
         "faction": "ap",
@@ -2687,7 +2735,8 @@ const pieces = [
         "mf": 3,
         "rcf": 2,
         "rlf": 2,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ru"
     },
     {
         "faction": "ap",
@@ -2700,7 +2749,8 @@ const pieces = [
         "mf": 3,
         "rcf": 2,
         "rlf": 2,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ru"
     },
     {
         "faction": "ap",
@@ -2713,7 +2763,8 @@ const pieces = [
         "mf": 3,
         "rcf": 2,
         "rlf": 2,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ru"
     },
     {
         "faction": "ap",
@@ -2726,7 +2777,8 @@ const pieces = [
         "mf": 3,
         "rcf": 2,
         "rlf": 2,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ru"
     },
     {
         "faction": "ap",
@@ -2739,7 +2791,8 @@ const pieces = [
         "mf": 3,
         "rcf": 2,
         "rlf": 2,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ru"
     },
     {
         "faction": "ap",
@@ -2752,7 +2805,8 @@ const pieces = [
         "mf": 3,
         "rcf": 2,
         "rlf": 2,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ru"
     },
     {
         "faction": "ap",
@@ -2765,7 +2819,8 @@ const pieces = [
         "mf": 3,
         "rcf": 2,
         "rlf": 2,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ru"
     },
     {
         "faction": "ap",
@@ -2778,7 +2833,8 @@ const pieces = [
         "mf": 3,
         "rcf": 2,
         "rlf": 2,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ru"
     },
     {
         "faction": "ap",
@@ -2791,7 +2847,8 @@ const pieces = [
         "mf": 3,
         "rcf": 2,
         "rlf": 2,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ru"
     },
     {
         "faction": "ap",
@@ -2819,7 +2876,8 @@ const pieces = [
         "mf": 3,
         "rcf": 1,
         "rlf": 3,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "allied"
     },
     {
         "faction": "ap",
@@ -2832,7 +2890,8 @@ const pieces = [
         "mf": 3,
         "rcf": 1,
         "rlf": 2,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "allied"
     },
     {
         "faction": "ap",
@@ -2845,7 +2904,8 @@ const pieces = [
         "mf": 3,
         "rcf": 1,
         "rlf": 2,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "allied"
     },
     {
         "faction": "cp",
@@ -2858,7 +2918,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "ge"
     },
     {
         "faction": "cp",
@@ -2871,7 +2932,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "ge"
     },
     {
         "faction": "cp",
@@ -2884,7 +2946,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "ge"
     },
     {
         "faction": "cp",
@@ -2897,7 +2960,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "ge"
     },
     {
         "faction": "cp",
@@ -2910,7 +2974,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "ge"
     },
     {
         "faction": "cp",
@@ -2923,7 +2988,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "ge"
     },
     {
         "faction": "cp",
@@ -2936,7 +3002,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "ge"
     },
     {
         "faction": "cp",
@@ -2949,7 +3016,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "ge"
     },
     {
         "faction": "cp",
@@ -2962,7 +3030,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "ge"
     },
     {
         "faction": "cp",
@@ -2975,7 +3044,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "ge"
     },
     {
         "faction": "cp",
@@ -2988,7 +3058,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "ge"
     },
     {
         "faction": "cp",
@@ -3001,7 +3072,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "ge"
     },
     {
         "faction": "cp",
@@ -3014,7 +3086,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "ge"
     },
     {
         "faction": "cp",
@@ -3027,7 +3100,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "ge"
     },
     {
         "faction": "cp",
@@ -3040,7 +3114,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "ge"
     },
     {
         "faction": "cp",
@@ -3053,7 +3128,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "ge"
     },
     {
         "faction": "cp",
@@ -3066,7 +3142,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "ge"
     },
     {
         "faction": "cp",
@@ -3079,7 +3156,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "ge"
     },
     {
         "faction": "cp",
@@ -3092,7 +3170,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "ge"
     },
     {
         "faction": "cp",
@@ -3105,7 +3184,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ah"
     },
     {
         "faction": "cp",
@@ -3118,7 +3198,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ah"
     },
     {
         "faction": "cp",
@@ -3131,7 +3212,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ah"
     },
     {
         "faction": "cp",
@@ -3144,7 +3226,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ah"
     },
     {
         "faction": "cp",
@@ -3157,7 +3240,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ah"
     },
     {
         "faction": "cp",
@@ -3170,7 +3254,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ah"
     },
     {
         "faction": "cp",
@@ -3183,7 +3268,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ah"
     },
     {
         "faction": "cp",
@@ -3196,7 +3282,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ah"
     },
     {
         "faction": "cp",
@@ -3209,7 +3296,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ah"
     },
     {
         "faction": "cp",
@@ -3222,7 +3310,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ah"
     },
     {
         "faction": "cp",
@@ -3235,7 +3324,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ah"
     },
     {
         "faction": "cp",
@@ -3248,7 +3338,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "tu"
     },
     {
         "faction": "cp",
@@ -3261,7 +3352,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "tu"
     },
     {
         "faction": "cp",
@@ -3274,7 +3366,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "tu"
     },
     {
         "faction": "cp",
@@ -3287,7 +3380,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "tu"
     },
     {
         "faction": "cp",
@@ -3300,7 +3394,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "tu"
     },
     {
         "faction": "cp",
@@ -3313,7 +3408,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "tu"
     },
     {
         "faction": "cp",
@@ -3326,7 +3422,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "tu"
     },
     {
         "faction": "cp",
@@ -3339,7 +3436,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "tu"
     },
     {
         "faction": "cp",
@@ -3352,7 +3450,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "tu"
     },
     {
         "faction": "cp",
@@ -3365,7 +3464,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "tu"
     },
     {
         "faction": "cp",
@@ -3378,7 +3478,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "tu"
     },
     {
         "faction": "cp",
@@ -3391,7 +3492,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "tu"
     },
     {
         "faction": "cp",
@@ -3404,7 +3506,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "tu"
     },
     {
         "faction": "cp",
@@ -3417,7 +3520,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "tu"
     },
     {
         "faction": "ap",
@@ -3430,7 +3534,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "it"
     },
     {
         "faction": "ap",
@@ -3443,7 +3548,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "it"
     },
     {
         "faction": "ap",
@@ -3456,7 +3562,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "it"
     },
     {
         "faction": "ap",
@@ -3469,7 +3576,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "it"
     },
     {
         "faction": "ap",
@@ -3482,7 +3590,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "it"
     },
     {
         "faction": "ap",
@@ -3495,7 +3604,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "it"
     },
     {
         "faction": "ap",
@@ -3508,7 +3618,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "it"
     },
     {
         "faction": "ap",
@@ -3521,7 +3632,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "us"
     },
     {
         "faction": "ap",
@@ -3534,7 +3646,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "us"
     },
     {
         "faction": "ap",
@@ -3547,7 +3660,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "us"
     },
     {
         "faction": "ap",
@@ -3560,7 +3674,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "us"
     },
     {
         "faction": "ap",
@@ -3573,7 +3688,8 @@ const pieces = [
         "mf": 0,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 0
+        "rmf": 0,
+        "rptype": "allied"
     },
     {
         "faction": "cp",
@@ -3600,7 +3716,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "allied"
     },
     {
         "faction": "ap",
@@ -3613,7 +3730,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ru"
     },
     {
         "faction": "ap",
@@ -3626,7 +3744,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ru"
     },
     {
         "faction": "ap",
@@ -3639,7 +3758,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ru"
     },
     {
         "faction": "ap",
@@ -3652,7 +3772,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ru"
     },
     {
         "faction": "ap",
@@ -3665,7 +3786,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ru"
     },
     {
         "faction": "ap",
@@ -3678,7 +3800,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ru"
     },
     {
         "faction": "ap",
@@ -3691,7 +3814,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ru"
     },
     {
         "faction": "ap",
@@ -3704,7 +3828,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ru"
     },
     {
         "faction": "ap",
@@ -3717,7 +3842,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ru"
     },
     {
         "faction": "ap",
@@ -3730,7 +3856,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ru"
     },
     {
         "faction": "ap",
@@ -3743,7 +3870,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ru"
     },
     {
         "faction": "ap",
@@ -3756,7 +3884,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ru"
     },
     {
         "faction": "ap",
@@ -3769,7 +3898,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ru"
     },
     {
         "faction": "ap",
@@ -3782,7 +3912,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ru"
     },
     {
         "faction": "ap",
@@ -3795,7 +3926,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ru"
     },
     {
         "faction": "ap",
@@ -3808,7 +3940,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ru"
     },
     {
         "faction": "ap",
@@ -3821,7 +3954,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ru"
     },
     {
         "faction": "ap",
@@ -3834,7 +3968,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "ru"
     },
     {
         "faction": "ap",
@@ -3847,7 +3982,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "fr"
     },
     {
         "faction": "ap",
@@ -3860,7 +3996,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "fr"
     },
     {
         "faction": "ap",
@@ -3873,7 +4010,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "fr"
     },
     {
         "faction": "ap",
@@ -3886,7 +4024,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "fr"
     },
     {
         "faction": "ap",
@@ -3899,7 +4038,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "fr"
     },
     {
         "faction": "ap",
@@ -3912,7 +4052,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "fr"
     },
     {
         "faction": "ap",
@@ -3925,7 +4066,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "fr"
     },
     {
         "faction": "ap",
@@ -3938,7 +4080,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "fr"
     },
     {
         "faction": "ap",
@@ -3951,7 +4094,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "fr"
     },
     {
         "faction": "ap",
@@ -3964,7 +4108,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "fr"
     },
     {
         "faction": "ap",
@@ -3977,7 +4122,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "br"
     },
     {
         "faction": "ap",
@@ -3990,7 +4136,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "br"
     },
     {
         "faction": "ap",
@@ -4003,7 +4150,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "br"
     },
     {
         "faction": "ap",
@@ -4016,7 +4164,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "br"
     },
     {
         "faction": "ap",
@@ -4029,7 +4178,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "br"
     },
     {
         "faction": "ap",
@@ -4042,7 +4192,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "br"
     },
     {
         "faction": "ap",
@@ -4055,7 +4206,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "br"
     },
     {
         "faction": "ap",
@@ -4068,7 +4220,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "br"
     },
     {
         "faction": "ap",
@@ -4081,7 +4234,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "br"
     },
     {
         "faction": "ap",
@@ -4094,7 +4248,8 @@ const pieces = [
         "mf": 4,
         "rcf": 1,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "br"
     },
     {
         "faction": "ap",
@@ -4107,7 +4262,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "allied"
     },
     {
         "faction": "ap",
@@ -4120,7 +4276,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "allied"
     },
     {
         "faction": "ap",
@@ -4133,7 +4290,8 @@ const pieces = [
         "mf": 4,
         "rcf": 2,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "allied"
     },
     {
         "faction": "ap",
@@ -4146,7 +4304,8 @@ const pieces = [
         "mf": 4,
         "rcf": 2,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "allied"
     },
     {
         "faction": "ap",
@@ -4173,7 +4332,8 @@ const pieces = [
         "mf": 4,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "allied"
     },
     {
         "faction": "ap",
@@ -4186,7 +4346,8 @@ const pieces = [
         "mf": 4,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 4
+        "rmf": 4,
+        "rptype": "allied"
     },
     {
         "faction": "cp",
@@ -4199,7 +4360,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "bu"
     },
     {
         "faction": "cp",
@@ -4212,7 +4374,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "bu"
     },
     {
         "faction": "cp",
@@ -4225,7 +4388,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "bu"
     },
     {
         "faction": "cp",
@@ -4238,7 +4402,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "bu"
     },
     {
         "faction": "cp",
@@ -4251,7 +4416,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "bu"
     },
     {
         "faction": "cp",
@@ -4264,7 +4430,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "bu"
     },
     {
         "faction": "ap",
@@ -4277,7 +4444,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "allied"
     },
     {
         "faction": "ap",
@@ -4290,7 +4458,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "allied"
     },
     {
         "faction": "ap",
@@ -4303,7 +4472,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "allied"
     },
     {
         "faction": "ap",
@@ -4316,7 +4486,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "allied"
     },
     {
         "faction": "ap",
@@ -4329,7 +4500,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "allied"
     },
     {
         "faction": "ap",
@@ -4342,7 +4514,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "allied"
     },
     {
         "faction": "ap",
@@ -4355,7 +4528,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "allied"
     },
     {
         "faction": "ap",
@@ -4368,7 +4542,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "allied"
     },
     {
         "faction": "ap",
@@ -4381,7 +4556,8 @@ const pieces = [
         "mf": 3,
         "rcf": 0,
         "rlf": 1,
-        "rmf": 3
+        "rmf": 3,
+        "rptype": "allied"
     }
 ]
 
@@ -7718,6 +7894,24 @@ const spaces = [
         "y": 521,
         "w": 370,
         "h": 190,
+        "faction": "cp"
+    },
+    {
+        "id": 284,
+        "name": "AP Eliminated Box",
+        "x": 1047,
+        "y": 1535,
+        "w": 220,
+        "h": 124,
+        "faction": "ap"
+    },
+    {
+        "id": 285,
+        "name": "CP Eliminated Box",
+        "x": 633,
+        "y": 119,
+        "w": 220,
+        "h": 124,
         "faction": "cp"
     }
 ]

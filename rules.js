@@ -200,8 +200,11 @@ const CAUCASUS = 186
 const SOFIA = 198
 const GALLIPOLI = 212
 const CONSTANTINOPLE = 219
+const ARABIA_SPACE = 271
 const AP_RESERVE_BOX = 282
 const CP_RESERVE_BOX = 283
+const AP_ELIMINATED_BOX = 284
+const CP_ELIMINATED_BOX = 285
 
 // Piece indices
 const GE_1_ARMY = 1
@@ -1893,9 +1896,9 @@ states.choose_attackers = {
     prompt() {
         view.prompt = `Choose which units will attack next`
         game.eligible_attackers.forEach((p) => {
+            gen_action_undo()
             gen_action_piece(p)
         })
-        gen_action_undo()
         gen_action_next()
         gen_action('finish_attacks')
     },
@@ -3008,9 +3011,11 @@ states.game_over = {
 
 function goto_replacement_phase() {
     if (has_rps(AP)) {
+        log_h1(`${faction_name(AP)} Replacement Phase`)
         game.active = AP
         game.state = 'replacement_phase'
     } else if (has_rps(CP)) {
+        log_h1(`${faction_name(CP)} Replacement Phase`)
         game.active = CP
         game.state = 'replacement_phase'
     } else {
@@ -3050,10 +3055,14 @@ function remove_rps(faction) {
 }
 
 function get_rps_of_type(type) {
+    if (type === undefined)
+        return 0
     return game.rp[type]
 }
 
 function set_rps_of_type(type, value) {
+    if (type === undefined)
+        return
     game.rp[type] = value
 }
 
@@ -3065,33 +3074,24 @@ states.replacement_phase = {
         units.forEach((p) => {
             gen_action_piece(p)
         })
+        gen_action_undo()
         gen_action_done()
     },
-    // TODO: do a replacement
-    // Flip 1 reduced-strength Army to its full-strength side
-    // Flip 2 reduced-strength Corps to their full-strength side
-    // Place 1 eliminated Corps at full strength in the Reserve Box
-    // Place 2 eliminated Corps at reduced strength in the Reserve Box
-    // Flip 1 reduced Corps to full strength on the map and place one eliminated Corps at reduced strength in the Reserve Box
-    // Recreate 1 eliminated Army at reduced strength
-    // Recreate 1 eliminated Army at Full strength (2 replacement points)
     piece(p) {
         push_undo()
         const piece_data = data.pieces[p]
-        if (game.location[p] == AP_REPLACEMENTS_BOX || game.location[p] == CP_REPLACEMENTS_BOX) {
-            // Selected a piece in the replacements box,
-            // if it's a corps, prompt for returning it at reduced or full strength
-            // if it's an army and there are enough points, prompt for returning it at reduced strength
-        } else {
-            // Selected a reduced piece on the map,
-            // if it's an army, flip it to full strength
-            if (piece_data.type == ARMY) {
+        game.who = p
+        if (piece_data.type == ARMY) {
+            if (game.location[p] == AP_ELIMINATED_BOX || game.location[p] == CP_ELIMINATED_BOX) {
+                game.state = 'choose_replacement_army'
+            } else {
+                log(`Restored ${piece_data.name} in ${data.spaces[game.location[p]].name} to full strength`)
                 array_remove_item(game.reduced, p)
                 spend_rps(get_rp_type(p), 1)
-            } else { // if it's a corps, select a second corps to flip to full strength
-                game.who = p
-                game.state = 'select_second_replacement_corps'
+                game.who = 0
             }
+        } else {
+            game.state = 'choose_second_replacement_corps'
         }
     },
     done() {
@@ -3117,7 +3117,7 @@ function get_replaceable_units() {
         if (get_rps_of_type(rp_type) == 0)
             continue
 
-        if (game.location == 0 || game.location != AP_RESERVE_BOX || game.location != CP_RESERVE_BOX)
+        if (game.location[i] === 0 || game.location == AP_RESERVE_BOX || game.location == CP_RESERVE_BOX)
             continue
 
         if (game.location[i] == AP_ELIMINATED_BOX ||
@@ -3133,86 +3133,114 @@ function get_replaceable_units() {
 }
 
 function get_rp_type(piece) {
-    const piece_data = data.pieces[piece]
-    switch (piece_data.nation) {
-        case FRANCE:
-            return 'fr'
-        case BRITAIN:
-            return 'br'
-        case RUSSIA:
-            return 'ru'
-        case ITALY:
-            return 'it'
-        case GERMANY:
-            return 'ge'
-        case AUSTRIA_HUNGARY:
-            return 'ah'
-        case BULGARIA:
-            return 'bu'
-        case TURKEY:
-            return 'tu'
-        case US:
-            return 'us'
-    }
-    return 'allied'
+    return data.pieces[piece].rptype
 }
 
 function spend_rps(type, amount) {
+    if (type === undefined)
+        return
     set_rps_of_type(type, get_rps_of_type(type) - amount)
 }
 
-states.select_second_replacement_corps = {
-    inactive: 'Choose second corps to flip',
+states.choose_second_replacement_corps = {
+    inactive: 'Choose second replacement corps',
     prompt() {
-        view.prompt = 'Choose a second corps to flip to full strength'
+        view.prompt = 'Choose a second corps or send the selected corps to the reserve box'
         let units = get_replaceable_units()
+        const elim_box = game.active == AP ? AP_ELIMINATED_BOX : CP_ELIMINATED_BOX
         const rp_type = get_rp_type(game.who)
         units.forEach((p) => {
             if (data.pieces[p].type == CORPS &&
-                game.location[p] != AP_ELIMINATED_BOX &&
-                game.location[p] != CP_ELIMINATED_BOX &&
                 get_rp_type(p) == rp_type) {
                 gen_action_piece(p)
             }
         })
+        if (game.location[game.who] === elim_box) {
+            if (game.who == BRITISH_ANA_CORPS)
+                gen_action_space(ARABIA_SPACE)
+            else
+                gen_action_space(game.active == AP ? AP_RESERVE_BOX : CP_RESERVE_BOX)
+        }
+
         gen_action_undo()
-        gen_action_done()
     },
     piece(p) {
         push_undo()
-        array_remove_item(game.reduced, game.who)
-        array_remove_item(game.reduced, p)
+        // For each selected corps (game.who and p), if they were eliminated send them to the reserves and make sure
+        // they are now reduced, if they were on the map, flip them to full strength
+        let pieces = [game.who, p]
+        pieces.forEach((corps) => {
+            if (game.location[corps] === AP_ELIMINATED_BOX || game.location[corps] === CP_ELIMINATED_BOX) {
+                if (!is_unit_reduced(corps))
+                    game.reduced.push(corps)
+                const space = corps === BRITISH_ANA_CORPS ? ARABIA_SPACE : game.active == AP ? AP_RESERVE_BOX : CP_RESERVE_BOX
+                game.location[corps] = space
+                log(`Returned ${data.pieces[corps].name} to ${data.spaces[space].name} at reduced strength`)
+            } else {
+                array_remove_item(game.reduced, corps)
+                log(`Restored ${data.pieces[corps].name} in ${data.spaces[game.location[corps]].name} to full strength`)
+            }
+        })
         spend_rps(get_rp_type(game.who), 1)
         game.who = 0
         game.state = 'replacement_phase'
     },
-    done() {
+    space(s) {
+        // Selected a space, so the single corps is flipped to full strength and sent there
         push_undo()
-        array_remove_item(game.reduced, game.who)
+        if (is_unit_reduced(game.who))
+            array_remove_item(game.reduced, game.who)
+        game.location[game.who] = s
         spend_rps(get_rp_type(game.who), 1)
+        log(`Returned ${data.pieces[game.who].name} to ${data.spaces[s].name} at full strength`)
         game.who = 0
         game.state = 'replacement_phase'
     }
 }
 
-states.choose_replacement_strength = {
-    inactive: 'Choose replacement strength',
+states.choose_replacement_army = {
+    inactive: 'Choose replacement army',
     prompt() {
-        view.prompt = 'Choose replacement strength'
-        gen_action('full')
-        gen_action('reduced')
+        view.prompt = 'Send to the map or select the unit again to toggle between full and reduced strength'
+        const rp_type = get_rp_type(game.who)
+        const full_replacement_allowed = get_rps_of_type(rp_type) >= 2
+        if (is_unit_reduced(game.who) && full_replacement_allowed)
+            gen_action_piece(game.who)
+        get_army_replacement_spaces(game.who).forEach(gen_action_space)
         gen_action_undo()
     },
-    full() {
-        // TODO
+    piece(p) {
+        if (is_unit_reduced(p)) {
+            array_remove_item(game.reduced, p)
+        } else {
+            game.reduced.push(p)
+            spend_rps(get_rp_type(p), 1)
+        }
     },
-    reduced() {
-        // TODO
+    space(s) {
+        push_undo()
+        if (get_rps_of_type(get_rp_type(game.who)) < 2 && !is_unit_reduced(game.who))
+            game.reduced.push(game.who)
+        game.location[game.who] = s
+        spend_rps(get_rp_type(game.who), is_unit_reduced(game.who) ? 1 : 2)
+        log(`Returned ${data.pieces[game.who].name} to ${data.spaces[s].name} at ${is_unit_reduced(game.who) ? 'reduced' : 'full'} strength`)
+        game.who = 0
+        game.state = 'replacement_phase'
     }
 }
 
-states.choose_replacement_location = {
-    // TODO
+function get_army_replacement_spaces(p) {
+    let spaces = get_available_reinforcement_spaces(p)
+    // TODO: May need to modify this list based on the exceptions from 17.1.5:
+    //  Serbian Army units may be recreated at Salonika if the Salonika or Greece Neutral Entry Event Cards have been
+    //  played and Salonika is under Allied control. They may also be recreated in Belgrade following normal
+    //  reinforcement restrictions.
+    //  The Belgian Army may be rebuilt in Brussels, Antwerp, or Ostend. The Belgian Army may not be built in Antwerp
+    //  if a line of supply does not exist. If none of these spaces are Allied controlled and in supply, the Belgian
+    //  Army may be rebuilt in Calais. (Calais also represents the corner of Belgium held by the Allies after October
+    //  1914.)
+    return spaces
+
 }
 
 function goto_draw_cards_phase() {

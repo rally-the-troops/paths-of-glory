@@ -18,6 +18,8 @@ const TURN_MARKER = "small marker game_turn turn_"
 
 const AP_RESERVE_BOX = 282
 const CP_RESERVE_BOX = 283
+const AP_ELIMINATED_BOX = 284
+const CP_ELIMINATED_BOX = 285
 
 const ITALY = 'it'
 const BRITAIN = 'br'
@@ -784,6 +786,32 @@ function build_space(id) {
     ui.space_list[id] = elt
 }
 
+function build_eliminated_box(id) {
+    let space = spaces[id]
+
+    let w = space.w
+    let h = space.h
+
+    let x = space.x - w / 2 - 4
+    let y = space.y - h / 2 - 4 // 4 px border space
+
+    space.stack = []
+
+    let elt = space.element = document.createElement("div")
+    elt.space = id
+    elt.style.left = x + "px"
+    elt.style.top = y + "px"
+    elt.style.width = w + "px"
+    elt.style.height = h + "px"
+    elt.addEventListener("mousedown", on_click_space)
+    elt.addEventListener("mouseenter", on_focus_space)
+    elt.addEventListener("mouseleave", on_blur_space)
+
+    ui.spaces.appendChild(elt)
+
+    ui.space_list[id] = elt
+}
+
 function build_reserve_box(id) {
     let space = spaces[id]
 
@@ -849,6 +877,8 @@ for (let c = 1; c < cards.length; ++c)
 for (let s = 1; s < spaces.length; ++s) {
     if (s == AP_RESERVE_BOX || s == CP_RESERVE_BOX)
         build_reserve_box(s)
+    else if (s == AP_ELIMINATED_BOX || s == CP_ELIMINATED_BOX)
+        build_eliminated_box(s)
     else
         build_space(s)
 }
@@ -972,7 +1002,7 @@ function layout_stack(stack, x, y, dx) {
         if (p > 0)
             pieces[p].z = z
 
-        if (stack === focus || is_small_stack(stack)) {
+        if (stack === focus ||  is_small_stack(stack)) {
             switch (layout) {
                 case 2: // Diagonal
                     if (y <= MINY + 25) {
@@ -1208,6 +1238,35 @@ function update_reserve_boxes() {
     update_space_highlight(CP_RESERVE_BOX)
 }
 
+function update_eliminated_boxes() {
+    let ap_space = spaces[AP_ELIMINATED_BOX]
+    let cp_space = spaces[CP_ELIMINATED_BOX]
+
+    ap_space.stack.length = 0
+    cp_space.stack.length = 0
+
+    let insert_piece_in_stack = function (p) {
+        let is_corps = pieces[p].type === CORPS
+        let pe = pieces[p].element
+        pe.classList.remove('offmap')
+        if (view.reduced.includes(p))
+            pe.classList.add("reduced")
+        else
+            pe.classList.remove("reduced")
+
+        const space = pieces[p].faction === CP ? cp_space : ap_space
+        if (is_corps)
+            unshift_stack(space.stack, p, pe)
+        else
+            push_stack(space.stack, p, pe)
+    }
+    for_each_piece_in_space(AP_ELIMINATED_BOX, insert_piece_in_stack)
+    for_each_piece_in_space(CP_ELIMINATED_BOX, insert_piece_in_stack)
+
+    layout_stack(ap_space.stack, ap_space.x, ap_space.y, 1)
+    layout_stack(cp_space.stack, cp_space.x, cp_space.y, 1)
+}
+
 function update_space_highlight(s) {
     let space = spaces[s]
     if (should_highlight_space(s))
@@ -1382,12 +1441,10 @@ function update_map() {
 
     for (let i = 1; i < cards.length; ++i)
         update_card(i)
-    for (let i = 1; i < spaces.length; ++i) {
-        if (i != AP_RESERVE_BOX && i != CP_RESERVE_BOX) {
-            update_space(i, false)
-        }
-    }
+    for (let i = 1; i < AP_RESERVE_BOX; ++i)
+        update_space(i, false)
     update_reserve_boxes()
+    update_eliminated_boxes()
     for (let i = 0; i < pieces.length; ++i)
         update_piece(i)
 
