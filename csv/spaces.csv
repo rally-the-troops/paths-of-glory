@@ -282,3 +282,5 @@ id,map,name,x,y,w,h,nation,faction,terrain,supply,vp,fort,apport,cpport,capital
 281,neareast,Libya,1778,1486,38,38,eg,cp,,,,,,,
 282,,AP Reserve Box,2315,743,370,190,,ap,,,,,,,
 283,,CP Reserve Box,2315,521,370,190,,cp,,,,,,,
+284,,AP Eliminated Box,1047,1535,220,124,,ap,,,,,,,
+285,,CP Eliminated Box,633,119,220,124,,cp,,,,,,,
