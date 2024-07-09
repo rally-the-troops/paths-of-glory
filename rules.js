@@ -608,6 +608,7 @@ function goto_start_turn() {
     log_br()
     log_h1(`Turn ${game.turn}`)
     log_br()
+    log_h1(`${faction_name(game.active)} Action ${game[game.active].actions.length+1}`)
 }
 
 function deal_ap_cards() {
@@ -1096,7 +1097,7 @@ states.action_phase = {
     inactive: "Action Phase",
     prompt() {
         let p = get_active_player()
-        view.prompt = `Action Phase ${p.actions.length+1}: Play a card or choose an action`
+        view.prompt = `Action ${p.actions.length+1}: Play a card or choose an action`
         for (let i = 0; i < p.hand.length; ++i)
             gen_card_menu(p.hand[i])
         if (game.options.can_offer_peace) // TODO: Check for appropriate conditions?
@@ -1648,6 +1649,7 @@ function goto_end_action() {
     if (game.ap.actions.length < 6 || game.cp.actions.length < 6) {
         game.active = other_faction(game.active)
         game.state = 'action_phase'
+        log_h1(`${faction_name(game.active)} Action ${game[game.active].actions.length+1}`)
     } else {
         goto_attrition_phase()
     }
@@ -2102,8 +2104,13 @@ states.defender_combat_cards = {
         gen_action_next()
     },
     next() {
-        resolve_fire()
+        begin_combat()
     }
+}
+
+function begin_combat() {
+    log_h2(`${faction_name(game.attack.attacker)} attacking ${data.spaces[game.attack.space].name}`)
+    resolve_fire()
 }
 
 function resolve_fire() {
