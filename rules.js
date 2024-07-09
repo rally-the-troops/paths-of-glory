@@ -1467,6 +1467,7 @@ states.place_reinforcements = {
             })
             gen_action_undo()
         } else {
+            view.prompt = `Place reinforcements - Done`
             gen_action_undo()
             gen_action_done()
         }
@@ -3364,14 +3365,7 @@ states.place_new_neutral_units = {
 
 // === SUPPLY ===
 
-const cp_supply_sources = [ESSEN, BRESLAU, SOFIA, CONSTANTINOPLE]
-// AP supply sources depend on nationality. Russian, Serbian, and Romanian units are supplied from the eastern supply
-// sources, all other AP units from the western supply source.
-const eastern_supply_sources = [PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE]
-const western_supply_sources = [LONDON]
-
-function search_supply_imp(faction, sources, use_ports) {
-    let supplied_spaces = []
+function generate_supply_cache(faction, cache, sources, use_ports) {
     let blocked_spaces = []
     let friendly_ports = []
 
@@ -3409,16 +3403,16 @@ function search_supply_imp(faction, sources, use_ports) {
         while (frontier.length > 0) {
             let current = frontier.pop()
             if (!set_has(blocked_spaces, current)) {
-                set_add(supplied_spaces, current)
+                set_add(cache[current].sources, source)
                 // TODO: account for nation-specific connections
                 get_connected_spaces(current).forEach((conn) => {
-                    if (!set_has(supplied_spaces, conn)) {
+                    if (!set_has(cache[conn].sources, source)) {
                         set_add(frontier, conn)
                     }
                 })
                 if (set_has(friendly_ports, current)) {
                     friendly_ports.forEach((port) => {
-                        if (!set_has(supplied_spaces, port)) {
+                        if (!set_has(cache[port].sources, source)) {
                             set_add(frontier, port)
                         }
                     })
@@ -3426,16 +3420,31 @@ function search_supply_imp(faction, sources, use_ports) {
             }
         }
     })
-
-    return supplied_spaces
 }
+
+const cp_supply_sources = [ESSEN, BRESLAU, SOFIA, CONSTANTINOPLE]
+// AP supply sources depend on nationality. Russian, Serbian, and Romanian units are supplied from the eastern supply
+// sources, all other AP units from the western supply source.
+const eastern_supply_sources = [PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE]
+const western_supply_sources = [LONDON]
 
 function search_supply() {
     supply_cache = {}
-    supply_cache.cp = search_supply_imp(CP, cp_supply_sources, true)
-    // TODO: if Allies control Salonika, Serbian units can draw supply from there in addition to the eastern supply sources
-    supply_cache.eastern = search_supply_imp(AP, eastern_supply_sources, false)
-    supply_cache.western = search_supply_imp(AP, western_supply_sources, true)
+    supply_cache.cp = {}
+    supply_cache.eastern = {}
+    supply_cache.western = {}
+    supply_cache.salonika = {}
+    for (let s = 0; s < data.spaces.length; ++s) {
+        supply_cache.cp[s] = { sources: [] }
+        supply_cache.eastern[s] = { sources: [] }
+        supply_cache.western[s] = { sources: [] }
+        supply_cache.salonika[s] = { sources: [] }
+    }
+    generate_supply_cache(CP, supply_cache.cp, cp_supply_sources, true)
+    generate_supply_cache(AP, supply_cache.eastern, eastern_supply_sources, false)
+    generate_supply_cache(AP, supply_cache.western, western_supply_sources, true)
+    if (is_friendly_control(SALONIKA, AP))
+        generate_supply_cache(AP, supply_cache.salonika, [SALONIKA], false) // Separate cache for Serbian units only
 }
 
 function is_unit_supplied(p) {
@@ -3451,8 +3460,11 @@ function is_unit_supplied(p) {
         cache = supply_cache.eastern
     }
 
-    if (nation == SERBIA && data.spaces[location].nation == SERBIA) {
-        return true // Serbian units are always in supply in Serbia
+    if (nation == SERBIA) {
+        if (data.spaces[location].nation == SERBIA)
+            return true // Serbian units are always in supply in Serbia
+        else if (is_friendly_control(SALONIKA, AP), supply_cache.salonika[location].sources.length > 0)
+            return true // Serbian units can trace supply to Salonika if it is friendly controlled
     }
 
     if (data.pieces[p].name == "ANA Corps" && data.spaces[location].map == "neareast")
@@ -3464,7 +3476,7 @@ function is_unit_supplied(p) {
     if (nation == "sn" && data.spaces[location].map == "neareast")
         return true
 
-    if (set_has(cache, location))
+    if (cache[location].sources.length > 0)
         return true
 
     return false
@@ -3473,15 +3485,26 @@ function is_unit_supplied(p) {
 function is_space_supplied(faction, s) {
     if (!supply_cache) search_supply()
     if (faction == CP) {
-        return set_has(supply_cache.cp, s)
+        return supply_cache.cp[s].sources.length > 0
     } else {
-        return set_has(supply_cache.eastern, s) || set_has(supply_cache.western, s)
+        return supply_cache.eastern[s].sources.length > 0 || supply_cache.western[s].sources.length > 0
     }
 }
 
 function query_supply() {
     if (!supply_cache) search_supply()
+    supply_cache.oos_pieces = get_oos_pieces()
     return supply_cache
+}
+
+function get_oos_pieces() {
+    let oos_pieces = []
+    for (let p = 1; p < data.pieces.length; ++p) {
+        if (game.location[p] != 0 && game.location[p] < AP_RESERVE_BOX && !is_unit_supplied(p)) {
+            oos_pieces.push(p)
+        }
+    }
+    return oos_pieces
 }
 
 // === CARD EVENTS ===

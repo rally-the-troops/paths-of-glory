@@ -87,11 +87,16 @@ let showing_supply = false
 function show_supply(supply) {
     showing_supply = true
     for (let s = 1; s < spaces.length; ++s) {
-        spaces[s].element.classList.toggle("western_supply", supply.western.includes(s))
-        spaces[s].element.classList.toggle("eastern_supply", supply.eastern.includes(s))
-        spaces[s].element.classList.toggle("cp_supply", supply.cp.includes(s))
-        spaces[s].element.classList.toggle("no_supply", !supply.western.includes(s) && !supply.eastern.includes(s) && !supply.cp.includes(s))
+        const western = supply.western[s].sources.length > 0
+        const eastern = supply.eastern[s].sources.length > 0
+        const cp = supply.cp[s].sources.length > 0
+        spaces[s].element.classList.toggle("western_supply", western)
+        spaces[s].element.classList.toggle("eastern_supply", eastern)
+        spaces[s].element.classList.toggle("cp_supply", cp)
+        spaces[s].element.classList.toggle("no_supply", !western && !eastern && !cp)
     }
+
+    supply.oos_pieces.forEach(p => pieces[p].element.classList.add("oos"))
 }
 
 function hide_supply() {
@@ -102,6 +107,9 @@ function hide_supply() {
             spaces[s].element.classList.remove("eastern_supply")
             spaces[s].element.classList.remove("cp_supply")
             spaces[s].element.classList.remove("no_supply")
+        }
+        for (let p = 1; p < pieces.length; ++p) {
+            pieces[p].element.classList.remove("oos")
         }
     }
 }

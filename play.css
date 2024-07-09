@@ -352,6 +352,11 @@ body.shift .highlight {
     border-radius: 5px;
 }
 
+.unit.oos {
+    background-color: rgba(200,0,0,.5);
+    background-blend-mode: multiply;
+}
+
 .unit.activated {
     transform: rotate(20deg);
 }
