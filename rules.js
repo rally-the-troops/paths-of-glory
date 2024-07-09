@@ -1793,7 +1793,21 @@ function set_control(s, faction) {
     // The Turkish SN Corps converts spaces per 11.1.14. However, during the Attrition Phase, any spaces it converts
     // (other than the space it occupies) that cannot trace a supply line suffer Attrition. The Libya space suffers
     // normal attrition and can be controlled by the Allied player through normal movement.
-    game.control[s] = faction === CP ? 1 : 0
+
+    const new_control = faction === CP ? 1 : 0
+    if (game.control[s] == new_control)
+        return
+
+    if (data.spaces[s].vp) {
+        if (faction == AP) {
+            game.vp--
+        } else {
+            game.vp++
+        }
+        log(`${faction_name(faction)} gains ${data.spaces[s].name} for 1 VP`)
+    }
+
+    game.control[s] = new_control
     supply_cache = null
 }
 
@@ -2258,9 +2272,7 @@ states.apply_defender_losses = {
                 game.location[p] = 0
             } else {
                 game.location[replacement] = game.location[p]
-                // TODO: put p in the replaceable units box instead of removing it
-                game.removed.push(p)
-                game.location[p] = 0
+                game.location[p] = game.active == AP ? AP_ELIMINATED_BOX : CP_ELIMINATED_BOX
             }
         } else {
             game.reduced.push(p)
@@ -3523,7 +3535,7 @@ events.guns_of_august = {
         game.location[GE_2_ARMY] = LIEGE
         game.activated.attack.push(LIEGE)
         game.activated.attack.push(KOBLENZ)
-        game.control[LIEGE] = 1
+        set_control(LIEGE, CP)
         game.events.guns_of_august = true
 
         start_action_round()
