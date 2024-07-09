@@ -642,9 +642,9 @@ function discard_card(card, reason) {
     let active_player = get_active_player()
 
     if (reason)
-        log(`${game.active} discarded\n${card_name(card)}\n${reason}`)
+        log(`${faction_name(game.active)} discarded\n${card_name(card)}\n${reason}`)
     else
-        log(`${game.active} discarded\n${card_name(card)}`)
+        log(`${faction_name(game.active)} discarded\n${card_name(card)}`)
 
     array_remove_item(active_player.hand, card)
     game.last_card = card
@@ -1460,7 +1460,7 @@ states.place_reinforcements = {
         if (game.reinforcements.length > 0) {
             const first_piece = game.reinforcements[0]
             const first_piece_data = data.pieces[first_piece]
-            view.prompt = `Place reinforcements: ${nation_name(first_piece_data.nation)} ${first_piece_data.name}`
+            view.prompt = `Place reinforcements: ${nation_name(first_piece_data.nation)} ${piece_name(first_piece)}`
 
             const spaces = get_available_reinforcement_spaces(first_piece)
             spaces.forEach((s) => {
@@ -1687,7 +1687,7 @@ states.choose_move_space = {
 states.choose_pieces_to_move = {
     inactive: 'Choose Units to Move',
     prompt() {
-        view.prompt = `Choose the units to move from ${data.spaces[game.move.initial].name}`
+        view.prompt = `Choose the units to move from ${space_name(game.move.initial)}`
 
         let selected_all = true
         for_each_piece_in_space(game.move.initial, (p) => {
@@ -1806,7 +1806,7 @@ function set_control(s, faction) {
         } else {
             game.vp++
         }
-        log(`${faction_name(faction)} gains ${data.spaces[s].name} for 1 VP`)
+        log(`${faction_name(faction)} gains ${space_name(s)} for 1 VP`)
     }
 
     game.control[s] = new_control
@@ -2109,7 +2109,7 @@ states.defender_combat_cards = {
 }
 
 function begin_combat() {
-    log_h2(`${faction_name(game.attack.attacker)} attacking ${data.spaces[game.attack.space].name}`)
+    log_h2(`${faction_name(game.attack.attacker)} attacking ${space_name(game.attack.space)}`)
     resolve_fire()
 }
 
@@ -3105,7 +3105,7 @@ states.replacement_phase = {
             if (game.location[p] == AP_ELIMINATED_BOX || game.location[p] == CP_ELIMINATED_BOX) {
                 game.state = 'choose_replacement_army'
             } else {
-                log(`Restored ${piece_data.name} in ${data.spaces[game.location[p]].name} to full strength`)
+                log(`Restored ${piece_name(p)} in ${space_name(game.location[p])} to full strength`)
                 array_remove_item(game.reduced, p)
                 spend_rps(get_rp_type(p), 1)
                 game.who = 0
@@ -3195,10 +3195,10 @@ states.choose_second_replacement_corps = {
                     game.reduced.push(corps)
                 const space = corps === BRITISH_ANA_CORPS ? ARABIA_SPACE : game.active == AP ? AP_RESERVE_BOX : CP_RESERVE_BOX
                 game.location[corps] = space
-                log(`Returned ${data.pieces[corps].name} to ${data.spaces[space].name} at reduced strength`)
+                log(`Returned ${piece_name(corps)} to ${space_name(space)} at reduced strength`)
             } else {
                 array_remove_item(game.reduced, corps)
-                log(`Restored ${data.pieces[corps].name} in ${data.spaces[game.location[corps]].name} to full strength`)
+                log(`Restored ${piece_name(corps)} in ${space_name(game.location[corps])} to full strength`)
             }
         })
         spend_rps(get_rp_type(game.who), 1)
@@ -3212,7 +3212,7 @@ states.choose_second_replacement_corps = {
             array_remove_item(game.reduced, game.who)
         game.location[game.who] = s
         spend_rps(get_rp_type(game.who), 1)
-        log(`Returned ${data.pieces[game.who].name} to ${data.spaces[s].name} at full strength`)
+        log(`Returned ${piece_name(game.who)} to ${space_name(s)} at full strength`)
         game.who = 0
         game.state = 'replacement_phase'
     }
@@ -3243,7 +3243,7 @@ states.choose_replacement_army = {
             game.reduced.push(game.who)
         game.location[game.who] = s
         spend_rps(get_rp_type(game.who), is_unit_reduced(game.who) ? 1 : 2)
-        log(`Returned ${data.pieces[game.who].name} to ${data.spaces[s].name} at ${is_unit_reduced(game.who) ? 'reduced' : 'full'} strength`)
+        log(`Returned ${piece_name(game.who)} to ${space_name(s)} at ${is_unit_reduced(game.who) ? 'reduced' : 'full'} strength`)
         game.who = 0
         game.state = 'replacement_phase'
     }
@@ -3335,6 +3335,14 @@ function gen_action_undo() {
 
 function card_name(card) {
     return `#${card} ${cards[card].name} [${cards[card].ops}/${cards[card].sr}]`
+}
+
+function piece_name(piece) {
+    return `${data.pieces[piece].name}`
+}
+
+function space_name(space) {
+    return `${data.spaces[space].name}`
 }
 
 function get_connected_spaces(s, nation) {
