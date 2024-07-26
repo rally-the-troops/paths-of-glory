@@ -206,6 +206,12 @@ const CP_RESERVE_BOX = 283
 const AP_ELIMINATED_BOX = 284
 const CP_ELIMINATED_BOX = 285
 
+// Terrain
+const MOUNTAIN = "mountain"
+const SWAMP = "swamp"
+const DESERT = "desert"
+const FOREST = "forest"
+
 // Piece indices
 const GE_1_ARMY = 1
 const GE_2_ARMY = 2
@@ -1974,11 +1980,49 @@ function goto_attack() {
             game.cp.mo = NONE
     }
 
-    // TODO: if defending space has a trench, go to 'attacker_negate_trench'
-    // TODO: else if attacking pieces are eligible to flank, go to 'attacker_choose_flankers'
-    // TODO: if defender has option to withdraw, go to state that allows withdrawal
+    if (get_trench_level(game.attack.space, other_faction(game.attack.attacker)) > 0) {
+        // if defending space has a trench, go to 'negate_trench'
+        game.state = 'negate_trench'
+    } else if (attacker_can_flank()) {
+        // if attacker can flank, go to 'choose_flank_attack'
+        game.state = 'choose_flank_attack'
+    } else if (defender_can_withdraw()) {
+        // if defender can withdraw, go to 'choose_withdrawal'
+        game.active = other_faction(game.active)
+        game.state = 'choose_withdrawal'
+    } else {
+        game.state = 'attacker_combat_cards'
+    }
+}
 
-    game.state = 'attacker_combat_cards'
+function attacker_can_flank() {
+    const space_data = data.spaces[game.attack.space]
+    // Mountains and swamps cannot be flanked
+    if (space_data.terrain === MOUNTAIN || space_data.terrain === SWAMP)
+        return false
+
+    // Unoccupied forts cannot be flanked
+    if (space_data.fort > 0 && !set_has(game.forts.destroyed, game.attack.space) && get_pieces_in_space(game.attack.space).length == 0) {
+        return false
+    }
+
+    // Attacker must have an army and attack from at least two spaces to flank
+    let has_army = false
+    let attack_spaces = []
+    game.attack.pieces.forEach((p) => {
+        if (data.pieces[p].type == ARMY)
+            has_army = true
+        set_add(attack_spaces, game.location[p])
+    })
+    if (!has_army || attack_spaces.length < 2)
+        return false
+
+    return true
+}
+
+function defender_can_withdraw() {
+    // TODO
+    return false
 }
 
 function get_attackable_spaces(attackers) {
@@ -2050,7 +2094,7 @@ function can_be_attacked(s) {
 }
 
 // TODO
-states.attacker_negate_trench = {
+states.negate_trench = {
     inactive: 'Attacker Choosing Whether to Negate Trenches',
     prompt() {
         // TODO: If attacker has a card that would negate trenches, allow them to play it
@@ -2061,23 +2105,62 @@ states.attacker_negate_trench = {
         gen_action_next()
     },
     next() {
-        // TODO: If the attacker can flank
-        game.state = 'attempt_flank_attack'
-        // else
-        //game.state = 'attacker_combat_cards'
+        if (attacker_can_flank()) {
+            // if attacker can flank, go to 'choose_flank_attack'
+            game.state = 'choose_flank_attack'
+        } else if (defender_can_withdraw()) {
+            // if defender can withdraw, go to 'choose_withdrawal'
+            game.active = other_faction(game.active)
+            game.state = 'choose_withdrawal'
+        } else {
+            game.state = 'attacker_combat_cards'
+        }
+    }
+}
+
+states.choose_flank_attack = {
+    inactive: 'Attacker Choosing Whether to Attempt a Flank Attack',
+    prompt() {
+        view.prompt = 'Choose a pinning space to attempt a flanking attack, or pass to skip flanking'
+        let attack_spaces = []
+        game.attack.pieces.forEach((p) => {
+            set_add(attack_spaces, game.location[p])
+        })
+        attack_spaces.forEach(gen_action_space)
+        gen_action_undo()
+        gen_action_pass()
+    },
+    space(s) {
+        game.attack.pinning_space = s
+        if (defender_can_withdraw()) {
+            // if defender can withdraw, go to 'choose_withdrawal'
+            game.active = other_faction(game.active)
+            game.state = 'choose_withdrawal'
+        } else {
+            game.state = 'attacker_combat_cards'
+        }
+    },
+    pass() {
+        if (defender_can_withdraw()) {
+            // if defender can withdraw, go to 'choose_withdrawal'
+            game.active = other_faction(game.active)
+            game.state = 'choose_withdrawal'
+        } else {
+            game.state = 'attacker_combat_cards'
+        }
     }
 }
 
 // TODO
-states.attempt_flank_attack = {
-    inactive: 'Attacker Choosing Whether to Attempt a Flank Attack',
+states.choose_withdrawal = {
+    inactive: 'Defender Choosing Whether to Withdraw',
     prompt() {
-        view.prompt = 'Flank?'
+        view.prompt = 'Withdraw?'
         gen_action_undo()
         gen_action_next()
     },
     next() {
-        game.state = 'attacker_combat_cards'
+        game.state = 'defender_combat_cards'
     }
 }
 
@@ -2110,7 +2193,54 @@ states.defender_combat_cards = {
 
 function begin_combat() {
     log_h2(`${faction_name(game.attack.attacker)} attacking ${space_name(game.attack.space)}`)
+    if (game.attack.pinning_space) {
+        log(`Attempting flanking attack: ${space_name(game.attack.pinning_space)} is the pinning space`)
+        const flanking_spaces = []
+        let flank_drm = 0
+        game.attack.pieces.forEach((p) => {
+            if (game.location[p] != game.attack.pinning_space) {
+                set_add(flanking_spaces, game.location[p])
+            }
+        })
+        flanking_spaces.forEach((s) => {
+            let add_drm = true
+            if (adjacent_to_enemy_occupied_space(s, game.attack.attacker)) {
+                add_drm = false
+            }
+            log(`Flanking from ${space_name(s)} ${add_drm ? '+1 DRM' : 'adds no DRM'}`)
+            if (add_drm)
+                flank_drm++
+        })
+        const roll = roll_die(6)
+        log(`Flank roll: ${roll} + ${flank_drm} DRM = ${roll+flank_drm}`)
+        if (roll + flank_drm >= 4) {
+            log('Flank attack successful')
+            game.attack.is_flank = true
+        } else {
+            log('Flank attack failed')
+            game.attack.failed_flank = true
+        }
+        clear_undo()
+    }
     resolve_fire()
+}
+
+function adjacent_to_enemy_occupied_space(s, faction) {
+    const spaces = get_connected_spaces(s)
+    for (let i = 0; i < spaces.length; ++i) {
+        if (contains_enemy_piece(spaces[i], faction))
+            return true
+    }
+    return false
+}
+
+function contains_enemy_piece(s, faction) {
+    const pieces = get_pieces_in_space(s)
+    for (let i = 0; i < pieces.length; ++i) {
+        if (data.pieces[pieces[i]].faction !== faction)
+            return true
+    }
+    return false
 }
 
 function resolve_fire() {
@@ -2188,11 +2318,11 @@ function resolve_attackers_fire() {
 
     // Terrain shifts
     let terrain = data.spaces[game.attack.space].terrain;
-    if (terrain == "mountain") {
+    if (terrain === MOUNTAIN) {
         attacker_shifts -= 1
         log(`Attacker's fire shifts 1L for Mountains`)
     }
-    if (terrain == "swamp") {
+    if (terrain === SWAMP) {
         attacker_shifts -= 1
         log(`Attacker's fire shifts 1L for Swamps`)
     }
@@ -2690,8 +2820,8 @@ states.perform_advance = {
         push_undo()
         game.attack.advancing_units.forEach((p) => {
             game.location[p] = s
-            set_control(s, game.attack.attacker)
         })
+        set_control(s, game.attack.attacker)
     },
     done() {
         end_attack_activation()
@@ -2722,7 +2852,7 @@ function get_possible_advance_spaces() {
     }
 
     let terrain= data.spaces[game.attack.space]
-    let terrain_allows_advance = terrain != "mountain" && terrain != "swamp" && terrain != "forest" && terrain != "desert"
+    let terrain_allows_advance = terrain != MOUNTAIN && terrain != SWAMP && terrain != FOREST && terrain != DESERT
 
     // If the first_retreat_space is not set (retreat was one space), or if the terrain prevents a second advance
     if (!game.attack.first_retreat_space || !terrain_allows_advance)
