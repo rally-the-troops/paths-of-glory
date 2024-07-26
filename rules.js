@@ -2405,13 +2405,16 @@ states.apply_defender_losses = {
             let replacement = find_replacement(p, get_units_in_reserve())
             if (replacement == 0) {
                 // eliminate piece
+                log(`Eliminated ${piece_name(p)} in ${space_name(game.location[p])}`)
                 game.removed.push(p)
                 game.location[p] = 0
             } else {
                 game.location[replacement] = game.location[p]
+                log(`Replaced ${piece_name(p)} in ${space_name(game.location[p])} with ${piece_name(replacement)}`)
                 game.location[p] = game.active == AP ? AP_ELIMINATED_BOX : CP_ELIMINATED_BOX
             }
         } else {
+            log(`Reduced ${piece_name(p)} in ${space_name(game.location[p])}`)
             game.reduced.push(p)
         }
     },
@@ -2452,16 +2455,17 @@ states.apply_attacker_losses = {
             let replacement = find_replacement(p, get_units_in_reserve())
             if (replacement == 0) {
                 // eliminate piece
+                log(`Eliminated ${piece_name(p)} in ${space_name(game.location[p])}`)
                 game.removed.push(p)
                 game.location[p] = 0
             } else {
                 game.location[replacement] = game.location[p]
-                // TODO: put p in the replaceable units box instead of removing it
-                game.removed.push(p)
-                game.location[p] = 0
+                log(`Replaced ${piece_name(p)} in ${space_name(game.location[p])} with ${piece_name(replacement)}`)
+                game.location[p] = game.active == AP ? AP_ELIMINATED_BOX : CP_ELIMINATED_BOX
             }
             array_remove_item(game.attack.pieces, p)
         } else {
+            log(`Reduced ${piece_name(p)} in ${space_name(game.location[p])}`)
             game.reduced.push(p)
         }
     },
