@@ -225,6 +225,7 @@ let ui = {
     pieces: document.getElementById("pieces"),
     cards: document.getElementById("cards"),
     last_card: document.getElementById("last_card"),
+    turn_track: document.getElementById("turn_track"),
     general_records: document.getElementById("general_records"),
     space_list: [],
 }
@@ -247,9 +248,13 @@ const marker_info = {
         }
     },
     vp: { name: "VP", type: "vp", counter: "marker vps " },
+
+    // War status markers
     ap_war_status: { name: "AP War Status", type: "ap_war_status", counter: "marker ap_war_status " },
     cp_war_status: { name: "CP War Status", type: "cp_war_status", counter: "marker cp_war_status " },
     combined_war_status: { name: "Combined War Status", type: "combined_war_status", counter: "marker combined_war_status " },
+
+    // Replacement points markers
     ge_rp: { name: "German Replacements", type: "ge_rp", counter: "marker ge_rp " },
     ah_rp: { name: "Austria-Hungary Replacements", type: "ah_rp", counter: "marker ah_rp " },
     fr_rp: { name: "French Replacements", type: "fr_rp", counter: "marker fr_rp " },
@@ -260,10 +265,39 @@ const marker_info = {
     tu_rp: { name: "Turkish Replacements", type: "tu_rp", counter: "marker tu_rp " },
     it_rp: { name: "Italian Replacements", type: "it_rp", counter: "marker it_rp " },
     us_rp: { name: "United States Replacements", type: "us_rp", counter: "marker us_rp " },
+
     current_cp_russian_vp: { name: "CP Russian VP", type: "current_cp_russian_vp", counter: "marker small current_cp_russian_vp " },
     action: { name: "Action", counter: "marker small action " },
     fort_destroyed: { name: "Destroyed Fort", counter: "marker fort_destroyed " },
     fort_besieged: { name: "Besieged Fort", counter: "marker fort_besieged " },
+    turn: { name: "Turn", counter: "marker small game_turn " },
+    ap_missed_mo: { name: "AP Missed Mandatory Offensive", counter: "marker ap_missed_mo " },
+    cp_missed_mo: { name: "CP Missed Mandatory Offensive", counter: "marker cp_missed_mo " },
+
+    // Event markers
+    blockade: { name: "Blockade", counter: "marker blockade_vps " },
+    influenza: { name: "Influenza", counter: "marker influenza " },
+    prince_max: { name: "Prince Max", counter: "marker prince_max " },
+    us_points: { name: "US Points", counter: "marker us_points " },
+    lusitania: { name: "Lusitania", counter: "marker lusitania " },
+    sinai_pipeline: { name: "Sinai Pipeline", counter: "marker sinai_pipeline " },
+    stavka_timidity: { name: "Stavka Timidity", counter: "marker stavka_timidity " },
+    salonika: { name: "Salonika", counter: "marker salonika " },
+    falkenhayn: { name: "Falkenhayn", counter: "marker falkenhayn " },
+    h_l_take_command: { name: "H-L Take Command", counter: "marker h_l_take_command " },
+    zeppelin_raids: { name: "Zeppelin Raids", counter: "marker zeppelin_raids " },
+    peace_offensive: { name: "Peace Offensive", counter: "marker peace_offensive " },
+    hoffmann: { name: "Hoffmann", counter: "marker hoffmann " },
+    guns_of_august: { name: "Guns of August", counter: "marker guns_of_august " },
+    landships: { name: "Landships", counter: "marker landships " },
+    race_to_the_sea: { name: "Race to the Sea", counter: "marker race_to_the_sea " },
+    michael: { name: "Michael", counter: "marker michael " },
+    entrench: { name: "Entrench", counter: "marker entrench " },
+    _11th_army: { name: "11th Army", counter: "marker _11th_army " },
+    independent_air_force: { name: "Independent Air Force", counter: "marker independent_air_force " },
+    blucher: { name: "Blucher", counter: "marker blucher " },
+    moltke: { name: "Moltke", counter: "marker moltke " },
+    oberost: { name: "Oberost", counter: "marker oberost " },
 }
 
 let markers = {
@@ -278,6 +312,11 @@ let markers = {
         cp: []
     },
     general_records: [],
+    turn_track: [],
+    missed_mo: {
+        ap: [],
+        cp: []
+    },
     actions: [],
     forts: {
         destroyed: [],
@@ -706,6 +745,7 @@ function destroy_fort_besieged_marker(space_id) {
         list.splice(ix, 1)
     }
 }
+
 function build_general_records_marker(type) {
     let list = markers.general_records
     let marker = list.find(e => e.type === type)
@@ -729,6 +769,60 @@ function build_general_records_marker(type) {
 function destroy_general_records_marker(type) {
     let list = markers.general_records
     let ix = list.findIndex(e => e.type === type)
+    if (ix >= 0) {
+        list[ix].element.remove()
+        list.splice(ix, 1)
+    }
+}
+
+function build_turn_track_marker(type) {
+    let list = markers.turn_track
+    let marker = list.find(e => e.type === type)
+    if (marker)
+        return marker.element
+    let info = marker_info[type]
+    console.log('building marker ' + type)
+    marker = { name: info.name, type: type, element: null }
+    let elt = marker.element = document.createElement("div")
+    elt.marker = marker
+    elt.className = info.counter
+    elt.addEventListener("mousedown", on_click_marker)
+    elt.addEventListener("mouseenter", on_focus_marker)
+    elt.addEventListener("mouseleave", on_blur_marker)
+    elt.my_size = 45
+    list.push(marker)
+    ui.turn_track.appendChild(elt)
+    return marker.element
+}
+
+function destroy_turn_track_marker(type) {
+    let list = markers.turn_track
+    let ix = list.findIndex(e => e.type === type)
+    if (ix >= 0) {
+        list[ix].element.remove()
+        list.splice(ix, 1)
+    }
+}
+
+function build_missed_mo_marker(faction, turn) {
+    let list = markers.missed_mo[faction]
+    let marker = list.find(e => e.turn === turn)
+    if (marker)
+        return marker.element
+    let info = marker_info[faction + "_missed_mo"]
+    marker = { name: info.name, turn: turn, element: null }
+    let elt = marker.element = document.createElement("div")
+    elt.marker = marker
+    elt.className = info.counter
+    elt.my_size = 45
+    list.push(marker)
+    ui.turn_track.appendChild(elt)
+    return marker.element
+}
+
+function destroy_missed_mo_marker(faction, turn) {
+    let list = markers.missed_mo[faction]
+    let ix = list.findIndex(e => e.turn === turn)
     if (ix >= 0) {
         list[ix].element.remove()
         list.splice(ix, 1)
@@ -1345,6 +1439,65 @@ function update_piece(id) {
         piece.element.classList.remove('selected')
 }
 
+let turn_track_stacks = new Array(20)
+for (let i = 0; i < 20; ++i) {
+    turn_track_stacks[i] = []
+}
+
+function turn_track_pos(value) {
+    let row = Math.floor((value-1) / 5)
+    let col = (value-1) % 5
+    let x = 71 + col * 59
+    let y = 106 + row * 92
+    return [x, y]
+}
+
+function update_turn_track_marker(type, value, remove = false) {
+    if (remove) {
+        destroy_turn_track_marker(type)
+    } else {
+        let marker = build_turn_track_marker(type)
+        push_stack(turn_track_stacks[value-1], 0, marker)
+    }
+}
+
+function update_turn_track() {
+    turn_track_stacks.forEach((stack) => stack.length = 0)
+
+    update_turn_track_marker("turn", view.turn)
+
+    view.ap.missed_mo.forEach((missed_mo) => {
+        push_stack(turn_track_stacks[missed_mo-1], 0, build_missed_mo_marker(AP, missed_mo))
+    })
+
+    view.cp.missed_mo.forEach((missed_mo) => {
+        push_stack(turn_track_stacks[missed_mo-1], 0, build_missed_mo_marker(CP, missed_mo))
+    })
+
+    const event_markers = [
+        "blockade", "influenza", "prince_max", "us_points", "lusitania",
+        "sinai_pipeline", "stavka_timidity", "salonika", "falkenhayn",
+        "h_l_take_command", "zeppelin_raids", "peace_offensive", "hoffmann",
+        "guns_of_august", "landships", "race_to_the_sea", "michael",
+        "entrench", "_11th_army", "independent_air_force", "blucher",
+        "moltke", "oberost"
+    ]
+    event_markers.forEach((marker) => {
+        if (view.events[marker] > 0) {
+            update_turn_track_marker(marker, view.events[marker])
+        } else {
+            update_turn_track_marker(marker, 0, true)
+        }
+    })
+
+    turn_track_stacks.forEach((stack, ix) => {
+        if (stack.length > 0) {
+            let [x, y] = turn_track_pos(ix+1)
+            layout_stack(stack, x, y, 1)
+        }
+    })
+}
+
 let general_records_stacks = new Array(41)
 for (let i = 0; i <= 40; ++i) {
     general_records_stacks[i] = []
@@ -1476,8 +1629,7 @@ function update_map() {
     usc_marker.className = USC_MARKER + view.usc
     let rc_marker = document.getElementById("russian_capitulation")
     rc_marker.className = RC_MARKER + view.rc
-    let turn_marker = document.getElementById("turn_marker")
-    turn_marker.className = TURN_MARKER + view.turn
+    update_turn_track()
     update_action_round_tracks()
 
 

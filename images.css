@@ -1,6 +1,6 @@
 #map{background-image:url(map75.jpg)}
 
-.marker.11th_army { background-image: url(pieces/11th_army.webp); background-size: 45px 45px; }
+.marker._11th_army { background-image: url(pieces/11th_army.webp); background-size: 45px 45px; }
 .marker.action { background-image: url(pieces/action.webp); background-size: 216px 72px; }
 .marker.ah_rp { background-image: url(pieces/ah_rp.webp); background-size: 45px 45px; }
 .marker.ap_mandatory_offensive { background-image: url(pieces/allied_mandatory_offensive.webp); background-size: 45px 45px; }
@@ -84,7 +84,7 @@
 .corps_tu { background-image: url(pieces/corps_tu.webp); background-size: 36px 72px; }
 .corps_usa { background-image: url(pieces/corps_usa.webp); background-size: 36px 72px; }
 
-.card_ap_0{background-image:url(cards.1x/cardback_ap.jpg)}
+.card_ap_0{background-image:url(cards.1x/card_back_ap.jpg)}
 .card_ap_1{background-image:url(cards.1x/card_ap_01.jpg)}
 .card_ap_2{background-image:url(cards.1x/card_ap_02.jpg)}
 .card_ap_3{background-image:url(cards.1x/card_ap_03.jpg)}
@@ -151,7 +151,7 @@
 .card_ap_64{background-image:url(cards.1x/card_ap_64.jpg)}
 .card_ap_65{background-image:url(cards.1x/card_ap_65.jpg)}
 
-.card_cp_0{background-image:url(cards.1x/cardback_cp.jpg)}
+.card_cp_0{background-image:url(cards.1x/card_back_cp.jpg)}
 .card_cp_1{background-image:url(cards.1x/card_cp_01.jpg)}
 .card_cp_2{background-image:url(cards.1x/card_cp_02.jpg)}
 .card_cp_3{background-image:url(cards.1x/card_cp_03.jpg)}

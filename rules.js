@@ -328,7 +328,8 @@ exports.view = function(state, current) {
             mo: game.ap.mo,
             ws: game.ap.ws,
             actions: game.ap.actions,
-            trenches: game.ap.trenches
+            trenches: game.ap.trenches,
+            missed_mo: game.ap.missed_mo
         },
         cp: {
             deck: game.cp.deck.length,
@@ -338,7 +339,8 @@ exports.view = function(state, current) {
             ws: game.cp.ws,
             actions: game.cp.actions,
             ru_vp: game.cp.ru_vp,
-            trenches: game.cp.trenches
+            trenches: game.cp.trenches,
+            missed_mo: game.cp.missed_mo
         },
         rp: game.rp,
         war: game.war,
@@ -565,7 +567,8 @@ function create_empty_game_state(seed, scenario, options) {
             ws: 0, // War status level
             actions: [], // Actions played this turn, tracked for display on the action round tracker and to limit which actions are available
             shuffle: false, // Should the deck be shuffled before the next draw
-            trenches: {} // Trench levels per space
+            trenches: {}, // Trench levels per space
+            missed_mo: [] // Turns on which AP missed their MO
         },
 
         // Central Powers' state (same as Allied Powers)
@@ -580,7 +583,8 @@ function create_empty_game_state(seed, scenario, options) {
             ru_vp: 0,
             actions: [],
             shuffle: false,
-            trenches: {}
+            trenches: {},
+            missed_mo: []
         },
 
         reinf_this_turn: {}, // Which nations have received reinforcements this turn
@@ -3043,13 +3047,14 @@ function goto_war_status_phase() {
     // E.1. Check the Victory Point table and make any changes called for under the “During the War Status Phase”
     // section of the table.
     // If blockade event active and it's a winter turn, -1 VP
-    if (game.events.blockade == 1 && game.turn % 4 == 0) {
+    if (game.events.blockade >= 1 && game.turn % 4 == 0) {
         game.vp -= 1
         log_h2("Blockade event in effect during winter turn, -1 VP")
     }
     // If CP failed to conduct their mandated offensive, -1 VP
     if (game.cp.mo != NONE) {
         game.vp -= 1
+        game.cp.missed_mo.push(game.turn)
         log_h2(`${faction_name(CP)} failed to conduct their mandated offensive, -1 VP`)
     }
     // If Italy is still neutral but AP at Total War, +1 VP
@@ -3060,6 +3065,7 @@ function goto_war_status_phase() {
     // If AP failed to conduct their mandated offensive, +1 VP (except FR after French Mutiny event)
     if (game.ap.mo != NONE && !(game.ap.mo == FRANCE && game.events.french_mutiny)) {
         game.vp += 1
+        game.ap.missed_mo.push(game.turn)
         log_h2(`${faction_name(AP)} failed to conduct their mandated offensive, +1 VP`)
     }
     // TODO: If French unit attacked without US support after French Mutiny, when FR MO, +1 VP
@@ -3685,7 +3691,7 @@ events.guns_of_august = {
         game.activated.attack.push(LIEGE)
         game.activated.attack.push(KOBLENZ)
         set_control(LIEGE, CP)
-        game.events.guns_of_august = true
+        game.events.guns_of_august = game.turn
 
         start_action_round()
     }
@@ -3732,8 +3738,7 @@ events.blockade = {
     },
     play() {
         push_undo()
-        game.events.blockade = 1
-        // TODO: Add blockade marker to the Turn Track
+        game.events.blockade = game.turn
         goto_end_action()
     }
 }
