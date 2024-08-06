@@ -1675,7 +1675,7 @@ function goto_end_action() {
                 set_trench_level(game.location[p], lvl+1, game.active)
             } else {
                 const nation = data.pieces[p].nation
-                if (game.options.failed_entrench && (nation == GERMANY || nation == BRITAIN || nation == FRANCE || nation == ITALY)) {
+                if (game.options.failed_entrench && (nation == GERMANY || nation == BRITAIN || nation == FRANCE || nation == ITALY))
                     game.failed_entrench.push(p)
                 log(`${piece_name(p)} fails to entrench in ${space_name(game.location[p])} with a roll of ${roll+drm}${drm != 0 ? ` (including ${drm} DRM)` : ''}`)
             }
@@ -3823,6 +3823,18 @@ events.cp_entrench = {
         push_undo()
         game.events.entrench = game.turn
         game.state = 'place_event_trench'
+    }
+}
+
+// CP #8
+events.race_to_the_sea = {
+    can_play() {
+        return true
+    },
+    play() {
+        push_undo()
+        game.events.race_to_the_sea = game.turn
+        goto_end_action()
     }
 }
 
