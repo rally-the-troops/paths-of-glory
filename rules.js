@@ -1763,6 +1763,39 @@ states.choose_entrench_unit = {
     }
 }
 
+states.place_event_trench = {
+    inactive: 'Place trench for the Entrench event',
+    prompt() {
+        view.prompt = `Place a trench in a space with a supplied friendly army`
+
+        let spaces = []
+        for (let p = 1; p < data.pieces.length; p++) {
+            if (game.location[p] != 0 &&
+                data.pieces[p].faction == game.active &&
+                data.pieces[p].type == ARMY &&
+                get_trench_level(game.location[p], game.active) == 0 &&
+                is_unit_supplied(p)) {
+                set_add(spaces, game.location[p])
+            }
+        }
+        spaces.forEach(gen_action_space)
+
+        if (spaces.length == 0) {
+            gen_action_done()
+        }
+
+        gen_action_undo()
+    },
+    space(s) {
+        log(`Placed a trench in ${space_name(s)}`)
+        set_trench_level(s, 1, game.active)
+        goto_end_action()
+    },
+    done() {
+        goto_end_action()
+    }
+}
+
 states.choose_pieces_to_move = {
     inactive: 'Choose Units to Move',
     prompt() {
@@ -3766,6 +3799,18 @@ events.guns_of_august = {
     }
 }
 
+// CP #6
+events.cp_entrench = {
+    can_play() {
+        return !game.events.entrench && game.turn > 1
+    },
+    play() {
+        push_undo()
+        game.events.entrench = game.turn
+        game.state = 'place_event_trench'
+    }
+}
+
 // CP #9
 events.reichstag_truce = {
     can_play() {
@@ -3809,6 +3854,18 @@ events.blockade = {
         push_undo()
         game.events.blockade = game.turn
         goto_end_action()
+    }
+}
+
+// AP #12
+events.ap_entrench = {
+    can_play() {
+        return !game.events.entrench && game.turn > 1
+    },
+    play() {
+        push_undo()
+        game.events.entrench = game.turn
+        game.state = 'place_event_trench'
     }
 }
 
