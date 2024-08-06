@@ -3972,6 +3972,18 @@ events.lusitania = {
     }
 }
 
+// AP #28
+events.landships = {
+    can_play() {
+        return true
+    },
+    play() {
+        push_undo()
+        game.events.landships = game.turn
+        goto_end_action()
+    }
+}
+
 // AP #44
 events.greece_entry = {
     is_neutral_entry: true,
