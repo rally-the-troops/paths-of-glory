@@ -3061,6 +3061,8 @@ function cost_to_activate(space, type) {
         cost--
     }
 
+    // TODO: Moltke modifies the activation cost, unless Falkenhayn also played
+
     // TODO: Sud Army and 11th Army events modify the activation cost
 
     // TODO: After Fall of the Tsar, spaces with Russian units cost 1 per unit for combat only
@@ -3858,6 +3860,18 @@ events.reichstag_truce = {
     }
 }
 
+// CP #13
+events.falkenhayn = {
+    can_play() {
+        return game.turn >= 3 || game.events.moltke
+    },
+    play() {
+        push_undo()
+        game.events.falkenhayn = game.turn
+        goto_end_action()
+    }
+}
+
 events.bulgaria_entry = {
     is_neutral_entry: true,
     can_play() {
@@ -3880,6 +3894,18 @@ events.blockade = {
     play() {
         push_undo()
         game.events.blockade = game.turn
+        goto_end_action()
+    }
+}
+
+// AP #9
+events.moltke = {
+    can_play() {
+        return game.turn <= 2
+    },
+    play() {
+        push_undo()
+        game.events.moltke = game.turn
         goto_end_action()
     }
 }
@@ -3908,18 +3934,7 @@ events.rape_of_belgium = {
     }
 }
 
-
-events.italy_entry = {
-    is_neutral_entry: true,
-    can_play() {
-        return can_play_neutral_entry()
-    },
-    play() {
-        set_nation_at_war(ITALY)
-        goto_end_action()
-    }
-}
-
+// AP #16
 events.romania_entry = {
     is_neutral_entry: true,
     can_play() {
@@ -3932,6 +3947,32 @@ events.romania_entry = {
     }
 }
 
+// AP #17
+events.italy_entry = {
+    is_neutral_entry: true,
+    can_play() {
+        return can_play_neutral_entry()
+    },
+    play() {
+        set_nation_at_war(ITALY)
+        goto_end_action()
+    }
+}
+
+// AP #26
+events.lusitania = {
+    can_play() {
+        return game.events.blockade && !game.events.zimmermann_telegram
+    },
+    play() {
+        push_undo()
+        game.vp -= 1
+        game.events.lusitania = game.turn
+        goto_end_action()
+    }
+}
+
+// AP #44
 events.greece_entry = {
     is_neutral_entry: true,
     can_play() {
