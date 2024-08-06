@@ -346,6 +346,8 @@ exports.view = function(state, current) {
         war: game.war,
         location: game.location,
         reduced: game.reduced,
+        entrenching: game.entrenching,
+        failed_entrench: game.failed_entrench,
         forts: {
             destroyed: game.forts.destroyed,
             besieged: game.forts.besieged
@@ -544,6 +546,8 @@ function create_empty_game_state(seed, scenario, options) {
         location: data.pieces.map(() => 0),
         reduced: [],
         removed: [],
+        entrenching: [], // Units that are entrenching this turn
+        failed_entrench: [], // Units that failed to entrench this turn
 
         // Spaces
         activated: {
@@ -1656,6 +1660,26 @@ function goto_next_activation() {
 }
 
 function goto_end_action() {
+    const failed_previously = game.failed_entrench
+    game.failed_entrench = failed_previously.filter((p) => data.pieces[p].faction !== game.active)
+    if (game.entrenching.length > 0) {
+        clear_undo()
+        game.entrenching.forEach((p) => {
+            const roll = roll_die(6)
+            const drm = failed_previously.includes(p) ? -1 : 0
+            const success = roll+drm <= get_piece_lf(p)
+            if (success) {
+                log(`${piece_name(p)} successfully entrenches in ${space_name(game.location[p])} with a roll of ${roll+drm}${drm != 0 ? ` (including ${drm} DRM)` : ''}`)
+                let lvl = get_trench_level(game.location[p], game.active)
+                set_trench_level(game.location[p], lvl+1, game.active)
+            } else {
+                game.failed_entrench.push(p)
+                log(`${piece_name(p)} fails to entrench in ${space_name(game.location[p])} with a roll of ${roll+drm}${drm != 0 ? ` (including ${drm} DRM)` : ''}`)
+            }
+        })
+        game.entrenching.length = 0
+    }
+
     if (game.ap.actions.length < 6 || game.cp.actions.length < 6) {
         game.active = other_faction(game.active)
         game.state = 'action_phase'
@@ -1665,19 +1689,40 @@ function goto_end_action() {
     }
 }
 
+function can_entrench() {
+    return game.activated.move.length > 0 && game.events.entrench > 0
+}
+
 states.choose_move_space = {
     inactive: 'Choose Space to Move',
     prompt() {
-        view.prompt = `Choose which space to begin moving`
+        if (can_entrench()) {
+            view.prompt = `Choose which space to begin moving or entrench`
+            gen_action('entrench')
+        } else {
+            view.prompt = `Choose which space to begin moving`
+        }
+        let space_eligible_to_move = false
         game.activated.move.forEach((s) => {
-            gen_action_space(s)
-        })
-        game.location.forEach((loc, piece) => {
-            if (game.activated.move.includes(loc)) {
-                gen_action_piece(piece)
+            let piece_eligible_to_move = false
+            for_each_piece_in_space(s, (p) => {
+                if (get_piece_mf(p) > 0 && !game.entrenching.includes(p)) {
+                    piece_eligible_to_move = true
+                }
+            })
+            if (piece_eligible_to_move) {
+                space_eligible_to_move = true
+                gen_action_space(s)
             }
         })
+        if (!space_eligible_to_move) { // This can happen if all spaces are entrenching, for example
+            gen_action_done()
+        }
         gen_action_undo()
+    },
+    entrench() {
+        push_undo()
+        game.state = 'choose_entrench_unit'
     },
     space(s) {
         push_undo()
@@ -1685,12 +1730,36 @@ states.choose_move_space = {
         game.move.current = s
         game.state = 'choose_pieces_to_move'
     },
+    done() {
+        push_undo()
+        game.activated.move.length = 0
+        end_move_activation()
+        goto_next_activation()
+    }
+}
+
+states.choose_entrench_unit = {
+    inactive: 'Choose Unit to Entrench',
+    prompt() {
+        view.prompt = `Choose a unit to entrench`
+        let entrenching_spaces = game.entrenching.map((p) => game.location[p])
+        game.activated.move.forEach((s) => {
+            let trench_lvl = get_trench_level(s, game.active)
+            if (trench_lvl < 2 && !entrenching_spaces.includes(s)) {
+                for_each_piece_in_space(s, (p) => {
+                    if (data.pieces[p].type == ARMY) {
+                        gen_action_piece(p)
+                    }
+                })
+            }
+        })
+        gen_action_undo()
+    },
     piece(p) {
         push_undo()
-        let s = game.location[p]
-        game.move.initial = s
-        game.move.current = s
-        game.state = 'choose_pieces_to_move'
+        log(`${piece_name(p)} will attempt to entrench in ${space_name(game.location[p])}`)
+        game.entrenching.push(p)
+        game.state = 'choose_move_space'
     }
 }
 
@@ -1701,13 +1770,12 @@ states.choose_pieces_to_move = {
 
         let selected_all = true
         for_each_piece_in_space(game.move.initial, (p) => {
-            if (get_piece_mf(p) > 0) {
+            if (get_piece_mf(p) > 0 && !game.entrenching.includes(p)) {
                 if (!game.move.pieces.includes(p))
                     selected_all = false
                 gen_action_piece(p)
             }
         })
-        // TODO: Add an entrench action when appropriate
 
         if (!selected_all)
             gen_action('pick_up_all')
@@ -1720,7 +1788,8 @@ states.choose_pieces_to_move = {
     },
     pick_up_all() {
         for_each_piece_in_space(game.move.initial, (p) => {
-            game.move.pieces.push(p)
+            if (!game.entrenching.includes(p))
+                game.move.pieces.push(p)
         })
     },
     piece(p) {

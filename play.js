@@ -273,6 +273,7 @@ const marker_info = {
     turn: { name: "Turn", counter: "marker small game_turn " },
     ap_missed_mo: { name: "AP Missed Mandatory Offensive", counter: "marker ap_missed_mo " },
     cp_missed_mo: { name: "CP Missed Mandatory Offensive", counter: "marker cp_missed_mo " },
+    failed_entrench: { name: "Failed Entrench", counter: "marker small trench_attempt " },
 
     // Event markers
     blockade: { name: "Blockade", counter: "marker blockade_vps " },
@@ -317,6 +318,7 @@ let markers = {
         ap: [],
         cp: []
     },
+    failed_entrench: [],
     actions: [],
     forts: {
         destroyed: [],
@@ -829,6 +831,31 @@ function destroy_missed_mo_marker(faction, turn) {
     }
 }
 
+function build_failed_entrench_marker(piece_id) {
+    let list = markers.failed_entrench
+    let marker = list.find(e => e.piece_id === piece_id)
+    if (marker)
+        return marker.element
+    let info = marker_info.failed_entrench
+    marker = { name: info.name, piece_id: piece_id, element: null }
+    let elt = marker.element = document.createElement("div")
+    elt.marker = marker
+    elt.className = info.counter
+    elt.my_size = 36
+    list.push(marker)
+    ui.markers.appendChild(elt)
+    return marker.element
+}
+
+function destroy_failed_entrench_marker(piece_id) {
+    let list = markers.failed_entrench
+    let ix = list.findIndex(e => e.piece_id === piece_id)
+    if (ix >= 0) {
+        list[ix].element.remove()
+        list.splice(ix, 1)
+    }
+}
+
 function build_action_marker(faction, round) {
     let list = markers.actions
     let marker = list.find(e => e.faction === faction && e.round == round)
@@ -1197,10 +1224,16 @@ function update_space(s) {
         else
             pe.classList.remove("reduced")
         let stack = pieces[p].faction === CP ? cpStack : apStack
-        if (is_corps)
+        if (is_corps) {
             unshift_stack(stack, p, pe)
-        else
+        } else {
+            if (view.failed_entrench.includes(p)) {
+                push_stack(stack, 0, build_failed_entrench_marker(p))
+            } else {
+                destroy_failed_entrench_marker(p)
+            }
             push_stack(stack, p, pe)
+        }
     })
 
     if (space.faction === AP) {
@@ -1643,6 +1676,7 @@ function update_map() {
     action_button("pass", "Pass")
     action_button("next", "Next")
     action_button("pick_up_all", "Pick Up All")
+    action_button("entrench", "Entrench")
     action_button("move", "Begin Move")
     action_button("end_move", "End Move")
     action_button("finish_attacks", "End Attack Phase")
