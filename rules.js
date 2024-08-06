@@ -491,6 +491,7 @@ exports.setup = function (seed, scenario, options) {
     } else {
         game.options.hand_size = 7
     }
+    game.options.failed_entrench = 1 // TODO: make this actually optional
 
     setup_initial_decks()
 
@@ -1673,7 +1674,9 @@ function goto_end_action() {
                 let lvl = get_trench_level(game.location[p], game.active)
                 set_trench_level(game.location[p], lvl+1, game.active)
             } else {
-                game.failed_entrench.push(p)
+                const nation = data.pieces[p].nation
+                if (game.options.failed_entrench && (nation == GERMANY || nation == BRITAIN || nation == FRANCE || nation == ITALY)) {
+                    game.failed_entrench.push(p)
                 log(`${piece_name(p)} fails to entrench in ${space_name(game.location[p])} with a roll of ${roll+drm}${drm != 0 ? ` (including ${drm} DRM)` : ''}`)
             }
         })
@@ -1881,6 +1884,7 @@ states.move_stack = {
         game.move.current = s
         if (!data.spaces[s].fort || set_has(game.forts.destroyed, s)) {
             set_control(s, game.active)
+            capture_trench(s, game.active)
         }
     },
     piece(p) {
@@ -1923,6 +1927,16 @@ function set_control(s, faction) {
 
     game.control[s] = new_control
     supply_cache = null
+}
+
+function capture_trench(s, faction) {
+    const trench_lvl = get_trench_level(s, other_faction(faction))
+    if (trench_lvl == 2) {
+        set_trench_level(s, 1, faction)
+    }
+    if (trench_lvl > 0) {
+        set_trench_level(s, 0, other_faction(faction))
+    }
 }
 
 function is_friendly_control(s, faction) {
@@ -2932,6 +2946,7 @@ states.perform_advance = {
             game.location[p] = s
         })
         set_control(s, game.attack.attacker)
+        capture_trench(s, game.attack.attacker)
     },
     done() {
         end_attack_activation()
