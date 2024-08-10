@@ -9847,16 +9847,22 @@ const edges = [
     }
 ]
 
+for (let i = 1; i < spaces.length; i++) {
+    spaces[i].connections = []
+    spaces[i].limited_connections = { br: [], it: [], ru: [], mef: [], ana: [], tu: [] }
+}
+
 for (let i = 0; i < edges.length; i++) {
     let edge = edges[i]
-    if (spaces[edge.a].connections === undefined) {
-        spaces[edge.a].connections = []
+    if (edge.nations) {
+        edge.nations.split('|').forEach(nation => {
+            spaces[edge.a].limited_connections[nation].push(edge.b)
+            spaces[edge.b].limited_connections[nation].push(edge.a)
+        })
+    } else {
+        spaces[edge.a].connections.push(edge.b)
+        spaces[edge.b].connections.push(edge.a)
     }
-    if (spaces[edge.b].connections === undefined) {
-        spaces[edge.b].connections = []
-    }
-    spaces[edge.a].connections.push(edge.b);
-    spaces[edge.b].connections.push(edge.a);
 }
 
 if (typeof module !== 'undefined') module.exports = {cards,pieces,spaces}
