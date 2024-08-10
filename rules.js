@@ -1858,9 +1858,16 @@ states.move_stack = {
         })
 
         if (game.move.spaces_moved < lowest_mf) {
-            // TODO: Pass nation to get_connected_spaces if appropriate
-            get_connected_spaces(game.move.current).forEach((conn) => {
-                if (can_move_to(conn))
+            let moving_nations = []
+            game.move.pieces.forEach((p) => { set_add(moving_nations, data.pieces[p].nation) })
+            let connections = null
+            if (moving_nations.length == 1) {
+                connections = get_connected_spaces(game.move.current, moving_nations[0])
+            } else {
+                connections = get_connected_spaces(game.move.current)
+            }
+            connections.forEach((conn) => {
+                if (can_move_to(conn, game.move.pieces))
                     gen_action_space(conn)
             })
         }
@@ -1868,7 +1875,6 @@ states.move_stack = {
         if (!is_fully_stacked(game.move.current, game.active)) {
             game.move.pieces.forEach((p) => { gen_action_piece(p) })
         }
-
 
         gen_action_undo()
 
@@ -1882,7 +1888,7 @@ states.move_stack = {
         })
         game.move.spaces_moved++
         game.move.current = s
-        if (!data.spaces[s].fort || set_has(game.forts.destroyed, s)) {
+        if (!has_undestroyed_fort(s, other_faction(game.active))) {
             set_control(s, game.active)
             capture_trench(s, game.active)
         }
@@ -1947,7 +1953,7 @@ function is_enemy_control(s, faction) {
     return !is_friendly_control(s, faction)
 }
 
-function can_move_to(s) {
+function can_move_to(s, moving_pieces) {
     let contains_enemy = false
     for_each_piece_in_space(s, (p) => {
         if (data.pieces[p].faction !== game.active)
@@ -1956,21 +1962,35 @@ function can_move_to(s) {
     if (contains_enemy)
         return false
 
-    // Dashed lines indicate there are restrictions as to which nationalities may move (or attack) across those lines.
+    if (would_overstack(s, moving_pieces, game.active))
+        return false
 
-    // No units may enter a MEF space unless the MEF Beachhead marker is in the space.
+    if (is_enemy_control(s, game.active) && has_undestroyed_fort(s, other_faction(game.active)) && !set_has(game.forts.besieged, s) && !can_besiege(s, moving_pieces)) {
+        return false
+    }
+
+    // TODO: No units may enter a MEF space unless the MEF Beachhead marker is in the space.
 
     // Units may not enter a space in a neutral nation, but all units may freely enter any nation immediately after it
-    // enters the war. Exceptions: Limited Greek Entry
+    // enters the war.
+    // TODO: Exceptions: Limited Greek Entry
+    if (!nation_at_war(data.spaces[s].nation))
+        return false
 
-    // Units may always enter Albania. Albanian spaces are considered Allied Controlled at Start for SR purposes.
-    // Albanian spaces check Attrition supply by tracing normally to an Allied supply source or tracing to Taranto
-    // even while Italy is still Neutral.
+    // TODO: Units may always enter Albania. Albanian spaces are considered Allied Controlled at Start for SR purposes.
+    //  Albanian spaces check Attrition supply by tracing normally to an Allied supply source or tracing to Taranto
+    //  even while Italy is still Neutral.
 
-    // Neither the BEF Corps nor Army may move in or attack into any space outside Britain, France, Belgium, and
-    // Germany.
+    // TODO: Neither the BEF Corps nor Army may move in or attack into any space outside Britain, France, Belgium, and Germany.
 
-    // TODO: Check for legality of move
+    //  15.1.12 Russian units may not attack, enter, or besiege a German fort space during the August 1914 turn.
+    if (game.turn == 1
+        && moving_pieces.find((p) => data.pieces[p].nation == RUSSIA) !== undefined
+        && data.spaces[s].nation == GERMANY
+        && has_undestroyed_fort(s, CP)) {
+        return false
+    }
+
     return true
 }
 
@@ -2023,6 +2043,10 @@ function can_end_move(s) {
 }
 
 function end_move_stack() {
+    if (is_enemy_control(game.move.current, game.active) && has_undestroyed_fort(game.move.current, other_faction(game.active))) {
+        set_add(game.forts.besieged, game.move.current)
+    }
+
     if (get_pieces_in_space(game.move.initial).length > 0) {
         game.move.current = game.move.initial
         game.move.spaces_moved = 0
@@ -2173,6 +2197,23 @@ function get_attackable_spaces(attackers) {
     //  space participating in the attack. Due to this restriction and stacking limits, no Combat may involve more
     //  than three nationalities on each side.
 
+    const russian_attacker = attackers.find((p) => data.pieces[p].nation == RUSSIA) !== undefined
+    const german_attacker = attackers.find((p) => data.pieces[p].nation == GERMANY) !== undefined
+    eligible_spaces.filter((s) => {
+        //  15.1.12 Russian units may not attack, enter, or besiege a German fort space during the August 1914 turn.
+        if (game.turn == 1 && russian_attacker && data.spaces[s].nation == GERMANY && has_undestroyed_fort(s, CP)) {
+            return false
+        }
+
+        // 15.1.11 Russian Forts: German units may not attack spaces containing Russian forts until the OberOst Event
+        // Card is played or the Central Powers War Status is 4 or higher. German units may, however, besiege unoccupied
+        // Russian forts. Austro-Hungarian units are not restricted by this rule.
+        if (german_attacker && data.spaces[s].nation == RUSSIA && has_undestroyed_fort(s, AP)) {
+            if (game.cp.ws < 4 && game.events.oberost === undefined)
+                return false
+        }
+    })
+
     return eligible_spaces
 }
 
@@ -2185,9 +2226,6 @@ function get_attackable_spaces_for_piece(p) {
         //  “one move” allowed under 11.3.2
 
         if (can_be_attacked(conn)) {
-            // TODO: 15.1.11: German units may not attack spaces containing Russian forts until the OberOst Event Card
-            //  is played or the Central Powers War Status is 4 or higher. German units may, however, besiege unoccupied
-            //  Russian forts. Austro- Hungarian units are not restricted by this rule.
             set_add(attackable_spaces, conn)
         }
     })
@@ -2967,7 +3005,7 @@ function get_possible_advance_spaces() {
     if (game.attack.space != location_of_advancing_units) {
         if (has_undestroyed_fort(game.attack.space, other_faction(game.attack.attacker))) {
             // Advance into a fort is only allowed if you have sufficient advancing units to besiege the fort (12.7.6)
-            if (could_besiege(game.attack.space, game.attack.advancing_units)) {
+            if (can_besiege(game.attack.space, game.attack.advancing_units)) {
                 spaces.push(game.attack.space)
             }
         } else {
@@ -3001,7 +3039,7 @@ function get_possible_advance_spaces() {
 
     if (has_undestroyed_fort(game.attack.first_retreat_space, other_faction(game.attack.attacker))) {
         // Advance into a fort is only allowed if you have sufficient advancing units to besiege the fort (12.7.6)
-        if (could_besiege(game.attack.first_retreat_space, game.attack.advancing_units)) {
+        if (can_besiege(game.attack.first_retreat_space, game.attack.advancing_units)) {
             spaces.push(game.attack.first_retreat_space)
         }
     } else {
@@ -3012,10 +3050,10 @@ function get_possible_advance_spaces() {
 
 function has_undestroyed_fort(space, faction) {
     let space_data = data.spaces[space]
-    return space_data.fort > 0 && space_data.faction == faction && !set_has(game.forts.destroyed, space)
+    return space_data.fort !== undefined && space_data.fort > 0 && space_data.faction == faction && !set_has(game.forts.destroyed, space)
 }
 
-function could_besiege(space, units) {
+function can_besiege(space, units) {
     let retval = false
     let count_corps = 0
     units.forEach((p) => {
@@ -3026,7 +3064,7 @@ function could_besiege(space, units) {
             count_corps++
         }
     })
-    if (!retval && count_corps >= data.space[space].fort) {
+    if (!retval && count_corps >= data.spaces[space].fort) {
         retval = true
     }
     return retval
@@ -3608,7 +3646,7 @@ function get_connected_spaces(s, nation) {
     let connections = []
     if (data.spaces[s].connections)
         connections = connections.concat(data.spaces[s].connections)
-    if (nation !== undefined)
+    if (nation !== undefined && data.spaces[s].limited_connections[nation])
         connections = connections.concat(data.spaces[s].limited_connections[nation])
     return connections
 }
@@ -3865,6 +3903,18 @@ events.reichstag_truce = {
         push_undo()
         game.vp += 1
         start_action_round()
+    }
+}
+
+// CP #11
+events.oberost = {
+    can_play() {
+        return true
+    },
+    play() {
+        push_undo()
+        game.events.oberost = game.turn
+        goto_end_action()
     }
 }
 
