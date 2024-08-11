@@ -188,6 +188,7 @@ const LONDON = 1
 const AMIENS = 16
 const CALAIS = 17
 const OSTEND = 18
+const GALLIPOLI = 21
 const LIEGE = 33
 const KOBLENZ = 41
 const ESSEN = 43
@@ -198,13 +199,21 @@ const MOSCOW = 152
 const KHARKOV = 170
 const CAUCASUS = 186
 const SOFIA = 198
-const GALLIPOLI = 212
+const MEF1 = 216
+const MEF2 = 217
+const MEF3 = 218
 const CONSTANTINOPLE = 219
+const MEF4 = 260
 const ARABIA_SPACE = 271
+const MEDINA = 272
 const AP_RESERVE_BOX = 282
 const CP_RESERVE_BOX = 283
 const AP_ELIMINATED_BOX = 284
 const CP_ELIMINATED_BOX = 285
+
+function is_mef_space(s) {
+    return (s >= MEF1 && s <= MEF3) || s == MEF4
+}
 
 // Terrain
 const MOUNTAIN = "mountain"
@@ -955,9 +964,10 @@ function get_capitals(nation) {
 
 function all_capitals_occupied(nation) {
     const capitals = get_capitals(nation)
-    const faction = data.spaces[capitals[0]].faction
+    if (capitals.length == 0)
+        return false
     for (let c of capitals) {
-        if (is_friendly_control(c, faction)) {
+        if (is_friendly_control(c, data.spaces[c].faction)) {
             return false
         }
     }
@@ -3122,6 +3132,11 @@ function goto_attrition_phase() {
         }
     }
 
+    // TODO: Pieces in Albania can trace supply from Italy even when Italy is still neutral
+    //  11.1.12 Albania: Units may always enter Albania. Albanian spaces are considered Allied Controlled at Start
+    //  for SR purposes. Albanian spaces check Attrition supply by tracing normally to an Allied supply source or
+    //  tracing to Taranto even while Italy is still Neutral.
+
     // Get all OOS pieces that should suffer attrition
     supply_cache = null
     get_oos_pieces().forEach((p) => {
@@ -3136,7 +3151,23 @@ function goto_attrition_phase() {
     // Get all OOS spaces that should flip control
     for (let s = 1; s < data.spaces.length; ++s) {
         const controlling_faction = is_friendly_control(s, AP) ? AP : CP
-        if (!is_space_supplied(s, controlling_faction)) {
+        if (controlling_faction == AP && data.spaces[s].nation == SERBIA) {
+            continue // Under rule 14.1.5, Serbian spaces only convert when CP units enter the spaces.
+        }
+        if (!nation_at_war(data.spaces[s].nation)) {
+            continue
+        }
+        if (s >= AP_RESERVE_BOX)
+            continue
+        if (is_mef_space(s)) {
+            continue // MEF spaces do not flip control
+        }
+        if (s == ARABIA_SPACE)
+            continue
+        if (has_undestroyed_fort(s, controlling_faction)) {
+            continue // Under rule 14.3.6, spaces with undestroyed forts do not flip control
+        }
+        if (!is_space_supplied(controlling_faction, s)) {
             game.attrition[controlling_faction].spaces.push(s)
         }
     }
@@ -3219,6 +3250,7 @@ states.siege_phase = {
             array_remove_item(game.forts.besieged, s)
             game.forts.destroyed.push(s)
             set_control(s, game.active)
+            capture_trench(s, game.active)
         } else {
             log(`${faction_name(game.active)} fail to besiege ${space_name(s)} with a roll of ${roll+drm}`)
         }
@@ -3862,7 +3894,10 @@ function is_space_supplied(faction, s) {
     if (faction == CP) {
         return supply_cache.cp[s].sources.length > 0
     } else {
-        return supply_cache.eastern[s].sources.length > 0 || supply_cache.western[s].sources.length > 0 || is_friendly_control(SALONIKA, AP) && supply_cache.salonika[s].sources.length > 0
+        return supply_cache.eastern[s].sources.length > 0
+            || supply_cache.western[s].sources.length > 0
+            || supply_cache.italian[s].sources.length > 0
+            || is_friendly_control(SALONIKA, AP) && supply_cache.salonika[s].sources.length > 0
     }
 }
 
