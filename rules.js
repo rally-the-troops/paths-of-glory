@@ -3158,41 +3158,42 @@ states.attrition_phase = {
 }
 
 function goto_siege_phase() {
-    game.siege = {
-        ap: [],
-        cp: []
-    }
-    // TODO: Determine which spaces need siege rolls
-
-    if (game.siege.ap.length > 0 || game.siege.cp.length > 0) {
-        game.state = 'siege_roll'
-        if (game.siege[game.active].length == 0)
-            game.active = other_faction(game.active)
+    if (game.forts.besieged.length > 0) {
+        log_h1("Siege Phase")
+        game.state = 'siege_phase'
+        const ap_has_sieges = game.forts.besieged.find((s) => data.spaces[s].faction == CP) !== undefined
+        game.active = ap_has_sieges ? AP : CP
+        game.sieges_to_roll = [...game.forts.besieged]
     } else {
         goto_war_status_phase()
     }
 }
 
-states.siege_roll = {
+states.siege_phase = {
     inactive: 'Roll sieges',
     prompt() {
         view.prompt = 'Roll sieges'
-
-        game.siege[game.active].forEach((s) => { gen_action_space(s) })
-
-        if (game.siege[game.active].length == 0)
-            gen_action_done()
+        const other  = other_faction(game.active)
+        game.sieges_to_roll.filter((s) => data.spaces[s].faction == other).forEach((s) => { gen_action_space(s) })
     },
-    space(p) {
-        array_remove(game.siege[game.active], s)
-        // TODO: Roll for siege in space
-    },
-    done() {
-        let other = other_faction(game.active)
-        if (game.siege[other].length > 0) {
-            game.active == other
+    space(s) {
+        array_remove_item(game.sieges_to_roll, s)
+        let roll = roll_die(6)
+        const drm = game.turn <= 2 ? -2 : 0
+        const fort_str = data.spaces[s].fort
+        if (roll + drm > fort_str) {
+            log(`${faction_name(game.active)} successfully besiege ${space_name(s)} with a roll of ${roll+drm}`)
+            array_remove_item(game.forts.besieged, s)
+            game.forts.destroyed.push(s)
+            set_control(s, game.active)
         } else {
+            log(`${faction_name(game.active)} fail to besiege ${space_name(s)} with a roll of ${roll+drm}`)
+        }
+
+        if (game.sieges_to_roll.length == 0) {
             goto_war_status_phase()
+        } else if (game.sieges_to_roll.filter((s) => data.spaces[s].faction == other_faction(game.active)).length == 0) {
+            game.active = other_faction(game.active)
         }
     }
 }
