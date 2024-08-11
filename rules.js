@@ -3112,21 +3112,39 @@ function cost_to_activate(space, type) {
 
 function goto_attrition_phase() {
     game.attrition = {
-        ap: [],
-        cp: []
+        ap: {
+            spaces: [],
+            pieces: []
+        },
+        cp: {
+            spaces: [],
+            pieces: []
+        }
     }
-    // TODO: Calculate the OOS units for both sides and save the lists in the game state
 
-    // TODO: Turkish units in Medina are always in supply for attrition purposes only (may not activate, SR, take
-    //  replacements, or use combat cards)
+    // Get all OOS pieces that should suffer attrition
+    supply_cache = null
+    get_oos_pieces().forEach((p) => {
+        const faction = data.pieces[p].faction
+        if (game.location[p] == MEDINA && data.pieces[p].nation == TURKEY) {
+            // Turkish units in Medina do not suffer attrition, even though they may be OOS
+        } else {
+            game.attrition[faction].pieces.push(p)
+        }
+    })
 
-    // TODO: Update control of spaces and save in the game state
-    // Spaces may use any of their side's supply sources when checking attrition
+    // Get all OOS spaces that should flip control
+    for (let s = 1; s < data.spaces.length; ++s) {
+        const controlling_faction = is_friendly_control(s, AP) ? AP : CP
+        if (!is_space_supplied(s, controlling_faction)) {
+            game.attrition[controlling_faction].spaces.push(s)
+        }
+    }
 
-    if (game.attrition.ap.length > 0) {
+    if (game.attrition.ap.spaces.length > 0 || game.attrition.ap.pieces.length > 0) {
         game.state = 'attrition_phase'
         game.active = AP
-    } else if (game.attrition.cp.length > 0) {
+    } else if (game.attrition.cp.spaces.length > 0 || game.attrition.cp.pieces.length > 0) {
         game.state = 'attrition_phase'
         game.active = CP
     } else {
@@ -3135,24 +3153,39 @@ function goto_attrition_phase() {
 }
 
 states.attrition_phase = {
-    inactive: 'Remove OOS units',
+    inactive: 'Remove OOS pieces and flip OOS spaces',
     prompt() {
-        view.prompt = 'Remove OOS units'
-
-        game.attrition[game.active].forEach((p) => { gen_action_piece(p) })
-
-        if (game.attrition[game.active].length == 0)
-            gen_action_done()
+        view.prompt = 'Remove OOS pieces and flip OOS spaces'
+        game.attrition[game.active].pieces.forEach((p) => { gen_action_piece(p) })
+        game.attrition[game.active].spaces.forEach((s) => { gen_action_space(s) })
     },
     piece(p) {
-        array_remove(game.attrition[game.active], p)
-        // TODO: Eliminate selected piece, permanently for armies, to replaceable box for corps
-    },
-    done() {
-        if (game.active == AP && game.attrition.cp.length > 0) {
-            game.active == CP
+        array_remove_item(game.attrition[game.active].pieces, p)
+        log(`Removed ${piece_name(p)} from ${space_name(game.location[p])} due to attrition`)
+        if (data.pieces[p].type == ARMY) {
+            game.location[p] = 0
+            game.removed.push(p)
         } else {
-            goto_siege_phase()
+            game.location[p] = game.active == AP ? AP_ELIMINATED_BOX : CP_ELIMINATED_BOX
+        }
+        if (game.attrition[game.active].spaces.length == 0 && game.attrition[game.active].pieces.length == 0) {
+            if (game.attrition[other_faction(game.active)].spaces.length > 0 || game.attrition[other_faction(game.active)].pieces.length > 0) {
+                game.active = other_faction(game.active)
+            } else {
+                goto_siege_phase()
+            }
+        }
+    },
+    space(s) {
+        array_remove_item(game.attrition[game.active].spaces, s)
+        log(`Flipped control of ${space_name(s)} due to attrition`)
+        set_control(s, other_faction(game.active))
+        if (game.attrition[game.active].spaces.length == 0 && game.attrition[game.active].pieces.length == 0) {
+            if (game.attrition[other_faction(game.active)].spaces.length > 0 || game.attrition[other_faction(game.active)].pieces.length > 0) {
+                game.active = other_faction(game.active)
+            } else {
+                goto_siege_phase()
+            }
         }
     }
 }
