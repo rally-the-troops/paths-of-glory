@@ -3570,10 +3570,19 @@ states.draw_cards_phase = {
     inactive: 'Discarding combat cards',
     prompt() {
         view.prompt = 'Discard any Combat Cards you wish before drawing new cards'
-        // TODO: Highlight cards that can be discarded, including combat cards and the Italy and Romania cards under certain circumstances
+        // TODO: Highlight cards that can be discarded, including the Italy and Romania cards under certain circumstances
+        game[game.active].hand.forEach((c) => {
+            if (data.cards[c].cc) {
+                gen_action_discard(c)
+            }
+        })
         gen_action_done()
     },
-    // TODO: discard a card
+    card(c) {
+        push_undo()
+        array_remove_item(game[game.active].hand, c)
+        game[game.active].discard.push(c)
+    },
     done() {
         if (game.active == AP) {
             if (game.ap.shuffle) {
