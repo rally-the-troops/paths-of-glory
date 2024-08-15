@@ -363,7 +363,8 @@ exports.view = function(state, current) {
         },
         control: game.control,
         events: game.events,
-        who: game.who
+        who: game.who,
+        combat_cards: game.combat_cards
     }
 
     if (current === AP) {
@@ -600,6 +601,8 @@ function create_empty_game_state(seed, scenario, options) {
             trenches: {},
             missed_mo: []
         },
+
+        combat_cards: [], // Face-up played combat cards
 
         reinf_this_turn: {}, // Which nations have received reinforcements this turn
     }
@@ -2332,29 +2335,48 @@ states.choose_withdrawal = {
     }
 }
 
-// TODO
 states.attacker_combat_cards = {
     inactive: 'Attacker Combat Cards',
     prompt() {
         view.prompt = `Play combat cards`
 
-        gen_action_undo()
-        gen_action_next()
+        game[game.active].hand.forEach((c) => {
+            if (data.cards[c].cc) {
+                gen_action_card(c) // TODO: filter to only combat cards that can be played in the current situation
+            }
+        })
+        gen_action_done()
     },
-    next() {
+    card(c) {
+        clear_undo()
+        array_remove_item(game[game.active].hand, c)
+        game.combat_cards.push(c)
+        log(`${faction_name(game.active)} plays ${card_name(c)}`)
+    },
+    done() {
         game.active = other_faction(game.attack.attacker)
         game.state = 'defender_combat_cards'
     }
 }
 
-// TODO
 states.defender_combat_cards = {
     inactive: 'Defender Combat Cards',
     prompt() {
         view.prompt = `Play combat cards`
-        gen_action_next()
+        game[game.active].hand.forEach((c) => {
+            if (data.cards[c].cc) {
+                gen_action_card(c) // TODO: filter to only combat cards that can be played in the current situation
+            }
+        })
+        gen_action_done()
     },
-    next() {
+    card(c) {
+        clear_undo()
+        array_remove_item(game[game.active].hand, c)
+        game.combat_cards.push(c)
+        log(`${faction_name(game.active)} plays ${card_name(c)}`)
+    },
+    done() {
         begin_combat()
     }
 }
@@ -3693,6 +3715,10 @@ function gen_action_piece(p) {
 }
 
 function gen_action_discard(c) {
+    gen_action('card', c)
+}
+
+function gen_action_card(c) {
     gen_action('card', c)
 }
 

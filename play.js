@@ -224,6 +224,7 @@ let ui = {
     markers: document.getElementById("markers"),
     pieces: document.getElementById("pieces"),
     cards: document.getElementById("cards"),
+    combat_cards: document.getElementById("combat_cards"),
     last_card: document.getElementById("last_card"),
     turn_track: document.getElementById("turn_track"),
     general_records: document.getElementById("general_records"),
@@ -999,10 +1000,21 @@ function build_card(id) {
     elt.addEventListener("mouseenter", on_focus_card)
     elt.addEventListener("mouseleave", on_blur_card)
     ui.cards.appendChild(elt)
+
+    if (card.cc) {
+        let cc_elt = card.cc_element = document.createElement("div")
+        cc_elt.card = id
+        cc_elt.className = "card combat_card card_" + faction_card_number(id)
+        cc_elt.addEventListener("click", on_click_card)
+        cc_elt.addEventListener("mouseenter", on_focus_card)
+        cc_elt.addEventListener("mouseleave", on_blur_card)
+        ui.combat_cards.appendChild(cc_elt)
+    }
 }
 
-for (let c = 1; c < cards.length; ++c)
+for (let c = 1; c < cards.length; ++c) {
     build_card(c)
+}
 for (let s = 1; s < spaces.length; ++s) {
     if (s == AP_RESERVE_BOX || s == CP_RESERVE_BOX)
         build_reserve_box(s)
@@ -1448,6 +1460,13 @@ function update_card(id) {
         card.element.classList.add("show")
     else
         card.element.classList.remove("show")
+
+    if (card.cc_element) {
+        if (view.combat_cards.includes(id))
+            card.cc_element.classList.add("show")
+        else
+            card.cc_element.classList.remove("show")
+    }
 }
 
 function update_piece(id) {
