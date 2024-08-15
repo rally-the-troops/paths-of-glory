@@ -79,6 +79,10 @@ aside { min-width: 220px; }
     min-height: 340px;
 }
 
+#combat_cards {
+    background-color: #4d452b;
+}
+
 @media (max-width: 800px) {
     .hand {
         min-width: calc(2550px - 30px);
