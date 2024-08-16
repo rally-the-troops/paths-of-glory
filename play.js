@@ -1276,13 +1276,13 @@ function update_space(s) {
         destroy_fort_besieged_marker(s)
     }
 
-    if (view.ap.trenches[s] !== undefined) {
+    if (view.ap.trenches[s] !== undefined && view.ap.trenches[s] > 0) {
         push_stack(apStack, 0, build_trench_marker(s, view.ap.trenches[s], AP))
     } else {
         destroy_trench_marker(s, AP)
     }
 
-    if (view.cp.trenches[s] !== undefined) {
+    if (view.cp.trenches[s] !== undefined && view.cp.trenches[s] > 0) {
         push_stack(cpStack, 0, build_trench_marker(s, view.cp.trenches[s], CP))
     } else {
         destroy_trench_marker(s, CP)

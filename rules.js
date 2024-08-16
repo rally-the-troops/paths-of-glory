@@ -99,7 +99,7 @@ const TREATY_OF_BRESK_LITOVSK = 110
 const GERMAN_REINFORCEMENTS_8 = 111
 const FRENCH_MUTINY = 112
 const TURKISH_REINFORCEMENTS_2 = 113
-const MICHAEL = 114
+const MICHEL = 114
 const BLUCHER = 115
 const PEACE_OFFENSIVE = 116
 const FALL_OF_THE_TSAR = 117
@@ -1202,7 +1202,7 @@ function goto_play_event(card) {
     let active_player = get_active_player()
     array_remove_item(active_player.hand, card)
     game.last_card = card
-    // TODO: Deal with combat cards?
+
     if (cards[card].remove)
         active_player.removed.push(card)
     else
@@ -2179,7 +2179,7 @@ function attacker_can_flank() {
 
 function defender_can_withdraw() {
     // TODO
-    return false
+    return true
 }
 
 function get_attackable_spaces(attackers) {
@@ -2264,16 +2264,26 @@ function can_be_attacked(s) {
     return retval
 }
 
-// TODO
 states.negate_trench = {
     inactive: 'Attacker Choosing Whether to Negate Trenches',
     prompt() {
-        // TODO: If attacker has a card that would negate trenches, allow them to play it
-        //view.prompt = 'Negate trenches?'
-        // else
-        view.prompt = 'You cannot negate trenches'
-        gen_action_undo()
+        view.prompt = 'Play any combat cards that would negate trenches'
+
+        const trench_negating_cards = [ROYAL_TANK_CORPS, VON_BELOW, VON_HUTIER, MICHEL, BLUCHER, PEACE_OFFENSIVE]
+        game[game.active].hand.forEach((c) => {
+            if (trench_negating_cards.includes(c)) {
+                gen_action_card(c)
+            }
+        })
+
         gen_action_next()
+    },
+    card(c) {
+        clear_undo()
+        array_remove_item(game[game.active].hand, c)
+        game.combat_cards.push(c)
+        log(`${faction_name(game.active)} plays ${card_name(c)}`)
+        this.next()
     },
     next() {
         if (attacker_can_flank()) {
@@ -2303,13 +2313,7 @@ states.choose_flank_attack = {
     },
     space(s) {
         game.attack.pinning_space = s
-        if (defender_can_withdraw()) {
-            // if defender can withdraw, go to 'choose_withdrawal'
-            game.active = other_faction(game.active)
-            game.state = 'choose_withdrawal'
-        } else {
-            game.state = 'attacker_combat_cards'
-        }
+        game.state = 'play_wireless_intercepts'
     },
     pass() {
         if (defender_can_withdraw()) {
@@ -2322,16 +2326,87 @@ states.choose_flank_attack = {
     }
 }
 
-// TODO
+states.play_wireless_intercepts = {
+    inactive: 'Attacker Choosing Whether to Play Wireless Intercepts',
+    prompt() {
+        view.prompt = 'Play Wireless Intercepts?'
+        if (game[game.active].hand.includes(WIRELESS_INTERCEPTS)) {
+            gen_action_card(WIRELESS_INTERCEPTS)
+        }
+        gen_action_undo()
+        gen_action_next()
+    },
+    card(c) {
+        array_remove_item(game[game.active].hand, c)
+        game.combat_cards.push(c)
+        log(`${faction_name(game.active)} plays ${card_name(c)}`)
+    },
+    next() {
+        roll_flank_attack()
+    }
+}
+
+function roll_flank_attack() {
+    if (game.attack.pinning_space) {
+        log(`Attempting to flank ${space_name(game.attack.space)}, pinning from ${space_name(game.attack.pinning_space)}`)
+        const flanking_spaces = []
+        let flank_drm = 0
+        game.attack.pieces.forEach((p) => {
+            if (game.location[p] !== game.attack.pinning_space) {
+                set_add(flanking_spaces, game.location[p])
+            }
+        })
+        flanking_spaces.forEach((s) => {
+            let add_drm = true
+            if (adds_flanking_drm(s, game.attack.attacker)) {
+                add_drm = false
+            }
+            log(`Flanking from ${space_name(s)} ${add_drm ? '+1 DRM' : 'adds no DRM'}`)
+            if (add_drm)
+                flank_drm++
+        })
+        const roll = roll_die(6)
+        log(`Flank roll: ${roll} + ${flank_drm} DRM = ${roll+flank_drm}`)
+        if (roll + flank_drm >= 4) {
+            log('Flank attack successful')
+            game.attack.is_flank = true
+        } else {
+            log('Flank attack failed')
+            game.attack.failed_flank = true
+        }
+        clear_undo()
+    }
+
+    if (defender_can_withdraw()) {
+        // if defender can withdraw, go to 'choose_withdrawal'
+        game.active = other_faction(game.active)
+        game.state = 'choose_withdrawal'
+    } else {
+        game.state = 'attacker_combat_cards'
+    }
+}
+
 states.choose_withdrawal = {
     inactive: 'Defender Choosing Whether to Withdraw',
     prompt() {
         view.prompt = 'Withdraw?'
-        gen_action_undo()
-        gen_action_next()
+
+        const active_withdrawal_card = game.active === AP ? WITHDRAWAL_AP : WITHDRAWAL_CP
+        if (game[game.active].hand.includes(active_withdrawal_card)) {
+            gen_action_card(active_withdrawal_card)
+        }
+        gen_action_pass()
     },
-    next() {
-        game.state = 'defender_combat_cards'
+    card(c) {
+        clear_undo()
+        array_remove_item(game[game.active].hand, c)
+        game.combat_cards.push(c)
+        log(`${faction_name(game.active)} plays ${card_name(c)}`)
+        this.pass()
+    },
+    pass() {
+        game.active = other_faction(game.active)
+        game.state = 'attacker_combat_cards'
     }
 }
 
@@ -2383,42 +2458,13 @@ states.defender_combat_cards = {
 
 function begin_combat() {
     log_h2(`${faction_name(game.attack.attacker)} attacking ${space_name(game.attack.space)}`)
-    if (game.attack.pinning_space) {
-        log(`Attempting flanking attack: ${space_name(game.attack.pinning_space)} is the pinning space`)
-        const flanking_spaces = []
-        let flank_drm = 0
-        game.attack.pieces.forEach((p) => {
-            if (game.location[p] != game.attack.pinning_space) {
-                set_add(flanking_spaces, game.location[p])
-            }
-        })
-        flanking_spaces.forEach((s) => {
-            let add_drm = true
-            if (adjacent_to_enemy_occupied_space(s, game.attack.attacker)) {
-                add_drm = false
-            }
-            log(`Flanking from ${space_name(s)} ${add_drm ? '+1 DRM' : 'adds no DRM'}`)
-            if (add_drm)
-                flank_drm++
-        })
-        const roll = roll_die(6)
-        log(`Flank roll: ${roll} + ${flank_drm} DRM = ${roll+flank_drm}`)
-        if (roll + flank_drm >= 4) {
-            log('Flank attack successful')
-            game.attack.is_flank = true
-        } else {
-            log('Flank attack failed')
-            game.attack.failed_flank = true
-        }
-        clear_undo()
-    }
     resolve_fire()
 }
 
-function adjacent_to_enemy_occupied_space(s, faction) {
-    const spaces = get_connected_spaces(s)
+function adds_flanking_drm(space, attacking_faction, attack_space) {
+    const spaces = get_connected_spaces(space)
     for (let i = 0; i < spaces.length; ++i) {
-        if (contains_enemy_piece(spaces[i], faction))
+        if (spaces[i] !== attack_space && contains_enemy_piece(spaces[i], attacking_faction))
             return true
     }
     return false
@@ -2712,7 +2758,7 @@ function build_loss_tree(parent, valid_paths) {
             let node = {
                 picked: [...parent.picked, unit],
                 to_satisfy: parent.to_satisfy - unit_lf,
-                full_strength: parent.full_strength.filter((u) => u != unit),
+                full_strength: parent.full_strength.filter((u) => u !== unit),
                 reduced: [...parent.reduced, unit],
                 full_replacements: [...parent.full_replacements],
                 reduced_replacements: [...parent.reduced_replacements],
@@ -2731,12 +2777,12 @@ function build_loss_tree(parent, valid_paths) {
             let full_replacements = [...parent.full_replacements]
             let reduced_replacements = [...parent.reduced_replacements]
             let selected_replacement = find_replacement(unit, full_replacements)
-            if (selected_replacement != 0) {
+            if (selected_replacement !== 0) {
                 array_remove_item(full_replacements, selected_replacement)
                 reduced_replacements.push(selected_replacement)
             } else {
                 selected_replacement = find_replacement(unit, reduced_replacements)
-                if (selected_replacement != 0) {
+                if (selected_replacement !== 0) {
                     array_remove_item(reduced_replacements, selected_replacement)
                 }
             }
@@ -2745,7 +2791,7 @@ function build_loss_tree(parent, valid_paths) {
                 picked: [...parent.picked, unit],
                 to_satisfy: parent.to_satisfy - unit_lf,
                 full_strength: [...parent.full_strength],
-                reduced: parent.reduced.filter((u) => u != unit),
+                reduced: parent.reduced.filter((u) => u !== unit),
                 full_replacements: full_replacements,
                 reduced_replacements: reduced_replacements,
                 options: []
@@ -2756,7 +2802,7 @@ function build_loss_tree(parent, valid_paths) {
 
     // Recurse to continue building options, updating the best options as we go
     for (let i = 0; i < parent.options.length; i++) {
-        let current_best = valid_paths.length == 0 ? parent.to_satisfy : valid_paths[0].to_satisfy
+        let current_best = valid_paths.length === 0 ? parent.to_satisfy : valid_paths[0].to_satisfy
         let option = parent.options[i]
         if (option.to_satisfy < current_best) {
             valid_paths.length = 0
@@ -2770,24 +2816,24 @@ function build_loss_tree(parent, valid_paths) {
 
 function find_bef_army() {
     for (let i = 1; i < data.pieces.length; ++i) {
-        if (data.pieces[i].name == "BEF Army") return i
+        if (data.pieces[i].name === "BEF Army") return i
     }
     return 0
 }
 
 function find_bef_corps() {
     for (let i = 1; i < data.pieces.length; ++i) {
-        if (data.pieces[i].name == "BEF Corps") return i
+        if (data.pieces[i].name === "BEF Corps") return i
     }
     return 0
 }
 
 function find_replacement(unit, available_replacements) {
     let unit_data = data.pieces[unit]
-    if (unit_data.type != ARMY)
+    if (unit_data.type !== ARMY)
         return 0
 
-    if (unit == find_bef_army()) {
+    if (unit === find_bef_army()) {
         let bef_corps = find_bef_corps()
         if (available_replacements.includes(bef_corps))
             return bef_corps
@@ -2796,10 +2842,10 @@ function find_replacement(unit, available_replacements) {
     }
 
     // British armies cannot be replaced by CND, AUS, or PT corps, so selecting on the name instead of nation
-    if (unit_data.nation == BRITAIN) {
+    if (unit_data.nation === BRITAIN) {
         for (let i = 0; i < available_replacements.length; ++i) {
             let replacement_data = data.pieces[available_replacements[i]]
-            if (replacement_data.name == "BR Corps") {
+            if (replacement_data.name === "BR Corps") {
                 return available_replacements[i]
             }
         }
@@ -2808,7 +2854,7 @@ function find_replacement(unit, available_replacements) {
 
     for (let i = 0; i < available_replacements.length; ++i) {
         let replacement_data = data.pieces[available_replacements[i]]
-        if (replacement_data.type == CORPS && replacement_data.nation == unit_data.nation) {
+        if (replacement_data.type === CORPS && replacement_data.nation === unit_data.nation) {
             return available_replacements[i]
         }
     }
@@ -2816,14 +2862,37 @@ function find_replacement(unit, available_replacements) {
 }
 
 function determine_combat_winner() {
-    // TODO: "They shall not pass" is not discarded when losing the combat (12.2.11)
+    // Discard the loser's combat cards, or both player's cards if it's a tie
+    let to_discard = []
     if (game.attack.defender_losses >= game.attack.attacker_losses) {
-        // TODO: Discard defender's combat cards
+        const defender = other_faction(game.attack.attacker)
+        to_discard.concat(game.combat_cards.filter((c) => data.cards[c].faction === defender))
     }
-    if (game.attack.attacker_losses >= game.attack.defender_losses) {
-        // TODO: Discard attacker's combat cards
-    }
+    if (game.attack.attacker_losses >= game.attack.defender_losses)
+        to_discard.concat(game.combat_cards.filter((c) => data.cards[c].faction === game.attack.attacker))
+    // Some combat cards are discarded or removed, even when the card's owner wins the combat
+    game.combat_cards.forEach((c) => {
+        // Any * cards that are removed after use
+        if (data.cards[c].remove && !to_discard.includes(c))
+            to_discard.push(c)
+        // MINE_ATTACK and KEMAL are discarded after use
+        if ((c === MINE_ATTACK || c === KEMAL) && !to_discard.includes(c))
+            to_discard.push(c)
+    })
+    // "They shall not pass" is not discarded when the result is a tie (12.2.11)
+    if (game.attack.attacker_losses === game.attack.defender_losses && to_discard.includes(THEY_SHALL_NOT_PASS))
+        array_remove_item(to_discard, THEY_SHALL_NOT_PASS)
 
+    // Now do the actual discard
+    to_discard.forEach((c) => {
+        array_remove_item(game.combat_cards, c)
+        if (data.cards[c].remove)
+            game[data.cards[c].faction].removed.push(c)
+        else
+            game[data.cards[c].faction].discard.push(c)
+    })
+
+    // Check for a full strength attacker
     let attacker_has_full_strength_unit = false
     for (let p in game.attack.pieces) {
         if (!is_unit_reduced(p)) {
@@ -2832,6 +2901,7 @@ function determine_combat_winner() {
         }
     }
 
+    // Decide if the defender should retreat, attacker should advance, or if the combat is over
     let defender_pieces = get_pieces_in_space(game.attack.space)
     if (game.attack.defender_losses > game.attack.attacker_losses && attacker_has_full_strength_unit && defender_pieces.length > 0) {
         game.active = other_faction(game.attack.attacker)
@@ -2839,7 +2909,7 @@ function determine_combat_winner() {
         game.attack.retreating_pieces = []
         game.state = 'defender_retreat'
         push_undo()
-    } else if (defender_pieces.length == 0) {
+    } else if (defender_pieces.length === 0) {
         game.active = game.attack.attacker
         game.state = 'attacker_advance'
     } else {
@@ -2876,7 +2946,7 @@ states.defender_retreat = {
     },
     next() {
         push_undo()
-        game.attack.retreat_length = game.attack.defender_losses - game.attack.attacker_losses == 1 ? 1 : 2
+        game.attack.retreat_length = game.attack.defender_losses - game.attack.attacker_losses === 1 ? 1 : 2
         game.state = 'choose_retreat_path'
     },
     done() {
@@ -2888,7 +2958,7 @@ states.defender_retreat = {
 states.choose_retreat_path = {
     inactive: 'Defender Retreating',
     prompt() {
-        if (game.attack.retreat_length == 0) {
+        if (game.attack.retreat_length === 0) {
             view.prompt = `End retreat?`
         } else {
             if (game.attack.retreat_length > 1) {
@@ -2903,7 +2973,7 @@ states.choose_retreat_path = {
             })
         }
         gen_action_undo()
-        if (game.attack.retreat_length == 0) {
+        if (game.attack.retreat_length === 0) {
             gen_action_done()
         }
     },
@@ -3015,10 +3085,18 @@ states.perform_advance = {
         game.attack.advancing_units.forEach((p) => {
             game.location[p] = s
         })
-        set_control(s, game.attack.attacker)
+        if (!has_undestroyed_fort(s, other_faction(game.active))) {
+            set_control(s, game.attack.attacker)
+        }
         capture_trench(s, game.attack.attacker)
     },
     done() {
+        if (game.attack.advancing_units.length > 0) {
+            const end_space = game.location[game.attack.advancing_units[0]]
+            if (has_undestroyed_fort(end_space, other_faction(game.attack.attacker))) {
+                set_add(game.forts.besieged, end_space)
+            }
+        }
         end_attack_activation()
         goto_next_activation()
     }
@@ -3649,6 +3727,11 @@ function get_army_replacement_spaces(p) {
 }
 
 function goto_draw_cards_phase() {
+    // All played combat cards are discarded
+    game.combat_cards.forEach((c) => {
+        game[data.cards[c].faction].discard.push(c)
+    })
+    game.combat_cards.length = 0
     game.state = 'draw_cards_phase'
     game.active = AP
 }
@@ -3657,7 +3740,7 @@ states.draw_cards_phase = {
     inactive: 'Discarding combat cards',
     prompt() {
         view.prompt = 'Discard any Combat Cards you wish before drawing new cards'
-        // TODO: Highlight cards that can be discarded, including the Italy and Romania cards under certain circumstances
+        // TODO: Highlight cards that can be discarded, including the Italy and Romania cards under certain circumstances (9.5.2.5)
         game[game.active].hand.forEach((c) => {
             if (data.cards[c].cc) {
                 gen_action_discard(c)
