@@ -206,6 +206,7 @@ const CONSTANTINOPLE = 219
 const MEF4 = 260
 const ARABIA_SPACE = 271
 const MEDINA = 272
+const SINAI = 277
 const AP_RESERVE_BOX = 282
 const CP_RESERVE_BOX = 283
 const AP_ELIMINATED_BOX = 284
@@ -1338,46 +1339,46 @@ function find_sr_destinations() {
     const start = game.location[game.sr.unit]
     const nation = data.pieces[game.sr.unit].nation
 
-    if (start == AP_RESERVE_BOX || start == CP_RESERVE_BOX) {
+    if (start === AP_RESERVE_BOX || start === CP_RESERVE_BOX) {
         // Add all spaces containing a supplied unit of the correct nationality, except ANA Corps and SN Corps
         for (let i = 0; i < game.location.length; i++) {
-            if (game.location[i] != 0 &&
-                data.pieces[i].nation == nation &&
+            if (game.location[i] !== 0 &&
+                data.pieces[i].nation === nation &&
                 is_unit_supplied(i) &&
-                i != BRITISH_ANA_CORPS &&
-                i != TURKISH_SN_CORPS) {
+                i !== BRITISH_ANA_CORPS &&
+                i !== TURKISH_SN_CORPS) {
                 set_add(destinations, game.location[i])
             }
         }
 
         // Add all capitals and supply sources in the nation, as long as they are in supply
         for (let s = 1; s < data.spaces.length; s++) {
-            if (data.spaces[s].nation == nation &&
+            if (data.spaces[s].nation === nation &&
                 is_space_supplied(game.active, s) &&
-                (data.spaces[s].capital == true || data.spaces[s].supply == true)) {
+                (data.spaces[s].capital || data.spaces[s].supply)) {
                 set_add(destinations, s)
             }
         }
 
         // If the nation is Serbia, add Salonika, when it is controlled by the allies and in supply
         const salonika = find_space('Salonika')
-        if (nation == SERBIA && is_space_supplied(AP, salonika) && is_friendly_control(salonika, AP)) {
+        if (nation === SERBIA && is_space_supplied(AP, salonika) && is_friendly_control(salonika, AP)) {
             set_add(destinations, salonika)
         }
 
         // If the nation is the US, add all Allied-controlled ports in France
-        if (nation == US) {
+        if (nation === US) {
             for (let s = 1; s < data.spaces.length; s++) {
-                if (data.spaces[s].nation == FRANCE &&
+                if (data.spaces[s].nation === FRANCE &&
                     is_friendly_control(s, AP) &&
-                    data.spaces[s].apport == true) {
+                    data.spaces[s].apport) {
                     set_add(destinations, s)
                 }
             }
         }
-    } else if (data.pieces[game.sr.unit].type == CORPS) {
+    } else if (data.pieces[game.sr.unit].type === CORPS) {
         // Corps can SR to the reserve box
-        if (game.active == AP) {
+        if (game.active === AP) {
             set_add(destinations, AP_RESERVE_BOX)
         } else {
             set_add(destinations, CP_RESERVE_BOX)
@@ -1391,7 +1392,7 @@ function find_sr_destinations() {
         get_connected_spaces(current, nation).forEach((n) => {
             // TODO: Check for restrictions based on besieged forts
             if (!set_has(destinations, n) && is_space_supplied(game.active, n)) {
-                if (nation == RUSSIA && data.spaces[n].nation != RUSSIA)
+                if (nation === RUSSIA && data.spaces[n].nation !== RUSSIA)
                     return
                 set_add(destinations, n)
                 set_add(frontier, n)
@@ -1400,17 +1401,17 @@ function find_sr_destinations() {
     }
 
     // AP can SR Corps to any friendly-controlled port, CP can SR using ports in Germany and Russia
-    if (data.pieces[game.sr.unit].type == CORPS) {
-        if (game.active == AP && data.spaces[start].apport == true) {
+    if (data.pieces[game.sr.unit].type === CORPS) {
+        if (game.active === AP && data.spaces[start].apport) {
             for (let s = 1; s < data.spaces.length; s++) {
-                if (data.spaces[s].apport == true &&
+                if (data.spaces[s].apport &&
                     is_friendly_control(s, AP)) {
                     set_add(destinations, s)
                 }
             }
-        } else if (game.active == CP && data.spaces[start].cpport == true) {
+        } else if (game.active === CP && data.spaces[start].cpport) {
             for (let s = 1; s < data.spaces.length; s++) {
-                if (data.spaces[s].cpport == true &&
+                if (data.spaces[s].cpport &&
                     is_friendly_control(s, CP)) {
                     set_add(destinations, s)
                 }
@@ -1647,7 +1648,9 @@ function start_attack_activation() {
     game.attack = {
         pieces: [],
         space: 0,
-        attacker: game.active
+        attacker: game.active,
+        attacker_drm: 0,
+        defender_drm: 0
     }
     game.state = 'choose_attackers'
 }
@@ -2389,7 +2392,7 @@ function roll_flank_attack() {
 states.choose_withdrawal = {
     inactive: 'Defender Choosing Whether to Withdraw',
     prompt() {
-        view.prompt = 'Withdraw?'
+        view.prompt = 'Play Withdrawal or pass'
 
         const active_withdrawal_card = game.active === AP ? WITHDRAWAL_AP : WITHDRAWAL_CP
         if (game[game.active].hand.includes(active_withdrawal_card)) {
@@ -2417,7 +2420,9 @@ states.attacker_combat_cards = {
 
         game[game.active].hand.forEach((c) => {
             if (data.cards[c].cc) {
-                gen_action_card(c) // TODO: filter to only combat cards that can be played in the current situation
+                let evt = events[data.cards[c].event]
+                if (evt && evt.can_play())
+                    gen_action_card(c)
             }
         })
         gen_action_done()
@@ -2440,7 +2445,9 @@ states.defender_combat_cards = {
         view.prompt = `Play combat cards`
         game[game.active].hand.forEach((c) => {
             if (data.cards[c].cc) {
-                gen_action_card(c) // TODO: filter to only combat cards that can be played in the current situation
+                let evt = events[data.cards[c].event]
+                if (evt && evt.can_play())
+                    gen_action_card(c)
             }
         })
         gen_action_done()
@@ -2465,9 +2472,9 @@ function adds_flanking_drm(space, attacking_faction, attack_space) {
     const spaces = get_connected_spaces(space)
     for (let i = 0; i < spaces.length; ++i) {
         if (spaces[i] !== attack_space && contains_enemy_piece(spaces[i], attacking_faction))
-            return true
+            return false
     }
-    return false
+    return true
 }
 
 function contains_enemy_piece(s, faction) {
@@ -2540,13 +2547,24 @@ function resolve_attackers_fire() {
 
     for (let p of game.attack.pieces) {
         attacker_cf += get_piece_cf(p)
-        if (data.pieces[p].type == "army")
+        if (data.pieces[p].type === ARMY)
             table = "army"
     }
 
-    // TODO: Determine DRM based on played combat cards
-    game.attack.attacker_drm = 0
-    // TODO: -3 DRM if all attackers are in the Sinai space
+    // Determine DRM based on played combat cards
+    game.combat_cards.forEach((c) => {
+        if (data.cards[c].faction === game.attack.attacker) {
+            let evt = events[data.cards[c].event]
+            if (evt && evt.can_apply_drm())
+                evt.apply_drm()
+        }
+    })
+
+    // -3 DRM if all attackers are in the Sinai space
+    if (game.attack.pieces.every((p) => game.location[p] === SINAI)) {
+        game.attack.attacker_drm -= 3
+        log(`All attackers in Sinai, -3 DRM`)
+    }
 
     log(`Attacking with ${attacker_cf} combat factors`)
 
@@ -2564,10 +2582,10 @@ function resolve_attackers_fire() {
     }
 
     // Trench shifts
-    if (get_trench_level(game.attack.space, other_faction(game.attack.attacker)) == 2) {
+    if (get_trench_level(game.attack.space, other_faction(game.attack.attacker)) === 2) {
         attacker_shifts -= 2
         log(`Attacker's fire shifts 2L for Trenches`)
-    } else if (get_trench_level(game.attack.space, other_faction(game.attack.attacker)) == 1) {
+    } else if (get_trench_level(game.attack.space, other_faction(game.attack.attacker)) === 1) {
         attacker_shifts -= 1
         log(`Attacker's fire shifts 1L for Trenches`)
     }
@@ -2588,7 +2606,7 @@ function resolve_defenders_fire() {
 
     for_each_piece_in_space(game.attack.space, (p) => {
         defender_cf += get_piece_cf(p)
-        if (data.pieces[p].type == "army")
+        if (data.pieces[p].type === ARMY)
             table = "army"
     })
 
@@ -2605,8 +2623,13 @@ function resolve_defenders_fire() {
         log(`Defender's fire shifts 1R for trench`)
     }
 
-    // TODO: Determine DRM based on played combat cards
-    game.attack.defender_drm = 0
+    game.combat_cards.forEach((c) => {
+        if (data.cards[c].faction === other_faction(game.attack.attacker)) {
+            let evt = events[data.cards[c].event]
+            if (evt && evt.can_apply_drm())
+                evt.apply_drm()
+        }
+    })
 
     let roll = roll_die(6) + game.attack.defender_drm
     let clamped_roll = roll > 6 ? 6 : roll < 1 ? 1 : roll
@@ -2639,7 +2662,7 @@ states.apply_defender_losses = {
         game.attack.defender_losses_taken += get_piece_lf(p)
         if (is_unit_reduced(p)) {
             let replacement = find_replacement(p, get_units_in_reserve())
-            if (replacement == 0) {
+            if (replacement === 0) {
                 // eliminate piece
                 log(`Eliminated ${piece_name(p)} in ${space_name(game.location[p])}`)
                 game.removed.push(p)
@@ -3004,16 +3027,14 @@ function get_retreat_options() {
     let has_friendly_option = false
     let has_in_supply_option = false
 
-    get_connected_spaces(s).forEach((conn) => {
-        // TODO: check for national restrictions on the connection
-
-        if (conn == game.attack.space)
+    get_connected_spaces_for_pieces(s, game.attack.retreating_pieces).forEach((conn) => {
+        if (conn === game.attack.space)
             return
 
-        if (game.attack.retreat_length == 1 && would_overstack(conn, game.attack.retreating_pieces, game.active))
+        if (game.attack.retreat_length === 1 && would_overstack(conn, game.attack.retreating_pieces, game.active))
             return
 
-        if (game.attack.retreat_length == 1 && is_enemy_control(conn, game.active))
+        if (game.attack.retreat_length === 1 && is_enemy_control(conn, game.active))
             return
 
         if (is_friendly_control(conn, game.active))
@@ -3826,6 +3847,14 @@ function space_name(space) {
     return `${data.spaces[space].name}`
 }
 
+function get_connected_spaces_for_pieces(s, pieces) {
+    if (pieces.length > 0 && pieces.every((p) => data.pieces[p].nation === data.pieces[pieces[0]].nation)) {
+        return get_connected_spaces(s, data.pieces[pieces[0]].nation)
+    } else {
+        return get_connected_spaces(s)
+    }
+}
+
 function get_connected_spaces(s, nation) {
     let connections = []
     if (data.spaces[s].connections)
@@ -4129,6 +4158,30 @@ events.bulgaria_entry = {
     }
 }
 
+// CP #57
+events.kaisertreu = {
+    can_play() {
+        if (!game.attack)
+            return false
+        if (game.attack.attacker === CP)
+            return undefined !== game.attack.pieces.find(p => data.pieces[p].nation === AUSTRIA_HUNGARY)
+        else
+            return undefined !== get_pieces_in_space(game.attack.space).find(p => data.pieces[p].nation === AUSTRIA_HUNGARY)
+    },
+    can_apply_drm() {
+        return this.can_play()
+    },
+    apply_drm() {
+        if (game.attack.attacker === CP) {
+            log(`${card_name(KAISERTREU)} adds +1 DRM`)
+            game.attack.attacker_drm += 1
+        } else {
+            log(`${card_name(KAISERTREU)} adds +1 DRM`)
+            game.attack.defender_drm += 1
+        }
+    }
+}
+
 // === ALLIED POWER EVENTS ===
 
 // AP #2
@@ -4140,6 +4193,30 @@ events.blockade = {
         push_undo()
         game.events.blockade = game.turn
         goto_end_action()
+    }
+}
+
+// AP #4
+events.pleve = {
+    can_play() {
+        if (!game.attack)
+            return false
+        if (game.attack.attacker === AP)
+            return undefined !== game.attack.pieces.find(p => data.pieces[p].nation === RUSSIA)
+        else
+            return undefined !== get_pieces_in_space(game.attack.space).find(p => data.pieces[p].nation === RUSSIA)
+    },
+    can_apply_drm() {
+        return this.can_play()
+    },
+    apply_drm() {
+        if (game.attack.attacker === AP) {
+            log(`${card_name(PLEVE)} adds +1 DRM`)
+            game.attack.attacker_drm += 1
+        } else {
+            log(`${card_name(PLEVE)} adds +1 DRM`)
+            game.attack.defender_drm += 1
+        }
     }
 }
 
@@ -4238,6 +4315,22 @@ events.greece_entry = {
     play() {
         set_nation_at_war(GREECE)
         goto_end_action()
+    }
+}
+
+// AP #59
+events.alpine_troops = {
+    can_play() {
+        if (!game.attack)
+            return false
+        return !!(game.attack.attacker === AP && game.attack.pieces.every(p => data.pieces[p].nation === ITALY));
+    },
+    can_apply_drm() {
+        return this.can_play()
+    },
+    apply_drm() {
+        log(`${card_name(ALPINE_TROOPS)} adds +1 DRM`)
+        game.attack.attacker_drm += 1
     }
 }
 
