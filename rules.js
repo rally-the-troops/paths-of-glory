@@ -77,7 +77,7 @@ const AH_REINFORCEMENTS_2 = 85
 const GERMAN_REINFORCEMENTS_3 = 86
 const GERMAN_REINFORCEMENTS_4 = 87
 const AH_REINFORCEMENTS_3 = 88
-const LYBIAN_REVOLT = 89
+const LIBYAN_REVOLT = 89
 const HIGH_SEAS_FLEET = 90
 const PLACE_OF_EXECUTION = 91
 const ZEPPELIN_RAIDS = 92
@@ -210,6 +210,7 @@ const MEF4 = 260
 const ARABIA_SPACE = 271
 const MEDINA = 272
 const SINAI = 277
+const LIBYA = 281
 const AP_RESERVE_BOX = 282
 const CP_RESERVE_BOX = 283
 const AP_ELIMINATED_BOX = 284
@@ -250,6 +251,7 @@ function nation_name(nation) {
         case US: return "US"
         case NONE: return "None"
         case AH_IT: return "Austria-Hungary (Italy)"
+        case 'sn': return ""
         default: return nation
     }
 }
@@ -1471,9 +1473,10 @@ function goto_play_reinf(card) {
         active_player.ws += card_data.ws
     }
 
+    const piece_nation = card === LIBYAN_REVOLT ? 'sn' : card_data.reinfnation // This card counts as Turkish reinforcements but places the 'sn' piece
     game.reinforcements = []
     card_data.reinf.split('|').forEach((name) => {
-        let p = find_unused_piece(card_data.reinfnation, name)
+        let p = find_unused_piece(piece_nation, name)
         game.reinforcements.push(p)
     })
     game.state = 'place_reinforcements'
@@ -1502,6 +1505,7 @@ states.place_reinforcements = {
         push_undo()
         const p = game.reinforcements.shift()
         game.location[p] = s
+        set_control(s, game.active)
     },
     done() {
         clear_undo()
@@ -1514,7 +1518,17 @@ function get_available_reinforcement_spaces(p) {
     const nation = piece_data.nation
     const spaces = []
 
-    // TODO: Special placement rules for certain corps units
+    // Special placement for SN corps
+    if (nation === 'sn') {
+        let libya_available = true
+        for_each_piece_in_space(LIBYA, (p) => {
+            if (data.pieces[p].faction === AP)
+                libya_available = false
+        })
+        return libya_available ? [LIBYA] : []
+    }
+
+    // TODO: Other special placement corps
 
     // Corps can be placed in the reserve box
     if (piece_data.type === CORPS) {
@@ -4004,30 +4018,30 @@ function is_unit_supplied(p) {
     let faction = data.pieces[p].faction
     let nation = data.pieces[p].nation
     let location = game.location[p]
-    if (location == 0)
+    if (location === 0)
         return true
 
-    if (data.pieces[p].name == "ANA Corps" && data.spaces[location].map == "neareast")
+    if (data.pieces[p].name === "ANA Corps" && data.spaces[location].map === "neareast")
         return true
 
-    if (nation == MONTENEGRO)
+    if (nation === MONTENEGRO)
         return true
 
-    if (nation == "sn" && data.spaces[location].map == "neareast")
+    if (nation === "sn" && data.spaces[location].map === "neareast")
         return true
 
     if (!supply_cache) search_supply()
-    let cache = (faction == CP) ? supply_cache.cp : supply_cache.western
-    if (nation == ITALY)
+    let cache = (faction === CP) ? supply_cache.cp : supply_cache.western
+    if (nation === ITALY)
         cache = supply_cache.italian
-    else if (nation == RUSSIA || nation == SERBIA || nation == ROMANIA) {
+    else if (nation === RUSSIA || nation === SERBIA || nation === ROMANIA) {
         cache = supply_cache.eastern
     }
 
-    if (nation == SERBIA) {
-        if (data.spaces[location].nation == SERBIA)
+    if (nation === SERBIA) {
+        if (data.spaces[location].nation === SERBIA)
             return true // Serbian units are always in supply in Serbia
-        else if (is_friendly_control(SALONIKA, AP), supply_cache.salonika[location].sources.length > 0)
+        else if (is_friendly_control(SALONIKA, AP) && supply_cache.salonika[location].sources.length > 0)
             return true // Serbian units can trace supply to Salonika if it is friendly controlled
     }
 
@@ -4039,7 +4053,7 @@ function is_unit_supplied(p) {
 
 function is_space_supplied(faction, s) {
     if (!supply_cache) search_supply()
-    if (faction == CP) {
+    if (faction === CP) {
         return supply_cache.cp[s].sources.length > 0
     } else {
         return supply_cache.eastern[s].sources.length > 0
@@ -4058,7 +4072,7 @@ function query_supply() {
 function get_oos_pieces() {
     let oos_pieces = []
     for (let p = 1; p < data.pieces.length; ++p) {
-        if (game.location[p] != 0 && game.location[p] < AP_RESERVE_BOX && !is_unit_supplied(p)) {
+        if (game.location[p] !== 0 && game.location[p] < AP_RESERVE_BOX && !is_unit_supplied(p)) {
             oos_pieces.push(p)
         }
     }
@@ -4070,7 +4084,7 @@ function get_oos_pieces() {
 // CP #1
 events.guns_of_august = {
     can_play() {
-        return (game.turn == 1 && game.cp.actions.length == 0)
+        return (game.turn === 1 && game.cp.actions.length === 0)
     },
     play() {
         push_undo()
