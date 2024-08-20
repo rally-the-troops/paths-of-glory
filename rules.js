@@ -41,6 +41,9 @@ const COMMITMENT_MOBILIZATION = "mobilization"
 const COMMITMENT_LIMITED = "limited"
 const COMMITMENT_TOTAL = "total"
 
+const MOVE = 'move'
+const ATTACK = 'attack'
+
 const ACTION_EVENT = "evt"
 const ACTION_OP = "op"
 const ACTION_SR = "sr"
@@ -271,7 +274,6 @@ exports.action = function (state, current, action, arg) {
     } else {
         if (action === "undo" && game.undo && game.undo.length > 0)
             pop_undo()
-        // TODO: Add actions that can be done at any time, regardless of state
         else
             throw new Error("Invalid action: " + action)
     }
@@ -397,14 +399,12 @@ exports.view = function(state, current) {
 }
 
 exports.setup = function (seed, scenario, options) {
-    // TODO: Actually use scenarios
     scenario = HISTORICAL
 
     game = create_empty_game_state(seed, scenario, options)
 
     log_h1("Paths of Glory")
 
-    // TODO: Do real scenario setup and remove this
     setup_piece('ge', '1 Army', 'Aachen')
     setup_piece('ge', '2 Army', 'Koblenz')
     setup_piece('ge', '3 Army', 'Koblenz')
@@ -496,13 +496,13 @@ exports.setup = function (seed, scenario, options) {
     set_trench_level(find_space('Cairo'), 1, AP)
     set_trench_level(find_space('Basra'), 1, AP)
 
-    if (game.scenario == HISTORICAL) {
+    if (game.scenario === HISTORICAL) {
         game.options.hand_size = 8
         game.options.start_with_guns_of_august = 1
+        game.options.failed_entrench = 1
     } else {
         game.options.hand_size = 7
     }
-    game.options.failed_entrench = 1 // TODO: make this actually optional
 
     setup_initial_decks()
 
@@ -701,10 +701,8 @@ function goto_end_turn() {
 
     game.reinf_this_turn = {}
 
-    // TODO: Clean up other lingering game state
-
     // Check for game end
-    if (game.turn == 20) { // TODO: Other scenarios have other turn limits
+    if (game.turn === 20) {
         let result = get_game_result_by_vp()
         goto_game_over(result, get_result_message("Turn Limit: ", result))
         return
@@ -968,7 +966,7 @@ function get_capitals(nation) {
 
 function all_capitals_occupied(nation) {
     const capitals = get_capitals(nation)
-    if (capitals.length == 0)
+    if (capitals.length === 0)
         return false
     for (let c of capitals) {
         if (is_friendly_control(c, data.spaces[c].faction)) {
@@ -990,12 +988,12 @@ function any_capitals_occupied(nation) {
 }
 
 function satisfies_mo(mo, attackers, defenders, space) {
-    let attacker_nation = mo == AH_IT ? AUSTRIA_HUNGARY : mo;
+    let attacker_nation = mo === AH_IT ? AUSTRIA_HUNGARY : mo;
     let valid_attacker = attackers.find((a) => {
         let piece = data.pieces[a]
-        if (piece.nation != attacker_nation)
+        if (piece.nation !== attacker_nation)
             return false
-        if (attacker_nation == BRITAIN &&
+        if (attacker_nation === BRITAIN &&
             (piece.counter.startsWith('cnd') ||
                 piece.counter.startsWith('pt') ||
                 piece.counter.startsWith('aus') ||
@@ -1009,28 +1007,28 @@ function satisfies_mo(mo, attackers, defenders, space) {
 
     let valid_defender = defenders.find((d) => {
         let piece = data.pieces[d]
-        if (attacker_nation == FRANCE || attacker_nation == BRITAIN) {
-            return piece.nation == GERMANY
+        if (attacker_nation === FRANCE || attacker_nation === BRITAIN) {
+            return piece.nation === GERMANY
         }
-        if (attacker_nation == GERMANY) {
-            return piece.nation == BELGIUM || piece.nation == FRANCE || piece.nation == BRITAIN || piece.nation == US
+        if (attacker_nation === GERMANY) {
+            return piece.nation === BELGIUM || piece.nation === FRANCE || piece.nation === BRITAIN || piece.nation === US
         }
     })
     if (valid_defender === undefined)
         return false
 
     let location = data.spaces[space].nation;
-    if (attacker_nation == FRANCE || attacker_nation == BRITAIN || attacker_nation == GERMANY) {
-        if (location != FRANCE && location != BELGIUM && location != GERMANY) {
+    if (attacker_nation === FRANCE || attacker_nation === BRITAIN || attacker_nation === GERMANY) {
+        if (location !== FRANCE && location !== BELGIUM && location !== GERMANY) {
             return false
         }
     }
 
-    if (mo == AH_IT) {
+    if (mo === AH_IT) {
         // All other conditions have passed, so the attack satisfies the MO if the defender is Italian, the attacked
         // space is Italian, *or* the attacked space traces supply through Italy
         for (let d of defenders) {
-            if (data.pieces[d].nation == ITALY)
+            if (data.pieces[d].nation === ITALY)
                 return true
         }
 
@@ -1039,7 +1037,7 @@ function satisfies_mo(mo, attackers, defenders, space) {
 
         let supply_path = get_supply_path(AP, space)
         for (let s of supply_path) {
-            if (data.pieces[s].nation == ITALY)
+            if (data.pieces[s].nation === ITALY)
                 return true
         }
     }
@@ -1129,8 +1127,6 @@ states.action_phase = {
         view.prompt = `Action ${p.actions.length+1}: Play a card or choose an action`
         for (let i = 0; i < p.hand.length; ++i)
             gen_card_menu(p.hand[i])
-        if (game.options.can_offer_peace) // TODO: Check for appropriate conditions?
-            gen_action('offer_peace')
         gen_action('single_op')
     },
     play_event(card) {
@@ -1148,9 +1144,6 @@ states.action_phase = {
     },
     play_rps(card) {
         goto_play_rps(card)
-    },
-    offer_peace() {
-        goto_offer_peace()
     },
     single_op() {
         goto_play_ops(undefined)
@@ -1275,14 +1268,14 @@ states.choose_sr_unit = {
 }
 
 function sr_cost(p) {
-    return data.pieces[p].type == ARMY ? 4 : 1;
+    return data.pieces[p].type === ARMY ? 4 : 1;
 }
 
 function can_sr(p) {
     let piece_data = data.pieces[p]
     if (sr_cost(p) > game.sr.pts) return false
     if (set_has(game.sr.done, p)) return false
-    if (game.location[p] == AP_RESERVE_BOX || game.location[p] == CP_RESERVE_BOX) {
+    if (game.location[p] === AP_RESERVE_BOX || game.location[p] === CP_RESERVE_BOX) {
         // TODO: if enemy controls or besieges a nation's capital, no corps can SR from the Reserve Box (13.1.11)
 
         // TODO: Units may not SR to or from Reserve Box if German/Austrian tracing supply from Sofia/Constantinople,
@@ -1297,8 +1290,8 @@ function can_sr(p) {
     if (!nation_at_war(piece_data.nation)) return false
 
     // If unit is Russian, SR only if they are in Russia or Reserve Box (13.1.6)
-    if (piece_data.nation == RUSSIA &&
-        !(game.location[p] == AP_RESERVE_BOX || data.spaces[game.location[p]].nation == RUSSIA)) {
+    if (piece_data.nation === RUSSIA &&
+        !(game.location[p] === AP_RESERVE_BOX || data.spaces[game.location[p]].nation === RUSSIA)) {
         return false
     }
 
@@ -1390,8 +1383,9 @@ function find_sr_destinations() {
     while (frontier.length > 0) {
         let current = frontier.pop()
         get_connected_spaces(current, nation).forEach((n) => {
-            // TODO: Check for restrictions based on besieged forts
-            if (!set_has(destinations, n) && is_space_supplied(game.active, n)) {
+            if (!set_has(destinations, n)
+                && is_space_supplied(game.active, n)
+                && (is_friendly_control(n, game.active) || game.forts.besieged.includes(n))) {
                 if (nation === RUSSIA && data.spaces[n].nation !== RUSSIA)
                     return
                 set_add(destinations, n)
@@ -1450,7 +1444,9 @@ function goto_play_rps(card) {
     game.rp.it += card_data.rpit !== undefined && nation_at_war(ITALY) ? card_data.rpit : 0
     game.rp.tu += card_data.rptu !== undefined && nation_at_war(TURKEY) ? card_data.rptu : 0
 
-    // TODO: If "over there" is in effect, add 1 to the US RP total
+    if (game.events.over_there > 0) {
+        game.rp.us += 1
+    }
 
     discard_card(card, 'for rps')
     goto_end_action()
@@ -1521,9 +1517,9 @@ function get_available_reinforcement_spaces(p) {
     // TODO: Special placement rules for certain corps units
 
     // Corps can be placed in the reserve box
-    if (piece_data.type == CORPS) {
+    if (piece_data.type === CORPS) {
         // TODO: Handle special corps placement rules
-        if (piece_data.faction == AP)
+        if (piece_data.faction === AP)
             spaces.push(AP_RESERVE_BOX)
         else
             spaces.push(CP_RESERVE_BOX)
@@ -1533,10 +1529,10 @@ function get_available_reinforcement_spaces(p) {
     // TODO: Special placement rules for French Orient Army, British NE Army, Russian CAU Army, and British MEF Army
 
     // US Armies can only be placed at unbesieged ports in France
-    if (nation == US) {
+    if (nation === US) {
         for (let s = 1; s < data.spaces.length; s++) {
             const space = data.spaces[s]
-            if (space.nation == FRANCE && space.apport && is_friendly_control(s, game.active) && !is_besieged(s)) {
+            if (space.nation === FRANCE && space.apport && is_friendly_control(s, game.active) && !is_besieged(s)) {
                 spaces.push(s)
             }
         }
@@ -1554,7 +1550,7 @@ function get_available_reinforcement_spaces(p) {
     // Friendly supply sources in the right nation can receive armies
     for (let s = 1; s < data.spaces.length; s++) {
         const space = data.spaces[s]
-        if (space.nation == nation && space.supply && is_friendly_control(s, game.active) && is_space_supplied(game.active, s) && !is_fully_stacked(s, game.active)) {
+        if (space.nation === nation && space.supply && is_friendly_control(s, game.active) && is_space_supplied(game.active, s) && !is_fully_stacked(s, game.active)) {
             spaces.push(s)
         }
     }
@@ -1562,7 +1558,7 @@ function get_available_reinforcement_spaces(p) {
     // If Paris is fully stacked, but not besieged or captured, French reinforcements can go in Orleans
     const paris = find_space('Paris')
     const orleans = find_space('Orleans')
-    if (nation == FRANCE &&
+    if (nation === FRANCE &&
         is_fully_stacked(paris, game.active) &&
         is_friendly_control(paris, game.active) &&
         is_friendly_control(orleans, game.active &&
@@ -1573,26 +1569,24 @@ function get_available_reinforcement_spaces(p) {
     return spaces
 }
 
-function goto_offer_peace() {
-    // TODO
-}
-
 states.activate_spaces = {
     inactive: "Activate Spaces",
     prompt() {
         view.prompt = `Activate spaces: click spaces to activate (${game.ops} ops remaining)`
         let spaces = []
         game.location.forEach((loc, p) => {
-            if (loc != 0 && data.pieces[p].faction == game.active) {
+            if (loc !== 0 && data.pieces[p].faction === game.active) {
                 set_add(spaces, loc)
             }
         })
         spaces.forEach((s) => {
             if (set_has(game.activated.move, s) || set_has(game.activated.attack, s)) {
                 gen_action('deactivate', s)
-            } else if (game.ops >= cost_to_activate(s)) {
-                gen_action('activate_move', s)
-                gen_action('activate_attack', s)
+            } else {
+                if (game.ops >= cost_to_activate(s, MOVE))
+                    gen_action('activate_move', s)
+                if (game.ops >= cost_to_activate(s, ATTACK))
+                    gen_action('activate_attack', s)
             }
         })
         gen_action_undo()
@@ -1601,22 +1595,22 @@ states.activate_spaces = {
     deactivate(s) {
         push_undo()
         if (set_has(game.activated.move, s)) {
-            game.ops += cost_to_activate(s)
+            game.ops += cost_to_activate(s, MOVE)
             set_delete(game.activated.move, s)
         } else if (set_has(game.activated.attack, s)) {
-            game.ops += cost_to_activate(s)
+            game.ops += cost_to_activate(s, ATTACK)
             set_delete(game.activated.attack, s)
         }
     },
     activate_move(s) {
         push_undo()
         set_add(game.activated.move, s)
-        game.ops -= cost_to_activate(s)
+        game.ops -= cost_to_activate(s, MOVE)
     },
     activate_attack(s) {
         push_undo()
         set_add(game.activated.attack, s)
-        game.ops -= cost_to_activate(s)
+        game.ops -= cost_to_activate(s, ATTACK)
     },
     next() {
         start_action_round()
@@ -2000,9 +1994,9 @@ function can_move_to(s, moving_pieces) {
     // TODO: Neither the BEF Corps nor Army may move in or attack into any space outside Britain, France, Belgium, and Germany.
 
     //  15.1.12 Russian units may not attack, enter, or besiege a German fort space during the August 1914 turn.
-    if (game.turn == 1
-        && moving_pieces.find((p) => data.pieces[p].nation == RUSSIA) !== undefined
-        && data.spaces[s].nation == GERMANY
+    if (game.turn === 1
+        && moving_pieces.find((p) => data.pieces[p].nation === RUSSIA) !== undefined
+        && data.spaces[s].nation === GERMANY
         && has_undestroyed_fort(s, CP)) {
         return false
     }
@@ -2190,7 +2184,7 @@ function get_attackable_spaces(attackers) {
     for (let i = 0; i < attackers.length; ++i) {
         let attacker = attackers[i]
         let attackable_spaces = get_attackable_spaces_for_piece(attacker)
-        if (i == 0) { // First attacker's spaces are all eligible
+        if (i === 0) { // First attacker's spaces are all eligible
             eligible_spaces.push(...attackable_spaces)
         } else { // Subsequent attackers subtract ineligible spaces
             let to_remove = []
@@ -2213,18 +2207,18 @@ function get_attackable_spaces(attackers) {
     //  space participating in the attack. Due to this restriction and stacking limits, no Combat may involve more
     //  than three nationalities on each side.
 
-    const russian_attacker = attackers.find((p) => data.pieces[p].nation == RUSSIA) !== undefined
-    const german_attacker = attackers.find((p) => data.pieces[p].nation == GERMANY) !== undefined
+    const russian_attacker = attackers.find((p) => data.pieces[p].nation === RUSSIA) !== undefined
+    const german_attacker = attackers.find((p) => data.pieces[p].nation === GERMANY) !== undefined
     eligible_spaces.filter((s) => {
         //  15.1.12 Russian units may not attack, enter, or besiege a German fort space during the August 1914 turn.
-        if (game.turn == 1 && russian_attacker && data.spaces[s].nation == GERMANY && has_undestroyed_fort(s, CP)) {
+        if (game.turn === 1 && russian_attacker && data.spaces[s].nation === GERMANY && has_undestroyed_fort(s, CP)) {
             return false
         }
 
         // 15.1.11 Russian Forts: German units may not attack spaces containing Russian forts until the OberOst Event
         // Card is played or the Central Powers War Status is 4 or higher. German units may, however, besiege unoccupied
         // Russian forts. Austro-Hungarian units are not restricted by this rule.
-        if (german_attacker && data.spaces[s].nation == RUSSIA && has_undestroyed_fort(s, AP)) {
+        if (german_attacker && data.spaces[s].nation === RUSSIA && has_undestroyed_fort(s, AP)) {
             if (game.cp.ws < 4 && game.events.oberost === undefined)
                 return false
         }
@@ -3210,10 +3204,14 @@ const spaces_where_belgian_units_treated_as_british = [
 
 function cost_to_activate(space, type) {
     let nations = []
+    let has_russians = false
+    let num_pieces = 0
     for_each_piece_in_space(space, (piece) => {
+        num_pieces++
         let n = data.pieces[piece].nation
         if (n === "sn") n = TURKEY
         if (n === MONTENEGRO) n = SERBIA
+        if (n === RUSSIA) has_russians = true
         set_add(nations, n)
     })
     let cost = nations.length
@@ -3224,17 +3222,26 @@ function cost_to_activate(space, type) {
         cost--
     }
 
-    if ((data.spaces[space].nation == GERMANY || data.spaces[space].nation == FRANCE) &&
+    const nation = data.spaces[space].nation
+    if ((nation === GERMANY || nation === FRANCE) &&
         nations.includes(FRANCE) &&
         nations.includes(US)) {
         cost--
     }
 
-    // TODO: Moltke modifies the activation cost, unless Falkenhayn also played
-
     // TODO: Sud Army and 11th Army events modify the activation cost
 
-    // TODO: After Fall of the Tsar, spaces with Russian units cost 1 per unit for combat only
+    if (game.events.moltke > 0 && !game.events.falkenhayn) {
+        // Moltke modifies the activation cost, unless Falkenhayn also played
+        if (nation === BELGIUM || nation === FRANCE) {
+            cost = num_pieces
+        }
+    }
+
+    // After Fall of the Tsar, spaces with Russian units cost 1 per unit for combat only
+    if (game.events.fall_of_the_tsar > 0 && has_russians && type === ATTACK) {
+        cost = num_pieces
+    }
 
     // TODO: Cost for activating the MEF army activating supply through the MEF beachhead
 
@@ -3465,15 +3472,14 @@ function goto_war_status_phase() {
 }
 
 function get_game_result_by_vp() {
-    // TODO: Other scenarios may have different VP counts
-    let cp_threshold = game.events.brest_litovsk == 1 ? 11 : 13
+    let cp_threshold = game.events.brest_litovsk > 0 ? 11 : 13
     let ap_threshold = 9
     if (game.vp >= cp_threshold) {
         return CP
-    } else if (game.scenario == HISTORICAL || game.vp <= ap_threshold) {
+    } else if (game.scenario === HISTORICAL || game.vp <= ap_threshold) {
         return AP
     } else {
-        return DRAW
+        return DRAW // Historical scenario draws go to the Allies, so this is future-proofing for other scenarios
     }
 }
 
@@ -3618,17 +3624,21 @@ function get_replaceable_units() {
             continue
 
         const rp_type = get_rp_type(i)
-        if (get_rps_of_type(rp_type) == 0)
+        if (get_rps_of_type(rp_type) === 0)
             continue
 
-        if (game.location[i] === 0 || game.location == AP_RESERVE_BOX || game.location == CP_RESERVE_BOX)
+        if (game.location[i] === 0 || game.location === AP_RESERVE_BOX || game.location === CP_RESERVE_BOX)
             continue
 
-        if (game.location[i] == AP_ELIMINATED_BOX ||
-            game.location[i] == CP_ELIMINATED_BOX ||
+        if (all_capitals_occupied(piece_data.nation))
+            continue
+
+        if (!is_unit_supplied(i))
+            continue
+
+        if (game.location[i] === AP_ELIMINATED_BOX ||
+            game.location[i] === CP_ELIMINATED_BOX ||
             is_unit_reduced(i)) {
-            // TODO: check for valid supply path if on map
-            // TODO: check for capital control
             units.push(i)
         }
     }
@@ -4314,6 +4324,18 @@ events.greece_entry = {
     },
     play() {
         set_nation_at_war(GREECE)
+        goto_end_action()
+    }
+}
+
+// AP #55
+events.over_there = {
+    can_play() {
+        return game.events.zimmermann_telegram > 0
+    },
+    play() {
+        push_undo()
+        game.events.over_there = game.turn
         goto_end_action()
     }
 }

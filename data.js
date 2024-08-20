@@ -850,8 +850,8 @@ const cards = [
         "rpit": 2,
         "rpru": 4,
         "name": "Zimmermann Telegram",
-        "event": "zimmerman_telegram",
-        "effect": "May only be played if U.S. entry marker is in the \"Zimmerman Telegram Allowed\" box. Subtract 1 VP. US joins the Allies. Allows play of \"Over There\" card on any following turn."
+        "event": "zimmermann_telegram",
+        "effect": "May only be played if U.S. entry marker is in the \"Zimmermann Telegram Allowed\" box. Subtract 1 VP. US joins the Allies. Allows play of \"Over There\" card on any following turn."
     },
     {
         "num": 55,
