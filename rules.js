@@ -2140,12 +2140,12 @@ function goto_attack() {
         array_remove_item(game.eligible_attackers, p)
     })
 
+    log_h2(`${faction_name(game.active)} attacks ${space_name(game.attack.space)} with ${game.attack.pieces.map((p) => piece_name(p)).join(', ')}`)
+
     const mo = game.active == AP ? game.ap.mo : game.cp.mo
     if (mo != NONE && satisfies_mo(mo, game.attack.pieces, get_pieces_in_space(game.attack.space), game.attack.space)) {
-        if (game.active == AP)
-            game.ap.mo = NONE
-        if (game.active == CP)
-            game.cp.mo = NONE
+        game[game.active].mo = NONE
+        log(`${faction_name(game.active)} satisfied mandatory offensive`)
     }
 
     if (get_trench_level(game.attack.space, other_faction(game.attack.attacker)) > 0) {
@@ -2472,7 +2472,6 @@ states.defender_combat_cards = {
 }
 
 function begin_combat() {
-    log_h2(`${faction_name(game.attack.attacker)} attacking ${space_name(game.attack.space)}`)
     resolve_fire()
 }
 
