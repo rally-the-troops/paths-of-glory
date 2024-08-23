@@ -149,7 +149,7 @@ const LUSITANIA = 26
 const GREAT_RETREAT = 27
 const LANDSHIPS = 28
 const YUDENITCH = 29
-const SALONIKA = 30
+const SALONIKA_CARD = 30
 const MEF = 31
 const RUSSIAN_REINFORCEMENTS_5 = 32
 const GRAND_FLEET = 33
@@ -188,14 +188,20 @@ const INFLUENZA = 65
 
 // Space indices
 const LONDON = 1
+const ROUEN = 12
+const ORLEANS = 13
+const PARIS = 15
 const AMIENS = 16
 const CALAIS = 17
 const OSTEND = 18
-const GALLIPOLI = 21
+const CHATEAU_THIERRY = 20
+const MELUN = 21
 const LIEGE = 33
 const KOBLENZ = 41
 const ESSEN = 43
 const BRESLAU = 94
+const SALONIKA_SPACE = 117
+const NIS = 122
 const BELGRADE = 125
 const PETROGRAD = 143
 const MOSCOW = 152
@@ -210,6 +216,7 @@ const MEF4 = 260
 const ARABIA_SPACE = 271
 const MEDINA = 272
 const SINAI = 277
+const ALEXANDRIA = 280
 const LIBYA = 281
 const AP_RESERVE_BOX = 282
 const CP_RESERVE_BOX = 283
@@ -1314,7 +1321,7 @@ function can_sr(p) {
 function any_capital_occupied_or_besieged(nation) {
     const capitals = get_capitals(nation)
     for (let c of capitals) {
-        if (is_enemy_control(c, data.spaces[c].faction) || game.forts.besieged.includes(c)) {
+        if (is_enemy_control(c, data.spaces[c].faction) || is_besieged(c)) {
             return true
         }
     }
@@ -1400,7 +1407,7 @@ function find_sr_destinations() {
         get_connected_spaces(current, nation).forEach((n) => {
             if (!set_has(destinations, n)
                 && is_space_supplied(game.active, n)
-                && (is_friendly_control(n, game.active) || game.forts.besieged.includes(n))) {
+                && (is_friendly_control(n, game.active) || is_besieged(n))) {
                 if (nation === RUSSIA && data.spaces[n].nation !== RUSSIA)
                     return
                 set_add(destinations, n)
@@ -1536,7 +1543,7 @@ function get_available_reinforcement_spaces(p) {
     const spaces = []
 
     // Special placement for SN corps
-    if (nation === 'sn') {
+    if (p === TURKISH_SN_CORPS) {
         let libya_available = true
         for_each_piece_in_space(LIBYA, (p) => {
             if (data.pieces[p].faction === AP)
@@ -1545,11 +1552,13 @@ function get_available_reinforcement_spaces(p) {
         return libya_available ? [LIBYA] : []
     }
 
-    // TODO: Other special placement corps
+    // ANA Corps always goes in Arabia
+    if (p === BRITISH_ANA_CORPS) {
+        return [ARABIA_SPACE]
+    }
 
     // Corps can be placed in the reserve box
     if (piece_data.type === CORPS) {
-        // TODO: Handle special corps placement rules
         if (piece_data.faction === AP)
             spaces.push(AP_RESERVE_BOX)
         else
@@ -1557,7 +1566,23 @@ function get_available_reinforcement_spaces(p) {
         return spaces
     }
 
-    // TODO: Special placement rules for French Orient Army, British NE Army, Russian CAU Army, and British MEF Army
+    // Special placement options for French Orient Army, British NE Army, Russian CAU Army, and British MEF Army
+    if (piece_data.name === 'Orient Army') {
+        spaces.push(SALONIKA_SPACE)
+    } else if (piece_data.name === 'NE Army') {
+        spaces.push(ALEXANDRIA)
+    } else if (piece_data.name === 'CAU Army') {
+        // any supplied space in Russia on the NE map
+        for (let s = 1; s < data.spaces.length; s++) {
+            if (data.spaces[s].nation === RUSSIA && data.spaces[s].map === 'neareast' && is_space_supplied(AP, s))
+                spaces.push(s)
+        }
+    } else if (piece_data.name === 'MEF Army') {
+        spaces.push(MEF1)
+        spaces.push(MEF2)
+        spaces.push(MEF3)
+        spaces.push(MEF4)
+    }
 
     // US Armies can only be placed at unbesieged ports in France
     if (nation === US) {
@@ -2006,7 +2031,7 @@ function can_move_to(s, moving_pieces) {
     if (would_overstack(s, moving_pieces, game.active))
         return false
 
-    if (is_enemy_control(s, game.active) && has_undestroyed_fort(s, other_faction(game.active)) && !set_has(game.forts.besieged, s) && !can_besiege(s, moving_pieces)) {
+    if (is_enemy_control(s, game.active) && has_undestroyed_fort(s, other_faction(game.active)) && !is_besieged(s) && !can_besiege(s, moving_pieces)) {
         return false
     }
 
@@ -3208,6 +3233,10 @@ function has_undestroyed_fort(space, faction) {
     return space_data.fort !== undefined && space_data.fort > 0 && space_data.faction == faction && !set_has(game.forts.destroyed, space)
 }
 
+function is_besieged(space) {
+    return set_has(game.forts.besieged, space)
+}
+
 function can_besiege(space, units) {
     let retval = false
     let count_corps = 0
@@ -3369,7 +3398,7 @@ states.attrition_phase = {
         array_remove_item(game.attrition[game.active].spaces, s)
         log(`Flipped control of ${space_name(s)} due to attrition`)
         set_control(s, other_faction(game.active))
-        if (game.attrition[game.active].spaces.length == 0 && game.attrition[game.active].pieces.length == 0) {
+        if (game.attrition[game.active].spaces.length === 0 && game.attrition[game.active].pieces.length === 0) {
             if (game.attrition[other_faction(game.active)].spaces.length > 0 || game.attrition[other_faction(game.active)].pieces.length > 0) {
                 game.active = other_faction(game.active)
             } else {
@@ -3383,7 +3412,7 @@ function goto_siege_phase() {
     if (game.forts.besieged.length > 0) {
         log_h1("Siege Phase")
         game.state = 'siege_phase'
-        const ap_has_sieges = game.forts.besieged.find((s) => data.spaces[s].faction == CP) !== undefined
+        const ap_has_sieges = game.forts.besieged.find((s) => data.spaces[s].faction === CP) !== undefined
         game.active = ap_has_sieges ? AP : CP
         game.sieges_to_roll = [...game.forts.besieged]
     } else {
@@ -3396,7 +3425,7 @@ states.siege_phase = {
     prompt() {
         view.prompt = 'Roll sieges'
         const other  = other_faction(game.active)
-        game.sieges_to_roll.filter((s) => data.spaces[s].faction == other).forEach((s) => { gen_action_space(s) })
+        game.sieges_to_roll.filter((s) => data.spaces[s].faction === other).forEach((s) => { gen_action_space(s) })
     },
     space(s) {
         array_remove_item(game.sieges_to_roll, s)
@@ -3774,17 +3803,43 @@ states.choose_replacement_army = {
 }
 
 function get_army_replacement_spaces(p) {
-    let spaces = get_available_reinforcement_spaces(p)
-    // TODO: May need to modify this list based on the exceptions from 17.1.5:
-    //  Serbian Army units may be recreated at Salonika if the Salonika or Greece Neutral Entry Event Cards have been
-    //  played and Salonika is under Allied control. They may also be recreated in Belgrade following normal
-    //  reinforcement restrictions.
-    //  The Belgian Army may be rebuilt in Brussels, Antwerp, or Ostend. The Belgian Army may not be built in Antwerp
-    //  if a line of supply does not exist. If none of these spaces are Allied controlled and in supply, the Belgian
-    //  Army may be rebuilt in Calais. (Calais also represents the corner of Belgium held by the Allies after October
-    //  1914.)
-    return spaces
+    let spaces = []
 
+    if (data.pieces[p].nation === BELGIUM) {
+        //  17.1.5: Belgian Army units may be rebuilt in Brussels, Antwerp, or Ostend. The Belgian Army may not be built in Antwerp
+        //  if a line of supply does not exist. If none of these spaces are Allied controlled and in supply, the Belgian
+        //  Army may be rebuilt in Calais. (Calais also represents the corner of Belgium held by the Allies after October
+        //  1914.)
+        const belgian_spaces = [BRUSSELS, ANTWERP, OSTEND]
+        for (let s of belgian_spaces) {
+            if (is_friendly_control(s, AP) && is_space_supplied(AP, s))
+                spaces.push(s)
+        }
+        if (spaces.length === 0) {
+            if (is_friendly_control(CALAIS, AP) && is_space_supplied(AP, CALAIS))
+                spaces.push(CALAIS)
+        }
+        return spaces
+    }
+
+    spaces.concat(get_available_reinforcement_spaces(p))
+
+    if (data.pieces[p].nation === SERBIA) {
+        //  Also 17.1.5: Serbian Army units may be recreated at Salonika if the Salonika or Greece Neutral Entry Event
+        //  Cards have been played and Salonika is under Allied control. They may also be recreated in Belgrade
+        //  following normal reinforcement restrictions.
+        if (game.events.salonika > 0 || game.events.greece_neutral_entry > 0) {
+            if (is_friendly_control(SALONIKA_SPACE, AP) && is_space_supplied(AP, SALONIKA_SPACE))
+                spaces.push(SALONIKA_SPACE)
+        }
+
+        // Exception: Serb armies may not be recreated at Belgrade if Nis is under CP control.
+        if (is_enemy_control(NIS, AP)) {
+            array_remove_item(spaces, BELGRADE)
+        }
+    }
+
+    return spaces
 }
 
 function goto_draw_cards_phase() {
@@ -3962,7 +4017,7 @@ function generate_supply_cache(faction, cache, sources, use_ports, nation) {
 
     // Block enemy controlled spaces, unless besieging an enemy fort in the space
     for (let s = 1; s < data.spaces.length; ++s) {
-        if (is_enemy_control(s, faction) && !set_has(game.forts.besieged, s)) {
+        if (is_enemy_control(s, faction) && !is_besieged(s)) {
             set_add(blocked_spaces, s)
         } else if (use_ports) {
             // If this type of supply can use ports, build a set of friendly port spaces
@@ -4022,8 +4077,8 @@ function search_supply() {
 
     const eastern_supply_sources = [PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE]
     generate_supply_cache(AP, supply_cache.eastern, eastern_supply_sources, false, RUSSIA)
-    if (is_friendly_control(SALONIKA, AP))
-        generate_supply_cache(AP, supply_cache.salonika, [SALONIKA], false) // Separate cache for Serbian units only
+    if (is_friendly_control(SALONIKA_SPACE, AP))
+        generate_supply_cache(AP, supply_cache.salonika, [SALONIKA_SPACE], false) // Separate cache for Serbian units only
 
     const western_supply_sources = [LONDON]
     generate_supply_cache(AP, supply_cache.western, western_supply_sources, true)
@@ -4057,7 +4112,7 @@ function is_unit_supplied(p) {
     if (nation === SERBIA) {
         if (data.spaces[location].nation === SERBIA)
             return true // Serbian units are always in supply in Serbia
-        else if (is_friendly_control(SALONIKA, AP) && supply_cache.salonika[location].sources.length > 0)
+        else if (is_friendly_control(SALONIKA_SPACE, AP) && supply_cache.salonika[location].sources.length > 0)
             return true // Serbian units can trace supply to Salonika if it is friendly controlled
     }
 
@@ -4075,7 +4130,7 @@ function is_space_supplied(faction, s) {
         return supply_cache.eastern[s].sources.length > 0
             || supply_cache.western[s].sources.length > 0
             || supply_cache.italian[s].sources.length > 0
-            || is_friendly_control(SALONIKA, AP) && supply_cache.salonika[s].sources.length > 0
+            || is_friendly_control(SALONIKA_SPACE, AP) && supply_cache.salonika[s].sources.length > 0
     }
 }
 
@@ -4366,6 +4421,40 @@ events.over_there = {
     play() {
         push_undo()
         game.events.over_there = game.turn
+        goto_end_action()
+    }
+}
+
+// AP #56
+events.paris_taxis = {
+    can_play() {
+        return true
+    },
+    play() {
+        push_undo()
+        game.state = 'paris_taxis'
+    }
+}
+
+states.paris_taxis = {
+    inactive: 'Choose a units for the Paris Taxis event',
+    prompt() {
+        view.prompt = 'Choose a reduced Army to strengthen'
+        const spaces = [PARIS, AMIENS, ROUEN, CHATEAU_THIERRY, ORLEANS, MELUN]
+        for (let p = 1; p < data.pieces.length; ++p) {
+            if (data.pieces[p].nation === FRANCE && data.pieces[p].type === ARMY && is_unit_reduced(p) && spaces.includes(game.location[p])) {
+                gen_action_piece(p)
+            }
+        }
+        gen_action_undo()
+        gen_action_pass()
+    },
+    piece(p) {
+        array_remove_item(game.reduced, p)
+        log(`Returned ${piece_name(p)} in ${space_name(game.location[p])} to full strength`)
+        goto_end_action()
+    },
+    pass() {
         goto_end_action()
     }
 }
