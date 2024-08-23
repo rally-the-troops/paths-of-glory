@@ -1278,7 +1278,10 @@ function can_sr(p) {
     if (sr_cost(p) > game.sr.pts) return false
     if (set_has(game.sr.done, p)) return false
     if (game.location[p] === AP_RESERVE_BOX || game.location[p] === CP_RESERVE_BOX) {
-        // TODO: if enemy controls or besieges a nation's capital, no corps can SR from the Reserve Box (13.1.11)
+        // If enemy controls or besieges a nation's capital, no corps can SR from the Reserve Box (13.1.11)
+        if (piece_data.nation !== BELGIUM && piece_data.nation !== SERBIA && any_capital_occupied_or_besieged(piece_data.nation)) {
+            return false
+        }
 
         // TODO: Units may not SR to or from Reserve Box if German/Austrian tracing supply from Sofia/Constantinople,
         //  Turkish tracing supply to Essen, Breslau, or Sofia, Bulgarian tracing supply to Essen, Breslau, or
@@ -1306,6 +1309,16 @@ function can_sr(p) {
     // TODO: No more than one CP corps SR to or from NE map per turn (excl TU) (13.2.3)
 
     return true
+}
+
+function any_capital_occupied_or_besieged(nation) {
+    const capitals = get_capitals(nation)
+    for (let c of capitals) {
+        if (is_enemy_control(c, data.spaces[c].faction) || game.forts.besieged.includes(c)) {
+            return true
+        }
+    }
+    return false
 }
 
 states.choose_sr_destination = {
@@ -1415,10 +1428,14 @@ function find_sr_destinations() {
         }
     }
 
-    // TODO: 13.1.11 Capitals and SR: If the enemy controls or besieges a nation’s capital (Paris in the case of France,
+    // 13.1.11 Capitals and SR: If the enemy controls or besieges a nation’s capital (Paris in the case of France,
     // Vienna or Budapest in the case of A-H), no Corps of that nation may SR to or from the Reserve Box as long as the
     // enemy control lasts. Exception: Belgian and Serb units are not affected by this restriction. The MN unit may not
     // use SR overland. It may SR to and from the Reserve Box.
+    if (data.pieces[game.sr.unit].nation !== BELGIUM && data.pieces[game.sr.unit].nation !== SERBIA && any_capital_occupied_or_besieged(data.pieces[game.sr.unit].nation)) {
+        set_delete(destinations, AP_RESERVE_BOX)
+        set_delete(destinations, CP_RESERVE_BOX)
+    }
 
     // TODO: 13.1.12 Units may not SR to or from the Reserve box under the following conditions: German and Austrian
     //  units tracing supply to Sofia or Constantinople, Turkish units tracing supply to Essen, Breslau or Sofia,
