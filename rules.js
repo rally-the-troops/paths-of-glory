@@ -978,7 +978,7 @@ function all_capitals_occupied(nation) {
     if (capitals.length === 0)
         return false
     for (let c of capitals) {
-        if (is_friendly_control(c, data.spaces[c].faction)) {
+        if (is_controlled_by(c, data.spaces[c].faction)) {
             return false
         }
     }
@@ -989,7 +989,7 @@ function any_capitals_occupied(nation) {
     const capitals = get_capitals(nation)
     const faction = data.spaces[capitals[0]].faction
     for (let c of capitals) {
-        if (is_enemy_control(c, faction)) {
+        if (!is_controlled_by(c, faction)) {
             return true
         }
     }
@@ -1114,14 +1114,14 @@ function can_play_neutral_entry() {
 
 function set_trench_level(s, level, faction) {
     if (faction === undefined)
-        faction = is_friendly_control(s, AP) ? AP : CP
+        faction = is_controlled_by(s, AP) ? AP : CP
 
     game[faction].trenches[s] = level
 }
 
 function get_trench_level(s, faction) {
     if (faction === undefined)
-        faction = is_friendly_control(s, AP) ? AP : CP
+        faction = is_controlled_by(s, AP) ? AP : CP
 
     let level = game[faction].trenches[s]
     return level ?? 0
@@ -1321,7 +1321,7 @@ function can_sr(p) {
 function any_capital_occupied_or_besieged(nation) {
     const capitals = get_capitals(nation)
     for (let c of capitals) {
-        if (is_enemy_control(c, data.spaces[c].faction) || is_besieged(c)) {
+        if (!is_controlled_by(c, data.spaces[c].faction) || is_besieged(c)) {
             return true
         }
     }
@@ -1377,7 +1377,7 @@ function find_sr_destinations() {
 
         // If the nation is Serbia, add Salonika, when it is controlled by the allies and in supply
         const salonika = find_space('Salonika')
-        if (nation === SERBIA && is_space_supplied(AP, salonika) && is_friendly_control(salonika, AP)) {
+        if (nation === SERBIA && is_space_supplied(AP, salonika) && is_controlled_by(salonika, AP)) {
             set_add(destinations, salonika)
         }
 
@@ -1385,7 +1385,7 @@ function find_sr_destinations() {
         if (nation === US) {
             for (let s = 1; s < data.spaces.length; s++) {
                 if (data.spaces[s].nation === FRANCE &&
-                    is_friendly_control(s, AP) &&
+                    is_controlled_by(s, AP) &&
                     data.spaces[s].apport) {
                     set_add(destinations, s)
                 }
@@ -1407,7 +1407,7 @@ function find_sr_destinations() {
         get_connected_spaces(current, nation).forEach((n) => {
             if (!set_has(destinations, n)
                 && is_space_supplied(game.active, n)
-                && (is_friendly_control(n, game.active) || is_besieged(n))) {
+                && (is_controlled_by(n, game.active) || is_besieged(n))) {
                 if (nation === RUSSIA && data.spaces[n].nation !== RUSSIA)
                     return
                 set_add(destinations, n)
@@ -1421,14 +1421,14 @@ function find_sr_destinations() {
         if (game.active === AP && data.spaces[start].apport) {
             for (let s = 1; s < data.spaces.length; s++) {
                 if (data.spaces[s].apport &&
-                    is_friendly_control(s, AP)) {
+                    is_controlled_by(s, AP)) {
                     set_add(destinations, s)
                 }
             }
         } else if (game.active === CP && data.spaces[start].cpport) {
             for (let s = 1; s < data.spaces.length; s++) {
                 if (data.spaces[s].cpport &&
-                    is_friendly_control(s, CP)) {
+                    is_controlled_by(s, CP)) {
                     set_add(destinations, s)
                 }
             }
@@ -1588,7 +1588,7 @@ function get_available_reinforcement_spaces(p) {
     if (nation === US) {
         for (let s = 1; s < data.spaces.length; s++) {
             const space = data.spaces[s]
-            if (space.nation === FRANCE && space.apport && is_friendly_control(s, game.active) && !is_besieged(s)) {
+            if (space.nation === FRANCE && space.apport && is_controlled_by(s, game.active) && !is_besieged(s)) {
                 spaces.push(s)
             }
         }
@@ -1598,7 +1598,7 @@ function get_available_reinforcement_spaces(p) {
     // Friendly-controlled capitals can receive armies
     const capitals = get_capitals(nation)
     for (let c of capitals) {
-        if (is_friendly_control(c, game.active) && is_space_supplied(game.active, c) && !is_fully_stacked(c, game.active)) {
+        if (is_controlled_by(c, game.active) && is_space_supplied(game.active, c) && !is_fully_stacked(c, game.active)) {
             spaces.push(c)
         }
     }
@@ -1606,7 +1606,7 @@ function get_available_reinforcement_spaces(p) {
     // Friendly supply sources in the right nation can receive armies
     for (let s = 1; s < data.spaces.length; s++) {
         const space = data.spaces[s]
-        if (space.nation === nation && space.supply && is_friendly_control(s, game.active) && is_space_supplied(game.active, s) && !is_fully_stacked(s, game.active)) {
+        if (space.nation === nation && space.supply && is_controlled_by(s, game.active) && is_space_supplied(game.active, s) && !is_fully_stacked(s, game.active)) {
             spaces.push(s)
         }
     }
@@ -1616,8 +1616,8 @@ function get_available_reinforcement_spaces(p) {
     const orleans = find_space('Orleans')
     if (nation === FRANCE &&
         is_fully_stacked(paris, game.active) &&
-        is_friendly_control(paris, game.active) &&
-        is_friendly_control(orleans, game.active &&
+        is_controlled_by(paris, game.active) &&
+        is_controlled_by(orleans, game.active &&
         is_space_supplied(game.active, orleans))) {
         spaces.push(orleans)
     }
@@ -1973,12 +1973,7 @@ states.move_stack = {
 }
 
 function set_control(s, faction) {
-    // TODO: Handle special cases for control:
-    //
-    // The ANA unit is an exception to case 11.1.14. The ANA does not convert CP spaces it enters. Instead any CP space
-    // (except for a besieged fort space) the ANA occupies is considered under Allied control. The instant the ANA
-    // leaves such a space it reverts back to CP control. The ANA has no effect on spaces converted by other Allied
-    // units—these remain Allied after the ANA exits.
+    // TODO:
     //
     // The Turkish SN Corps converts spaces per 11.1.14. However, during the Attrition Phase, any spaces it converts
     // (other than the space it occupies) that cannot trace a supply line suffer Attrition. The Libya space suffers
@@ -2011,12 +2006,17 @@ function capture_trench(s, faction) {
     }
 }
 
-function is_friendly_control(s, faction) {
-    return game.control[s] == (faction == CP ? 1 : 0)
-}
+function is_controlled_by(s, faction) {
+    // The ANA unit is an exception to case 11.1.14. The ANA does not convert CP spaces it enters. Instead any CP space
+    // (except for a besieged fort space) the ANA occupies is considered under Allied control. The instant the ANA
+    // leaves such a space it reverts back to CP control. The ANA has no effect on spaces converted by other Allied
+    // units—these remain Allied after the ANA exits.
 
-function is_enemy_control(s, faction) {
-    return !is_friendly_control(s, faction)
+    let controlling_faction = game.control[s] === 1 ? CP : AP
+    if (game.location[BRITISH_ANA_CORPS] === s) {
+        controlling_faction = AP
+    }
+    return faction === controlling_faction
 }
 
 function can_move_to(s, moving_pieces) {
@@ -2031,7 +2031,7 @@ function can_move_to(s, moving_pieces) {
     if (would_overstack(s, moving_pieces, game.active))
         return false
 
-    if (is_enemy_control(s, game.active) && has_undestroyed_fort(s, other_faction(game.active)) && !is_besieged(s) && !can_besiege(s, moving_pieces)) {
+    if (!is_controlled_by(s, game.active) && has_undestroyed_fort(s, other_faction(game.active)) && !is_besieged(s) && !can_besiege(s, moving_pieces)) {
         return false
     }
 
@@ -2109,7 +2109,7 @@ function can_end_move(s) {
 }
 
 function end_move_stack() {
-    if (is_enemy_control(game.move.current, game.active) && has_undestroyed_fort(game.move.current, other_faction(game.active))) {
+    if (!is_controlled_by(game.move.current, game.active) && has_undestroyed_fort(game.move.current, other_faction(game.active))) {
         set_add(game.forts.besieged, game.move.current)
     }
 
@@ -2302,7 +2302,7 @@ function can_be_attacked(s) {
     let retval = false
 
     // Check if space has an attackable fort
-    if (data.spaces[s].fort > 0 && is_enemy_control(s, game.active) && !set_has(game.forts.destroyed, s) && !set_has(game.forts.besieged)) {
+    if (data.spaces[s].fort > 0 && !is_controlled_by(s, game.active) && !set_has(game.forts.destroyed, s) && !set_has(game.forts.besieged)) {
         return true
     }
 
@@ -3083,10 +3083,10 @@ function get_retreat_options() {
         if (game.attack.retreat_length === 1 && would_overstack(conn, game.attack.retreating_pieces, game.active))
             return
 
-        if (game.attack.retreat_length === 1 && is_enemy_control(conn, game.active))
+        if (game.attack.retreat_length === 1 && !is_controlled_by(conn, game.active))
             return
 
-        if (is_friendly_control(conn, game.active))
+        if (is_controlled_by(conn, game.active))
             has_friendly_option = true
 
         if (is_space_supplied(game.active, conn))
@@ -3098,7 +3098,7 @@ function get_retreat_options() {
     // if any options are friendly controlled, remove all enemy-controlled options
     if (has_friendly_option) {
         options = options.filter((s) => {
-            return is_friendly_control(s, game.active)
+            return is_controlled_by(s, game.active)
         })
     }
 
@@ -3337,7 +3337,7 @@ function goto_attrition_phase() {
 
     // Get all OOS spaces that should flip control
     for (let s = 1; s < data.spaces.length; ++s) {
-        const controlling_faction = is_friendly_control(s, AP) ? AP : CP
+        const controlling_faction = is_controlled_by(s, AP) ? AP : CP
         if (controlling_faction == AP && data.spaces[s].nation == SERBIA) {
             continue // Under rule 14.1.5, Serbian spaces only convert when CP units enter the spaces.
         }
@@ -3812,11 +3812,11 @@ function get_army_replacement_spaces(p) {
         //  1914.)
         const belgian_spaces = [BRUSSELS, ANTWERP, OSTEND]
         for (let s of belgian_spaces) {
-            if (is_friendly_control(s, AP) && is_space_supplied(AP, s))
+            if (is_controlled_by(s, AP) && is_space_supplied(AP, s))
                 spaces.push(s)
         }
         if (spaces.length === 0) {
-            if (is_friendly_control(CALAIS, AP) && is_space_supplied(AP, CALAIS))
+            if (is_controlled_by(CALAIS, AP) && is_space_supplied(AP, CALAIS))
                 spaces.push(CALAIS)
         }
         return spaces
@@ -3829,12 +3829,12 @@ function get_army_replacement_spaces(p) {
         //  Cards have been played and Salonika is under Allied control. They may also be recreated in Belgrade
         //  following normal reinforcement restrictions.
         if (game.events.salonika > 0 || game.events.greece_neutral_entry > 0) {
-            if (is_friendly_control(SALONIKA_SPACE, AP) && is_space_supplied(AP, SALONIKA_SPACE))
+            if (is_controlled_by(SALONIKA_SPACE, AP) && is_space_supplied(AP, SALONIKA_SPACE))
                 spaces.push(SALONIKA_SPACE)
         }
 
         // Exception: Serb armies may not be recreated at Belgrade if Nis is under CP control.
-        if (is_enemy_control(NIS, AP)) {
+        if (is_controlled_by(NIS, CP)) {
             array_remove_item(spaces, BELGRADE)
         }
     }
@@ -4017,7 +4017,7 @@ function generate_supply_cache(faction, cache, sources, use_ports, nation) {
 
     // Block enemy controlled spaces, unless besieging an enemy fort in the space
     for (let s = 1; s < data.spaces.length; ++s) {
-        if (is_enemy_control(s, faction) && !is_besieged(s)) {
+        if (!is_controlled_by(s, faction) && !is_besieged(s)) {
             set_add(blocked_spaces, s)
         } else if (use_ports) {
             // If this type of supply can use ports, build a set of friendly port spaces
@@ -4077,7 +4077,7 @@ function search_supply() {
 
     const eastern_supply_sources = [PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE]
     generate_supply_cache(AP, supply_cache.eastern, eastern_supply_sources, false, RUSSIA)
-    if (is_friendly_control(SALONIKA_SPACE, AP))
+    if (is_controlled_by(SALONIKA_SPACE, AP))
         generate_supply_cache(AP, supply_cache.salonika, [SALONIKA_SPACE], false) // Separate cache for Serbian units only
 
     const western_supply_sources = [LONDON]
@@ -4112,7 +4112,7 @@ function is_unit_supplied(p) {
     if (nation === SERBIA) {
         if (data.spaces[location].nation === SERBIA)
             return true // Serbian units are always in supply in Serbia
-        else if (is_friendly_control(SALONIKA_SPACE, AP) && supply_cache.salonika[location].sources.length > 0)
+        else if (is_controlled_by(SALONIKA_SPACE, AP) && supply_cache.salonika[location].sources.length > 0)
             return true // Serbian units can trace supply to Salonika if it is friendly controlled
     }
 
@@ -4130,7 +4130,7 @@ function is_space_supplied(faction, s) {
         return supply_cache.eastern[s].sources.length > 0
             || supply_cache.western[s].sources.length > 0
             || supply_cache.italian[s].sources.length > 0
-            || is_friendly_control(SALONIKA_SPACE, AP) && supply_cache.salonika[s].sources.length > 0
+            || is_controlled_by(SALONIKA_SPACE, AP) && supply_cache.salonika[s].sources.length > 0
     }
 }
 
