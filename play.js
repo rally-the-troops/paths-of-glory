@@ -232,74 +232,75 @@ let ui = {
 }
 
 const marker_info = {
-    move: { name: "Move", counter: "marker small move" },
-    attack: { name: "Attack", counter: "marker small attack" },
+    move: { name: "Move", counter: "marker small move", size: 36 },
+    attack: { name: "Attack", counter: "marker small attack", size: 36 },
     control: {
-        ap: { name: "AP Control", type: "ap_control", counter: "marker small ap_control" },
-        cp: { name: "CP Control", type: "cp_control", counter: "marker small cp_control" }
+        ap: { name: "AP Control", type: "ap_control", counter: "marker small ap_control", size: 36 },
+        cp: { name: "CP Control", type: "cp_control", counter: "marker small cp_control", size: 36 }
     },
     trench: {
         ap: {
-            1: { name: "AP Trench Level 1", type: "ap_trench_1", counter: "marker small ap_trench_1" },
-            2: { name: "AP Trench Level 2", type: "ap_trench_2", counter: "marker small ap_trench_2" }
+            1: { name: "AP Trench Level 1", type: "ap_trench_1", counter: "marker small ap_trench_1", size: 36 },
+            2: { name: "AP Trench Level 2", type: "ap_trench_2", counter: "marker small ap_trench_2", size: 36 }
         },
         cp: {
-            1: { name: "CP Trench Level 1", type: "cp_trench_1", counter: "marker small cp_trench_1" },
-            2: { name: "CP Trench Level 2", type: "cp_trench_2", counter: "marker small cp_trench_2" }
+            1: { name: "CP Trench Level 1", type: "cp_trench_1", counter: "marker small cp_trench_1", size: 36 },
+            2: { name: "CP Trench Level 2", type: "cp_trench_2", counter: "marker small cp_trench_2", size: 36 }
         }
     },
-    vp: { name: "VP", type: "vp", counter: "marker vps " },
+    vp: { name: "VP", type: "vp", counter: "marker vps ", size: 45 },
 
     // War status markers
-    ap_war_status: { name: "AP War Status", type: "ap_war_status", counter: "marker ap_war_status " },
-    cp_war_status: { name: "CP War Status", type: "cp_war_status", counter: "marker cp_war_status " },
-    combined_war_status: { name: "Combined War Status", type: "combined_war_status", counter: "marker combined_war_status " },
+    ap_war_status: { name: "AP War Status", type: "ap_war_status", counter: "marker ap_war_status ", size: 45 },
+    cp_war_status: { name: "CP War Status", type: "cp_war_status", counter: "marker cp_war_status ", size: 45 },
+    combined_war_status: { name: "Combined War Status", type: "combined_war_status", counter: "marker combined_war_status ", size: 45 },
 
     // Replacement points markers
-    ge_rp: { name: "German Replacements", type: "ge_rp", counter: "marker ge_rp " },
-    ah_rp: { name: "Austria-Hungary Replacements", type: "ah_rp", counter: "marker ah_rp " },
-    fr_rp: { name: "French Replacements", type: "fr_rp", counter: "marker fr_rp " },
-    br_rp: { name: "British Replacements", type: "br_rp", counter: "marker br_rp " },
-    ru_rp: { name: "Russian Replacements", type: "ru_rp", counter: "marker ru_rp " },
-    allied_rp: { name: "Allied Replacements", type: "allied_rp", counter: "marker allied_rp " },
-    bu_rp: { name: "Bulgarian Replacements", type: "bu_rp", counter: "marker bu_rp " },
-    tu_rp: { name: "Turkish Replacements", type: "tu_rp", counter: "marker tu_rp " },
-    it_rp: { name: "Italian Replacements", type: "it_rp", counter: "marker it_rp " },
-    us_rp: { name: "United States Replacements", type: "us_rp", counter: "marker us_rp " },
+    ge_rp: { name: "German Replacements", type: "ge_rp", counter: "marker ge_rp ", size: 45 },
+    ah_rp: { name: "Austria-Hungary Replacements", type: "ah_rp", counter: "marker ah_rp ", size: 45 },
+    fr_rp: { name: "French Replacements", type: "fr_rp", counter: "marker fr_rp ", size: 45 },
+    br_rp: { name: "British Replacements", type: "br_rp", counter: "marker br_rp ", size: 45 },
+    ru_rp: { name: "Russian Replacements", type: "ru_rp", counter: "marker ru_rp ", size: 45 },
+    allied_rp: { name: "Allied Replacements", type: "allied_rp", counter: "marker allied_rp ", size: 45 },
+    bu_rp: { name: "Bulgarian Replacements", type: "bu_rp", counter: "marker bu_rp ", size: 45 },
+    tu_rp: { name: "Turkish Replacements", type: "tu_rp", counter: "marker tu_rp ", size: 45 },
+    it_rp: { name: "Italian Replacements", type: "it_rp", counter: "marker it_rp ", size: 45 },
+    us_rp: { name: "United States Replacements", type: "us_rp", counter: "marker us_rp ", size: 45 },
 
-    current_cp_russian_vp: { name: "CP Russian VP", type: "current_cp_russian_vp", counter: "marker small current_cp_russian_vp " },
-    action: { name: "Action", counter: "marker small action " },
-    fort_destroyed: { name: "Destroyed Fort", counter: "marker fort_destroyed " },
-    fort_besieged: { name: "Besieged Fort", counter: "marker fort_besieged " },
-    turn: { name: "Turn", counter: "marker small game_turn " },
-    ap_missed_mo: { name: "AP Missed Mandatory Offensive", counter: "marker ap_missed_mo " },
-    cp_missed_mo: { name: "CP Missed Mandatory Offensive", counter: "marker cp_missed_mo " },
-    failed_entrench: { name: "Failed Entrench", counter: "marker small trench_attempt " },
+    current_cp_russian_vp: { name: "CP Russian VP", type: "current_cp_russian_vp", counter: "marker small current_cp_russian_vp ", size: 36 },
+    action: { name: "Action", counter: "marker small action ", size: 36 },
+    fort_destroyed: { name: "Destroyed Fort", counter: "marker fort_destroyed ", size: 45 },
+    fort_besieged: { name: "Besieged Fort", counter: "marker fort_besieged ", size: 45 },
+    turn: { name: "Turn", counter: "marker small game_turn ", size: 36 },
+    ap_missed_mo: { name: "AP Missed Mandatory Offensive", counter: "marker ap_missed_mo ", size: 45 },
+    cp_missed_mo: { name: "CP Missed Mandatory Offensive", counter: "marker cp_missed_mo ", size: 45 },
+    failed_entrench: { name: "Failed Entrench", counter: "marker small trench_attempt ", size: 36 },
+    mef_beachhead: { name: "MEF Beachhead", counter: "marker mef_beachhead ", size: 45 },
 
     // Event markers
-    blockade: { name: "Blockade", counter: "marker blockade_vps " },
-    influenza: { name: "Influenza", counter: "marker influenza " },
-    prince_max: { name: "Prince Max", counter: "marker prince_max " },
-    us_points: { name: "US Points", counter: "marker us_points " },
-    lusitania: { name: "Lusitania", counter: "marker lusitania " },
-    sinai_pipeline: { name: "Sinai Pipeline", counter: "marker sinai_pipeline " },
-    stavka_timidity: { name: "Stavka Timidity", counter: "marker stavka_timidity " },
-    salonika: { name: "Salonika", counter: "marker salonika " },
-    falkenhayn: { name: "Falkenhayn", counter: "marker falkenhayn " },
-    h_l_take_command: { name: "H-L Take Command", counter: "marker h_l_take_command " },
-    zeppelin_raids: { name: "Zeppelin Raids", counter: "marker zeppelin_raids " },
-    peace_offensive: { name: "Peace Offensive", counter: "marker peace_offensive " },
-    hoffmann: { name: "Hoffmann", counter: "marker hoffmann " },
-    guns_of_august: { name: "Guns of August", counter: "marker guns_of_august " },
-    landships: { name: "Landships", counter: "marker landships " },
-    race_to_the_sea: { name: "Race to the Sea", counter: "marker race_to_the_sea " },
-    michael: { name: "Michael", counter: "marker michael " },
-    entrench: { name: "Entrench", counter: "marker entrench " },
-    _11th_army: { name: "11th Army", counter: "marker _11th_army " },
-    independent_air_force: { name: "Independent Air Force", counter: "marker independent_air_force " },
-    blucher: { name: "Blucher", counter: "marker blucher " },
-    moltke: { name: "Moltke", counter: "marker moltke " },
-    oberost: { name: "Oberost", counter: "marker oberost " },
+    blockade: { name: "Blockade", counter: "marker blockade_vps ", size: 45 },
+    influenza: { name: "Influenza", counter: "marker influenza ", size: 45 },
+    prince_max: { name: "Prince Max", counter: "marker prince_max ", size: 45 },
+    us_points: { name: "US Points", counter: "marker us_points ", size: 45 },
+    lusitania: { name: "Lusitania", counter: "marker lusitania ", size: 45 },
+    sinai_pipeline: { name: "Sinai Pipeline", counter: "marker sinai_pipeline ", size: 45 },
+    stavka_timidity: { name: "Stavka Timidity", counter: "marker stavka_timidity ", size: 45 },
+    salonika: { name: "Salonika", counter: "marker salonika ", size: 45 },
+    falkenhayn: { name: "Falkenhayn", counter: "marker falkenhayn ", size: 45 },
+    h_l_take_command: { name: "H-L Take Command", counter: "marker h_l_take_command ", size: 45 },
+    zeppelin_raids: { name: "Zeppelin Raids", counter: "marker zeppelin_raids ", size: 45 },
+    peace_offensive: { name: "Peace Offensive", counter: "marker peace_offensive ", size: 45 },
+    hoffmann: { name: "Hoffmann", counter: "marker hoffmann ", size: 45 },
+    guns_of_august: { name: "Guns of August", counter: "marker guns_of_august ", size: 45 },
+    landships: { name: "Landships", counter: "marker landships ", size: 45 },
+    race_to_the_sea: { name: "Race to the Sea", counter: "marker race_to_the_sea ", size: 45 },
+    michael: { name: "Michael", counter: "marker michael ", size: 45 },
+    entrench: { name: "Entrench", counter: "marker entrench ", size: 45 },
+    _11th_army: { name: "11th Army", counter: "marker _11th_army ", size: 45 },
+    independent_air_force: { name: "Independent Air Force", counter: "marker independent_air_force ", size: 45 },
+    blucher: { name: "Blucher", counter: "marker blucher ", size: 45 },
+    moltke: { name: "Moltke", counter: "marker moltke ", size: 45 },
+    oberost: { name: "Oberost", counter: "marker oberost ", size: 45 },
 }
 
 let markers = {
@@ -328,7 +329,8 @@ let markers = {
     trench: {
         ap: { 1: [], 2: [] },
         cp: { 1: [], 2: [] }
-    }
+    },
+    mef_beachhead: []
 }
 
 function toggle_counters() {
@@ -604,287 +606,136 @@ function on_click_card(evt) {
 
 // BUILD UI
 
-
-function build_activation_marker(space_id, activation_type) {
-    let list = markers[activation_type]
-    let marker = list.find(e => e.space_id === space_id)
+function build_marker(list, find, new_marker, info, no_listeners) {
+    let marker = list.find(find)
     if (marker)
         return marker.element
-    marker = { space_id: space_id, name: marker_info[activation_type].name, type: activation_type, element: null }
-    let elt = marker.element = document.createElement("div")
-    elt.marker = marker
-    elt.className = marker_info[activation_type].counter
-    elt.addEventListener("mousedown", on_click_marker)
-    elt.addEventListener("mouseenter", on_focus_marker)
-    elt.addEventListener("mouseleave", on_blur_marker)
-    //if (what === 'raids')
-    //    elt.my_size = 36
-    //else
-    elt.my_size = 45
+
+    marker = new_marker
+    marker.name = info.name
+
+    marker.element = document.createElement("div")
+    marker.element.marker = marker
+    marker.element.className = info.counter
+    marker.element.my_size = info.size
+
+    if (!no_listeners) {
+        marker.element.addEventListener("mousedown", on_click_marker)
+        marker.element.addEventListener("mouseenter", on_focus_marker)
+        marker.element.addEventListener("mouseleave", on_blur_marker)
+    }
+
     list.push(marker)
-    ui.markers.appendChild(elt)
+    ui.markers.appendChild(marker.element)
     return marker.element
+}
+
+function destroy_marker(list, find) {
+    let ix = list.findIndex(find)
+    if (ix >= 0) {
+        list[ix].element.remove()
+        list.splice(ix, 1)
+    }
+}
+
+function build_activation_marker(space_id, activation_type) {
+    return build_marker(
+        markers[activation_type],
+        e => e.space_id === space_id,
+        { space_id: space_id },
+        marker_info[activation_type]
+    )
 }
 
 function destroy_activation_marker(space_id, activation_type) {
-    let list = markers[activation_type]
-    let ix = list.findIndex(e => e.space_id === space_id)
-    if (ix >= 0) {
-        list[ix].element.remove()
-        list.splice(ix, 1)
-    }
+    destroy_marker(markers[activation_type], e => e.space_id === space_id)
 }
 
 function build_control_marker(space_id, faction) {
-    let list = markers.control[faction]
-    let marker = list.find(e => e.space_id === space_id)
-    if (marker)
-        return marker.element
-    let info = marker_info.control[faction]
-    marker = { space_id: space_id, name: info.name, type: info.type, element: null }
-    let elt = marker.element = document.createElement("div")
-    elt.marker = marker
-    elt.className = info.counter
-    elt.addEventListener("mousedown", on_click_marker)
-    elt.addEventListener("mouseenter", on_focus_marker)
-    elt.addEventListener("mouseleave", on_blur_marker)
-    elt.my_size = 45
-    list.push(marker)
-    ui.markers.appendChild(elt)
-    return marker.element
+    return build_marker(
+        markers.control[faction],
+        e => e.space_id === space_id,
+        { space_id: space_id },
+        marker_info.control[faction]
+    )
 }
 
 function destroy_control_marker(space_id, faction) {
-    let list = markers.control[faction]
-    let ix = list.findIndex(e => e.space_id === space_id)
-    if (ix >= 0) {
-        list[ix].element.remove()
-        list.splice(ix, 1)
-    }
+    destroy_marker(markers.control[faction], e => e.space_id === space_id)
 }
 
 function build_trench_marker(space_id, level, faction) {
-    let list = markers.trench[faction][level]
-    let marker = list.find(e => e.space_id === space_id)
-    if (marker)
-        return marker.element
-    let info = marker_info.trench[faction][level]
-    marker = { space_id: space_id, name: info.name, type: info.type, element: null }
-    let elt = marker.element = document.createElement("div")
-    elt.marker = marker
-    elt.className = info.counter
-    //elt.addEventListener("mousedown", on_click_marker)
-    //elt.addEventListener("mouseenter", on_focus_marker)
-    //elt.addEventListener("mouseleave", on_blur_marker)
-    elt.my_size = 45
-    list.push(marker)
-    ui.markers.appendChild(elt)
-    return marker.element
+    return build_marker(
+        markers.trench[faction][level],
+        e => e.space_id === space_id,
+        { space_id: space_id },
+        marker_info.trench[faction][level],
+        true
+    )
 }
 
 function destroy_trench_marker(space_id, faction) {
-    for (let level = 1; level <= 2; level++) {
-        let list = markers.trench[faction][level]
-        let ix = list.findIndex(e => e.space_id === space_id)
-        if (ix >= 0) {
-            list[ix].element.remove()
-            list.splice(ix, 1)
-        }
-    }
+    destroy_marker(markers.trench[faction][1], e => e.space_id === space_id)
+    destroy_marker(markers.trench[faction][2], e => e.space_id === space_id)
 }
 
 function build_fort_destroyed_marker(space_id) {
-    let list = markers.forts.destroyed
-    let marker = list.find(e => e.space_id === space_id)
-    if (marker)
-        return marker.element
-    let info = marker_info.fort_destroyed
-    marker = { space_id: space_id, name: info.name, element: null }
-    let elt = marker.element = document.createElement("div")
-    elt.marker = marker
-    elt.className = info.counter
-    //elt.addEventListener("mousedown", on_click_marker)
-    //elt.addEventListener("mouseenter", on_focus_marker)
-    //elt.addEventListener("mouseleave", on_blur_marker)
-    elt.my_size = 45
-    list.push(marker)
-    ui.markers.appendChild(elt)
-    return marker.element
+    return build_marker(markers.forts.destroyed, e => e.space_id === space_id, { space_id: space_id }, marker_info.fort_destroyed, true)
 }
 
 function destroy_fort_destroyed_marker(space_id) {
-    let list = markers.forts.destroyed
-    let ix = list.findIndex(e => e.space_id === space_id)
-    if (ix >= 0) {
-        list[ix].element.remove()
-        list.splice(ix, 1)
-    }
+    destroy_marker(markers.forts.destroyed, e => e.space_id === space_id)
 }
 
 function build_fort_besieged_marker(space_id) {
-    let list = markers.forts.besieged
-    let marker = list.find(e => e.space_id === space_id)
-    if (marker)
-        return marker.element
-    let info = marker_info.fort_besieged
-    marker = { space_id: space_id, name: info.name, element: null }
-    let elt = marker.element = document.createElement("div")
-    elt.marker = marker
-    elt.className = info.counter
-    //elt.addEventListener("mousedown", on_click_marker)
-    //elt.addEventListener("mouseenter", on_focus_marker)
-    //elt.addEventListener("mouseleave", on_blur_marker)
-    elt.my_size = 45
-    list.push(marker)
-    ui.markers.appendChild(elt)
-    return marker.element
+    return build_marker(markers.forts.besieged, e => e.space_id === space_id, { space_id: space_id }, marker_info.fort_besieged, true)
 }
 
 function destroy_fort_besieged_marker(space_id) {
-    let list = markers.forts.besieged
-    let ix = list.findIndex(e => e.space_id === space_id)
-    if (ix >= 0) {
-        list[ix].element.remove()
-        list.splice(ix, 1)
-    }
+    destroy_marker(markers.forts.besieged, e => e.space_id === space_id)
 }
 
 function build_general_records_marker(type) {
-    let list = markers.general_records
-    let marker = list.find(e => e.type === type)
-    if (marker)
-        return marker.element
-    let info = marker_info[type]
-    console.log('building marker ' + type)
-    marker = { name: info.name, type: type, element: null }
-    let elt = marker.element = document.createElement("div")
-    elt.marker = marker
-    elt.className = info.counter
-    elt.addEventListener("mousedown", on_click_marker)
-    elt.addEventListener("mouseenter", on_focus_marker)
-    elt.addEventListener("mouseleave", on_blur_marker)
-    elt.my_size = 45
-    list.push(marker)
-    ui.general_records.appendChild(elt)
-    return marker.element
+    return build_marker(markers.general_records, e => e.type === type, { type: type }, marker_info[type])
 }
 
 function destroy_general_records_marker(type) {
-    let list = markers.general_records
-    let ix = list.findIndex(e => e.type === type)
-    if (ix >= 0) {
-        list[ix].element.remove()
-        list.splice(ix, 1)
-    }
+    destroy_marker(markers.general_records, e => e.type === type)
 }
 
 function build_turn_track_marker(type) {
-    let list = markers.turn_track
-    let marker = list.find(e => e.type === type)
-    if (marker)
-        return marker.element
-    let info = marker_info[type]
-    console.log('building marker ' + type)
-    marker = { name: info.name, type: type, element: null }
-    let elt = marker.element = document.createElement("div")
-    elt.marker = marker
-    elt.className = info.counter
-    elt.addEventListener("mousedown", on_click_marker)
-    elt.addEventListener("mouseenter", on_focus_marker)
-    elt.addEventListener("mouseleave", on_blur_marker)
-    elt.my_size = 45
-    list.push(marker)
-    ui.turn_track.appendChild(elt)
-    return marker.element
+    return build_marker(markers.turn_track, e => e.type === type, { type: type }, marker_info[type])
 }
 
 function destroy_turn_track_marker(type) {
-    let list = markers.turn_track
-    let ix = list.findIndex(e => e.type === type)
-    if (ix >= 0) {
-        list[ix].element.remove()
-        list.splice(ix, 1)
-    }
+    destroy_marker(markers.turn_track, e => e.type === type)
 }
 
 function build_missed_mo_marker(faction, turn) {
-    let list = markers.missed_mo[faction]
-    let marker = list.find(e => e.turn === turn)
-    if (marker)
-        return marker.element
-    let info = marker_info[faction + "_missed_mo"]
-    marker = { name: info.name, turn: turn, element: null }
-    let elt = marker.element = document.createElement("div")
-    elt.marker = marker
-    elt.className = info.counter
-    elt.my_size = 45
-    list.push(marker)
-    ui.turn_track.appendChild(elt)
-    return marker.element
+    return build_marker(markers.missed_mo[faction], e => e.turn === turn, { turn: turn }, marker_info[faction + "_missed_mo"])
 }
 
 function destroy_missed_mo_marker(faction, turn) {
-    let list = markers.missed_mo[faction]
-    let ix = list.findIndex(e => e.turn === turn)
-    if (ix >= 0) {
-        list[ix].element.remove()
-        list.splice(ix, 1)
-    }
+    destroy_marker(markers.missed_mo[faction], e => e.turn === turn)
 }
 
 function build_failed_entrench_marker(piece_id) {
-    let list = markers.failed_entrench
-    let marker = list.find(e => e.piece_id === piece_id)
-    if (marker)
-        return marker.element
-    let info = marker_info.failed_entrench
-    marker = { name: info.name, piece_id: piece_id, element: null }
-    let elt = marker.element = document.createElement("div")
-    elt.marker = marker
-    elt.className = info.counter
-    elt.my_size = 36
-    list.push(marker)
-    ui.markers.appendChild(elt)
-    return marker.element
+    return build_marker(markers.failed_entrench, e => e.piece_id === piece_id, { piece_id: piece_id }, marker_info.failed_entrench)
 }
 
 function destroy_failed_entrench_marker(piece_id) {
-    let list = markers.failed_entrench
-    let ix = list.findIndex(e => e.piece_id === piece_id)
-    if (ix >= 0) {
-        list[ix].element.remove()
-        list.splice(ix, 1)
-    }
+    destroy_marker(markers.failed_entrench, e => e.piece_id === piece_id)
 }
 
 function build_action_marker(faction, round) {
-    let list = markers.actions
-    let marker = list.find(e => e.faction === faction && e.round == round)
-    if (marker)
-        return marker.element
-    let info = marker_info.action
-    marker = { name: info.name, faction: faction, round: round, element: null }
-    let elt = marker.element = document.createElement("div")
-    elt.marker = marker
-    elt.className = info.counter
+    let elt = build_marker(markers.actions, e => e.faction === faction && e.round === round, { faction: faction, round: round }, marker_info.action)
     elt.classList.add(faction)
     elt.classList.add(`round${round}`)
-    elt.addEventListener("mousedown", on_click_marker)
-    elt.addEventListener("mouseenter", on_focus_marker)
-    elt.addEventListener("mouseleave", on_blur_marker)
-    elt.my_size = 36
-    list.push(marker)
-    ui.markers.appendChild(elt)
-    return marker.element
+    return elt
 }
 
 function destroy_action_marker(faction, round) {
-    let list = markers.actions
-    let ix = list.findIndex(e => e.faction === faction && e.round == round)
-    if (ix >= 0) {
-        list[ix].element.remove()
-        list.splice(ix, 1)
-    }
+    destroy_marker(markers.actions, e => e.faction === faction && e.round === round)
 }
 
 function build_space(id) {
@@ -1247,6 +1098,12 @@ function update_space(s) {
             push_stack(stack, p, pe)
         }
     })
+
+    if (view.mef_beachhead === s) {
+        push_stack(apStack, 0, build_marker(markers.mef_beachhead, e => e.space_id === s, { space_id: s }, marker_info.mef_beachhead))
+    } else {
+        destroy_marker(markers.mef_beachhead, e => e.space_id === s)
+    }
 
     if (space.faction === AP) {
         if (view.control[s])
