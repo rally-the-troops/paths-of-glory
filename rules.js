@@ -376,7 +376,8 @@ exports.view = function(state, current) {
         control: game.control,
         events: game.events,
         who: game.who,
-        combat_cards: game.combat_cards
+        combat_cards: game.combat_cards,
+        mef_beachhead: game.mef_beachhead_captured ? null : game.mef_beachhead,
     }
 
     if (current === AP) {
@@ -615,6 +616,9 @@ function create_empty_game_state(seed, scenario, options) {
         combat_cards: [], // Face-up played combat cards
 
         reinf_this_turn: {}, // Which nations have received reinforcements this turn
+        mef_beachhead: null, // Which space contains the MEF beachhead, if any
+        mef_beachhead_captured: false, // Has the MEF beachhead been captured by CP?
+        ne_armies_placed_outside_neareast: [] // NE armies which have been placed outside the Near East, used to block them from operating on the NE map
     }
 }
 
@@ -1386,7 +1390,7 @@ function find_sr_destinations() {
             for (let s = 1; s < data.spaces.length; s++) {
                 if (data.spaces[s].nation === FRANCE &&
                     is_controlled_by(s, AP) &&
-                    data.spaces[s].apport) {
+                    is_port(s, AP)) {
                     set_add(destinations, s)
                 }
             }
@@ -1418,17 +1422,9 @@ function find_sr_destinations() {
 
     // AP can SR Corps to any friendly-controlled port, CP can SR using ports in Germany and Russia
     if (data.pieces[game.sr.unit].type === CORPS) {
-        if (game.active === AP && data.spaces[start].apport) {
+        if (is_port(start, game.active)) {
             for (let s = 1; s < data.spaces.length; s++) {
-                if (data.spaces[s].apport &&
-                    is_controlled_by(s, AP)) {
-                    set_add(destinations, s)
-                }
-            }
-        } else if (game.active === CP && data.spaces[start].cpport) {
-            for (let s = 1; s < data.spaces.length; s++) {
-                if (data.spaces[s].cpport &&
-                    is_controlled_by(s, CP)) {
+                if (is_port(s, game.active) && is_controlled_by(s, game.active)) {
                     set_add(destinations, s)
                 }
             }
@@ -1529,6 +1525,15 @@ states.place_reinforcements = {
         push_undo()
         const p = game.reinforcements.shift()
         game.location[p] = s
+        log(`${piece_name(p)} placed in ${space_name(s)}`)
+        if (neareast_armies.includes(p) && data.spaces[s].map !== 'neareast') {
+            log(`${piece_name(p)} is a NE army placed outside the Near East, it will not be able to operate on the Near East map`)
+            game.ne_armies_placed_outside_neareast.push(p)
+        }
+        if (is_mef_space(s)) {
+            game.mef_beachhead = s
+            log(`MEF beachhead established in ${space_name(s)}`)
+        }
         set_control(s, game.active)
     },
     done() {
@@ -1588,7 +1593,7 @@ function get_available_reinforcement_spaces(p) {
     if (nation === US) {
         for (let s = 1; s < data.spaces.length; s++) {
             const space = data.spaces[s]
-            if (space.nation === FRANCE && space.apport && is_controlled_by(s, game.active) && !is_besieged(s)) {
+            if (space.nation === FRANCE && is_port(s, AP) && is_controlled_by(s, game.active) && !is_besieged(s)) {
                 spaces.push(s)
             }
         }
@@ -1973,23 +1978,22 @@ states.move_stack = {
 }
 
 function set_control(s, faction) {
-    // TODO:
-    //
-    // The Turkish SN Corps converts spaces per 11.1.14. However, during the Attrition Phase, any spaces it converts
-    // (other than the space it occupies) that cannot trace a supply line suffer Attrition. The Libya space suffers
-    // normal attrition and can be controlled by the Allied player through normal movement.
-
     const new_control = faction === CP ? 1 : 0
-    if (game.control[s] == new_control)
+    if (game.control[s] === new_control)
         return
 
     if (data.spaces[s].vp) {
-        if (faction == AP) {
+        if (faction === AP) {
             game.vp--
         } else {
             game.vp++
         }
         log(`${faction_name(faction)} gains ${space_name(s)} for 1 VP`)
+    }
+
+    if (s === game.mef_beachhead && !game.mef_beachhead_captured && faction === CP) {
+        log(`MEF beachhead captured`)
+        game.mef_beachhead_captured = true
     }
 
     game.control[s] = new_control
@@ -1998,7 +2002,7 @@ function set_control(s, faction) {
 
 function capture_trench(s, faction) {
     const trench_lvl = get_trench_level(s, other_faction(faction))
-    if (trench_lvl == 2) {
+    if (trench_lvl === 2) {
         set_trench_level(s, 1, faction)
     }
     if (trench_lvl > 0) {
@@ -2035,7 +2039,10 @@ function can_move_to(s, moving_pieces) {
         return false
     }
 
-    // TODO: No units may enter a MEF space unless the MEF Beachhead marker is in the space.
+    // No units may enter a MEF space unless the MEF Beachhead marker is in the space.
+    if (is_mef_space(s) && !game.mef_beachhead === s) {
+        return false
+    }
 
     // Units may not enter a space in a neutral nation, but all units may freely enter any nation immediately after it
     // enters the war.
@@ -2047,7 +2054,16 @@ function can_move_to(s, moving_pieces) {
     //  Albanian spaces check Attrition supply by tracing normally to an Allied supply source or tracing to Taranto
     //  even while Italy is still Neutral.
 
-    // TODO: Neither the BEF Corps nor Army may move in or attack into any space outside Britain, France, Belgium, and Germany.
+    // Neither the BEF Corps nor Army may move in or attack into any space outside Britain, France, Belgium, and Germany.
+    if (moving_pieces.includes(find_piece(BRITAIN, 'BEF Corps')) || moving_pieces.includes(find_piece(BRITAIN, 'BEF Army'))) {
+        if (data.spaces[s].nation !== BRITAIN && data.spaces[s].nation !== FRANCE && data.spaces[s].nation !== BELGIUM && data.spaces[s].nation !== GERMANY) {
+            return false
+        }
+    }
+
+    if (data.spaces[s].map === 'neareast' && !can_enter_neareast(moving_pieces)) {
+        return false
+    }
 
     //  15.1.12 Russian units may not attack, enter, or besiege a German fort space during the August 1914 turn.
     if (game.turn === 1
@@ -2057,6 +2073,26 @@ function can_move_to(s, moving_pieces) {
         return false
     }
 
+    return true
+}
+
+const neareast_armies = [
+    find_piece(RUSSIA, 'CAU Army'),
+    find_piece(BRITAIN, 'NE Army'),
+    find_piece(FRANCE, 'Orient Army'),
+    find_piece(BRITAIN, 'MEF Army'),
+    find_piece(TURKEY, 'YLD Army'),
+    find_piece(TURKEY, 'AoI Army')
+]
+
+function can_enter_neareast(pieces) {
+    for (let p of pieces) {
+        // if any pieces is an army and it's either not a neareast army or it's a neareast army that was initially
+        // placed outside the neareast map, then the stack can't enter the neareast map
+        if (data.pieces[p].type === ARMY && (!neareast_armies.includes(p) || game.ne_armies_placed_outside_neareast.includes(p))) {
+            return false
+        }
+    }
     return true
 }
 
@@ -3959,6 +3995,12 @@ function get_connected_spaces(s, nation) {
     return connections
 }
 
+function is_port(s, faction) {
+    if (faction === AP && s === game.mef_beachhead && !game.mef_beachhead_captured)
+        return true
+    return (faction === AP && data.spaces[s].apport) || (faction === CP && data.spaces[s].cpport)
+}
+
 states.place_new_neutral_units = {
     inactive: 'Place new units',
     prompt() {
@@ -4021,9 +4063,7 @@ function generate_supply_cache(faction, cache, sources, use_ports, nation) {
             set_add(blocked_spaces, s)
         } else if (use_ports) {
             // If this type of supply can use ports, build a set of friendly port spaces
-            if (faction == AP && data.spaces[s].apport) {
-                set_add(friendly_ports, s)
-            } else if (faction == CP && data.spaces[s].cpport) {
+            if (is_port(s, faction)) {
                 set_add(friendly_ports, s)
             }
         }
