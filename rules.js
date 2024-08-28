@@ -224,7 +224,7 @@ const AP_ELIMINATED_BOX = 284
 const CP_ELIMINATED_BOX = 285
 
 function is_mef_space(s) {
-    return (s >= MEF1 && s <= MEF3) || s == MEF4
+    return (s >= MEF1 && s <= MEF3) || s === MEF4
 }
 
 // Terrain
@@ -1040,27 +1040,16 @@ function satisfies_mo(mo, attackers, defenders, space) {
     if (mo === AH_IT) {
         // All other conditions have passed, so the attack satisfies the MO if the defender is Italian, the attacked
         // space is Italian, *or* the attacked space traces supply through Italy
-        for (let d of defenders) {
-            if (data.pieces[d].nation === ITALY)
-                return true
-        }
-
-        if (location == ITALY)
+        if (location === ITALY)
             return true
 
-        let supply_path = get_supply_path(AP, space)
-        for (let s of supply_path) {
-            if (data.pieces[s].nation === ITALY)
+        for (let d of defenders) {
+            if (data.pieces[d].nation === ITALY || is_unit_supplied_through_italy(d))
                 return true
         }
     }
 
     return true
-}
-
-function get_supply_path(faction, space) {
-    // TODO
-    return []
 }
 
 function is_unit_reduced(p) {
@@ -1080,10 +1069,10 @@ function get_piece_lf(p) {
 }
 
 function get_active_player() {
-    if (game.active == AP) {
+    if (game.active === AP) {
         return game.ap
     }
-    if (game.active == CP) {
+    if (game.active === CP) {
         return game.cp
     }
     throw new Error("Active player is not AP or CP")
@@ -1526,7 +1515,7 @@ states.place_reinforcements = {
         const p = game.reinforcements.shift()
         game.location[p] = s
         log(`${piece_name(p)} placed in ${space_name(s)}`)
-        if (neareast_armies.includes(p) && data.spaces[s].map !== 'neareast') {
+        if (neareast_armies.includes(p) && data.spaces[s].map !== 'neareast' && !is_mef_space(s)) {
             log(`${piece_name(p)} is a NE army placed outside the Near East, it will not be able to operate on the Near East map`)
             game.ne_armies_placed_outside_neareast.push(p)
         }
@@ -3338,7 +3327,24 @@ function cost_to_activate(space, type) {
         cost = num_pieces
     }
 
-    // TODO: Cost for activating the MEF army activating supply through the MEF beachhead
+    //  9.2.7.1 It costs 3 OPS to activate the MEF Army for movement or combat when tracing supply through the MEF Beachhead
+    //  marker. It costs 1 OPS per corps to activate other Allied units tracing supply (at the moment of activation)
+    //  through the MEF Beachhead marker. (For example, a stack that included the MEF and two corps would cost 5 OPS
+    //  to activate.) A player may not pay to partially activate a stack under this rule; the entire OPS cost per
+    //  activated space must be paid. This rule does not apply if the MEF is brought in as a normal reinforcement
+    //  under 9.5.3.4. No Allied Army except the MEF may use the MEF Beachhead for supply. Only BR and AUS Corps
+    //  may use the MEF Beachhead for supply.
+    if (game.active === AP && is_space_supplied_through_mef(s)) {
+        cost = 0
+        const mef_army = find_piece(BRITAIN, "MEF Army")
+        for_each_piece_in_space(s, (p) => {
+            if (p === mef_army) {
+                cost += 3
+            } else {
+                cost++ // This might be incorrect if the player has units in the space that are not _allowed_ to trace supply through the MEF Beachhead
+            }
+        })
+    }
 
     return cost;
 }
@@ -3374,7 +3380,7 @@ function goto_attrition_phase() {
     // Get all OOS spaces that should flip control
     for (let s = 1; s < data.spaces.length; ++s) {
         const controlling_faction = is_controlled_by(s, AP) ? AP : CP
-        if (controlling_faction == AP && data.spaces[s].nation == SERBIA) {
+        if (controlling_faction === AP && data.spaces[s].nation === SERBIA) {
             continue // Under rule 14.1.5, Serbian spaces only convert when CP units enter the spaces.
         }
         if (!nation_at_war(data.spaces[s].nation)) {
@@ -3385,7 +3391,7 @@ function goto_attrition_phase() {
         if (is_mef_space(s)) {
             continue // MEF spaces do not flip control
         }
-        if (s == ARABIA_SPACE)
+        if (s === ARABIA_SPACE)
             continue
         if (has_undestroyed_fort(s, controlling_faction)) {
             continue // Under rule 14.3.6, spaces with undestroyed forts do not flip control
@@ -4045,7 +4051,7 @@ function generate_supply_cache(faction, cache, sources, use_ports, nation) {
 
     // Block spaces containing an enemy unit
     for (let p = 1; p < data.pieces.length; ++p) {
-        if (game.location[p] != 0 && data.pieces[p].faction != faction) {
+        if (game.location[p] !== 0 && data.pieces[p].faction !== faction) {
             set_add(blocked_spaces, game.location[p])
         }
     }
@@ -4091,6 +4097,56 @@ function generate_supply_cache(faction, cache, sources, use_ports, nation) {
             }
         }
     })
+
+    // Now mark the set of spaces that can be reached without passing through Italy
+    sources.forEach((source) => {
+        let frontier = [source]
+        let visited = []
+        while (frontier.length > 0) {
+            let current = frontier.pop()
+            if (!set_has(visited, current)) {
+                set_add(visited, current)
+                if (!is_italian_space(current) && !set_has(blocked_spaces, current)) {
+                    cache[current].non_italian_path = true
+                    get_connected_spaces(current, nation).forEach((conn) => {
+                        set_add(frontier, conn)
+                    })
+                    if (set_has(friendly_ports, current)) {
+                        friendly_ports.forEach((port) => {
+                            set_add(frontier, port)
+                        })
+                    }
+                }
+            }
+        }
+    })
+
+    // Mark the set of spaces that can be reached without passing through the MEF
+    sources.forEach((source) => {
+        let frontier = [source]
+        let visited = []
+        while (frontier.length > 0) {
+            let current = frontier.pop()
+            if (!set_has(visited, current)) {
+                set_add(visited, current)
+                if (!is_mef_space(current) && !set_has(blocked_spaces, current)) {
+                    cache[current].non_mef_path = true
+                    get_connected_spaces(current, nation).forEach((conn) => {
+                        set_add(frontier, conn)
+                    })
+                    if (set_has(friendly_ports, current)) {
+                        friendly_ports.forEach((port) => {
+                            set_add(frontier, port)
+                        })
+                    }
+                }
+            }
+        }
+    })
+}
+
+function is_italian_space(s) {
+    return data.spaces[s].nation === ITALY
 }
 
 function search_supply() {
@@ -4102,11 +4158,11 @@ function search_supply() {
     // Italian units get a separate supply cache to allow for tracing supply across the Taranto-Valona connection
     supply_cache.italian = {}
     for (let s = 0; s < data.spaces.length; ++s) {
-        supply_cache.cp[s] = { sources: [] }
-        supply_cache.eastern[s] = { sources: [] }
-        supply_cache.western[s] = { sources: [] }
-        supply_cache.salonika[s] = { sources: [] }
-        supply_cache.italian[s] = { sources: [] }
+        supply_cache.cp[s] = { sources: [], non_italian_path: false, non_mef_path: false }
+        supply_cache.eastern[s] = { sources: [], non_italian_path: false, non_mef_path: false }
+        supply_cache.western[s] = { sources: [], non_italian_path: false, non_mef_path: false }
+        supply_cache.salonika[s] = { sources: [], non_italian_path: false, non_mef_path: false }
+        supply_cache.italian[s] = { sources: [], non_italian_path: false, non_mef_path: false }
     }
     let cp_sources = [ESSEN, BRESLAU]
     if (nation_at_war(BULGARIA))
@@ -4142,12 +4198,7 @@ function is_unit_supplied(p) {
         return true
 
     if (!supply_cache) search_supply()
-    let cache = (faction === CP) ? supply_cache.cp : supply_cache.western
-    if (nation === ITALY)
-        cache = supply_cache.italian
-    else if (nation === RUSSIA || nation === SERBIA || nation === ROMANIA) {
-        cache = supply_cache.eastern
-    }
+    const cache = get_supply_cache_for_piece(p)
 
     if (nation === SERBIA) {
         if (data.spaces[location].nation === SERBIA)
@@ -4156,10 +4207,38 @@ function is_unit_supplied(p) {
             return true // Serbian units can trace supply to Salonika if it is friendly controlled
     }
 
-    if (cache[location].sources.length > 0)
-        return true
+    return cache[location].sources.length > 0
+}
 
-    return false
+function get_supply_cache_for_piece(p) {
+    let faction = data.pieces[p].faction
+    let nation = data.pieces[p].nation
+    let cache = (faction === CP) ? supply_cache.cp : supply_cache.western
+    if (nation === ITALY)
+        cache = supply_cache.italian
+    else if (nation === RUSSIA || nation === SERBIA || nation === ROMANIA) {
+        cache = supply_cache.eastern
+    }
+    return cache
+}
+
+function is_unit_supplied_through_italy(p) {
+    if (!supply_cache) search_supply()
+
+    if (!is_unit_supplied(p))
+        return false
+
+    const cache = get_supply_cache_for_piece(p)
+    return !cache[game.location[p]].non_italian_path
+}
+
+function is_space_supplied_through_mef(s) {
+    if (!supply_cache) search_supply()
+
+    if (!is_space_supplied(AP, s))
+        return false
+
+    return !supply_cache.western[game.location[p]].non_mef_path
 }
 
 function is_space_supplied(faction, s) {
