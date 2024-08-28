@@ -1972,10 +1972,13 @@ function set_control(s, faction) {
         return
 
     if (data.spaces[s].vp) {
+        const is_russian = data.spaces[s].nation === RUSSIA
         if (faction === AP) {
             game.vp--
+            if (is_russian) game.current_cp_russian_vp--
         } else {
             game.vp++
+            if (is_russian) game.current_cp_russian_vp++
         }
         log(`${faction_name(faction)} gains ${space_name(s)} for 1 VP`)
     }
