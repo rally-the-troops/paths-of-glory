@@ -268,6 +268,7 @@ const marker_info = {
     us_rp: { name: "United States Replacements", type: "us_rp", counter: "marker us_rp ", size: 45 },
 
     current_cp_russian_vp: { name: "CP Russian VP", type: "current_cp_russian_vp", counter: "marker small current_cp_russian_vp ", size: 36 },
+    tsar_fell_cp_russian_vp: { name: "Tsar Fell CP Russian VP", type: "tsar_fell_cp_russian_vp", counter: "marker small tsar_fell_cp_russian_vp ", size: 36 },
     action: { name: "Action", counter: "marker small action ", size: 36 },
     fort_destroyed: { name: "Destroyed Fort", counter: "marker fort_destroyed ", size: 45 },
     fort_besieged: { name: "Besieged Fort", counter: "marker fort_besieged ", size: 45 },
@@ -1442,6 +1443,7 @@ function update_general_records_track() {
     update_general_record("ap_war_status", view.ap.ws)
     update_general_record("cp_war_status", view.cp.ws)
     update_general_record("current_cp_russian_vp", view.cp.ru_vp)
+    update_general_record("tsar_fell_cp_russian_vp", view.tsar_fell_cp_russian_vp, !view.tsar_fell_cp_russian_vp)
 
     // RPs
     update_general_record("ge_rp", view.rp.ge)

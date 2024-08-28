@@ -102,7 +102,7 @@ const TREATY_OF_BRESK_LITOVSK = 110
 const GERMAN_REINFORCEMENTS_8 = 111
 const FRENCH_MUTINY = 112
 const TURKISH_REINFORCEMENTS_2 = 113
-const MICHEL = 114
+const MICHAEL = 114
 const BLUCHER = 115
 const PEACE_OFFENSIVE = 116
 const FALL_OF_THE_TSAR = 117
@@ -200,18 +200,27 @@ const LIEGE = 33
 const KOBLENZ = 41
 const ESSEN = 43
 const BRESLAU = 94
+const LODZ = 102
 const SALONIKA_SPACE = 117
 const NIS = 122
 const BELGRADE = 125
+const WARSAW = 134
+const RIGA = 140
 const PETROGRAD = 143
+const KOVNO = 147
+const VILNA = 148
 const MOSCOW = 152
 const KHARKOV = 170
+const KIEV = 171
 const CAUCASUS = 186
+const ODESSA = 188
 const SOFIA = 198
 const MEF1 = 216
 const MEF2 = 217
 const MEF3 = 218
 const CONSTANTINOPLE = 219
+const POTI = 233
+const GROZNY = 234
 const MEF4 = 260
 const ARABIA_SPACE = 271
 const MEDINA = 272
@@ -378,6 +387,7 @@ exports.view = function(state, current) {
         who: game.who,
         combat_cards: game.combat_cards,
         mef_beachhead: game.mef_beachhead_captured ? null : game.mef_beachhead,
+        tsar_fell_cp_russian_vp: game.tsar_fell_cp_russian_vp
     }
 
     if (current === AP) {
@@ -618,7 +628,8 @@ function create_empty_game_state(seed, scenario, options) {
         reinf_this_turn: {}, // Which nations have received reinforcements this turn
         mef_beachhead: null, // Which space contains the MEF beachhead, if any
         mef_beachhead_captured: false, // Has the MEF beachhead been captured by CP?
-        ne_armies_placed_outside_neareast: [] // NE armies which have been placed outside the Near East, used to block them from operating on the NE map
+        ne_armies_placed_outside_neareast: [], // NE armies which have been placed outside the Near East, used to block them from operating on the NE map
+        tsar_fell_cp_russian_vp: 0, // How many Russian VP were controlled by CP when the Fall of the Tsar event was played
     }
 }
 
@@ -1743,6 +1754,9 @@ function goto_end_action() {
         game.entrenching.length = 0
     }
 
+    update_us_entry()
+    update_russian_capitulation()
+
     if (game.ap.actions.length < 6 || game.cp.actions.length < 6) {
         game.active = other_faction(game.active)
         game.state = 'action_phase'
@@ -1754,6 +1768,37 @@ function goto_end_action() {
 
 function can_entrench() {
     return game.activated.move.length > 0 && game.events.entrench > 0
+}
+
+function update_us_entry() {
+    // TODO
+}
+
+function update_russian_capitulation() {
+    const previous_level = game.russian_capitulation
+    if (game.events.treaty_of_brest_litovsk > 0) {
+        game.russian_capitulation = 7
+    } else if (game.events.bolshevik_revolution > 0) {
+        game.russian_capitulation = 6
+    } else if (events.bolshevik_revolution.can_play()) {
+        game.russian_capitulation = 5
+        if (previous_level < 5) log(`${card_name(BOLSHEVIK_REVOLUTION)} can now be played`)
+    } else if (game.events.fall_of_the_tsar > 0) {
+        game.russian_capitulation = 4
+        if (previous_level > 2) log(`${card_name(BOLSHEVIK_REVOLUTION)} can no longer be played`)
+    } else if (events.fall_of_the_tsar.can_play()) {
+        game.russian_capitulation = 3
+        if (previous_level < 3) log(`${card_name(FALL_OF_THE_TSAR)} can now be played`)
+    } else if (game.events.tsar_takes_command > 0) {
+        game.russian_capitulation = 2
+        if (previous_level > 2) log(`${card_name(FALL_OF_THE_TSAR)} can no longer be played`)
+    } else if (events.tsar_takes_command.can_play()) {
+        game.russian_capitulation = 1
+        if (previous_level < 1) log(`${card_name(TSAR_TAKES_COMMAND)} can now be played`)
+    } else {
+        game.russian_capitulation = 0
+        if (previous_level > 0) log(`${card_name(TSAR_TAKES_COMMAND)} can no longer be played`)
+    }
 }
 
 states.choose_move_space = {
@@ -1975,10 +2020,10 @@ function set_control(s, faction) {
         const is_russian = data.spaces[s].nation === RUSSIA
         if (faction === AP) {
             game.vp--
-            if (is_russian) game.current_cp_russian_vp--
+            if (is_russian) game.cp.ru_vp--
         } else {
             game.vp++
-            if (is_russian) game.current_cp_russian_vp++
+            if (is_russian) game.cp.ru_vp++
         }
         log(`${faction_name(faction)} gains ${space_name(s)} for 1 VP`)
     }
@@ -1990,6 +2035,8 @@ function set_control(s, faction) {
 
     game.control[s] = new_control
     supply_cache = null
+
+    update_russian_capitulation()
 }
 
 function capture_trench(s, faction) {
@@ -2063,6 +2110,17 @@ function can_move_to(s, moving_pieces) {
         && data.spaces[s].nation === GERMANY
         && has_undestroyed_fort(s, CP)) {
         return false
+    }
+
+    // Once Fall of the Tsar is played, Russian corps cannot move between the Caucasus box and the near east map
+    if (game.events.fall_of_the_tsar > 0 && moving_pieces.find((p) => data.pieces[p].nation === RUSSIA && data.pieces[p].type === CORPS) !== undefined) {
+        const from = game.location[moving_pieces[0]]
+        if (s === CAUCASUS && (from === POTI || from === GROZNY)) {
+            return false
+        }
+        if (from === CAUCASUS && (s === POTI || s === GROZNY)) {
+            return false
+        }
     }
 
     return true
@@ -2350,7 +2408,7 @@ states.negate_trench = {
     prompt() {
         view.prompt = 'Play any combat cards that would negate trenches'
 
-        const trench_negating_cards = [ROYAL_TANK_CORPS, VON_BELOW, VON_HUTIER, MICHEL, BLUCHER, PEACE_OFFENSIVE]
+        const trench_negating_cards = [ROYAL_TANK_CORPS, VON_BELOW, VON_HUTIER, MICHAEL, BLUCHER, PEACE_OFFENSIVE]
         game[game.active].hand.forEach((c) => {
             if (trench_negating_cards.includes(c)) {
                 gen_action_card(c)
@@ -3576,7 +3634,7 @@ function goto_war_status_phase() {
 }
 
 function get_game_result_by_vp() {
-    let cp_threshold = game.events.brest_litovsk > 0 ? 11 : 13
+    let cp_threshold = game.events.treaty_of_brest_litovsk > 0 ? 11 : 13
     let ap_threshold = 9
     if (game.vp >= cp_threshold) {
         return CP
@@ -3628,6 +3686,10 @@ function goto_replacement_phase() {
         log_h1(`${faction_name(AP)} Replacement Phase`)
         game.active = AP
         game.state = 'replacement_phase'
+        if (game.rp.ru > 1 && game.events.bolshevik_revolution > 0) {
+            game.rp.ru = 1
+            log("Russian RP are set to 1 due to the Bolshevik Revolution")
+        }
     } else if (has_rps(CP)) {
         log_h1(`${faction_name(CP)} Replacement Phase`)
         game.active = CP
@@ -3638,13 +3700,13 @@ function goto_replacement_phase() {
 }
 
 function has_rps(faction) {
-    if (faction == AP) {
+    if (faction === AP) {
         if (game.rp.fr > 0) return true
         if (game.rp.br > 0) return true
         if (game.rp.ru > 0) return true
         if (game.rp.allied > 0) return true
         if (game.rp.it > 0) return true
-    } else if (faction == CP) {
+    } else if (faction === CP) {
         if (game.rp.ge > 0) return true
         if (game.rp.ah > 0) return true
         if (game.rp.bu > 0) return true
@@ -3654,13 +3716,13 @@ function has_rps(faction) {
 }
 
 function remove_rps(faction) {
-    if (faction == AP) {
+    if (faction === AP) {
         game.rp.fr = 0
         game.rp.br = 0
         game.rp.ru = 0
         game.rp.allied = 0
         game.rp.it = 0
-    } else if (faction == CP) {
+    } else if (faction === CP) {
         game.rp.ge = 0
         game.rp.ah = 0
         game.rp.bu = 0
@@ -3695,8 +3757,8 @@ states.replacement_phase = {
         push_undo()
         const piece_data = data.pieces[p]
         game.who = p
-        if (piece_data.type == ARMY) {
-            if (game.location[p] == AP_ELIMINATED_BOX || game.location[p] == CP_ELIMINATED_BOX) {
+        if (piece_data.type === ARMY) {
+            if (game.location[p] === AP_ELIMINATED_BOX || game.location[p] === CP_ELIMINATED_BOX) {
                 game.state = 'choose_replacement_army'
             } else {
                 log(`Restored ${piece_name(p)} in ${space_name(game.location[p])} to full strength`)
@@ -3710,7 +3772,7 @@ states.replacement_phase = {
     },
     done() {
         remove_rps(game.active)
-        if (game.active == AP) {
+        if (game.active === AP) {
             game.active = CP
         }
         goto_replacement_phase()
@@ -3765,19 +3827,19 @@ states.choose_second_replacement_corps = {
     prompt() {
         view.prompt = 'Choose a second corps or send the selected corps to the reserve box'
         let units = get_replaceable_units()
-        const elim_box = game.active == AP ? AP_ELIMINATED_BOX : CP_ELIMINATED_BOX
+        const elim_box = game.active === AP ? AP_ELIMINATED_BOX : CP_ELIMINATED_BOX
         const rp_type = get_rp_type(game.who)
         units.forEach((p) => {
-            if (data.pieces[p].type == CORPS &&
-                get_rp_type(p) == rp_type) {
+            if (data.pieces[p].type === CORPS &&
+                get_rp_type(p) === rp_type) {
                 gen_action_piece(p)
             }
         })
         if (game.location[game.who] === elim_box) {
-            if (game.who == BRITISH_ANA_CORPS)
+            if (game.who === BRITISH_ANA_CORPS)
                 gen_action_space(ARABIA_SPACE)
             else
-                gen_action_space(game.active == AP ? AP_RESERVE_BOX : CP_RESERVE_BOX)
+                gen_action_space(game.active === AP ? AP_RESERVE_BOX : CP_RESERVE_BOX)
         }
 
         gen_action_undo()
@@ -3791,7 +3853,7 @@ states.choose_second_replacement_corps = {
             if (game.location[corps] === AP_ELIMINATED_BOX || game.location[corps] === CP_ELIMINATED_BOX) {
                 if (!is_unit_reduced(corps))
                     game.reduced.push(corps)
-                const space = corps === BRITISH_ANA_CORPS ? ARABIA_SPACE : game.active == AP ? AP_RESERVE_BOX : CP_RESERVE_BOX
+                const space = corps === BRITISH_ANA_CORPS ? ARABIA_SPACE : game.active === AP ? AP_RESERVE_BOX : CP_RESERVE_BOX
                 game.location[corps] = space
                 log(`Returned ${piece_name(corps)} to ${space_name(space)} at reduced strength`)
             } else {
@@ -4363,6 +4425,20 @@ events.falkenhayn = {
     }
 }
 
+// CP #28
+events.tsar_takes_command = {
+    can_play() {
+        return game.cp.ru_vp >= 3
+    },
+    play() {
+        push_undo()
+        game.events.tsar_takes_command = game.turn
+        game.ops = data.cards[TSAR_TAKES_COMMAND].ops
+        game.state = 'activate_spaces'
+    }
+}
+
+// CP #34
 events.bulgaria_entry = {
     is_neutral_entry: true,
     can_play() {
@@ -4372,6 +4448,64 @@ events.bulgaria_entry = {
         set_nation_at_war(BULGARIA)
         game.units_to_place = find_n_unused_pieces(BULGARIA, 'BU Corps', 4)
         game.state = 'place_new_neutral_units'
+    }
+}
+
+// CP #45
+events.treaty_of_brest_litovsk = {
+    can_play() {
+        return game.events.bolshevik_revolution > 0
+    },
+    play() {
+        push_undo()
+        game.events.treaty_of_brest_litovsk = game.turn
+        goto_end_action()
+    }
+}
+
+// CP #52
+events.fall_of_the_tsar = {
+    can_play() {
+        return game.events.tsar_takes_command > 0 && (game.cp.ru_vp + game.ap.ws + game.cp.ws >= 33)
+    },
+    play() {
+        push_undo()
+        game.events.fall_of_the_tsar = game.turn
+        game.tsar_fell_cp_russian_vp = game.cp.ru_vp
+        if (!nation_at_war(ROMANIA)) {
+            game.vp += 3
+            log(`Fall of the Tsar event adds 3 VP (Romania not at war)`)
+        } else {
+            game.vp++
+            log(`Fall of the Tsar event adds 1 VP`)
+        }
+
+        game.ops = data.cards[FALL_OF_THE_TSAR].ops
+        game.state = 'activate_spaces'
+    }
+}
+
+// CP #53
+events.bolshevik_revolution = {
+    can_play() {
+        const cp_controls_all_russian_vp_spaces = (
+            is_controlled_by(RIGA, CP) &&
+            is_controlled_by(KOVNO, CP) &&
+            is_controlled_by(VILNA, CP) &&
+            is_controlled_by(WARSAW, CP) &&
+            is_controlled_by(LODZ, CP) &&
+            is_controlled_by(KIEV, CP) &&
+            is_controlled_by(ODESSA, CP))
+        return game.events.fall_of_the_tsar > 0 &&
+            game.turn > game.events.fall_of_the_tsar &&
+            (game.cp.ru_vp > game.tsar_fell_cp_russian_vp || cp_controls_all_russian_vp_spaces)
+    },
+    play() {
+        push_undo()
+        game.events.bolshevik_revolution = game.turn
+
+        game.ops = data.cards[BOLSHEVIK_REVOLUTION].ops
+        game.state = 'activate_spaces'
     }
 }
 
