@@ -801,7 +801,7 @@ const cards = [
         "rpru": 3,
         "name": "Everyone Into Battle",
         "event": "everyone_into_battle",
-        "effect": "May only be played after at least one of the following has occurred: \"Blucher,\" \"Michel\" or \"Peace Offensive\". Allied units in Italy, France and Belgium are considered one nationality for Activation for the rest of this turn (only)."
+        "effect": "May only be played after at least one of the following has occurred: \"Blucher,\" \"Michael\" or \"Peace Offensive\". Allied units in Italy, France and Belgium are considered one nationality for Activation for the rest of this turn (only)."
     },
     {
         "num": 52,
@@ -1722,8 +1722,8 @@ const cards = [
         "rpbu": 1,
         "rpge": 3,
         "rptu": 1,
-        "name": "Michel",
-        "event": "michel",
+        "name": "Michael",
+        "event": "michael",
         "effect": "May only be played after \"H-L Take Command\". Cancels all trench effects fro 1 GE attack and adds a + 1 drm for that attack."
     },
     {
@@ -1802,7 +1802,7 @@ const cards = [
         "rptu": 2,
         "name": "H-L Take Command",
         "event": "h_l_take_command",
-        "effect": "Allows play of \"Michel\", \"Blucher\", \"Peace Offensive\", \"Hoffman\", and \"U-Boats Unleashed\". Prevents play of \"Place of Execution\"."
+        "effect": "Allows play of \"Michael\", \"Blucher\", \"Peace Offensive\", \"Hoffman\", and \"U-Boats Unleashed\". Prevents play of \"Place of Execution\"."
     },
     {
         "num": 55,
@@ -1817,7 +1817,7 @@ const cards = [
         "rptu": 1,
         "name": "Lloyd George",
         "event": "lloyd_george",
-        "effect": "No BR attacks vs. Level 2 entrenched GE units may be made for the rest of this turn. This effect is canceled by play of MICHEL, BLUCHER, or PEACE OFFENSIVE events."
+        "effect": "No BR attacks vs. Level 2 entrenched GE units may be made for the rest of this turn. This effect is canceled by play of MICHAEL, BLUCHER, or PEACE OFFENSIVE events."
     },
     {
         "num": 56,
@@ -1900,7 +1900,7 @@ const cards = [
         "rptu": 1,
         "name": "Haig",
         "event": "haig",
-        "effect": "Entrenched GE units in France/Belgium/Germany may ignore all retreat results vs. attacks with BR units this turn. No effect after play of Michel, Blucher, Peace Offensive."
+        "effect": "Entrenched GE units in France/Belgium/Germany may ignore all retreat results vs. attacks with BR units this turn. No effect after play of Michael, Blucher, Peace Offensive."
     },
     {
         "num": 62,

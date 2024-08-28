@@ -1416,7 +1416,7 @@ for (let i = 0; i <= 40; ++i) {
 function general_records_pos(value) {
     let row = Math.floor(value / 10)
     let col = value % 10
-    if (value == 40) {
+    if (value === 40) {
         row = 3
         col = 10
     }
@@ -1446,18 +1446,18 @@ function update_general_records_track() {
     update_general_record("tsar_fell_cp_russian_vp", view.tsar_fell_cp_russian_vp, !view.tsar_fell_cp_russian_vp)
 
     // RPs
-    update_general_record("ge_rp", view.rp.ge)
-    update_general_record("ah_rp", view.rp.ah)
-    update_general_record("fr_rp", view.rp.fr)
-    update_general_record("br_rp", view.rp.br) // TODO: Check for uboats event and apply the uboats class
-    update_general_record("ru_rp", view.rp.ru)
-    update_general_record("allied_rp", view.rp.allied)
+    update_general_record("ge_rp", view.rp.ge, !view.rp.ge)
+    update_general_record("ah_rp", view.rp.ah, !view.rp.ah)
+    update_general_record("fr_rp", view.rp.fr, !view.rp.fr)
+    update_general_record("br_rp", view.rp.br, !view.rp.br) // TODO: Check for uboats event and apply the uboats class
+    update_general_record("ru_rp", view.rp.ru, !view.rp.ru)
+    update_general_record("allied_rp", view.rp.allied, !view.rp.allied)
 
     // RPs for countries that may not be at war: bu, tu, it, us
-    update_general_record("bu_rp", view.rp.bu, !view.war.bu)
-    update_general_record("tu_rp", view.rp.tu, !view.war.tu)
-    update_general_record("it_rp", view.rp.it, !view.war.it)
-    update_general_record("us_rp", view.rp.us, !view.war.us)
+    update_general_record("bu_rp", view.rp.bu, !view.war.bu || !view.rp.bu)
+    update_general_record("tu_rp", view.rp.tu, !view.war.tu || !view.rp.tu)
+    update_general_record("it_rp", view.rp.it, !view.war.it || !view.rp.it)
+    update_general_record("us_rp", view.rp.us, !view.war.us || !view.rp.us)
 
     general_records_stacks.forEach((stack, ix) => {
         if (stack.length > 0) {
