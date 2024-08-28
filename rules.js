@@ -1249,7 +1249,7 @@ function goto_play_sr(card) {
         done: []
     }
 
-    discard_card(card, 'for sr')
+    discard_card(card, 'for strategic redeployment')
     game.state = 'choose_sr_unit'
 }
 
@@ -1470,7 +1470,7 @@ function goto_play_rps(card) {
         game.rp.us += 1
     }
 
-    discard_card(card, 'for rps')
+    discard_card(card, 'for replacement points')
     goto_end_action()
 }
 
@@ -2847,7 +2847,7 @@ states.apply_attacker_losses = {
         game.attack.attacker_losses_taken += get_piece_lf(p)
         if (is_unit_reduced(p)) {
             let replacement = find_replacement(p, get_units_in_reserve())
-            if (replacement == 0) {
+            if (replacement === 0) {
                 // eliminate piece
                 log(`Eliminated ${piece_name(p)} in ${space_name(game.location[p])}`)
                 game.removed.push(p)
@@ -3395,10 +3395,10 @@ function cost_to_activate(space, type) {
     //  activated space must be paid. This rule does not apply if the MEF is brought in as a normal reinforcement
     //  under 9.5.3.4. No Allied Army except the MEF may use the MEF Beachhead for supply. Only BR and AUS Corps
     //  may use the MEF Beachhead for supply.
-    if (game.active === AP && is_space_supplied_through_mef(s)) {
+    if (game.active === AP && is_space_supplied_through_mef(space)) {
         cost = 0
         const mef_army = find_piece(BRITAIN, "MEF Army")
-        for_each_piece_in_space(s, (p) => {
+        for_each_piece_in_space(space, (p) => {
             if (p === mef_army) {
                 cost += 3
             } else {
@@ -3799,12 +3799,9 @@ function get_replaceable_units() {
         if (all_capitals_occupied(piece_data.nation))
             continue
 
-        if (!is_unit_supplied(i))
-            continue
-
         if (game.location[i] === AP_ELIMINATED_BOX ||
             game.location[i] === CP_ELIMINATED_BOX ||
-            is_unit_reduced(i)) {
+            (is_unit_reduced(i) && is_unit_supplied(i))) {
             units.push(i)
         }
     }
@@ -3929,7 +3926,7 @@ function get_army_replacement_spaces(p) {
         return spaces
     }
 
-    spaces.concat(get_available_reinforcement_spaces(p))
+    spaces = spaces.concat(get_available_reinforcement_spaces(p))
 
     if (data.pieces[p].nation === SERBIA) {
         //  Also 17.1.5: Serbian Army units may be recreated at Salonika if the Salonika or Greece Neutral Entry Event
@@ -3977,7 +3974,8 @@ states.draw_cards_phase = {
         game[game.active].discard.push(c)
     },
     done() {
-        if (game.active == AP) {
+        clear_undo()
+        if (game.active === AP) {
             if (game.ap.shuffle) {
                 // Shuffle required because new cards added, but must be delayed until now to pick up CC discards, according to 2018 rules change
                 reshuffle_discard(game.ap.deck)
@@ -4303,7 +4301,7 @@ function is_space_supplied_through_mef(s) {
     if (!is_space_supplied(AP, s))
         return false
 
-    return !supply_cache.western[game.location[p]].non_mef_path
+    return !supply_cache.western[s].non_mef_path
 }
 
 function is_space_supplied(faction, s) {
