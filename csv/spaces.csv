@@ -34,7 +34,7 @@ id,map,name,x,y,w,h,nation,faction,terrain,supply,vp,fort,apport,cpport,capital
 33,europe,Liege,498,595,44,44,be,ap,,,,3,,,
 34,europe,Verdun,494,699,44,44,fr,ap,,,1,3,,,
 35,europe,Nancy,528,767,44,44,fr,ap,,,1,2,,,
-36,europe,Belfort,559,841,44,44,fr,ap,mountain,,,,,,
+36,europe,Belfort,559,841,44,44,fr,ap,mountain,,,2,,,
 37,europe,Turin,603,1006,44,44,it,ap,,,,,,,
 38,europe,Mulhouse,629,823,44,44,ge,cp,mountain,,,,,,
 39,europe,Strasbourg,614,748,44,44,ge,cp,,,1,3,,,

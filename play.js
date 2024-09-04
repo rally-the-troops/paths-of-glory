@@ -1343,7 +1343,7 @@ function update_piece(id) {
 
     if (view.who === id ||
         (view.attack && view.attack.retreating_pieces && view.attack.retreating_pieces.includes(id)) ||
-        (view.attack && view.attack.advancing_units && view.attack.advancing_units.includes(id)))
+        (view.attack && view.attack.advancing_pieces && view.attack.advancing_pieces.includes(id)))
         piece.element.classList.add('selected')
     else
         piece.element.classList.remove('selected')
