@@ -2283,8 +2283,8 @@ function goto_attack() {
 
     log_h2(`${faction_name(game.active)} attacks ${space_name(game.attack.space)} with ${game.attack.pieces.map((p) => piece_name(p)).join(', ')}`)
 
-    const mo = game.active == AP ? game.ap.mo : game.cp.mo
-    if (mo != NONE && satisfies_mo(mo, game.attack.pieces, get_pieces_in_space(game.attack.space), game.attack.space)) {
+    const mo = game.active === AP ? game.ap.mo : game.cp.mo
+    if (mo !== NONE && satisfies_mo(mo, game.attack.pieces, get_pieces_in_space(game.attack.space), game.attack.space)) {
         game[game.active].mo = NONE
         log(`${faction_name(game.active)} satisfied mandatory offensive`)
     }
@@ -2311,7 +2311,7 @@ function attacker_can_flank() {
         return false
 
     // Unoccupied forts cannot be flanked
-    if (space_data.fort > 0 && !set_has(game.forts.destroyed, game.attack.space) && get_pieces_in_space(game.attack.space).length == 0) {
+    if (space_data.fort > 0 && !set_has(game.forts.destroyed, game.attack.space) && get_pieces_in_space(game.attack.space).length === 0) {
         return false
     }
 
@@ -2319,7 +2319,7 @@ function attacker_can_flank() {
     let has_army = false
     let attack_spaces = []
     game.attack.pieces.forEach((p) => {
-        if (data.pieces[p].type == ARMY)
+        if (data.pieces[p].type === ARMY)
             has_army = true
         set_add(attack_spaces, game.location[p])
     })
@@ -2356,11 +2356,9 @@ function get_attackable_spaces(attackers) {
     //  space in either France or Belgium. Italian units may attack across the Taranto–Valona dotted line without
     //  friendly units located in Albania or Greece.
 
-    // TODO: Multi-national Attacks can occur from more than one space if one of the spaces in the attack contains
-    //  units of all involved nationalities. Any other space(s) involved in the same Combat may contain units from
-    //  any of the nationalities in the common space. Each participating nation must have a unit in the common
-    //  space participating in the attack. Due to this restriction and stacking limits, no Combat may involve more
-    //  than three nationalities on each side.
+    if (is_invalid_multinational_attack(attackers)) {
+        return []
+    }
 
     const russian_attacker = attackers.find((p) => data.pieces[p].nation === RUSSIA) !== undefined
     const german_attacker = attackers.find((p) => data.pieces[p].nation === GERMANY) !== undefined
@@ -2380,6 +2378,46 @@ function get_attackable_spaces(attackers) {
     })
 
     return eligible_spaces
+}
+
+function get_nation_for_multinational_attacks(piece) {
+    let nation = data.pieces[piece].nation
+    switch (nation) {
+        case "sn":
+            return TURKEY
+        case MONTENEGRO:
+            return SERBIA
+        default:
+            return nation // ANA, Aus, Cnd, and Pt units are already marked as British in data
+    }
+}
+
+function is_invalid_multinational_attack(attackers) {
+    // Multi-national Attacks can occur from more than one space if one of the spaces in the attack contains
+    //  units of all involved nationalities. Any other space(s) involved in the same Combat may contain units from
+    //  any of the nationalities in the common space. Each participating nation must have a unit in the common
+    //  space participating in the attack. Due to this restriction and stacking limits, no Combat may involve more
+    //  than three nationalities on each side.
+    let all_nations = []
+    let nations_in_space = {}
+    for (let p of attackers) {
+        let nation = get_nation_for_multinational_attacks(p)
+        let space = game.location[p]
+        set_add(all_nations, nation) // Collect all unique nations
+        if (nations_in_space[space] === undefined)
+            nations_in_space[space] = []
+        set_add(nations_in_space[space], nation) // Collect unique nations per space
+    }
+
+    if (all_nations.length <= 1)
+        return false // Not a multinational attack
+
+    for (const s in nations_in_space) {
+        // Found one space with the same number of nations as the whole attack, so this is a valid attack
+        if (nations_in_space[s].length >= all_nations.length)
+            return false
+    }
+    return true
 }
 
 function get_attackable_spaces_for_piece(p) {
