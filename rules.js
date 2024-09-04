@@ -1772,7 +1772,17 @@ function can_entrench() {
 }
 
 function update_us_entry() {
-    // TODO
+    const previous_level = game.us_entry
+    if (game.events.over_there > 0) {
+        game.us_entry = 3
+    } else if (game.events.zimmermann_telegram > 0) {
+        game.us_entry = 2
+    } else if (events.zimmermann_telegram.can_play()) {
+        game.us_entry = 1
+        if (previous_level < 1) log(`${card_name(ZIMMERMANN_TELEGRAM)} can now be played`)
+    } else {
+        game.us_entry = 0
+    }
 }
 
 function update_russian_capitulation() {
@@ -4726,15 +4736,31 @@ events.greece_entry = {
     }
 }
 
+// AP #54
+events.zimmermann_telegram = {
+    can_play() {
+        return game.cp.ws + game.ap.ws >= 30
+    },
+    play() {
+        push_undo()
+        game.events.zimmermann_telegram = game.turn
+        game.vp--
+        log(`Zimmermann Telegram event subtracts 1 VP`)
+        game.ops = data.cards[ZIMMERMANN_TELEGRAM].ops
+        game.state = 'activate_spaces'
+    }
+}
+
 // AP #55
 events.over_there = {
     can_play() {
-        return game.events.zimmermann_telegram > 0
+        return game.events.zimmermann_telegram > 0 && game.turn > game.events.zimmermann_telegram
     },
     play() {
         push_undo()
         game.events.over_there = game.turn
-        goto_end_action()
+        game.ops = data.cards[OVER_THERE].ops
+        game.state = 'activate_spaces'
     }
 }
 
