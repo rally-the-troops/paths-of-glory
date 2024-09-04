@@ -4995,7 +4995,8 @@ const spaces = [
         "h": 44,
         "nation": "fr",
         "faction": "ap",
-        "terrain": "mountain"
+        "terrain": "mountain",
+        "fort": 2
     },
     {
         "id": 37,

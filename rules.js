@@ -196,6 +196,7 @@ const CALAIS = 17
 const OSTEND = 18
 const CHATEAU_THIERRY = 20
 const MELUN = 21
+const ANTWERP = 32
 const LIEGE = 33
 const KOBLENZ = 41
 const ESSEN = 43
@@ -2062,12 +2063,24 @@ function is_controlled_by(s, faction) {
     return faction === controlling_faction
 }
 
+function contains_piece_of_faction(s, faction) {
+    for (let p = 1; p < data.pieces.length; ++p)
+        if (game.location[p] === s && data.pieces[p].faction === faction)
+            return true
+
+    return false
+}
+
+function contains_piece_of_nation(s, nation) {
+    for (let p = 1; p < data.pieces.length; ++p)
+        if (game.location[p] === s && data.pieces[p].nation === nation)
+            return true
+
+    return false
+}
+
 function can_move_to(s, moving_pieces) {
-    let contains_enemy = false
-    for_each_piece_in_space(s, (p) => {
-        if (data.pieces[p].faction !== game.active)
-            contains_enemy = true
-    })
+    let contains_enemy = contains_piece_of_faction(s, other_faction(game.active))
     if (contains_enemy)
         return false
 
@@ -2452,7 +2465,10 @@ states.choose_flank_attack = {
     },
     space(s) {
         game.attack.pinning_space = s
-        game.state = 'play_wireless_intercepts'
+        if (can_play_wireless_intercepts())
+            game.state = 'play_wireless_intercepts'
+        else
+            this.pass()
     },
     pass() {
         if (defender_can_withdraw()) {
@@ -2465,8 +2481,14 @@ states.choose_flank_attack = {
     }
 }
 
+function can_play_wireless_intercepts() {
+    return game[game.active].hand.includes(WIRELESS_INTERCEPTS) &&
+        game.attack.pieces.find((p) => data.pieces[p].nation === GERMANY) &&
+        contains_piece_of_nation(game.attack.space, RUSSIA)
+}
+
 states.play_wireless_intercepts = {
-    inactive: 'Attacker Choosing Whether to Play Wireless Intercepts',
+    inactive: 'Attacker Choosing Whether to Attempt a Flank Attack',
     prompt() {
         view.prompt = 'Play Wireless Intercepts?'
         if (game[game.active].hand.includes(WIRELESS_INTERCEPTS)) {
@@ -2606,19 +2628,10 @@ function begin_combat() {
 function adds_flanking_drm(space, attacking_faction, attack_space) {
     const spaces = get_connected_spaces(space)
     for (let i = 0; i < spaces.length; ++i) {
-        if (spaces[i] !== attack_space && contains_enemy_piece(spaces[i], attacking_faction))
+        if (spaces[i] !== attack_space && contains_piece_of_faction(spaces[i], other_faction(attacking_faction)))
             return false
     }
     return true
-}
-
-function contains_enemy_piece(s, faction) {
-    const pieces = get_pieces_in_space(s)
-    for (let i = 0; i < pieces.length; ++i) {
-        if (data.pieces[pieces[i]].faction !== faction)
-            return true
-    }
-    return false
 }
 
 function resolve_fire() {
@@ -3051,13 +3064,7 @@ function determine_combat_winner() {
     })
 
     // Check for a full strength attacker
-    let attacker_has_full_strength_unit = false
-    for (let p in game.attack.pieces) {
-        if (!is_unit_reduced(p)) {
-            attacker_has_full_strength_unit = true
-            break
-        }
-    }
+    let attacker_has_full_strength_unit = game.attack.pieces.find((p) => !is_unit_reduced(p)) !== undefined
 
     // Decide if the defender should retreat, attacker should advance, or if the combat is over
     let defender_pieces = get_pieces_in_space(game.attack.space)
@@ -3065,10 +3072,21 @@ function determine_combat_winner() {
         game.active = other_faction(game.attack.attacker)
         game.attack.to_retreat = defender_pieces
         game.attack.retreating_pieces = []
+        game.attack.retreat_length = (game.attack.defender_losses - game.attack.attacker_losses === 1) ? 1 : 2
+        game.attack.retreat_paths = []
+        game.attack.to_advance = game.attack.pieces.filter((p) => !is_unit_reduced(p))
+        game.attack.advancing_pieces = []
+        // TODO: Offer option to take an extra loss to cancel the retreat, when available
         game.state = 'defender_retreat'
         push_undo()
-    } else if (defender_pieces.length === 0) {
+    } else if (attacker_has_full_strength_unit && defender_pieces.length === 0) {
         game.active = game.attack.attacker
+        game.attack.to_retreat = []
+        game.attack.retreating_pieces = []
+        game.attack.retreat_length = 1
+        game.attack.retreat_paths = []
+        game.attack.to_advance = game.attack.pieces.filter((p) => !is_unit_reduced(p))
+        game.attack.advancing_pieces = []
         game.state = 'attacker_advance'
     } else {
         end_attack_activation()
@@ -3079,7 +3097,7 @@ function determine_combat_winner() {
 states.defender_retreat = {
     inactive: 'Defender Retreating',
     prompt() {
-        view.prompt = `Select unit(s) to retreat`
+        view.prompt = `Select units to retreat`
         game.attack.to_retreat.forEach((p) => {
             gen_action_piece(p)
         })
@@ -3104,7 +3122,7 @@ states.defender_retreat = {
     },
     next() {
         push_undo()
-        game.attack.retreat_length = game.attack.defender_losses - game.attack.attacker_losses === 1 ? 1 : 2
+        game.attack.retreat_path = []
         game.state = 'choose_retreat_path'
     },
     done() {
@@ -3116,10 +3134,13 @@ states.defender_retreat = {
 states.choose_retreat_path = {
     inactive: 'Defender Retreating',
     prompt() {
-        if (game.attack.retreat_length === 0) {
+
+        gen_action_undo()
+        if (game.attack.retreat_path.length === game.attack.retreat_length) {
             view.prompt = `End retreat?`
+            gen_action_done()
         } else {
-            if (game.attack.retreat_length > 1) {
+            if (game.attack.retreat_path.length === 0) {
                 view.prompt = `Choose space to retreat through`
             } else {
                 view.prompt = `Choose space to retreat to`
@@ -3130,21 +3151,17 @@ states.choose_retreat_path = {
                 gen_action_space(s)
             })
         }
-        gen_action_undo()
-        if (game.attack.retreat_length === 0) {
-            gen_action_done()
-        }
     },
     space(s) {
         push_undo()
-        game.attack.retreat_length--
+        game.attack.retreat_path.push(s)
         game.attack.retreating_pieces.forEach((p) => {
             game.location[p] = s
         })
-        if (game.attack.retreat_length > 0)
-            game.attack.first_retreat_space = s
     },
     done() {
+        game.attack.retreat_paths.push(game.attack.retreat_path)
+        game.attack.retreat_path = []
         game.attack.retreating_pieces.length = 0
         if (game.attack.to_retreat.length > 0) {
             game.state = 'defender_retreat'
@@ -3166,10 +3183,10 @@ function get_retreat_options() {
         if (conn === game.attack.space)
             return
 
-        if (game.attack.retreat_length === 1 && would_overstack(conn, game.attack.retreating_pieces, game.active))
+        if (game.attack.retreat_path.length === 1 && would_overstack(conn, game.attack.retreating_pieces, game.active))
             return
 
-        if (game.attack.retreat_length === 1 && !is_controlled_by(conn, game.active))
+        if (game.attack.retreat_path.length === 1 && !is_controlled_by(conn, game.active))
             return
 
         if (is_controlled_by(conn, game.active))
@@ -3205,24 +3222,28 @@ states.attacker_advance = {
     inactive: 'Attacker Advancing',
     prompt() {
         view.prompt = `Choose which units to advance`
-        game.attack.pieces.forEach((p) => {
-            if (!is_unit_reduced(p))
-                gen_action_piece(p)
+        game.attack.to_advance.forEach((p) => {
+            gen_action_piece(p)
+        })
+        game.attack.advancing_pieces.forEach((p) => {
+            gen_action_piece(p)
         })
         gen_action_next()
     },
     piece(p) {
-        if (!game.attack.advancing_units)
-            game.attack.advancing_units = []
-        if (set_has(game.attack.advancing_units, p))
-            set_delete(game.attack.advancing_units, p)
-        else
-            set_add(game.attack.advancing_units, p)
+        if (set_has(game.attack.advancing_pieces, p)) {
+            set_delete(game.attack.advancing_pieces, p)
+            set_add(game.attack.to_advance, p)
+        } else {
+            set_add(game.attack.advancing_pieces, p)
+            set_delete(game.attack.to_advance, p)
+        }
     },
     next() {
-        if (game.attack.advancing_units && game.attack.advancing_units.length > 0)
+        if (game.attack.advancing_pieces.length > 0) {
+            game.attack.advance_length = 0
             game.state = 'perform_advance'
-        else {
+        } else {
             end_attack_activation()
             goto_next_activation()
         }
@@ -3234,89 +3255,95 @@ states.perform_advance = {
     prompt() {
         view.prompt = `Choose next space to advance`
         get_possible_advance_spaces().forEach(gen_action_space)
+        gen_action_undo()
         gen_action_done()
     },
     space(s) {
         push_undo()
-        game.attack.advancing_units.forEach((p) => {
+        game.attack.advancing_pieces.forEach((p) => {
             game.location[p] = s
         })
+        game.attack.advance_length++
         if (!has_undestroyed_fort(s, other_faction(game.active))) {
             set_control(s, game.attack.attacker)
         }
         capture_trench(s, game.attack.attacker)
     },
     done() {
-        if (game.attack.advancing_units.length > 0) {
-            const end_space = game.location[game.attack.advancing_units[0]]
+        if (game.attack.advancing_pieces.length > 0) {
+            const end_space = game.location[game.attack.advancing_pieces[0]]
             if (has_undestroyed_fort(end_space, other_faction(game.attack.attacker))) {
                 set_add(game.forts.besieged, end_space)
             }
         }
-        end_attack_activation()
-        goto_next_activation()
+        game.attack.advancing_pieces.length = 0
+        game.attack.advance_length = 0
+        if (game.attack.to_advance.length > 0)
+            game.state = 'attacker_advance'
+        else {
+            end_attack_activation()
+            goto_next_activation()
+        }
     }
 }
 
-
-
 function get_possible_advance_spaces() {
-    let spaces = []
-    if (game.attack.advancing_units.length == 0)
-        return spaces
+    if (game.attack.advance_length >= game.attack.retreat_length)
+        return []
 
-    let location_of_advancing_units = game.location[game.attack.advancing_units[0]]
+    if (game.attack.advancing_pieces.length === 0)
+        return []
 
-    // If advancing units are not in the space where the attack occurred, they can only advance to that space
-    if (game.attack.space != location_of_advancing_units) {
-        if (has_undestroyed_fort(game.attack.space, other_faction(game.attack.attacker))) {
-            // Advance into a fort is only allowed if you have sufficient advancing units to besiege the fort (12.7.6)
-            if (can_besiege(game.attack.space, game.attack.advancing_units)) {
-                spaces.push(game.attack.space)
-            }
-        } else {
-            spaces.push(game.attack.space)
-        }
-        return spaces
+    let location_of_advancing_units = game.location[game.attack.advancing_pieces[0]]
+    // If the attacking pieces haven't entered the attack space (always true if this is a 1-space advance), that is the only choice
+    if (game.attack.space !== location_of_advancing_units) {
+        if (can_advance_into(game.attack.space, game.attack.advancing_pieces))
+            return [game.attack.space]
+        else
+            return []
     }
 
     let terrain= data.spaces[game.attack.space]
-    let terrain_allows_advance = terrain != MOUNTAIN && terrain != SWAMP && terrain != FOREST && terrain != DESERT
+    let terrain_allows_advance = terrain !== MOUNTAIN && terrain !== SWAMP && terrain !== FOREST && terrain !== DESERT
 
-    // If the first_retreat_space is not set (retreat was one space), or if the terrain prevents a second advance
-    if (!game.attack.first_retreat_space || !terrain_allows_advance)
-        return spaces
+    // If the terrain prevents a second advance
+    if (!terrain_allows_advance)
+        return []
+
+
+    let spaces = []
+    for (let path of game.attack.retreat_paths) {
+        if (can_advance_into(path[0], game.attack.advancing_pieces))
+            set_add(spaces, path[0]) // Add the first retreat space from each retreated path
+    }
 
     // 12.7.7 Central Powers units may advance into Amiens, Calais, or Ostend only if one of the following applies:
     // • if it was the defending space in the Combat.
     // • if the Race to the Sea Event has been played.
     // • if the Central Powers War Status is 4 or higher.
-    const cp_restricted_advance = [
-        16, // Amiens
-        17, // Calais
-        18, // Ostend
-    ]
-    if (game.attack.attacker === CP && cp_restricted_advance.includes(game.attack.first_retreat_space)) {
-        if (game.events.race_to_the_sea || game.cp.ws >= 4) {
-            spaces.push(game.attack.first_retreat_space) // Don't need to worry about forts here because these spaces do not have forts
-        }
-        return spaces
+    if (game.attack.attacker === CP && !game.events.race_to_the_sea && game.cp.ws < 4) {
+        set_delete(spaces, AMIENS)
+        set_delete(spaces, CALAIS)
+        set_delete(spaces, OSTEND)
     }
 
-    if (has_undestroyed_fort(game.attack.first_retreat_space, other_faction(game.attack.attacker))) {
-        // Advance into a fort is only allowed if you have sufficient advancing units to besiege the fort (12.7.6)
-        if (can_besiege(game.attack.first_retreat_space, game.attack.advancing_units)) {
-            spaces.push(game.attack.first_retreat_space)
-        }
-    } else {
-        spaces.push(game.attack.first_retreat_space)
-    }
     return spaces
+}
+
+function can_advance_into(space, units) {
+    // Advance into a fort is only allowed if you have sufficient advancing units to besiege the fort (12.7.6)
+    if (has_undestroyed_fort(space, other_faction(game.attack.attacker)) && !can_besiege(space, units))
+        return false
+
+    if (contains_piece_of_faction(space, other_faction(game.attack.attacker)))
+        return false
+
+    return true
 }
 
 function has_undestroyed_fort(space, faction) {
     let space_data = data.spaces[space]
-    return space_data.fort !== undefined && space_data.fort > 0 && space_data.faction == faction && !set_has(game.forts.destroyed, space)
+    return space_data.fort !== undefined && space_data.fort > 0 && space_data.faction === faction && !set_has(game.forts.destroyed, space)
 }
 
 function is_besieged(space) {
@@ -3324,28 +3351,16 @@ function is_besieged(space) {
 }
 
 function can_besiege(space, units) {
-    let retval = false
     let count_corps = 0
-    units.forEach((p) => {
-        if (data.pieces[p].type == ARMY) {
-            retval = true
-            return
+    for (let p of units) {
+        if (data.pieces[p].type === ARMY) {
+            return true
         } else {
             count_corps++
         }
-    })
-    if (!retval && count_corps >= data.spaces[space].fort) {
-        retval = true
     }
-    return retval
+    return count_corps >= data.spaces[space].fort
 }
-
-const spaces_where_belgian_units_treated_as_british = [
-    16, // Amiens
-    17, // Calais
-    18, // Ostend
-    32  // Antwerp
-]
 
 function cost_to_activate(space, type) {
     let nations = []
@@ -3361,6 +3376,12 @@ function cost_to_activate(space, type) {
     })
     let cost = nations.length
 
+    const spaces_where_belgian_units_treated_as_british = [
+        AMIENS,
+        CALAIS,
+        OSTEND,
+        ANTWERP
+    ]
     if (spaces_where_belgian_units_treated_as_british.includes(space) &&
         nations.includes(BRITAIN) &&
         nations.includes(BELGIUM)) {
@@ -3376,7 +3397,7 @@ function cost_to_activate(space, type) {
 
     // TODO: Sud Army and 11th Army events modify the activation cost
 
-    if (game.events.moltke > 0 && !game.events.falkenhayn) {
+    if (game.active === CP && game.events.moltke > 0 && !game.events.falkenhayn) {
         // Moltke modifies the activation cost, unless Falkenhayn also played
         if (nation === BELGIUM || nation === FRANCE) {
             cost = num_pieces
