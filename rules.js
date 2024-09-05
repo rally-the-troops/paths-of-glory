@@ -3281,12 +3281,12 @@ states.attacker_advance = {
         gen_action_next()
     },
     piece(p) {
-        if (set_has(game.attack.advancing_pieces, p)) {
-            set_delete(game.attack.advancing_pieces, p)
-            set_add(game.attack.to_advance, p)
+        if (game.attack.advancing_pieces.includes(p)) {
+            array_remove_item(game.attack.advancing_pieces, p)
+            game.attack.to_advance.push(p)
         } else {
-            set_add(game.attack.advancing_pieces, p)
-            set_delete(game.attack.to_advance, p)
+            game.attack.advancing_pieces.push(p)
+            array_remove_item(game.attack.to_advance, p)
         }
     },
     next() {
@@ -4491,6 +4491,23 @@ events.falkenhayn = {
         push_undo()
         game.events.falkenhayn = game.turn
         goto_end_action()
+    }
+}
+
+// CP #17
+events.mata_hari = {
+    can_play() {
+        return true
+    },
+    play() {
+        clear_undo()
+        game.events.mata_hari = game.turn
+        log("Mata Hari reveals the contents of the Allied hand:")
+        for (let c of game.ap.hand) {
+            log(`${card_name(c)}`)
+        }
+        game.ops = data.cards[MATA_HARI].ops
+        game.state = 'activate_spaces'
     }
 }
 
