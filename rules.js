@@ -1647,10 +1647,12 @@ states.activate_spaces = {
             if (set_has(game.activated.move, s) || set_has(game.activated.attack, s)) {
                 gen_action('deactivate', s)
             } else {
-                if (game.ops >= cost_to_activate(s, MOVE))
-                    gen_action('activate_move', s)
-                if (game.ops >= cost_to_activate(s, ATTACK))
-                    gen_action('activate_attack', s)
+                if (is_space_supplied(game.active, s)) {
+                    if (game.ops >= cost_to_activate(s, MOVE))
+                        gen_action('activate_move', s)
+                    if (game.ops >= cost_to_activate(s, ATTACK))
+                        gen_action('activate_attack', s)
+                }
             }
         })
         gen_action_undo()
