@@ -527,10 +527,10 @@ body.bevel .event {
 
 /* US Commitment */
 .us_entry { top: 1157px; }
-.us_entry.usc_0 { left: 64px; }
-.us_entry.usc_1 { left: 116px; }
-.us_entry.usc_2 { left: 168px; }
-.us_entry.usc_3 { left: 220px; }
+.us_entry.us_entry_0 { left: 64px; }
+.us_entry.us_entry_1 { left: 116px; }
+.us_entry.us_entry_2 { left: 168px; }
+.us_entry.us_entry_3 { left: 220px; }
 
 /* Mandated offensives */
 .ap_mandatory_offensive { left: 1180px; top: 1542px; }

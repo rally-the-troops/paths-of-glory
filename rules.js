@@ -346,8 +346,8 @@ exports.view = function(state, current) {
         actions: null,
         turn: game.turn,
         vp: game.vp,
-        usc: game.usc,
-        rc: game.rc,
+        us_entry: game.us_entry,
+        russian_capitulation: game.russian_capitulation,
         last_card: game.last_card,
         activated: game.activated,
         move: game.move,
@@ -545,8 +545,8 @@ function create_empty_game_state(seed, scenario, options) {
 
         turn: 1, // Turn number
         vp: 10, // Current VP, can move up or down
-        usc: 0, // US commitment level
-        rc: 0, // Russian capitulation level
+        us_entry: 0, // US commitment level
+        russian_capitulation: 0, // Russian capitulation level
         ops: 0, // Ops points for the current action
 
         events: {}, // Event flags for remembering which events have been played
@@ -1219,6 +1219,7 @@ function goto_play_event(card) {
     const card_data = data.cards[card]
     if (card_data.ws) {
         active_player.ws += card_data.ws
+        update_us_entry()
     }
 
     let evt = events[card_data.event]
@@ -1492,6 +1493,7 @@ function goto_play_reinf(card) {
 
     if (card_data.ws) {
         active_player.ws += card_data.ws
+        update_us_entry()
     }
 
     const piece_nation = card === LIBYAN_REVOLT ? 'sn' : card_data.reinfnation // This card counts as Turkish reinforcements but places the 'sn' piece
@@ -2207,7 +2209,7 @@ function can_end_move(s) {
     if (game.activated.attack.includes(s))
         return false
 
-    if (!game.events.race_to_the_sea && (s == AMIENS || s == CALAIS || s == OSTEND) && game.cp.ws < 4) {
+    if (!game.events.race_to_the_sea && (s === AMIENS || s === CALAIS || s === OSTEND) && game.cp.ws < 4) {
         return false
     }
 
@@ -3671,27 +3673,27 @@ function goto_war_status_phase() {
     // E.4. Each player determines if his War Commitment Level has increased. This is not checked on the August 1914
     // turn (turn 1). If the appropriate War Status conditions are met, Limited War or Total War cards may be added
     // to the Draw Pile at this time.
-    if (game.turn != 1) {
-        if (game.ap.ws >= 4 && game.ap.commitment == COMMITMENT_MOBILIZATION) {
+    if (game.turn !== 1) {
+        if (game.ap.ws >= 4 && game.ap.commitment === COMMITMENT_MOBILIZATION) {
             game.ap.commitment = COMMITMENT_LIMITED
             log_h2("Allied Powers' War Commitment Level rises to Limited War")
             add_cards_to_deck(AP, COMMITMENT_LIMITED, game.ap.deck)
             game.ap.shuffle = true
         }
-        if (game.cp.ws >= 4 && game.cp.commitment == COMMITMENT_MOBILIZATION) {
+        if (game.cp.ws >= 4 && game.cp.commitment === COMMITMENT_MOBILIZATION) {
             game.cp.commitment = COMMITMENT_LIMITED
             log_h2("Central Powers' War Commitment Level rises to Limited War")
             add_cards_to_deck(CP, COMMITMENT_LIMITED, game.cp.deck)
             game.cp.shuffle = true
             set_nation_at_war(TURKEY)
         }
-        if (game.ap.ws >= 11 && game.ap.commitment == COMMITMENT_LIMITED) {
+        if (game.ap.ws >= 11 && game.ap.commitment === COMMITMENT_LIMITED) {
             game.ap.commitment = COMMITMENT_TOTAL
             log_h2("Allied Powers' War Commitment Level rises to Total War")
             add_cards_to_deck(AP, COMMITMENT_TOTAL, game.ap.deck)
             game.ap.shuffle = true
         }
-        if (game.cp.ws >= 11 && game.cp.commitment == COMMITMENT_LIMITED) {
+        if (game.cp.ws >= 11 && game.cp.commitment === COMMITMENT_LIMITED) {
             game.cp.commitment = COMMITMENT_TOTAL
             log_h2("Central Powers' War Commitment Level rises to Total War")
             add_cards_to_deck(CP, COMMITMENT_TOTAL, game.cp.deck)

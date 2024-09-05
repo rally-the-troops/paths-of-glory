@@ -12,9 +12,8 @@ const CORPS = "corps"
 const AP_MO_MARKER = "marker ap_mandatory_offensive "
 const CP_MO_MARKER = "marker cp_mandatory_offensive "
 
-const USC_MARKER = "marker small us_entry usc_"
+const US_ENTRY_MARKER = "marker small us_entry us_entry_"
 const RC_MARKER = "marker small russian_capitulation rc_"
-const TURN_MARKER = "small marker game_turn turn_"
 
 const AP_RESERVE_BOX = 282
 const CP_RESERVE_BOX = 283
@@ -1536,10 +1535,10 @@ function update_map() {
     ap_mo.className = AP_MO_MARKER + view.ap.mo + (view.events.french_mutiny ? " fr_mutiny" : "")
     let cp_mo = document.getElementById("cp_mandatory_offensive")
     cp_mo.className = CP_MO_MARKER + view.cp.mo
-    let usc_marker = document.getElementById("us_entry")
-    usc_marker.className = USC_MARKER + view.usc
-    let rc_marker = document.getElementById("russian_capitulation")
-    rc_marker.className = RC_MARKER + view.rc
+    let us_entry_marker = document.getElementById("us_entry")
+    us_entry_marker.className = US_ENTRY_MARKER + view.us_entry
+    let russian_capitulation_marker = document.getElementById("russian_capitulation")
+    russian_capitulation_marker.className = RC_MARKER + view.russian_capitulation
     update_turn_track()
     update_action_round_tracks()
 
