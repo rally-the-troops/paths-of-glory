@@ -1260,7 +1260,7 @@ states.choose_sr_unit = {
     prompt() {
         view.prompt = `Select a unit to move by SR (${game.sr.pts} points remaining)`
         game.location.forEach((loc, p) => {
-            if (loc != 0 && data.pieces[p].faction == game.active && can_sr(p)) {
+            if (loc !== 0 && data.pieces[p].faction === game.active && can_sr(p)) {
                 gen_action_piece(p)
             }
         })
@@ -1268,7 +1268,7 @@ states.choose_sr_unit = {
         gen_action_done()
     },
     piece(p) {
-        if (game.sr.unit == 0) {
+        if (game.sr.unit === 0) {
             push_undo()
             game.sr.unit = p
             game.sr.pts -= sr_cost(p)
@@ -1344,6 +1344,7 @@ states.choose_sr_destination = {
     },
     space(s) {
         push_undo()
+        log(`${piece_name(game.who)} SR from ${space_name(game.location[game.who])} to ${space_name(s)}`)
         set_add(game.sr.done, game.sr.unit)
         game.location[game.sr.unit] = s
         game.sr.unit = 0
@@ -1446,6 +1447,14 @@ function find_sr_destinations() {
     //  units tracing supply to Sofia or Constantinople, Turkish units tracing supply to Essen, Breslau or Sofia,
     //  Bulgarian units tracing supply to Essen, Breslau or Constantinople, and Russian and Romanian units tracing
     //  supply to Belgrade.
+
+    // Remove fully-stacked spaces from consideration
+    const all_destinations = [...destinations]
+    for (let d of all_destinations) {
+        if (is_fully_stacked(d, game.active)) {
+            set_delete(destinations, d)
+        }
+    }
 
     return destinations
 }
@@ -2174,12 +2183,15 @@ function can_enter_neareast(pieces) {
 }
 
 function is_fully_stacked(s, faction) {
+    if (s === AP_RESERVE_BOX || s === CP_RESERVE_BOX)
+        return false
+
     let matches = 0
     for (let p = 1; p < game.location.length; ++p) {
-        if (game.location[p] == s && data.pieces[p].faction == faction) {
+        if (game.location[p] === s && data.pieces[p].faction === faction) {
             matches++
         }
-        if (matches == STACKING_LIMIT)
+        if (matches === STACKING_LIMIT)
             return true
     }
     return false
@@ -2192,12 +2204,12 @@ function is_overstacked(s, faction) {
 function would_overstack(s, pieces, faction) {
     let matches = 0
     pieces.forEach((p) => {
-        if (data.pieces[p].faction == faction) {
+        if (data.pieces[p].faction === faction) {
             matches++
         }
     })
     for (let p = 1; p < game.location.length; ++p) {
-        if (game.location[p] == s && data.pieces[p].faction == faction) {
+        if (game.location[p] === s && data.pieces[p].faction === faction) {
             matches++
         }
     }
