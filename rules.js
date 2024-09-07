@@ -2453,12 +2453,12 @@ function can_be_attacked(s) {
     let retval = false
 
     // Check if space has an attackable fort
-    if (data.spaces[s].fort > 0 && !is_controlled_by(s, game.active) && !set_has(game.forts.destroyed, s) && !set_has(game.forts.besieged)) {
+    if (has_undestroyed_fort(s, other_faction(game.active)) && is_controlled_by(s, other_faction(game.active)) && !is_besieged(s)) {
         return true
     }
 
     for (let p = 0; p < game.location.length; ++p) {
-        if (game.location[p] == s && data.pieces[p].faction !== game.active) {
+        if (game.location[p] === s && data.pieces[p].faction !== game.active) {
             retval = true
             break
         }
@@ -2847,11 +2847,17 @@ states.apply_defender_losses = {
         view.prompt = `Take losses (${game.attack.defender_losses_taken}/${game.attack.defender_losses})`
 
         let loss_options = []
-        if (game.attack.defender_losses - game.attack.defender_losses_taken > 0)
-            loss_options = get_loss_options(game.attack.defender_losses - game.attack.defender_losses_taken, get_pieces_in_space(game.attack.space))
+        if (game.attack.defender_losses - game.attack.defender_losses_taken > 0) {
+            const fort_strength = has_undestroyed_fort(game.attack.space, game.active) ? data.spaces[game.attack.space].fort : 0
+            loss_options = get_loss_options(game.attack.defender_losses - game.attack.defender_losses_taken, get_pieces_in_space(game.attack.space), fort_strength)
+        }
         if (loss_options.length > 0) {
-            loss_options.forEach((p) => {
-                gen_action_piece(p)
+            loss_options.forEach((option) => {
+                if (option === FORT_LOSS) {
+                    gen_action_space(game.attack.space)
+                } else {
+                    gen_action_piece(option)
+                }
             })
         } else {
             gen_action_undo()
@@ -2859,6 +2865,7 @@ states.apply_defender_losses = {
         }
     },
     piece(p) {
+        push_undo()
         game.attack.defender_losses_taken += get_piece_lf(p)
         if (is_unit_reduced(p)) {
             let replacement = find_replacement(p, get_units_in_reserve())
@@ -2870,12 +2877,18 @@ states.apply_defender_losses = {
             } else {
                 game.location[replacement] = game.location[p]
                 log(`Replaced ${piece_name(p)} in ${space_name(game.location[p])} with ${piece_name(replacement)}`)
-                game.location[p] = game.active == AP ? AP_ELIMINATED_BOX : CP_ELIMINATED_BOX
+                game.location[p] = game.active === AP ? AP_ELIMINATED_BOX : CP_ELIMINATED_BOX
             }
         } else {
             log(`Reduced ${piece_name(p)} in ${space_name(game.location[p])}`)
             game.reduced.push(p)
         }
+    },
+    space(s) {
+        push_undo()
+        game.attack.defender_losses_taken += data.spaces[s].fort
+        set_add(game.forts.destroyed, s)
+        log(`Destroyed fort in ${space_name(s)}`)
     },
     done() {
         if (game.attack.failed_flank) {
@@ -2920,7 +2933,7 @@ states.apply_attacker_losses = {
             } else {
                 game.location[replacement] = game.location[p]
                 log(`Replaced ${piece_name(p)} in ${space_name(game.location[p])} with ${piece_name(replacement)}`)
-                game.location[p] = game.active == AP ? AP_ELIMINATED_BOX : CP_ELIMINATED_BOX
+                game.location[p] = game.active === AP ? AP_ELIMINATED_BOX : CP_ELIMINATED_BOX
             }
             array_remove_item(game.attack.pieces, p)
         } else {
@@ -2939,8 +2952,10 @@ states.apply_attacker_losses = {
     }
 }
 
-function get_loss_options(to_satisfy, units) {
-    // TODO: Forts
+const FORT_LOSS = -1
+
+function get_loss_options(to_satisfy, units, fort_strength) {
+    // TODO: Priority units for taking losses, for example BEF
     let reserve_units = get_units_in_reserve()
     let loss_tree = {
         picked: [],
@@ -2949,6 +2964,7 @@ function get_loss_options(to_satisfy, units) {
         reduced: units.filter((u) => is_unit_reduced(u)),
         full_replacements: reserve_units.filter((u) => !is_unit_reduced(u)),
         reduced_replacements: reserve_units.filter((u) => is_unit_reduced(u)),
+        fort_strength: fort_strength || 0,
         options: []
     }
 
@@ -2985,6 +3001,7 @@ function build_loss_tree(parent, valid_paths) {
                 reduced: [...parent.reduced, unit],
                 full_replacements: [...parent.full_replacements],
                 reduced_replacements: [...parent.reduced_replacements],
+                fort_strength: parent.fort_strength,
                 options: []
             }
             parent.options.push(node)
@@ -2997,30 +3014,48 @@ function build_loss_tree(parent, valid_paths) {
         let unit_lf = data.pieces[unit].rlf
 
         if (unit_lf <= parent.to_satisfy) {
-            let full_replacements = [...parent.full_replacements]
-            let reduced_replacements = [...parent.reduced_replacements]
-            let selected_replacement = find_replacement(unit, full_replacements)
-            if (selected_replacement !== 0) {
-                array_remove_item(full_replacements, selected_replacement)
-                reduced_replacements.push(selected_replacement)
-            } else {
-                selected_replacement = find_replacement(unit, reduced_replacements)
-                if (selected_replacement !== 0) {
-                    array_remove_item(reduced_replacements, selected_replacement)
-                }
-            }
-
             let node = {
                 picked: [...parent.picked, unit],
                 to_satisfy: parent.to_satisfy - unit_lf,
                 full_strength: [...parent.full_strength],
                 reduced: parent.reduced.filter((u) => u !== unit),
-                full_replacements: full_replacements,
-                reduced_replacements: reduced_replacements,
+                full_replacements: parent.full_replacements,
+                reduced_replacements: parent.reduced_replacements,
+                fort_strength: parent.fort_strength,
                 options: []
+            }
+
+            let selected_replacement = find_replacement(unit, node.full_replacements)
+            if (selected_replacement !== 0) {
+                array_remove_item(node.full_replacements, selected_replacement)
+                node.full_strength.push(selected_replacement)
+            } else {
+                selected_replacement = find_replacement(unit, node.reduced_replacements)
+                if (selected_replacement !== 0) {
+                    array_remove_item(node.reduced_replacements, selected_replacement)
+                    node.reduced.push(selected_replacement)
+                }
             }
             parent.options.push(node)
         }
+    }
+
+    // If there are no units left in the space and the remaining losses to satisfy are greater than the value of the fort, add a fort loss option
+    if (parent.full_strength.length === 0 &&
+        parent.reduced.length === 0 &&
+        parent.fort_strength > 0 &&
+        parent.to_satisfy >= parent.fort_strength) {
+        let node = {
+            picked: [...parent.picked, FORT_LOSS],
+            to_satisfy: parent.to_satisfy - parent.fort_strength,
+            full_strength: [...parent.full_strength],
+            reduced: [...parent.reduced],
+            full_replacements: [...parent.full_replacements],
+            reduced_replacements: [...parent.reduced_replacements],
+            fort_strength: 0,
+            options: []
+        }
+        parent.options.push(node)
     }
 
     // Recurse to continue building options, updating the best options as we go
@@ -3611,16 +3646,16 @@ states.siege_phase = {
         if (roll + drm > fort_str) {
             log(`${faction_name(game.active)} successfully besiege ${space_name(s)} with a roll of ${roll+drm}`)
             array_remove_item(game.forts.besieged, s)
-            game.forts.destroyed.push(s)
+            set_add(game.forts.destroyed, s)
             set_control(s, game.active)
             capture_trench(s, game.active)
         } else {
             log(`${faction_name(game.active)} fail to besiege ${space_name(s)} with a roll of ${roll+drm}`)
         }
 
-        if (game.sieges_to_roll.length == 0) {
+        if (game.sieges_to_roll.length === 0) {
             goto_war_status_phase()
-        } else if (game.sieges_to_roll.filter((s) => data.spaces[s].faction == other_faction(game.active)).length == 0) {
+        } else if (game.sieges_to_roll.find((s) => data.spaces[s].faction === game.active) !== undefined) {
             game.active = other_faction(game.active)
         }
     }
@@ -3633,23 +3668,23 @@ function goto_war_status_phase() {
     // E.1. Check the Victory Point table and make any changes called for under the “During the War Status Phase”
     // section of the table.
     // If blockade event active and it's a winter turn, -1 VP
-    if (game.events.blockade >= 1 && game.turn % 4 == 0) {
+    if (game.events.blockade >= 1 && game.turn % 4 === 0) {
         game.vp -= 1
         log_h2("Blockade event in effect during winter turn, -1 VP")
     }
     // If CP failed to conduct their mandated offensive, -1 VP
-    if (game.cp.mo != NONE) {
+    if (game.cp.mo !== NONE) {
         game.vp -= 1
         game.cp.missed_mo.push(game.turn)
         log_h2(`${faction_name(CP)} failed to conduct their mandated offensive, -1 VP`)
     }
     // If Italy is still neutral but AP at Total War, +1 VP
-    if (!nation_at_war(ITALY) && game.ap.commitment == COMMITMENT_TOTAL) {
+    if (!nation_at_war(ITALY) && game.ap.commitment === COMMITMENT_TOTAL) {
         game.vp += 1
         log_h2(`${nation_name(ITALY)} is still neutral but ${faction_name(AP)} at Total War, +1 VP`)
     }
     // If AP failed to conduct their mandated offensive, +1 VP (except FR after French Mutiny event)
-    if (game.ap.mo != NONE && !(game.ap.mo == FRANCE && game.events.french_mutiny)) {
+    if (game.ap.mo !== NONE && !(game.ap.mo === FRANCE && game.events.french_mutiny)) {
         game.vp += 1
         game.ap.missed_mo.push(game.turn)
         log_h2(`${faction_name(AP)} failed to conduct their mandated offensive, +1 VP`)
@@ -3657,11 +3692,11 @@ function goto_war_status_phase() {
     // TODO: If French unit attacked without US support after French Mutiny, when FR MO, +1 VP
 
     // E.2. Determine if either player has won an Automatic Victory.
-    if (game.vp == 0) {
+    if (game.vp <= 0) {
         goto_game_over(AP, get_result_message("Automatic Victory: ", AP))
         return
     }
-    if (game.vp == 20) {
+    if (game.vp >= 20) {
         goto_game_over(CP, get_result_message("Automatic Victory: ", CP))
         return
     }
@@ -3719,18 +3754,18 @@ function get_game_result_by_vp() {
 }
 
 function get_result_message(prefix, result) {
-    if (result == AP)
+    if (result === AP)
         return `${prefix}Allied Powers win`
-    if (result == CP)
+    if (result === CP)
         return `${prefix}Central Powers win`
-    if (result == DRAW)
+    if (result === DRAW)
         return `${prefix}Game ends in a draw`
     return `${prefix}Game result unknown`
 }
 
 function add_cards_to_deck(faction, commitment, deck) {
     for (let i = 1; i < data.cards.length; i++) {
-        if (data.cards[i].commitment == commitment && data.cards[i].faction == faction) {
+        if (data.cards[i].commitment === commitment && data.cards[i].faction === faction) {
             deck.push(i)
         }
     }
