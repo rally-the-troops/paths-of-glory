@@ -2907,20 +2907,9 @@ states.apply_defender_losses = {
         push_undo()
         game.attack.defender_losses_taken += get_piece_lf(p)
         if (is_unit_reduced(p)) {
-            let replacement = find_replacement(p, get_units_in_reserve())
-            if (replacement === 0) {
-                // eliminate piece
-                log(`Eliminated ${piece_name(p)} in ${space_name(game.location[p])}`)
-                game.removed.push(p)
-                game.location[p] = 0
-            } else {
-                game.location[replacement] = game.location[p]
-                log(`Replaced ${piece_name(p)} in ${space_name(game.location[p])} with ${piece_name(replacement)}`)
-                game.location[p] = game.active === AP ? AP_ELIMINATED_BOX : CP_ELIMINATED_BOX
-            }
+            eliminate_piece(p)
         } else {
-            log(`Reduced ${piece_name(p)} in ${space_name(game.location[p])}`)
-            game.reduced.push(p)
+            reduce_piece(p)
         }
     },
     space(s) {
@@ -2943,6 +2932,25 @@ states.apply_defender_losses = {
     }
 }
 
+function eliminate_piece(p) {
+    let replacement = find_replacement(p, get_units_in_reserve())
+    if (replacement === 0) {
+        // Permanently eliminate piece
+        log(`Eliminated ${piece_name(p)} in ${space_name(game.location[p])}`)
+        game.removed.push(p)
+        game.location[p] = 0
+    } else {
+        game.location[replacement] = game.location[p]
+        log(`Replaced ${piece_name(p)} in ${space_name(game.location[p])} with ${piece_name(replacement)}`)
+        game.location[p] = game.active === AP ? AP_ELIMINATED_BOX : CP_ELIMINATED_BOX
+    }
+}
+
+function reduce_piece(p) {
+    log(`Reduced ${piece_name(p)} in ${space_name(game.location[p])}`)
+    game.reduced.push(p)
+}
+
 states.apply_attacker_losses = {
     inactive: 'Attacker Applying Losses',
     prompt() {
@@ -2963,21 +2971,10 @@ states.apply_attacker_losses = {
     piece(p) {
         game.attack.attacker_losses_taken += get_piece_lf(p)
         if (is_unit_reduced(p)) {
-            let replacement = find_replacement(p, get_units_in_reserve())
-            if (replacement === 0) {
-                // eliminate piece
-                log(`Eliminated ${piece_name(p)} in ${space_name(game.location[p])}`)
-                game.removed.push(p)
-                game.location[p] = 0
-            } else {
-                game.location[replacement] = game.location[p]
-                log(`Replaced ${piece_name(p)} in ${space_name(game.location[p])} with ${piece_name(replacement)}`)
-                game.location[p] = game.active === AP ? AP_ELIMINATED_BOX : CP_ELIMINATED_BOX
-            }
+            eliminate_piece(p)
             array_remove_item(game.attack.pieces, p)
         } else {
-            log(`Reduced ${piece_name(p)} in ${space_name(game.location[p])}`)
-            game.reduced.push(p)
+            reduce_piece(p)
         }
     },
     done() {
@@ -3202,8 +3199,11 @@ function determine_combat_winner() {
         game.attack.retreat_paths = []
         game.attack.to_advance = game.attack.pieces.filter((p) => !is_unit_reduced(p))
         game.attack.advancing_pieces = []
-        // TODO: Offer option to take an extra loss to cancel the retreat, when available
-        game.state = 'defender_retreat'
+        if (defender_can_cancel_retreat()) {
+            game.state = 'cancel_retreat'
+        } else {
+            game.state = 'defender_retreat'
+        }
         push_undo()
     } else if (attacker_has_full_strength_unit && defender_pieces.length === 0) {
         game.active = game.attack.attacker
@@ -3217,6 +3217,48 @@ function determine_combat_winner() {
     } else {
         end_attack_activation()
         goto_next_activation()
+    }
+}
+
+function defender_can_cancel_retreat() {
+    const terrain = data.spaces[game.attack.space].terrain
+    if (terrain === MOUNTAIN || terrain === SWAMP || terrain === DESERT || terrain === FOREST || get_trench_level(game.attack.space, other_faction(game.attacker)) > 0) {
+        let step_count = 0
+        for_each_piece_in_space(game.attack.space, (p) => {
+            if (is_unit_reduced(p)) {
+                step_count++
+            } else {
+                step_count += 2
+            }
+        })
+        return step_count > 1
+    }
+    return false
+}
+
+states.cancel_retreat = {
+    inactive: 'Defender Retreating',
+    prompt() {
+        view.prompt = `Cancel retreat by taking an extra step loss or pass to begin retreat`
+        for_each_piece_in_space(game.attack.space, (p) => {
+            gen_action_piece(p)
+        })
+        gen_action_pass()
+    },
+    piece(p) {
+        push_undo()
+        if (is_unit_reduced(p)) {
+            eliminate_piece(p)
+        } else {
+            reduce_piece(p)
+        }
+        log(`Retreat canceled by taking an extra step loss`)
+        end_attack_activation()
+        goto_next_activation()
+    },
+    pass() {
+        push_undo()
+        game.state = 'defender_retreat'
     }
 }
 
