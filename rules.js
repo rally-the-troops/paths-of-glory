@@ -2315,7 +2315,7 @@ function goto_attack() {
         log(`${faction_name(game.active)} satisfied mandatory offensive`)
     }
 
-    if (get_trench_level(game.attack.space, other_faction(game.attack.attacker)) > 0) {
+    if (can_play_combat_cards() && get_trench_level(game.attack.space, other_faction(game.attack.attacker)) > 0) {
         // if defending space has a trench, go to 'negate_trench'
         game.state = 'negate_trench'
     } else if (attacker_can_flank()) {
@@ -2325,9 +2325,17 @@ function goto_attack() {
         // if defender can withdraw, go to 'choose_withdrawal'
         game.active = other_faction(game.active)
         game.state = 'choose_withdrawal'
-    } else {
+    } else if (can_play_combat_cards()) {
         game.state = 'attacker_combat_cards'
+    } else {
+        begin_combat()
     }
+}
+
+function attacking_unoccupied_fort() {
+    return (data.spaces[game.attack.space].fort > 0 &&
+        !set_has(game.forts.destroyed, game.attack.space) &&
+        get_pieces_in_space(game.attack.space).length === 0)
 }
 
 function attacker_can_flank() {
@@ -2337,7 +2345,7 @@ function attacker_can_flank() {
         return false
 
     // Unoccupied forts cannot be flanked
-    if (space_data.fort > 0 && !set_has(game.forts.destroyed, game.attack.space) && get_pieces_in_space(game.attack.space).length === 0) {
+    if (attacking_unoccupied_fort()) {
         return false
     }
 
@@ -2356,8 +2364,11 @@ function attacker_can_flank() {
 }
 
 function defender_can_withdraw() {
-    // TODO
-    return true
+    return !attacking_unoccupied_fort()
+}
+
+function can_play_combat_cards() {
+    return !attacking_unoccupied_fort()
 }
 
 function get_attackable_spaces(attackers) {
@@ -2509,8 +2520,10 @@ states.negate_trench = {
             // if defender can withdraw, go to 'choose_withdrawal'
             game.active = other_faction(game.active)
             game.state = 'choose_withdrawal'
-        } else {
+        } else if (can_play_combat_cards()) {
             game.state = 'attacker_combat_cards'
+        } else {
+            begin_combat()
         }
     }
 }
@@ -2539,8 +2552,10 @@ states.choose_flank_attack = {
             // if defender can withdraw, go to 'choose_withdrawal'
             game.active = other_faction(game.active)
             game.state = 'choose_withdrawal'
-        } else {
+        } else if (can_play_combat_cards()) {
             game.state = 'attacker_combat_cards'
+        } else {
+            begin_combat()
         }
     }
 }
@@ -2606,8 +2621,10 @@ function roll_flank_attack() {
         // if defender can withdraw, go to 'choose_withdrawal'
         game.active = other_faction(game.active)
         game.state = 'choose_withdrawal'
-    } else {
+    } else if (can_play_combat_cards()) {
         game.state = 'attacker_combat_cards'
+    } else {
+        begin_combat()
     }
 }
 
@@ -2794,12 +2811,14 @@ function resolve_attackers_fire() {
     }
 
     // Trench shifts
-    if (get_trench_level(game.attack.space, other_faction(game.attack.attacker)) === 2) {
-        attacker_shifts -= 2
-        log(`Attacker's fire shifts 2L for Trenches`)
-    } else if (get_trench_level(game.attack.space, other_faction(game.attack.attacker)) === 1) {
-        attacker_shifts -= 1
-        log(`Attacker's fire shifts 1L for Trenches`)
+    if (!attacking_unoccupied_fort()) {
+        if (get_trench_level(game.attack.space, other_faction(game.attack.attacker)) === 2) {
+            attacker_shifts -= 2
+            log(`Attacker's fire shifts 2L for Trenches`)
+        } else if (get_trench_level(game.attack.space, other_faction(game.attack.attacker)) === 1) {
+            attacker_shifts -= 1
+            log(`Attacker's fire shifts 1L for Trenches`)
+        }
     }
 
     let roll = roll_die(6) + game.attack.attacker_drm
