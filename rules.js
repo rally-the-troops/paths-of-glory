@@ -4475,6 +4475,48 @@ events.guns_of_august = {
     }
 }
 
+// CP #5
+events.landwehr = {
+    can_play() {
+        return true
+    },
+    play() {
+        game.landwehr_replacements = 2
+        game.state = 'landwehr'
+        push_undo()
+    }
+}
+
+states.landwehr = {
+    inactive: 'Choose units for the Landwehr event',
+    prompt() {
+        view.prompt = `Choose a reduced unit to strengthen (${game.landwehr_replacements} remaining)`
+        gen_action_undo()
+        if (game.landwehr_replacements > 0) {
+            for (let p = 1; p < data.pieces.length; ++p) {
+                if (data.pieces[p].faction === CP && is_unit_reduced(p) && is_unit_supplied(p)) {
+                    gen_action_piece(p)
+                }
+            }
+            gen_action_pass()
+        } else {
+            gen_action_done()
+        }
+    },
+    piece(p) {
+        push_undo()
+        array_remove_item(game.reduced, p)
+        log(`Returned ${piece_name(p)} in ${space_name(game.location[p])} to full strength`)
+        game.landwehr_replacements--
+    },
+    pass() {
+        goto_end_action()
+    },
+    done() {
+        goto_end_action()
+    }
+}
+
 // CP #6
 events.cp_entrench = {
     can_play() {
