@@ -659,16 +659,24 @@ function goto_start_turn() {
     game.state = 'action_phase'
     game.active = CP
     log_br()
-    log_h1(`Turn ${game.turn}`)
+    log_h1(`Turn ${game.turn} - ${turn_season_and_year(game.turn)}`)
     log_br()
     log_h1(`${faction_name(game.active)} Action ${game[game.active].actions.length+1}`)
 }
 
+function turn_season_and_year(turn) {
+    if (turn === 1) return "August 1914"
+    if (turn === 2) return "September 1914"
+    const year = 1915 + Math.floor((turn-4)/4)
+    const season = ["Winter", "Spring", "Summer", "Fall"][turn%4]
+    return `${season} ${year}`
+}
+
 function deal_ap_cards() {
     while (game.ap.hand.length < game.options.hand_size) {
-        if (game.ap.deck.length == 0)
+        if (game.ap.deck.length === 0)
             reshuffle_discard(game.ap.deck)
-        if (game.ap.deck.length == 0)
+        if (game.ap.deck.length === 0)
             break
         game.ap.hand.push(draw_card(game.ap.deck))
     }
@@ -676,9 +684,9 @@ function deal_ap_cards() {
 
 function deal_cp_cards() {
     while (game.cp.hand.length < game.options.hand_size) {
-        if (game.cp.deck.length == 0)
+        if (game.cp.deck.length === 0)
             reshuffle_discard(game.cp.deck)
-        if (game.cp.deck.length == 0)
+        if (game.cp.deck.length === 0)
             break
         game.cp.hand.push(draw_card(game.cp.deck))
     }
@@ -1138,7 +1146,7 @@ states.action_phase = {
     inactive: "Action Phase",
     prompt() {
         let p = get_active_player()
-        view.prompt = `Action ${p.actions.length+1}: Play a card or choose an action`
+        view.prompt = `Turn ${game.turn} Action ${p.actions.length+1}: Play a card or choose an action`
         for (let i = 0; i < p.hand.length; ++i)
             gen_card_menu(p.hand[i])
         gen_action('single_op')
@@ -4529,9 +4537,10 @@ states.landwehr = {
         game.landwehr_replacements--
     },
     pass() {
-        goto_end_action()
+        this.done()
     },
     done() {
+        delete game.landwehr_replacements
         goto_end_action()
     }
 }
