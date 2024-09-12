@@ -2972,6 +2972,7 @@ function eliminate_piece(p) {
         log(`Replaced ${piece_name(p)} in ${space_name(game.location[p])} with ${piece_name(replacement)}`)
         game.location[p] = game.active === AP ? AP_ELIMINATED_BOX : CP_ELIMINATED_BOX
     }
+    return replacement
 }
 
 function reduce_piece(p) {
@@ -2997,9 +2998,13 @@ states.apply_attacker_losses = {
         }
     },
     piece(p) {
+        push_undo()
         game.attack.attacker_losses_taken += get_piece_lf(p)
         if (is_unit_reduced(p)) {
-            eliminate_piece(p)
+            let replacement = eliminate_piece(p)
+            if (replacement !== 0) {
+                game.attack.pieces.push(replacement)
+            }
             array_remove_item(game.attack.pieces, p)
         } else {
             reduce_piece(p)
@@ -3083,8 +3088,8 @@ function build_loss_tree(parent, valid_paths) {
                 to_satisfy: parent.to_satisfy - unit_lf,
                 full_strength: [...parent.full_strength],
                 reduced: parent.reduced.filter((u) => u !== unit),
-                full_replacements: parent.full_replacements,
-                reduced_replacements: parent.reduced_replacements,
+                full_replacements: [...parent.full_replacements],
+                reduced_replacements: [...parent.reduced_replacements],
                 fort_strength: parent.fort_strength,
                 options: []
             }
