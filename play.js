@@ -132,7 +132,7 @@ function on_blur_card_tip() {
 }
 
 function on_focus_last_card() {
-    console.log("focus", view.last_card)
+    //console.log("focus", view.last_card)
     if (typeof view.last_card === 'number') {
         document.getElementById("tooltip").className = `card show card_${faction_card_number(view.last_card)}`
     }
@@ -437,7 +437,7 @@ function is_small_stack(stk) {
 
 function focus_stack(stack) {
     if (focus !== stack) {
-        // console.log("FOCUS STACK", stack ? stack.name : "null")
+        //console.log("FOCUS STACK", stack ? stack.name : "null")
         focus = stack
         update_map()
         return is_small_stack(stack)
@@ -747,10 +747,8 @@ function build_space(id) {
     let x = space.x - w / 2 - 4
     let y = space.y - h / 2 - 4 // 4 px border space
 
-    space.apStack = []
-    space.apStack.name = spaces[id].name + "/ap"
-    space.cpStack = []
-    space.cpStack.name = spaces[id].name + "/cp"
+    space.stack = []
+    space.stack.name = spaces[id].name
 
     let elt = space.element = document.createElement("div")
     elt.space = id
@@ -777,6 +775,7 @@ function build_eliminated_box(id) {
     let y = space.y - h / 2 - 4 // 4 px border space
 
     space.stack = []
+    space.stack.name = spaces[id].name
 
     let elt = space.element = document.createElement("div")
     elt.space = id
@@ -867,9 +866,9 @@ for (let c = 1; c < cards.length; ++c) {
     build_card(c)
 }
 for (let s = 1; s < spaces.length; ++s) {
-    if (s == AP_RESERVE_BOX || s == CP_RESERVE_BOX)
+    if (s === AP_RESERVE_BOX || s === CP_RESERVE_BOX)
         build_reserve_box(s)
-    else if (s == AP_ELIMINATED_BOX || s == CP_ELIMINATED_BOX)
+    else if (s === AP_ELIMINATED_BOX || s === CP_ELIMINATED_BOX)
         build_eliminated_box(s)
     else
         build_space(s)
@@ -924,7 +923,7 @@ const MAXX = 2550 - 15
 
 
 function layout_stack(stack, x, y, dx) {
-    console.log(`layout_stack: ${x}, ${y}, ${dx}. ${stack}`)
+    //console.log(`layout_stack: ${x}, ${y}, ${dx}. ${stack}`)
 
     let dim = style_dims[style]
     let z = (stack === focus) ? 101 : 1
@@ -986,7 +985,7 @@ function layout_stack(stack, x, y, dx) {
             ey += Math.floor((45-elt.my_size) / 2)
         }
 
-        console.log("ex: " + ex + " ey: " + ey);
+        //console.log("ex: " + ex + " ey: " + ey);
         elt.style.left = Math.round(ex) + "px"
         elt.style.top = Math.round(ey) + "px"
         elt.style.zIndex = z
@@ -1066,16 +1065,12 @@ function remove_from_stack(elt) {
 function update_space(s) {
     let dim = style_dims[style]
     let space = spaces[s]
-    let apStack = space.apStack
-    let cpStack = space.cpStack
-
-    apStack.length = 0
-    cpStack.length = 0
+    let stack = space.stack
+    stack.length = 0
 
     let sx = space.x + Math.round(space.w/2) - 45
     let sy = space.y + Math.round(space.h/2) - 45
 
-    let activeStack = view.active == AP ? apStack : cpStack;
 
     for_each_piece_in_space(s, p => {
         let is_corps = pieces[p].type === CORPS
@@ -1086,7 +1081,6 @@ function update_space(s) {
             pe.classList.add("reduced")
         else
             pe.classList.remove("reduced")
-        let stack = pieces[p].faction === CP ? cpStack : apStack
         if (is_corps) {
             unshift_stack(stack, p, pe)
         } else {
@@ -1100,75 +1094,62 @@ function update_space(s) {
     })
 
     if (view.mef_beachhead === s) {
-        push_stack(apStack, 0, build_marker(markers.mef_beachhead, e => e.space_id === s, { space_id: s }, marker_info.mef_beachhead))
+        push_stack(stack, 0, build_marker(markers.mef_beachhead, e => e.space_id === s, { space_id: s }, marker_info.mef_beachhead))
     } else {
         destroy_marker(markers.mef_beachhead, e => e.space_id === s)
     }
 
     if (space.faction === AP) {
         if (view.control[s])
-            push_stack(cpStack, 0, build_control_marker(s, CP))
+            push_stack(stack, 0, build_control_marker(s, CP))
         else
             destroy_control_marker(s, CP)
     }
 
     if (space.faction === CP) {
         if (!view.control[s])
-            push_stack(apStack, 0, build_control_marker(s, AP))
+            push_stack(stack, 0, build_control_marker(s, AP))
         else
             destroy_control_marker(s, AP)
     }
 
-    let controllingStack = view.control[s] ? cpStack : apStack
-
     if (view.forts.destroyed.includes(s)) {
-        push_stack(controllingStack, 0, build_fort_destroyed_marker(s))
+        push_stack(stack, 0, build_fort_destroyed_marker(s))
     } else {
         destroy_fort_destroyed_marker(s)
     }
 
     if (view.forts.besieged.includes(s)) {
-        push_stack(controllingStack, 0, build_fort_besieged_marker(s))
+        push_stack(stack, 0, build_fort_besieged_marker(s))
     } else {
         destroy_fort_besieged_marker(s)
     }
 
     if (view.ap.trenches[s] !== undefined && view.ap.trenches[s] > 0) {
-        push_stack(apStack, 0, build_trench_marker(s, view.ap.trenches[s], AP))
+        push_stack(stack, 0, build_trench_marker(s, view.ap.trenches[s], AP))
     } else {
         destroy_trench_marker(s, AP)
     }
 
     if (view.cp.trenches[s] !== undefined && view.cp.trenches[s] > 0) {
-        push_stack(cpStack, 0, build_trench_marker(s, view.cp.trenches[s], CP))
+        push_stack(stack, 0, build_trench_marker(s, view.cp.trenches[s], CP))
     } else {
         destroy_trench_marker(s, CP)
     }
 
     if (view.activated.move.includes(s)) {
-        unshift_stack(controllingStack, 0, build_activation_marker(s, 'move'))
+        unshift_stack(stack, 0, build_activation_marker(s, 'move'))
     } else {
         destroy_activation_marker(s, 'move')
     }
 
     if (view.activated.attack.includes(s)) {
-        unshift_stack(controllingStack, 0, build_activation_marker(s, 'attack'))
+        unshift_stack(stack, 0, build_activation_marker(s, 'attack'))
     } else {
         destroy_activation_marker(s, 'attack')
     }
 
-    if (apStack.length > 0 && cpStack.length > 0) {
-        layout_stack(cpStack, sx + 27, sy, 1)
-        layout_stack(apStack, sx - 27, sy, -1)
-    } else {
-        if (apStack.length > 0) {
-            layout_stack(apStack, sx, sy, 1)
-        }
-        if (cpStack.length > 0) {
-            layout_stack(cpStack, sx, sy, 1)
-        }
-    }
-
+    layout_stack(stack, sx, sy, 1)
     update_space_highlight(s)
 }
 
@@ -1351,6 +1332,7 @@ function update_piece(id) {
 let turn_track_stacks = new Array(20)
 for (let i = 0; i < 20; ++i) {
     turn_track_stacks[i] = []
+    turn_track_stacks[i].name = `Turn Track ${i+1}`
 }
 
 function turn_track_pos(value) {
@@ -1410,6 +1392,7 @@ function update_turn_track() {
 let general_records_stacks = new Array(41)
 for (let i = 0; i <= 40; ++i) {
     general_records_stacks[i] = []
+    general_records_stacks[i].name = `General Records ${i}`
 }
 
 function general_records_pos(value) {
@@ -1519,7 +1502,7 @@ function update_map() {
     for (let i = 0; i < pieces.length; ++i)
         update_piece(i)
 
-    if (focus && focus.length === 0)
+    if (focus && focus.length <= 1)
         focus = null
 
     if (focus === null || layout > 1)
