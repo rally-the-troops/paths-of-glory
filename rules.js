@@ -244,8 +244,9 @@ const DESERT = "desert"
 const FOREST = "forest"
 
 // Piece indices
-const GE_1_ARMY = 1
-const GE_2_ARMY = 2
+const GE_1_ARMY = find_piece(GERMANY, '1 Army')
+const GE_2_ARMY = find_piece(GERMANY, '2 Army')
+const BRITISH_NE_ARMY = find_piece(BRITAIN, 'NE Army')
 
 function nation_name(nation) {
     switch (nation) {
@@ -631,6 +632,15 @@ function create_empty_game_state(seed, scenario, options) {
         mef_beachhead_captured: false, // Has the MEF beachhead been captured by CP?
         ne_armies_placed_outside_neareast: [], // NE armies which have been placed outside the Near East, used to block them from operating on the NE map
         tsar_fell_cp_russian_vp: 0, // How many Russian VP were controlled by CP when the Fall of the Tsar event was played
+
+        // Per-turn Near East map restrictions
+        ne_restrictions: {
+            // It is not permitted to use Sea or Reserve Box SR of FR Corps, IT Corps, GR Corps, RO Corps, SB Corps, US Corps, BE Corps, CND, PT, or BEF corps to or from the NE.
+            br_sr: false, // No more than one British Corps (including the AUS Corps, but not including the CND, PT, or BEF Corps) may use Reserve Box SR to or from Near East or SR by sea to or from the Near East per turn.
+            cp_sr: false, // No more than one CP Corps may SR to or from the Near East map per turn. Exception: Turkish Corps do not count against this limit.
+            ru_sr: false, // No more than one Russian Corps (never an Army) may SR to or from the Near East map per turn.
+            ru_non_sr: false, // Only one Russian Corps per turn may move in either direction between the “Caucasus” space and the Near East. One Russian corps may attack/retreat between the Caucasus space and the Near East per turn; this counts as the “one move” allowed.
+        },
     }
 }
 
@@ -1650,6 +1660,10 @@ function get_available_reinforcement_spaces(p) {
     return spaces
 }
 
+function is_neareast_space(s) {
+    return data.spaces[s].map === 'neareast'
+}
+
 states.activate_spaces = {
     inactive: "Activate Spaces",
     prompt() {
@@ -1660,6 +1674,8 @@ states.activate_spaces = {
                 set_add(spaces, loc)
             }
         })
+
+        const used_ne_activation = game.activated.attack.find((s) => is_neareast_space(s) && !is_mef_space(s) && s !== game.location[BRITISH_NE_ARMY]) !== undefined
         spaces.forEach((s) => {
             if (set_has(game.activated.move, s) || set_has(game.activated.attack, s)) {
                 gen_action('deactivate', s)
@@ -1667,8 +1683,20 @@ states.activate_spaces = {
                 if (is_space_supplied(game.active, s)) {
                     if (game.ops >= cost_to_activate(s, MOVE))
                         gen_action('activate_move', s)
-                    if (game.ops >= cost_to_activate(s, ATTACK))
-                        gen_action('activate_attack', s)
+
+                    if (game.ops >= cost_to_activate(s, ATTACK)) {
+                        if (game.active === AP && used_ne_activation && is_neareast_space(s)) {
+                            // The Allied player may Activate only one space per Action Round for combat on the Near East
+                            // map. This applies to spaces actually on the NE map. Units in spaces not on the NE map may
+                            // still attack into the NE map. (e.g., Adrianople, Gallipoli, Balikesir.) Exceptions: The MEF
+                            // Beachhead space and the space containing the British NE Army do not count against this limit.
+                            if (is_mef_space(s) || game.location[BRITISH_NE_ARMY] === s) {
+                                gen_action('activate_attack', s)
+                            }
+                        } else {
+                            gen_action('activate_attack', s)
+                        }
+                    }
                 }
             }
         })
