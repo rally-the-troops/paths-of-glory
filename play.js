@@ -247,6 +247,10 @@ const marker_info = {
             2: { name: "CP Trench Level 2", type: "cp_trench_2", counter: "marker small cp_trench_2", size: 36 }
         }
     },
+    oos: {
+        ap: { name: "AP OOS", type: "ap_oos", counter: "marker ap_oos", size: 45 },
+        cp: { name: "CP OOS", type: "cp_oos", counter: "marker cp_oos", size: 45 }
+    },
     vp: { name: "VP", type: "vp", counter: "marker vps ", size: 45 },
 
     // War status markers
@@ -329,6 +333,10 @@ let markers = {
     trench: {
         ap: { 1: [], 2: [] },
         cp: { 1: [], 2: [] }
+    },
+    oos: {
+        ap: [],
+        cp: []
     },
     mef_beachhead: []
 }
@@ -677,6 +685,19 @@ function build_trench_marker(space_id, level, faction) {
 function destroy_trench_marker(space_id, faction) {
     destroy_marker(markers.trench[faction][1], e => e.space_id === space_id)
     destroy_marker(markers.trench[faction][2], e => e.space_id === space_id)
+}
+
+function build_oos_marker(space_id, faction) {
+    return build_marker(
+        markers.oos[faction],
+        e => e.space_id === space_id,
+        { space_id: space_id },
+        marker_info.oos[faction]
+    )
+}
+
+function destroy_oos_marker(space_id, faction) {
+    destroy_marker(markers.oos[faction], e => e.space_id === space_id)
 }
 
 function build_fort_destroyed_marker(space_id) {
@@ -1071,6 +1092,8 @@ function update_space(s) {
     let sx = space.x + Math.round(space.w/2) - 45
     let sy = space.y + Math.round(space.h/2) - 45
 
+    let ap_oos = false
+    let cp_oos = false
 
     for_each_piece_in_space(s, p => {
         let is_corps = pieces[p].type === CORPS
@@ -1090,6 +1113,10 @@ function update_space(s) {
                 destroy_failed_entrench_marker(p)
             }
             push_stack(stack, p, pe)
+        }
+        if (view.oos_pieces.includes(p)) {
+            if (pieces[p].faction === AP) ap_oos = true
+            if (pieces[p].faction === CP) cp_oos = true
         }
     })
 
@@ -1135,6 +1162,18 @@ function update_space(s) {
         push_stack(stack, 0, build_trench_marker(s, view.cp.trenches[s], CP))
     } else {
         destroy_trench_marker(s, CP)
+    }
+
+    if (ap_oos) {
+        unshift_stack(stack, 0, build_oos_marker(s, AP))
+    } else {
+        destroy_oos_marker(s, AP)
+    }
+
+    if (cp_oos) {
+        unshift_stack(stack, 0, build_oos_marker(s, CP))
+    } else {
+        destroy_oos_marker(s, CP)
     }
 
     if (view.activated.move.includes(s)) {

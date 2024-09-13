@@ -389,8 +389,12 @@ exports.view = function(state, current) {
         who: game.who,
         combat_cards: game.combat_cards,
         mef_beachhead: game.mef_beachhead_captured ? null : game.mef_beachhead,
-        tsar_fell_cp_russian_vp: game.tsar_fell_cp_russian_vp
+        tsar_fell_cp_russian_vp: game.tsar_fell_cp_russian_vp,
+
+        oos_pieces: get_oos_pieces(),
     }
+
+
 
     if (current === AP) {
         view.hand = game.ap.hand
