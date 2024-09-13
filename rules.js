@@ -2,6 +2,7 @@
 
 const data = require("./data")
 const {cards} = require("./data")
+const {set} = require("express/lib/application");
 
 let game, view
 
@@ -650,12 +651,12 @@ function create_empty_game_state(seed, scenario, options) {
 
 function setup_initial_decks() {
     for (let i = 1; i < data.cards.length; i++) {
-        if (i == GUNS_OF_AUGUST && game.options.start_with_guns_of_august) {
+        if (i === GUNS_OF_AUGUST && game.options.start_with_guns_of_august) {
             game.cp.hand.push(i)
-        } else if (data.cards[i].commitment == COMMITMENT_MOBILIZATION) {
-            if (data.cards[i].faction == AP) {
+        } else if (data.cards[i].commitment === COMMITMENT_MOBILIZATION) {
+            if (data.cards[i].faction === AP) {
                 game.ap.deck.push(i)
-            } else if (data.cards[i].faction == CP) {
+            } else if (data.cards[i].faction === CP) {
                 game.cp.deck.push(i)
             }
         }
@@ -747,6 +748,7 @@ function goto_end_turn() {
     game.cp.actions = []
 
     game.reinf_this_turn = {}
+    clear_ne_restriction_flags()
 
     // Check for game end
     if (game.turn === 20) {
@@ -1366,7 +1368,8 @@ states.choose_sr_destination = {
     },
     space(s) {
         push_undo()
-        log(`${piece_name(game.who)} SR from ${space_name(game.location[game.who])} to ${space_name(s)}`)
+        log(`${piece_name(game.sr.unit)} SR from ${space_name(game.location[game.sr.unit])} to ${space_name(s)}`)
+        set_ne_restriction_flags_for_sr(game.sr.unit, game.location[game.sr.unit], s)
         set_add(game.sr.done, game.sr.unit)
         game.location[game.sr.unit] = s
         game.sr.unit = 0
@@ -1420,6 +1423,11 @@ function find_sr_destinations() {
                 }
             }
         }
+
+        // TODO: 13.1.12 Units may not SR to or from the Reserve box under the following conditions: German and Austrian
+        //  units tracing supply to Sofia or Constantinople, Turkish units tracing supply to Essen, Breslau or Sofia,
+        //  Bulgarian units tracing supply to Essen, Breslau or Constantinople, and Russian and Romanian units tracing
+        //  supply to Belgrade.
     } else if (data.pieces[game.sr.unit].type === CORPS) {
         // Corps can SR to the reserve box
         if (game.active === AP) {
@@ -1430,6 +1438,7 @@ function find_sr_destinations() {
     }
 
     // Add spaces that have an overland path
+    let overland_destinations = []
     let frontier = [start]
     while (frontier.length > 0) {
         let current = frontier.pop()
@@ -1440,6 +1449,7 @@ function find_sr_destinations() {
                 if (nation === RUSSIA && data.spaces[n].nation !== RUSSIA)
                     return
                 set_add(destinations, n)
+                set_add(overland_destinations, n)
                 set_add(frontier, n)
             }
         })
@@ -1465,20 +1475,100 @@ function find_sr_destinations() {
         set_delete(destinations, CP_RESERVE_BOX)
     }
 
-    // TODO: 13.1.12 Units may not SR to or from the Reserve box under the following conditions: German and Austrian
-    //  units tracing supply to Sofia or Constantinople, Turkish units tracing supply to Essen, Breslau or Sofia,
-    //  Bulgarian units tracing supply to Essen, Breslau or Constantinople, and Russian and Romanian units tracing
-    //  supply to Belgrade.
-
-    // Remove fully-stacked spaces from consideration
+    // Remove fully-stacked spaces and block NE spaces from consideration
+    const is_neareast_start = is_neareast_space(start)
     const all_destinations = [...destinations]
     for (let d of all_destinations) {
         if (is_fully_stacked(d, game.active)) {
             set_delete(destinations, d)
+            continue
+        }
+
+        if (is_neareast_space(d) !== is_neareast_start) {
+            // No more than one CP Corps may SR to or from the Near East map per turn. Exception: Turkish Corps do not count against this limit.
+            if (game.ne_restrictions.cp_sr && data.pieces[game.sr.unit].faction === CP && nation !== TURKEY) {
+                set_delete(destinations, d)
+                continue
+            }
+
+            // No more than one Russian Corps (never an Army) may SR to or from the Near East map per turn.
+            if (game.ne_restrictions.ru_sr && data.pieces[game.sr.unit].nation === RUSSIA) {
+                set_delete(destinations, d)
+                continue
+            }
+
+
+            if (!set_has(overland_destinations, d)) {
+                // No more than one British Corps (including the AUS Corps, but not including the CND, PT, or BEF Corps)
+                // may use Reserve Box SR to or from Near East or SR by sea to or from the Near East per turn.
+                if (data.pieces[game.sr.unit].nation === BRITAIN) {
+                    if (game.ne_restrictions.br_sr) {
+                        set_delete(destinations, d)
+                        continue
+                    } else if (!data.pieces[game.sr.unit].name.startsWith('BR') && !data.pieces[game.sr.unit].name.startsWith('AUS')) {
+                        set_delete(destinations, d)
+                    }
+                }
+
+                // It is not permitted to use Sea or Reserve Box SR of FR Corps, IT Corps, GR Corps, RO Corps, SB Corps,
+                // US Corps, BE Corps, CND, PT, or BEF corps to or from the NE.
+                if ([ITALY, FRANCE, GREECE, ROMANIA, SERBIA, US, BELGIUM].includes(data.pieces[game.sr.unit].nation)) {
+                    set_delete(destinations, d)
+                }
+            }
         }
     }
 
     return destinations
+}
+
+function set_ne_restriction_flags_for_sr(p, start, destination) {
+    if (is_neareast_space(start) === is_neareast_space(destination)) {
+        return
+    }
+
+    if (data.pieces[p].faction === CP && nation !== TURKEY) {
+        game.ne_restrictions.cp_sr = true
+        return
+    }
+
+    if (data.pieces[p].nation === RUSSIA) {
+        game.ne_restrictions.ru_sr = true
+        return
+    }
+
+    let has_overland_path = false
+    let nation = data.pieces[p].nation
+    let destinations = []
+    let frontier = [start]
+    while (frontier.length > 0) {
+        let current = frontier.pop()
+        if (current === destination) {
+            has_overland_path = true
+            break
+        }
+        get_connected_spaces(current, nation).forEach((n) => {
+            if (!set_has(destinations, n)
+                && is_space_supplied(game.active, n)
+                && (is_controlled_by(n, game.active) || is_besieged(n))) {
+                set_add(destinations, n)
+                set_add(frontier, n)
+            }
+        })
+    }
+
+    if (!has_overland_path && nation === BRITAIN) {
+        game.ne_restrictions.br_sr = true
+    }
+}
+
+function clear_ne_restriction_flags() {
+    game.ne_restrictions = {
+        br_sr: false,
+        cp_sr: false,
+        ru_sr: false,
+        ru_non_sr: false
+    }
 }
 
 function end_sr() {
