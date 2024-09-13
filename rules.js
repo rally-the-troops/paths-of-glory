@@ -2974,7 +2974,11 @@ function eliminate_piece(p) {
     } else {
         game.location[replacement] = game.location[p]
         log(`Replaced ${piece_name(p)} in ${space_name(game.location[p])} with ${piece_name(replacement)}`)
-        game.location[p] = game.active === AP ? AP_ELIMINATED_BOX : CP_ELIMINATED_BOX
+        if (data.pieces[p].notreplaceable) {
+            game.location[p] = 0
+        } else {
+            game.location[p] = game.active === AP ? AP_ELIMINATED_BOX : CP_ELIMINATED_BOX
+        }
     }
     return replacement
 }
@@ -3709,13 +3713,13 @@ states.attrition_phase = {
     piece(p) {
         array_remove_item(game.attrition[game.active].pieces, p)
         log(`Removed ${piece_name(p)} from ${space_name(game.location[p])} due to attrition`)
-        if (data.pieces[p].type == ARMY) {
+        if (data.pieces[p].type === ARMY) {
             game.location[p] = 0
             game.removed.push(p)
         } else {
-            game.location[p] = game.active == AP ? AP_ELIMINATED_BOX : CP_ELIMINATED_BOX
+            game.location[p] = game.active === AP ? AP_ELIMINATED_BOX : CP_ELIMINATED_BOX
         }
-        if (game.attrition[game.active].spaces.length == 0 && game.attrition[game.active].pieces.length == 0) {
+        if (game.attrition[game.active].spaces.length === 0 && game.attrition[game.active].pieces.length === 0) {
             if (game.attrition[other_faction(game.active)].spaces.length > 0 || game.attrition[other_faction(game.active)].pieces.length > 0) {
                 game.active = other_faction(game.active)
             } else {
