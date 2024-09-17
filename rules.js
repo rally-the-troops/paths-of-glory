@@ -1562,6 +1562,44 @@ function set_ne_restriction_flags_for_sr(p, start, destination) {
     }
 }
 
+function update_russian_ne_restriction_flag(units, source, destination) {
+    let ru_corps_count = 0
+    for (let u of units) {
+        if (data.pieces[u].nation === RUSSIA && data.pieces[u].type === CORPS) {
+            ru_corps_count++
+        }
+    }
+
+    if (ru_corps_count > 0) {
+        if ((source === CAUCASUS && is_neareast_space(destination)) ||
+            (destination === CAUCASUS && is_neareast_space(source))) {
+            game.ne_restrictions.ru_non_sr = true
+        }
+    }
+}
+
+function check_russian_ne_restriction(units, destination) {
+    let ru_corps_crossing_count = 0
+    for (let u of units) {
+        if (data.pieces[u].nation === RUSSIA && data.pieces[u].type === CORPS) {
+            if ((is_neareast_space(game.location[u]) && destination === CAUCASUS) ||
+                (is_neareast_space(destination) && game.location[u] === CAUCASUS))
+            {
+                ru_corps_crossing_count++
+            }
+        }
+    }
+
+    if (ru_corps_crossing_count === 0)
+        return true
+
+    if (ru_corps_crossing_count > 1)
+        return false
+
+    if (ru_corps_crossing_count === 1)
+        return !game.ne_restrictions.ru_non_sr
+}
+
 function clear_ne_restriction_flags() {
     game.ne_restrictions = {
         br_sr: false,
@@ -1860,7 +1898,7 @@ function end_move_activation() {
 }
 
 function end_attack_activation() {
-    if (game.eligible_attackers.length == 0)
+    if (game.eligible_attackers.length === 0)
         game.activated.attack = []
     game.attack = null
 }
@@ -2032,17 +2070,17 @@ states.place_event_trench = {
 
         let spaces = []
         for (let p = 1; p < data.pieces.length; p++) {
-            if (game.location[p] != 0 &&
-                data.pieces[p].faction == game.active &&
-                data.pieces[p].type == ARMY &&
-                get_trench_level(game.location[p], game.active) == 0 &&
+            if (game.location[p] !== 0 &&
+                data.pieces[p].faction === game.active &&
+                data.pieces[p].type === ARMY &&
+                get_trench_level(game.location[p], game.active) === 0 &&
                 is_unit_supplied(p)) {
                 set_add(spaces, game.location[p])
             }
         }
         spaces.forEach(gen_action_space)
 
-        if (spaces.length == 0) {
+        if (spaces.length === 0) {
             gen_action_done()
         }
 
@@ -2120,7 +2158,7 @@ states.move_stack = {
             let moving_nations = []
             game.move.pieces.forEach((p) => { set_add(moving_nations, data.pieces[p].nation) })
             let connections = null
-            if (moving_nations.length == 1) {
+            if (moving_nations.length === 1) {
                 connections = get_connected_spaces(game.move.current, moving_nations[0])
             } else {
                 connections = get_connected_spaces(game.move.current)
@@ -2142,6 +2180,7 @@ states.move_stack = {
     },
     space(s) {
         push_undo()
+        update_russian_ne_restriction_flag(game.move.pieces, game.move.current, s)
         game.move.pieces.forEach((p) => {
             game.location[p] = s
         })
@@ -2155,7 +2194,7 @@ states.move_stack = {
     piece(p) {
         push_undo()
         array_remove_item(game.move.pieces, p)
-        if (game.move.pieces.length == 0) {
+        if (game.move.pieces.length === 0) {
             end_move_stack()
         }
     },
@@ -2266,7 +2305,7 @@ function can_move_to(s, moving_pieces) {
         }
     }
 
-    if (data.spaces[s].map === 'neareast' && !can_enter_neareast(moving_pieces)) {
+    if (is_neareast_space(s) && !can_enter_neareast(moving_pieces)) {
         return false
     }
 
@@ -2287,6 +2326,11 @@ function can_move_to(s, moving_pieces) {
         if (from === CAUCASUS && (s === POTI || s === GROZNY)) {
             return false
         }
+    }
+
+    // Check for the Russian Near East restriction
+    if (!check_russian_ne_restriction(moving_pieces, s)) {
+        return false
     }
 
     return true
@@ -2344,9 +2388,7 @@ function would_overstack(s, pieces, faction) {
         }
     }
 
-    if (matches > STACKING_LIMIT)
-        return true
-    return false
+    return (matches > STACKING_LIMIT)
 }
 
 function can_end_move(s) {
@@ -2435,6 +2477,12 @@ states.choose_defending_space = {
 function goto_attack() {
     game.attack.pieces.forEach((p) => {
         array_remove_item(game.eligible_attackers, p)
+    })
+
+    let attack_sources = []
+    game.attack.pieces.forEach((p) => { set_add(attack_sources, game.location[p]) })
+    attack_sources.forEach((source) => {
+        update_russian_ne_restriction_flag(game.attack.pieces, source, game.attack.space)
     })
 
     log_h2(`${faction_name(game.active)} attacks ${space_name(game.attack.space)} with ${game.attack.pieces.map((p) => piece_name(p)).join(', ')}`)
@@ -2541,6 +2589,10 @@ function get_attackable_spaces(attackers) {
         if (german_attacker && data.spaces[s].nation === RUSSIA && has_undestroyed_fort(s, AP)) {
             if (game.cp.ws < 4 && game.events.oberost === undefined)
                 return false
+        }
+
+        if (!check_russian_ne_restriction(attackers, s)) {
+            return false
         }
     })
 
@@ -3453,6 +3505,9 @@ states.choose_retreat_path = {
     },
     space(s) {
         push_undo()
+
+        update_russian_ne_restriction_flag(game.attack.retreating_pieces, game.location[game.attack.retreating_pieces[0]], s)
+
         game.attack.retreat_path.push(s)
         game.attack.retreating_pieces.forEach((p) => {
             game.location[p] = s
@@ -3499,20 +3554,31 @@ function get_retreat_options() {
 
     // if any options are friendly controlled, remove all enemy-controlled options
     if (has_friendly_option) {
-        options = options.filter((s) => {
-            return is_controlled_by(s, game.active)
+        const all_options = [...options]
+        all_options.forEach((s) => {
+            if (!is_controlled_by(s, game.active))
+                set_delete(options, s)
         })
     }
 
     // if any spaces are in supply, remove all oos spaces
     if (has_in_supply_option) {
-        options = options.filter((s) => {
-            return is_space_supplied(game.active, s)
+        const all_options = [...options]
+        all_options.forEach((s) => {
+            if (!is_space_supplied(game.active, s))
+                set_delete(options, s)
         })
     }
 
     // TODO: if any enemy spaces would result in the retreating unit being in supply, remove enemy spaces that would
     //  leave the retreating unit oos
+
+    // Remove any spaces that would violate the Russian NE (non-SR) restriction
+    const all_options = [...options]
+    all_options.forEach((s) => {
+        if (!check_russian_ne_restriction(game.attack.retreating_pieces, s))
+            set_delete(options, s)
+    })
 
     return options
 }
@@ -3715,7 +3781,7 @@ function cost_to_activate(space, type) {
     //  activated space must be paid. This rule does not apply if the MEF is brought in as a normal reinforcement
     //  under 9.5.3.4. No Allied Army except the MEF may use the MEF Beachhead for supply. Only BR and AUS Corps
     //  may use the MEF Beachhead for supply.
-    if (game.active === AP && is_space_supplied_through_mef(space)) {
+    if (game.active === AP && set_has(nations, BRITAIN) && is_space_supplied_through_mef(space)) {
         cost = 0
         const mef_army = find_piece(BRITAIN, "MEF Army")
         for_each_piece_in_space(space, (p) => {
