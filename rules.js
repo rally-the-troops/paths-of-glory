@@ -722,14 +722,8 @@ function draw_card(deck) {
     return c
 }
 
-function discard_card(card, reason) {
+function play_card(card) {
     let active_player = get_active_player()
-
-    if (reason)
-        log(`${faction_name(game.active)} discarded\n${card_name(card)}\n${reason}`)
-    else
-        log(`${faction_name(game.active)} discarded\n${card_name(card)}`)
-
     array_remove_item(active_player.hand, card)
     game.last_card = card
     active_player.discard.push(card)
@@ -1211,7 +1205,7 @@ function can_play_event(card) {
     const card_data = data.cards[card]
 
     if (card_data.reinfnation) {
-        if (game.turn == 1)
+        if (game.turn === 1)
             return false
 
         if (game.reinf_this_turn && game.reinf_this_turn[card_data.reinfnation])
@@ -1229,17 +1223,17 @@ function can_play_event(card) {
 
 function can_play_sr(card) {
     let action = get_last_action()
-    return action === undefined || action.type != ACTION_SR
+    return action === undefined || action.type !== ACTION_SR
 }
 
 function can_play_rps(card) {
     let action = get_last_action()
-    return action === undefined || action.type != ACTION_RP
+    return action === undefined || action.type !== ACTION_RP
 }
 
 function goto_play_event(card) {
     push_undo()
-    log(`${faction_name(game.active)} played\n${card_name(card)} for the event`)
+    log(`Played ${card_name(card)} for the event`)
     let active_player = get_active_player()
     array_remove_item(active_player.hand, card)
     game.last_card = card
@@ -1269,7 +1263,8 @@ function goto_play_ops(card) {
         game.ops = 1
     } else {
         record_action(ACTION_OP, card)
-        discard_card(card, 'for ops')
+        log(`Played ${card_name(card)} for Operations`)
+        play_card(card)
         game.ops = data.cards[card].ops
     }
     game.state = 'activate_spaces'
@@ -1284,7 +1279,8 @@ function goto_play_sr(card) {
         done: []
     }
 
-    discard_card(card, 'for strategic redeployment')
+    log(`Played ${card_name(card)} for Strategic Redeployment`)
+    play_card(card)
     game.state = 'choose_sr_unit'
 }
 
@@ -1629,7 +1625,8 @@ function goto_play_rps(card) {
         game.rp.us += 1
     }
 
-    discard_card(card, 'for replacement points')
+    log(`Played ${card_name(card)} for Replacements`)
+    play_card(card)
     goto_end_action()
 }
 
@@ -1639,7 +1636,7 @@ function goto_play_reinf(card) {
     record_action(ACTION_REINF, card)
     game.reinf_this_turn[card_data.reinfnation] = 1
 
-    log(`${faction_name(game.active)} played\n${card_name(card)} for reinforcements`)
+    log(`Played ${card_name(card)} for the reinforcement event`)
     let active_player = get_active_player()
     array_remove_item(active_player.hand, card)
     game.last_card = card
