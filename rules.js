@@ -916,6 +916,8 @@ function set_nation_at_war(nation) {
         setup_piece(GREECE, 'GR Corps', 'Florina')
         setup_piece(GREECE, 'GR Corps', 'Larisa')
     }
+
+    supply_cache = undefined
 }
 
 // === Mandated Offensives ===
@@ -1193,13 +1195,19 @@ states.action_phase = {
 }
 
 function gen_card_menu(card) {
-    if (can_play_event(card))
-        gen_action('play_event', card)
-    gen_action('play_ops', card)
-    if (can_play_sr(card))
-        gen_action('play_sr', card)
-    if (can_play_rps(card))
-        gen_action('play_rps', card)
+    // 9.5.2.5 - If CP is at Total War and AP is not, AP may only use the Italy and Romania cards for their event
+    if ((card === ROMANIA_ENTRY || card === ITALY_ENTRY) && game.cp.commitment === COMMITMENT_TOTAL && game.ap.commitment !== COMMITMENT_TOTAL) {
+        if (can_play_event(card))
+            gen_action('play_event', card)
+    } else {
+        if (can_play_event(card))
+            gen_action('play_event', card)
+        gen_action('play_ops', card)
+        if (can_play_sr(card))
+            gen_action('play_sr', card)
+        if (can_play_rps(card))
+            gen_action('play_rps', card)
+    }
 }
 
 function can_play_event(card) {
@@ -4368,9 +4376,13 @@ states.draw_cards_phase = {
     inactive: 'Discarding combat cards',
     prompt() {
         view.prompt = 'Discard any Combat Cards you wish before drawing new cards'
-        // TODO: Highlight cards that can be discarded, including the Italy and Romania cards under certain circumstances (9.5.2.5)
         game[game.active].hand.forEach((c) => {
             if (data.cards[c].cc) {
+                gen_action_discard(c)
+            }
+
+            // 9.5.2.5: If CP is at Total War and AP is not, the Italy and Romania cards may be discarded as if they are combat cards
+            if ((c === ITALY_ENTRY || c === ROMANIA_ENTRY) && game.cp.commitment === COMMITMENT_TOTAL && game.ap.commitment !== COMMITMENT_TOTAL) {
                 gen_action_discard(c)
             }
         })
