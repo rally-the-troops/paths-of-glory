@@ -248,6 +248,14 @@ const FOREST = "forest"
 const GE_1_ARMY = find_piece(GERMANY, '1 Army')
 const GE_2_ARMY = find_piece(GERMANY, '2 Army')
 const BRITISH_NE_ARMY = find_piece(BRITAIN, 'NE Army')
+const BEF_ARMY = find_piece(BRITAIN, 'BEF Army')
+const BEF_CORPS = find_piece(BRITAIN, 'BEF Corps')
+const MEF_ARMY = find_piece(BRITAIN, 'MEF Army')
+const AUS_CORPS = find_piece(BRITAIN, 'AUS Corps')
+const CND_CORPS = find_piece(BRITAIN, 'CND Corps')
+const CAU_ARMY = find_piece(RUSSIA, 'CAU Army')
+const BRITISH_ANA_CORPS = find_piece(BRITAIN, 'ANA Corps')
+const TURKISH_SN_CORPS = find_piece('sn', 'SN Corps')
 
 function nation_name(nation) {
     switch (nation) {
@@ -1184,6 +1192,7 @@ states.action_phase = {
         goto_play_rps(card)
     },
     single_op() {
+        push_undo()
         goto_play_ops(undefined)
     }
 }
@@ -1337,14 +1346,6 @@ function can_sr(p) {
         return false
     }
 
-    // TODO: No more than 1 British Corps (incl Aus, excl PT, CND, and BEF) may use SR to or from Near East or SR by sea
-    //  to or from Near East per turn (13.2.1)
-    // TODO: No sea or Reserve Box SR to or from NE for FR, IT, GR, RO, SB, US, BE, CND, PT, BEF (13.2.1)
-    // TODO: No sea SR for RU corps to or from NE (Reserve Box allowed) (13.2.1)
-    // TODO: No more than one RU corps to or from Near East map per turn (13.2.2)
-
-    // TODO: No more than one CP corps SR to or from NE map per turn (excl TU) (13.2.3)
-
     return true
 }
 
@@ -1377,9 +1378,6 @@ states.choose_sr_destination = {
         game.state = 'choose_sr_unit'
     }
 }
-
-const BRITISH_ANA_CORPS = find_piece(BRITAIN, 'ANA Corps')
-const TURKISH_SN_CORPS = find_piece('sn', 'SN Corps')
 
 function find_sr_destinations() {
     let destinations = []
@@ -2643,10 +2641,6 @@ function get_attackable_spaces_for_piece(p) {
     let attackable_spaces = []
     let s = game.location[p]
     get_connected_spaces(s, data.pieces[p].nation).forEach((conn) => {
-        // TODO: Russian Armies cannot make attacks from the Caucasus space to the Near East. One Russian
-        //  corps may attack/retreat between the Caucasus space and the Near East per turn; this counts as the
-        //  “one move” allowed under 11.3.2
-
         if (can_be_attacked(conn)) {
             set_add(attackable_spaces, conn)
         }
@@ -3137,7 +3131,7 @@ states.apply_attacker_losses = {
 
         let loss_options = []
         if (game.attack.attacker_losses - game.attack.attacker_losses_taken > 0)
-            loss_options = get_loss_options(game.attack.attacker_losses - game.attack.attacker_losses_taken, game.attack.pieces)
+            loss_options = get_loss_options(game.attack.attacker_losses - game.attack.attacker_losses_taken, game.attack.pieces, 0, game.attack.attacker_losses_taken === 0)
         if (loss_options.length > 0) {
             loss_options.forEach((p) => {
                 gen_action_piece(p)
@@ -3173,8 +3167,20 @@ states.apply_attacker_losses = {
 
 const FORT_LOSS = -1
 
-function get_loss_options(to_satisfy, units, fort_strength) {
-    // TODO: Priority units for taking losses, for example BEF
+function get_loss_options(to_satisfy, units, fort_strength, is_attacker_first_loss) {
+    // If this is the attacker's first loss, check for priority units first
+    if (is_attacker_first_loss) {
+        if (units.includes(BEF_ARMY)) return [BEF_ARMY]
+        if (units.includes(BEF_CORPS)) return [BEF_CORPS]
+        let priority_units = []
+        if (units.includes(MEF_ARMY)) priority_units.push(MEF_ARMY)
+        if (units.includes(CAU_ARMY)) priority_units.push(CAU_ARMY)
+        if (priority_units.length > 0) return priority_units
+        if (units.includes(AUS_CORPS)) return [AUS_CORPS]
+        if (units.includes(CND_CORPS)) return [CND_CORPS]
+        if (priority_units.length > 0) return priority_units
+    }
+
     let reserve_units = get_units_in_reserve()
     let loss_tree = {
         picked: [],
@@ -3291,29 +3297,14 @@ function build_loss_tree(parent, valid_paths) {
     }
 }
 
-function find_bef_army() {
-    for (let i = 1; i < data.pieces.length; ++i) {
-        if (data.pieces[i].name === "BEF Army") return i
-    }
-    return 0
-}
-
-function find_bef_corps() {
-    for (let i = 1; i < data.pieces.length; ++i) {
-        if (data.pieces[i].name === "BEF Corps") return i
-    }
-    return 0
-}
-
 function find_replacement(unit, available_replacements) {
     let unit_data = data.pieces[unit]
     if (unit_data.type !== ARMY)
         return 0
 
-    if (unit === find_bef_army()) {
-        let bef_corps = find_bef_corps()
-        if (available_replacements.includes(bef_corps))
-            return bef_corps
+    if (unit === BEF_ARMY) {
+        if (available_replacements.includes(BEF_CORPS))
+            return BEF_CORPS
         else
             return 0
     }
@@ -4760,7 +4751,7 @@ states.landwehr = {
         gen_action_undo()
         if (game.landwehr_replacements > 0) {
             for (let p = 1; p < data.pieces.length; ++p) {
-                if (data.pieces[p].faction === CP && is_unit_reduced(p) && is_unit_supplied(p)) {
+                if (data.pieces[p].nation === GERMANY && is_unit_reduced(p) && is_unit_supplied(p)) {
                     gen_action_piece(p)
                 }
             }
