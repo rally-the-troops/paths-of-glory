@@ -1861,6 +1861,7 @@ states.activate_spaces = {
 function start_action_round() {
     game.ops = 0
     game.eligible_attackers = []
+    game.moved = []
     game.location.forEach((s, p) => {
         if (game.activated.attack.includes(s)) {
             game.eligible_attackers.push(p)
@@ -1912,6 +1913,8 @@ function goto_next_activation() {
 }
 
 function goto_end_action() {
+    delete game.moved
+
     const failed_previously = game.failed_entrench
     game.failed_entrench = failed_previously.filter((p) => data.pieces[p].faction !== game.active)
     if (game.entrenching.length > 0) {
@@ -2045,7 +2048,7 @@ states.choose_entrench_unit = {
             let trench_lvl = get_trench_level(s, game.active)
             if (trench_lvl < 2 && !entrenching_spaces.includes(s)) {
                 for_each_piece_in_space(s, (p) => {
-                    if (data.pieces[p].type == ARMY) {
+                    if (data.pieces[p].type === ARMY) {
                         gen_action_piece(p)
                     }
                 })
@@ -2101,7 +2104,7 @@ states.choose_pieces_to_move = {
 
         let selected_all = true
         for_each_piece_in_space(game.move.initial, (p) => {
-            if (get_piece_mf(p) > 0 && !game.entrenching.includes(p)) {
+            if (get_piece_mf(p) > 0 && !game.entrenching.includes(p) && !game.moved.includes(p)) {
                 if (!game.move.pieces.includes(p))
                     selected_all = false
                 gen_action_piece(p)
@@ -2119,7 +2122,7 @@ states.choose_pieces_to_move = {
     },
     pick_up_all() {
         for_each_piece_in_space(game.move.initial, (p) => {
-            if (!game.entrenching.includes(p))
+            if (!game.entrenching.includes(p) && !game.moved.includes(p))
                 game.move.pieces.push(p)
         })
     },
@@ -2167,7 +2170,7 @@ states.move_stack = {
             })
         }
 
-        if (!is_fully_stacked(game.move.current, game.active)) {
+        if (!is_overstacked(game.move.current, game.active)) {
             game.move.pieces.forEach((p) => { gen_action_piece(p) })
         }
 
@@ -2192,6 +2195,7 @@ states.move_stack = {
     piece(p) {
         push_undo()
         array_remove_item(game.move.pieces, p)
+        game.moved.push(p)
         if (game.move.pieces.length === 0) {
             end_move_stack()
         }
@@ -2407,6 +2411,10 @@ function end_move_stack() {
     if (!is_controlled_by(game.move.current, game.active) && has_undestroyed_fort(game.move.current, other_faction(game.active))) {
         set_add(game.forts.besieged, game.move.current)
     }
+
+    game.move.pieces.forEach((p) => {
+        game.moved.push(p)
+    })
 
     if (get_pieces_in_space(game.move.initial).length > 0) {
         game.move.current = game.move.initial
