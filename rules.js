@@ -197,6 +197,7 @@ const CALAIS = 17
 const OSTEND = 18
 const CHATEAU_THIERRY = 20
 const MELUN = 21
+const SEDAN = 30
 const ANTWERP = 32
 const LIEGE = 33
 const KOBLENZ = 41
@@ -872,7 +873,7 @@ function nation_at_war(nation) {
 function set_nation_at_war(nation) {
     game.war[nation] = 1
 
-    if (nation == TURKEY) {
+    if (nation === TURKEY) {
         setup_piece('tu', 'TU Corps', 'Constantinople')
         setup_piece('tu', 'TU Corps', 'Balikesir')
         setup_piece('tu', 'TU Corps', 'Gallipoli')
@@ -888,7 +889,7 @@ function set_nation_at_war(nation) {
         setup_piece('tu', 'TU Corps', 'Baghdad')
     }
 
-    if (nation == ITALY) {
+    if (nation === ITALY) {
         setup_piece('it', 'IT Corps', 'Rome')
         setup_piece('it', 'IT Corps', 'Turin')
         setup_piece('it', 'IT Corps', 'Taranto')
@@ -898,19 +899,19 @@ function set_nation_at_war(nation) {
         setup_piece('it', '4 Army', 'Asiago', true)
     }
 
-    if (nation == BULGARIA) {
+    if (nation === BULGARIA) {
         setup_piece(BULGARIA, 'BU Corps', 'Sofia')
         setup_piece(BULGARIA, 'BU Corps', 'Sofia')
         // Other 4 Bulgarian pieces are setup by player choice
     }
 
-    if (nation == ROMANIA) {
+    if (nation === ROMANIA) {
         setup_piece(ROMANIA, 'RO Corps', 'Bucharest')
         setup_piece(ROMANIA, 'RO Corps', 'Bucharest')
         // Other 4 Romanian pieces are setup by player choice
     }
 
-    if (nation == GREECE) {
+    if (nation === GREECE) {
         setup_piece(GREECE, 'GR Corps', 'Athens')
         setup_piece(GREECE, 'GR Corps', 'Florina')
         setup_piece(GREECE, 'GR Corps', 'Larisa')
@@ -944,57 +945,57 @@ function roll_mandated_offensives() {
     let ap_index = ap_roll
     let ap_mo = AP_MO_TABLE[ap_index]
 
-    if (ap_mo == ITALY && !nation_at_war(ITALY)) {
+    if (ap_mo === ITALY && !nation_at_war(ITALY)) {
         ap_mo = NONE
     }
 
-    if (ap_mo == FRANCE && all_capitals_occupied(FRANCE)) {
+    if (ap_mo === FRANCE && all_capitals_occupied(FRANCE)) {
         ap_mo = BRITAIN
     }
-    if (ap_mo == BRITAIN && all_capitals_occupied(BRITAIN)) {
+    if (ap_mo === BRITAIN && all_capitals_occupied(BRITAIN)) {
         ap_mo = ITALY
     }
-    if (ap_mo == ITALY) {
+    if (ap_mo === ITALY) {
         if (!nation_at_war(ITALY)) {
             ap_mo = NONE
         } else if (all_capitals_occupied(ITALY)) {
             ap_mo = RUSSIA
         }
     }
-    if (ap_mo == RUSSIA && (all_capitals_occupied(RUSSIA) || game.events.bolshevik_revolution)) {
+    if (ap_mo === RUSSIA && (all_capitals_occupied(RUSSIA) || game.events.bolshevik_revolution)) {
         ap_mo = NONE
     }
 
-    if (game.turn == 1 && ap_mo == BRITAIN && game.scenario == HISTORICAL) {
+    if (game.turn === 1 && ap_mo === BRITAIN && game.scenario === HISTORICAL) {
         ap_mo = FRANCE
     }
 
     let cp_roll = roll_die(6)
-    if (game.events.hoffman) {
+    if (game.events.hoffman > 0) {
         cp_roll++;
     }
     let cp_index = cp_roll > 6 ? 6 : cp_roll;
     let cp_mo = CP_MO_TABLE[cp_index]
 
-    if ((cp_mo == AUSTRIA_HUNGARY || cp_mo == AH_IT) && all_capitals_occupied(AUSTRIA_HUNGARY)) {
+    if ((cp_mo === AUSTRIA_HUNGARY || cp_mo === AH_IT) && all_capitals_occupied(AUSTRIA_HUNGARY)) {
         cp_mo = TURKEY
     }
-    if (cp_mo == TURKEY) {
+    if (cp_mo === TURKEY) {
         if (!nation_at_war(TURKEY)) {
             cp_mo = NONE
         } else if (all_capitals_occupied(TURKEY)) {
             cp_mo = GERMANY
         }
     }
-    if (cp_mo == GERMANY && all_capitals_occupied(GERMANY)) {
+    if (cp_mo === GERMANY && all_capitals_occupied(GERMANY)) {
         cp_mo = NONE
     }
 
-    if (cp_mo == AH_IT && !nation_at_war(ITALY)) {
+    if (cp_mo === AH_IT && !nation_at_war(ITALY)) {
         cp_mo = AUSTRIA_HUNGARY
     }
 
-    if (cp_mo == GERMANY && game.events.h_l_take_command) {
+    if (cp_mo === GERMANY && game.events.h_l_take_command) {
         cp_mo = NONE
     }
 
@@ -1008,7 +1009,7 @@ function roll_mandated_offensives() {
 function get_capitals(nation) {
     let capitals = []
     for (let i = 1; i < data.spaces.length; i++) {
-        if (data.spaces[i].capital && data.spaces[i].nation == nation) {
+        if (data.spaces[i].capital && data.spaces[i].nation === nation) {
             capitals.push(i)
         }
     }
@@ -4067,6 +4068,24 @@ function goto_replacement_phase() {
     if (game.turn === game.events.zeppelin_raids) {
         game.rp.br = Math.max(game.rp.br - 4, 0)
         log(`Zeppelin Raids event subtracts 4 British RP`)
+    }
+
+    // 5.7.3 The CP receives 1 German RP each turn during Total War (i.e., after it has drawn TW cards) if it controls
+    // Sedan and two additional French or Belgian spaces during the RP interphase.
+    if (game.cp.commitment === COMMITMENT_TOTAL && is_controlled_by(SEDAN, CP)) {
+        let cp_controlled_french_and_belgian_spaces = 0
+        for (let s = 1; s < data.spaces.length; ++s) {
+            if (is_controlled_by(s, CP) && (data.spaces[s].nation === FRANCE || data.spaces[s].nation === BELGIUM)) {
+                cp_controlled_french_and_belgian_spaces++
+                if (cp_controlled_french_and_belgian_spaces >= 3) {
+                    break
+                }
+            }
+        }
+        if (cp_controlled_french_and_belgian_spaces >= 3) {
+            game.rp.ge++
+            log(`${faction_name(CP)} gains 1 German RP for controlling Sedan and 2 other French/Belgian spaces`)
+        }
     }
 
     if (has_rps(AP)) {
