@@ -4064,6 +4064,11 @@ states.game_over = {
 }
 
 function goto_replacement_phase() {
+    if (game.turn === game.events.zeppelin_raids) {
+        game.rp.br = Math.max(game.rp.br - 4, 0)
+        log(`Zeppelin Raids event subtracts 4 British RP`)
+    }
+
     if (has_rps(AP)) {
         log_h1(`${faction_name(AP)} Replacement Phase`)
         game.active = AP
@@ -4862,6 +4867,18 @@ events.mata_hari = {
         }
         game.ops = data.cards[MATA_HARI].ops
         game.state = 'activate_spaces'
+    }
+}
+
+// CP #27
+events.zeppelin_raids = {
+    can_play() {
+        return true
+    },
+    play() {
+        push_undo()
+        game.events.zeppelin_raids = game.turn
+        goto_end_action()
     }
 }
 
