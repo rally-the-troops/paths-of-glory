@@ -1514,6 +1514,8 @@ function find_sr_destinations() {
         }
     }
 
+    set_delete(destinations, start)
+
     return destinations
 }
 
@@ -1522,7 +1524,7 @@ function set_ne_restriction_flags_for_sr(p, start, destination) {
         return
     }
 
-    if (data.pieces[p].faction === CP && nation !== TURKEY) {
+    if (data.pieces[p].faction === CP && data.pieces[p].nation !== TURKEY) {
         game.ne_restrictions.cp_sr = true
         return
     }
