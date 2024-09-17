@@ -202,8 +202,12 @@ const ANTWERP = 32
 const LIEGE = 33
 const KOBLENZ = 41
 const ESSEN = 43
+const TARANTO = 66
 const BRESLAU = 94
 const LODZ = 102
+const CETINJE = 111
+const TIRANA = 112
+const VALONA = 113
 const SALONIKA_SPACE = 117
 const NIS = 122
 const BELGRADE = 125
@@ -4665,7 +4669,6 @@ function search_supply() {
 }
 
 function is_unit_supplied(p) {
-    let faction = data.pieces[p].faction
     let nation = data.pieces[p].nation
     let location = game.location[p]
     if (location === 0)
@@ -4729,6 +4732,18 @@ function is_space_supplied(faction, s) {
     if (faction === CP) {
         return supply_cache.cp[s].sources.length > 0
     } else {
+        if (s === CETINJE) // Montenegro is always in supply
+            return true
+
+        if (data.spaces[s].nation === ALBANIA) {
+            // Albanian spaces check Attrition supply by tracing normally to an Allied supply source or tracing to
+            // Taranto even while Italy is still Neutral.
+            if (is_controlled_by(TARANTO, AP)) {
+                if (s === VALONA) return true
+                if (s === TIRANA && is_controlled_by(VALONA, AP)) return true
+            }
+        }
+
         return supply_cache.eastern[s].sources.length > 0
             || supply_cache.western[s].sources.length > 0
             || supply_cache.italian[s].sources.length > 0
