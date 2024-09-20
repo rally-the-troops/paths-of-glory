@@ -3140,21 +3140,18 @@ states.apply_defender_losses = {
     }
 }
 
-function eliminate_piece(p) {
+function eliminate_piece(p, force_permanent_elimination) {
+    force_permanent_elimination = force_permanent_elimination || false
     let replacement = find_replacement(p, get_units_in_reserve())
-    if (replacement === 0) {
+    if (force_permanent_elimination || replacement === 0 || data.pieces[p].notreplaceable || !is_unit_supplied(p)) {
         // Permanently eliminate piece
-        log(`Eliminated ${piece_name(p)} in ${space_name(game.location[p])}`)
+        log(`Permanently eliminated ${piece_name(p)} in ${space_name(game.location[p])}`)
         game.removed.push(p)
         game.location[p] = 0
     } else {
         game.location[replacement] = game.location[p]
         log(`Replaced ${piece_name(p)} in ${space_name(game.location[p])} with ${piece_name(replacement)}`)
-        if (data.pieces[p].notreplaceable) {
-            game.location[p] = 0
-        } else {
-            game.location[p] = game.active === AP ? AP_ELIMINATED_BOX : CP_ELIMINATED_BOX
-        }
+        game.location[p] = game.active === AP ? AP_ELIMINATED_BOX : CP_ELIMINATED_BOX
     }
     return replacement
 }
