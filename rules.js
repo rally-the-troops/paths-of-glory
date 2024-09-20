@@ -1809,7 +1809,7 @@ function is_neareast_space(s) {
 states.activate_spaces = {
     inactive: "Activate Spaces",
     prompt() {
-        view.prompt = `Activate spaces: click spaces to activate (${game.ops} ops remaining)`
+        view.prompt = `Activate spaces to move or attack — ${game.ops} ops remaining`
         let spaces = []
         game.location.forEach((loc, p) => {
             if (loc !== 0 && data.pieces[p].faction === game.active) {
@@ -1843,7 +1843,7 @@ states.activate_spaces = {
             }
         })
         gen_action_undo()
-        gen_action_next()
+        gen_action_done()
     },
     deactivate(s) {
         push_undo()
@@ -1865,7 +1865,7 @@ states.activate_spaces = {
         set_add(game.activated.attack, s)
         game.ops -= cost_to_activate(s, ATTACK)
     },
-    next() {
+    done() {
         start_action_round()
     }
 }
@@ -1889,7 +1889,10 @@ function start_move_activation() {
         spaces_moved: 0,
         pieces: []
     }
-    game.state = 'choose_move_space'
+    if (can_entrench() && get_units_eligible_to_entrench().length > 0)
+        game.state = 'choose_entrench_units'
+    else
+        game.state = 'choose_move_space'
 }
 
 function start_attack_activation() {
@@ -1936,14 +1939,14 @@ function goto_end_action() {
             const drm = failed_previously.includes(p) ? -1 : 0
             const success = roll+drm <= get_piece_lf(p)
             if (success) {
-                log(`${piece_name(p)} successfully entrenches in ${space_name(game.location[p])} with a roll of ${roll+drm}${drm != 0 ? ` (including ${drm} DRM)` : ''}`)
+                log(`${piece_name(p)} successfully entrenches in ${space_name(game.location[p])} with a roll of ${roll+drm}${drm !== 0 ? ` (including ${drm} DRM)` : ''}`)
                 let lvl = get_trench_level(game.location[p], game.active)
                 set_trench_level(game.location[p], lvl+1, game.active)
             } else {
                 const nation = data.pieces[p].nation
-                if (game.options.failed_entrench && (nation == GERMANY || nation == BRITAIN || nation == FRANCE || nation == ITALY))
+                if (game.options.failed_entrench && (nation === GERMANY || nation === BRITAIN || nation === FRANCE || nation === ITALY))
                     game.failed_entrench.push(p)
-                log(`${piece_name(p)} fails to entrench in ${space_name(game.location[p])} with a roll of ${roll+drm}${drm != 0 ? ` (including ${drm} DRM)` : ''}`)
+                log(`${piece_name(p)} fails to entrench in ${space_name(game.location[p])} with a roll of ${roll+drm}${drm !== 0 ? ` (including ${drm} DRM)` : ''}`)
             }
         })
         game.entrenching.length = 0
@@ -2007,14 +2010,9 @@ function update_russian_capitulation() {
 }
 
 states.choose_move_space = {
-    inactive: 'Choose Space to Move',
+    inactive: 'Choosing a space to move',
     prompt() {
-        if (can_entrench()) {
-            view.prompt = `Choose which space to begin moving or entrench`
-            gen_action('entrench')
-        } else {
-            view.prompt = `Choose which space to begin moving`
-        }
+        view.prompt = `Choose an activated space to begin moving`
         let space_eligible_to_move = false
         game.activated.move.forEach((s) => {
             let piece_eligible_to_move = false
@@ -2033,14 +2031,14 @@ states.choose_move_space = {
         }
         gen_action_undo()
     },
-    entrench() {
-        push_undo()
-        game.state = 'choose_entrench_unit'
-    },
     space(s) {
         push_undo()
         game.move.initial = s
         game.move.current = s
+        for_each_piece_in_space(game.move.initial, (p) => {
+            if (get_piece_mf(p) > 0 && !game.entrenching.includes(p) && !game.moved.includes(p))
+                game.move.pieces.push(p)
+        })
         game.state = 'choose_pieces_to_move'
     },
     done() {
@@ -2051,27 +2049,40 @@ states.choose_move_space = {
     }
 }
 
-states.choose_entrench_unit = {
-    inactive: 'Choose Unit to Entrench',
+function get_units_eligible_to_entrench() {
+    let units = []
+    let entrenching_spaces = game.entrenching.map((p) => game.location[p])
+    game.activated.move.forEach((s) => {
+        let trench_lvl = get_trench_level(s, game.active)
+        if (trench_lvl < 2 && !entrenching_spaces.includes(s)) {
+            for_each_piece_in_space(s, (p) => {
+                if (data.pieces[p].type === ARMY && !game.moved.includes(p)) {
+                    units.push(p)
+                }
+            })
+        }
+    })
+    return units
+}
+
+states.choose_entrench_units = {
+    inactive: 'Choosing units to entrench',
     prompt() {
-        view.prompt = `Choose a unit to entrench`
-        let entrenching_spaces = game.entrenching.map((p) => game.location[p])
-        game.activated.move.forEach((s) => {
-            let trench_lvl = get_trench_level(s, game.active)
-            if (trench_lvl < 2 && !entrenching_spaces.includes(s)) {
-                for_each_piece_in_space(s, (p) => {
-                    if (data.pieces[p].type === ARMY) {
-                        gen_action_piece(p)
-                    }
-                })
-            }
+        view.prompt = `Choose units to entrench`
+
+        get_units_eligible_to_entrench().forEach((p) => {
+            gen_action_piece(p)
         })
         gen_action_undo()
+        gen_action_done()
     },
     piece(p) {
         push_undo()
         log(`${piece_name(p)} will attempt to entrench in ${space_name(game.location[p])}`)
         game.entrenching.push(p)
+    },
+    done() {
+        push_undo()
         game.state = 'choose_move_space'
     }
 }
@@ -2110,33 +2121,24 @@ states.place_event_trench = {
 }
 
 states.choose_pieces_to_move = {
-    inactive: 'Choose Units to Move',
+    inactive: 'Choose units to move',
     prompt() {
-        view.prompt = `Choose the units to move from ${space_name(game.move.initial)}`
+        view.prompt = `Choose units to move from ${space_name(game.move.initial)} or choose a space to begin moving`
 
-        let selected_all = true
         for_each_piece_in_space(game.move.initial, (p) => {
             if (get_piece_mf(p) > 0 && !game.entrenching.includes(p) && !game.moved.includes(p)) {
-                if (!game.move.pieces.includes(p))
-                    selected_all = false
                 gen_action_piece(p)
             }
         })
 
-        if (!selected_all)
-            gen_action('pick_up_all')
-
-        if (game.move.pieces.length > 0)
-            gen_action('move')
-        else
+        if (game.move.pieces.length > 0) {
+            get_eligible_spaces_to_move().forEach((s) => {
+                gen_action_space(s)
+            })
+        } else {
             gen_action('done')
+        }
         gen_action_undo()
-    },
-    pick_up_all() {
-        for_each_piece_in_space(game.move.initial, (p) => {
-            if (!game.entrenching.includes(p) && !game.moved.includes(p))
-                game.move.pieces.push(p)
-        })
     },
     piece(p) {
         if (game.move.pieces.includes(p)) {
@@ -2144,6 +2146,11 @@ states.choose_pieces_to_move = {
         } else {
             game.move.pieces.push(p)
         }
+    },
+    space(s) {
+        push_undo()
+        move_stack_to_space(s)
+        game.state = 'move_stack'
     },
     move() {
         push_undo()
@@ -2156,31 +2163,53 @@ states.choose_pieces_to_move = {
     }
 }
 
-states.move_stack = {
-    inactive: 'Move Stack',
-    prompt() {
-        view.prompt = 'Move the stack'
-        let lowest_mf = 1000
-        game.move.pieces.forEach((p) => {
-            let mf = get_piece_mf(p)
-            if (mf < lowest_mf)
-                lowest_mf = mf
-        })
+function get_eligible_spaces_to_move() {
+    let spaces = []
+    let lowest_mf = 1000
+    game.move.pieces.forEach((p) => {
+        let mf = get_piece_mf(p)
+        if (mf < lowest_mf)
+            lowest_mf = mf
+    })
 
-        if (game.move.spaces_moved < lowest_mf) {
-            let moving_nations = []
-            game.move.pieces.forEach((p) => { set_add(moving_nations, data.pieces[p].nation) })
-            let connections = null
-            if (moving_nations.length === 1) {
-                connections = get_connected_spaces(game.move.current, moving_nations[0])
-            } else {
-                connections = get_connected_spaces(game.move.current)
-            }
-            connections.forEach((conn) => {
-                if (can_move_to(conn, game.move.pieces))
-                    gen_action_space(conn)
-            })
+    if (game.move.spaces_moved < lowest_mf) {
+        let moving_nations = []
+        game.move.pieces.forEach((p) => { set_add(moving_nations, data.pieces[p].nation) })
+        let connections = null
+        if (moving_nations.length === 1) {
+            connections = get_connected_spaces(game.move.current, moving_nations[0])
+        } else {
+            connections = get_connected_spaces(game.move.current)
         }
+        connections.forEach((conn) => {
+            if (can_move_to(conn, game.move.pieces))
+                spaces.push(conn)
+        })
+    }
+    return spaces
+}
+
+function move_stack_to_space(s) {
+    update_russian_ne_restriction_flag(game.move.pieces, game.move.current, s)
+    game.move.pieces.forEach((p) => {
+        game.location[p] = s
+    })
+    game.move.spaces_moved++
+    game.move.current = s
+    if (!has_undestroyed_fort(s, other_faction(game.active))) {
+        set_control(s, game.active)
+        capture_trench(s, game.active)
+    }
+}
+
+states.move_stack = {
+    inactive: 'Moving a stack of units',
+    prompt() {
+        view.prompt = 'Move the stack of units'
+
+        get_eligible_spaces_to_move().forEach((s) => {
+            gen_action_space(s)
+        })
 
         if (!is_overstacked(game.move.current, game.active)) {
             game.move.pieces.forEach((p) => { gen_action_piece(p) })
@@ -2193,16 +2222,7 @@ states.move_stack = {
     },
     space(s) {
         push_undo()
-        update_russian_ne_restriction_flag(game.move.pieces, game.move.current, s)
-        game.move.pieces.forEach((p) => {
-            game.location[p] = s
-        })
-        game.move.spaces_moved++
-        game.move.current = s
-        if (!has_undestroyed_fort(s, other_faction(game.active))) {
-            set_control(s, game.active)
-            capture_trench(s, game.active)
-        }
+        move_stack_to_space(s)
     },
     piece(p) {
         push_undo()
