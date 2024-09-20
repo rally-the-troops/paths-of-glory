@@ -2811,14 +2811,25 @@ states.play_wireless_intercepts = {
             gen_action_card(WIRELESS_INTERCEPTS)
         }
         gen_action_undo()
-        gen_action_next()
+        gen_action_pass()
     },
     card(c) {
         array_remove_item(game[game.active].hand, c)
         game.combat_cards.push(c)
         log(`${faction_name(game.active)} plays ${card_name(c)}`)
+        log('Flank attack successful')
+        game.attack.is_flank = true
+        if (defender_can_withdraw()) {
+            // if defender can withdraw, go to 'choose_withdrawal'
+            game.active = other_faction(game.active)
+            game.state = 'choose_withdrawal'
+        } else if (can_play_combat_cards()) {
+            game.state = 'attacker_combat_cards'
+        } else {
+            begin_combat()
+        }
     },
-    next() {
+    pass() {
         roll_flank_attack()
     }
 }
