@@ -1271,6 +1271,7 @@ function goto_play_event(card) {
 }
 
 function goto_play_ops(card) {
+    push_undo()
     if (card === undefined) {
         record_action(ACTION_1_OP, card)
         game.ops = 1
@@ -1284,6 +1285,7 @@ function goto_play_ops(card) {
 }
 
 function goto_play_sr(card) {
+    push_undo()
     record_action(ACTION_SR, card)
     let card_data = data.cards[card]
     game.sr = {
@@ -1623,6 +1625,7 @@ function end_sr() {
 }
 
 function goto_play_rps(card) {
+    push_undo()
     record_action(ACTION_RP, card)
     let card_data = data.cards[card]
 
@@ -1655,7 +1658,7 @@ function goto_play_reinf(card) {
     let active_player = get_active_player()
     array_remove_item(active_player.hand, card)
     game.last_card = card
-    if (card.removed)
+    if (card_data.removed)
         active_player.removed.push(card)
     else
         active_player.discard.push(card)
@@ -1954,6 +1957,12 @@ function goto_end_action() {
             }
         })
         game.entrenching.length = 0
+    }
+
+    if (game.active === AP && game.events.high_seas_fleet > 0) {
+        log(`${faction_name(AP)} did not play ${card_name(GRAND_FLEET)} this action round, ${card_name(HIGH_SEAS_FLEET)} adds 1 VP`)
+        game.vp++
+        delete game.events.high_seas_fleet
     }
 
     update_us_entry()
@@ -4958,6 +4967,18 @@ events.mata_hari = {
     }
 }
 
+// CP #25
+events.high_seas_fleet = {
+    can_play() {
+        return true
+    },
+    play() {
+        push_undo()
+        game.events.high_seas_fleet = game.turn
+        goto_end_action()
+    }
+}
+
 // CP #27
 events.zeppelin_raids = {
     can_play() {
@@ -5210,6 +5231,18 @@ events.landships = {
     play() {
         push_undo()
         game.events.landships = game.turn
+        goto_end_action()
+    }
+}
+
+// AP #33
+events.grand_fleet = {
+    can_play() {
+        return game.events.high_seas_fleet > 0
+    },
+    play() {
+        push_undo()
+        delete game.event.high_seas_fleet
         goto_end_action()
     }
 }
