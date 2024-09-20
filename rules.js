@@ -4850,6 +4850,23 @@ events.guns_of_august = {
     }
 }
 
+// CP #3
+events.von_francois = {
+    can_play() {
+        if (!game.attack || game.attack.attacker !== CP || undefined === game.attack.pieces.find(p => data.pieces[p].nation === GERMANY))
+            return false
+
+        return undefined !== get_pieces_in_space(game.attack.space).find(p => data.pieces[p].nation === RUSSIA)
+    },
+    can_apply_drm() {
+        return this.can_play()
+    },
+    apply_drm() {
+        log(`${card_name(VON_FRANCOIS)} adds +1 DRM`)
+        game.attack.attacker_drm += 1
+    }
+}
+
 // CP #5
 events.landwehr = {
     can_play() {
