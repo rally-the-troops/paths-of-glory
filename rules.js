@@ -1874,6 +1874,7 @@ function start_action_round() {
     game.ops = 0
     game.eligible_attackers = []
     game.moved = []
+    game.attacked = []
     game.location.forEach((s, p) => {
         if (game.activated.attack.includes(s)) {
             game.eligible_attackers.push(p)
@@ -1929,6 +1930,9 @@ function goto_next_activation() {
 
 function goto_end_action() {
     delete game.moved
+    delete game.attacked
+
+    clear_undo()
 
     const failed_previously = game.failed_entrench
     game.failed_entrench = failed_previously.filter((p) => data.pieces[p].faction !== game.active)
@@ -2503,6 +2507,7 @@ states.choose_defending_space = {
     space(s) {
         push_undo()
         game.attack.space = s
+        game.attacked.push(s)
         goto_attack()
     },
     piece(p) {
@@ -2604,6 +2609,9 @@ function get_attackable_spaces(attackers) {
             to_remove.forEach((s) => { array_remove_item(eligible_spaces, s) })
         }
     }
+
+    // Remove spaces that have already been attacked this action round
+    eligible_spaces = eligible_spaces.filter((s) => game.attacked.includes(s) === false )
 
     // TODO: Units in London may conduct a Combat only if the Combat also involves friendly units located in a
     //  space in either France or Belgium. Italian units may attack across the Taranto–Valona dotted line without
@@ -3089,9 +3097,9 @@ function resolve_defenders_fire() {
 }
 
 states.apply_defender_losses = {
-    inactive: 'Defender Applying Losses',
+    inactive: 'Defender taking losses',
     prompt() {
-        view.prompt = `Take losses (${game.attack.defender_losses_taken}/${game.attack.defender_losses})`
+        gen_action_undo()
 
         let loss_options = []
         if (game.attack.defender_losses - game.attack.defender_losses_taken > 0) {
@@ -3099,6 +3107,7 @@ states.apply_defender_losses = {
             loss_options = get_loss_options(game.attack.defender_losses - game.attack.defender_losses_taken, get_pieces_in_space(game.attack.space), fort_strength)
         }
         if (loss_options.length > 0) {
+            view.prompt = `Take losses (${game.attack.defender_losses_taken}/${game.attack.defender_losses})`
             loss_options.forEach((option) => {
                 if (option === FORT_LOSS) {
                     gen_action_space(game.attack.space)
@@ -3107,7 +3116,7 @@ states.apply_defender_losses = {
                 }
             })
         } else {
-            gen_action_undo()
+            view.prompt = `Take losses (${game.attack.defender_losses_taken}/${game.attack.defender_losses}) — Done`
             gen_action_done()
         }
     },
@@ -3164,17 +3173,18 @@ function reduce_piece(p) {
 states.apply_attacker_losses = {
     inactive: 'Attacker Applying Losses',
     prompt() {
-        view.prompt = `Take losses (${game.attack.attacker_losses_taken}/${game.attack.attacker_losses})`
+        gen_action_undo()
 
         let loss_options = []
         if (game.attack.attacker_losses - game.attack.attacker_losses_taken > 0)
             loss_options = get_loss_options(game.attack.attacker_losses - game.attack.attacker_losses_taken, game.attack.pieces, 0, game.attack.attacker_losses_taken === 0)
         if (loss_options.length > 0) {
+            view.prompt = `Take losses (${game.attack.attacker_losses_taken}/${game.attack.attacker_losses})`
             loss_options.forEach((p) => {
                 gen_action_piece(p)
             })
         } else {
-            gen_action_undo()
+            view.prompt = `Take losses (${game.attack.attacker_losses_taken}/${game.attack.attacker_losses}) — Done`
             gen_action_done()
         }
     },
