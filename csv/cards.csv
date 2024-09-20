@@ -5,7 +5,7 @@ num,faction,commitment,ops,sr,remove,cc,ws,rp_a,rp_br,rp_fr,rp_it,rp_ru,rp_ah,rp
 4,ap,mobilization,2,2,TRUE,TRUE,,,1,1,,1,,,,,Pleve,pleve,A RU attack or defense adds a +1 drm.,,
 5,ap,mobilization,2,2,,TRUE,,,1,1,,1,,,,,Putnik,putnik,May only be played in 1914 and 1915. A SB attack or defense adds a +1 drm.,,
 6,ap,mobilization,2,2,TRUE,TRUE,,,1,1,,1,,,,,Withdrawal,ap_withdrawal,"Defending units negate one required Corps step loss and instead retreat 1 space. This also cancels any retreat caused by losing the combat. If not Corps step(s) lost, an Army step loss may be negated.",,
-7,ap,mobilization,2,2,,TRUE,,,1,1,,1,,,,,Severe Weather,severe_weather,Defending units in a mountain space in Fall/Winter or a swamp space in Spring/Fall get a +2 drm.,,
+7,ap,mobilization,2,2,,TRUE,,,1,1,,1,,,,,Severe Weather,ap_severe_weather,Defending units in a mountain space in Fall/Winter or a swamp space in Spring/Fall get a +2 drm.,,
 8,ap,mobilization,2,2,TRUE,,,,1,1,,1,,,,,Russian Reinforcements,,2 corps.,ru,RU Corps|RU Corps
 9,ap,mobilization,3,4,TRUE,,,,1,1,1,2,,,,,Moltke,moltke,May only be played in August or September 1914. CP Activation in Belgium or France costs 1 OPS per unit (not space) until the Falkenhayn card is played.,,
 10,ap,mobilization,3,4,TRUE,,,,1,1,1,2,,,,,French Reinforcements,,10th Army.,fr,10 Army
@@ -67,7 +67,7 @@ num,faction,commitment,ops,sr,remove,cc,ws,rp_a,rp_br,rp_fr,rp_it,rp_ru,rp_ah,rp
 1,cp,mobilization,3,4,TRUE,,2,,,,,,1,,2,1,Guns of August,guns_of_august,"May only be played in the first Action Round of the August 1914 turn. The Liege fort is destroyed. Place the GE 1st and 2nd Armies in the Liege space. The GE 1st, 2nd, and 3rd Armies are activated for Combat.",,
 2,cp,mobilization,2,2,TRUE,TRUE,,,,,,,,,1,,Wireless Intercepts,wireless_intercepts,A GE Flank Attack Attempt vs. a space containing only RU units is automatically successful.,,
 3,cp,mobilization,2,2,,TRUE,,,,,,,,,1,,Von Francois,von_francois,A GE attack vs. RU units adds a +1 drm.,,
-4,cp,mobilization,2,2,,TRUE,,,,,,,,,1,,Severe Weather,severe_weather,Defending units in a mountain space in Fall/Winter or a swamp space in Spring/Fall get a +2 drm.,,
+4,cp,mobilization,2,2,,TRUE,,,,,,,,,1,,Severe Weather,cp_severe_weather,Defending units in a mountain space in Fall/Winter or a swamp space in Spring/Fall get a +2 drm.,,
 5,cp,mobilization,2,2,TRUE,,,,,,,,,,1,,Landwehr,landwehr,CP player receives 2 extra RPs to immediately flip reduced strength units to their full side. They may not be spent to replace eliminated units.,,
 6,cp,mobilization,3,4,TRUE,,,,,,,,1,,2,1,Entrench,cp_entrench,Place a Level 1 Trench in any space occupied by a supplied friendly Army. Both players may now Entrench.,,
 7,cp,mobilization,3,4,TRUE,,,,,,,,1,,2,1,German Reinforcements,,9th Army.,ge,9 Army

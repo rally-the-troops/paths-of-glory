@@ -692,12 +692,25 @@ function goto_start_turn() {
     log_h1(`${faction_name(game.active)} Action ${game[game.active].actions.length+1}`)
 }
 
+const SEASON_NONE = "None"
+const SEASON_WINTER = "Winter"
+const SEASON_SPRING = "Spring"
+const SEASON_SUMMER = "Summer"
+const SEASON_FALL = "Fall"
+const SEASONS = [ SEASON_WINTER, SEASON_SPRING, SEASON_SUMMER, SEASON_FALL ]
+
 function turn_season_and_year(turn) {
     if (turn === 1) return "August 1914"
     if (turn === 2) return "September 1914"
     const year = 1915 + Math.floor((turn-4)/4)
-    const season = ["Winter", "Spring", "Summer", "Fall"][turn%4]
-    return `${season} ${year}`
+    return `${get_season(turn)} ${year}`
+}
+
+function get_season(turn) {
+    turn = turn || game.turn
+    if (turn === 1) return SEASON_NONE
+    if (turn === 2) return SEASON_NONE
+    return SEASONS[turn%4]
 }
 
 function deal_ap_cards() {
@@ -3160,6 +3173,8 @@ states.apply_defender_losses = {
         log(`Destroyed fort in ${space_name(s)}`)
     },
     done() {
+        update_siege(game.attack.space)
+
         if (game.attack.failed_flank) {
             determine_combat_winner()
         } else if (game.attack.is_flank) {
@@ -3788,6 +3803,16 @@ function can_besiege(space, units) {
         }
     }
     return count_corps >= data.spaces[space].fort
+}
+
+function update_siege(space) {
+    if (!is_besieged(space))
+        return
+    let pieces_in_space = get_pieces_in_space(space)
+    if (!can_besiege(space, pieces_in_space)) {
+        set_delete(game.forts.besieged, space)
+        supply_cache = null
+    }
 }
 
 function cost_to_activate(space, type) {
@@ -4867,6 +4892,28 @@ events.von_francois = {
     }
 }
 
+// CP #4
+events.cp_severe_weather = {
+    can_play() {
+        if (!game.attack || game.attack.attacker !== AP)
+            return false
+
+        const terrain = data.spaces[game.attack.space].terrain
+        const season = get_season()
+        if (terrain === MOUNTAIN && (season === SEASON_FALL || season === SEASON_WINTER))
+            return true
+
+        return (terrain === SWAMP && (season === SEASON_FALL || season === SEASON_SPRING))
+    },
+    can_apply_drm() {
+        return this.can_play()
+    },
+    apply_drm() {
+        log(`${card_name(SEVERE_WEATHER_CP)} adds +2 DRM`)
+        game.attack.defender_drm += 2
+    }
+}
+
 // CP #5
 events.landwehr = {
     can_play() {
@@ -5174,6 +5221,28 @@ events.pleve = {
             log(`${card_name(PLEVE)} adds +1 DRM`)
             game.attack.defender_drm += 1
         }
+    }
+}
+
+// AP #7
+events.ap_severe_weather = {
+    can_play() {
+        if (!game.attack || game.attack.attacker !== CP)
+            return false
+
+        const terrain = data.spaces[game.attack.space].terrain
+        const season = get_season()
+        if (terrain === MOUNTAIN && (season === SEASON_FALL || season === SEASON_WINTER))
+            return true
+
+        return (terrain === SWAMP && (season === SEASON_FALL || season === SEASON_SPRING))
+    },
+    can_apply_drm() {
+        return this.can_play()
+    },
+    apply_drm() {
+        log(`${card_name(SEVERE_WEATHER_AP)} adds +2 DRM`)
+        game.attack.defender_drm += 2
     }
 }
 

@@ -107,7 +107,7 @@ const cards = [
         "rpfr": 1,
         "rpru": 1,
         "name": "Severe Weather",
-        "event": "severe_weather",
+        "event": "ap_severe_weather",
         "effect": "Defending units in a mountain space in Fall/Winter or a swamp space in Spring/Fall get a +2 drm."
     },
     {
@@ -1071,7 +1071,7 @@ const cards = [
         "cc": true,
         "rpge": 1,
         "name": "Severe Weather",
-        "event": "severe_weather",
+        "event": "cp_severe_weather",
         "effect": "Defending units in a mountain space in Fall/Winter or a swamp space in Spring/Fall get a +2 drm."
     },
     {
