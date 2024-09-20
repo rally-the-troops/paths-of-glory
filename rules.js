@@ -2464,15 +2464,17 @@ function end_move_stack() {
 }
 
 states.choose_attackers = {
-    inactive: 'Choose Units to Attack',
+    inactive: 'Choosing units and space to attack',
     prompt() {
-        view.prompt = `Choose which units will attack next`
+        view.prompt = `Select which units will attack then select a space to begin the attack`
         game.eligible_attackers.forEach((p) => {
             gen_action_undo()
             gen_action_piece(p)
         })
-        gen_action_next()
-        gen_action('finish_attacks')
+        get_attackable_spaces(game.attack.pieces).forEach((s) => {
+            gen_action_space(s)
+        })
+        gen_action_pass()
     },
     piece(p) {
         push_undo()
@@ -2481,39 +2483,16 @@ states.choose_attackers = {
         else
             game.attack.pieces.push(p)
     },
-    next() {
-        push_undo()
-        game.state = 'choose_defending_space'
-    },
-    finish_attacks() {
-        game.eligible_attackers = []
-        end_attack_activation()
-        goto_next_activation()
-    }
-}
-
-states.choose_defending_space = {
-    inactive: 'Choose Space to Attack',
-    prompt() {
-        view.prompt = `Choose which space to attack`
-
-        let attackable_spaces = get_attackable_spaces(game.attack.pieces)
-        attackable_spaces.forEach((s) => {
-            gen_action_space(s)
-        })
-
-        gen_action_undo()
-    },
     space(s) {
         push_undo()
         game.attack.space = s
         game.attacked.push(s)
         goto_attack()
     },
-    piece(p) {
-        push_undo()
-        game.attack.space = game.location[p]
-        goto_attack()
+    pass() {
+        game.eligible_attackers = []
+        end_attack_activation()
+        goto_next_activation()
     }
 }
 
