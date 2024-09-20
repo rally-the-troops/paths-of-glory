@@ -737,10 +737,10 @@ function play_card(card) {
 function reshuffle_discard(deck) {
     let player
 
-    if (deck == game.ap.deck) {
+    if (deck === game.ap.deck) {
         player = game.ap
         log("Allied Powers deck reshuffled")
-    } else if (deck == game.cp.deck) {
+    } else if (deck === game.cp.deck) {
         player = game.cp
         log("Central Powers deck reshuffled")
     }
@@ -4059,6 +4059,7 @@ function goto_war_status_phase() {
         }
     }
 
+    apply_replacement_phase_events()
     goto_replacement_phase()
 }
 
@@ -4110,7 +4111,7 @@ states.game_over = {
     }
 }
 
-function goto_replacement_phase() {
+function apply_replacement_phase_events() {
     if (game.turn === game.events.zeppelin_raids) {
         game.rp.br = Math.max(game.rp.br - 4, 0)
         log(`Zeppelin Raids event subtracts 4 British RP`)
@@ -4134,6 +4135,13 @@ function goto_replacement_phase() {
         }
     }
 
+    if (game.events.walter_rathenau > 0 && !game.events.independent_air_force) {
+        game.rp.ge++
+        log("Walter Rathenau event adds 1 German RP")
+    }
+}
+
+function goto_replacement_phase() {
     if (has_rps(AP)) {
         log_h1(`${faction_name(AP)} Replacement Phase`)
         game.active = AP
@@ -4975,6 +4983,18 @@ events.tsar_takes_command = {
     }
 }
 
+// CP #33
+events.walter_rathenau = {
+    can_play() {
+        return true
+    },
+    play() {
+        push_undo()
+        game.events.walter_rathenau = game.turn
+        goto_end_action()
+    }
+}
+
 // CP #34
 events.bulgaria_entry = {
     is_neutral_entry: true,
@@ -5190,6 +5210,18 @@ events.landships = {
     play() {
         push_undo()
         game.events.landships = game.turn
+        goto_end_action()
+    }
+}
+
+// AP #37
+events.independent_air_force = {
+    can_play() {
+        return true
+    },
+    play() {
+        push_undo()
+        game.events.independent_air_force = game.turn
         goto_end_action()
     }
 }
