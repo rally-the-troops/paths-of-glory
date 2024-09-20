@@ -5025,6 +5025,20 @@ events.falkenhayn = {
     }
 }
 
+// CP #15
+events.chlorine_gas = {
+    can_play() {
+        return (game.attack && game.attack.attacker === CP && undefined !== game.attack.pieces.find(p => data.pieces[p].nation === GERMANY))
+    },
+    can_apply_drm() {
+        return this.can_play()
+    },
+    apply_drm() {
+        log(`${card_name(CHLORINE_GAS)} adds +1 DRM`)
+        game.attack.attacker_drm += 1
+    }
+}
+
 // CP #17
 events.mata_hari = {
     can_play() {
@@ -5039,6 +5053,23 @@ events.mata_hari = {
         }
         game.ops = data.cards[MATA_HARI].ops
         game.state = 'activate_spaces'
+    }
+}
+
+// CP #18
+events.fortified_machine_guns = {
+    can_play() {
+        return (game.attack &&
+                game.attack.attacker !== CP &&
+                get_trench_level(game.attack.space) > 0 &&
+                undefined !== get_pieces_in_space(game.attack.space).find(p => data.pieces[p].nation === GERMANY))
+    },
+    can_apply_drm() {
+        return this.can_play()
+    },
+    apply_drm() {
+        log(`${card_name(FORTIFIED_MACHINE_GUNS)} adds +1 DRM`)
+        game.attack.defender_drm += 1
     }
 }
 
@@ -5076,6 +5107,34 @@ events.tsar_takes_command = {
         game.events.tsar_takes_command = game.turn
         game.ops = data.cards[TSAR_TAKES_COMMAND].ops
         game.state = 'activate_spaces'
+    }
+}
+
+// CP #30
+events.alpenkorps = {
+    can_play() {
+        if (!game.attack)
+            return false
+
+        if (game.attack.attacker === CP &&
+            undefined !== game.attack.pieces.find(p => data.pieces[p].nation === GERMANY &&
+            data.spaces[game.location[p]].terrain === MOUNTAIN)) {
+            return true
+        }
+
+        return (game.attack.attacker === AP &&
+                data.spaces[game.attack.space].terrain === MOUNTAIN &&
+                undefined !== get_pieces_in_space(game.attack.space).find(p => data.pieces[p].nation === GERMANY))
+    },
+    can_apply_drm() {
+        return this.can_play()
+    },
+    apply_drm() {
+        log(`${card_name(ALPENKORPS)} adds +1 DRM`)
+        if (game.attack.attacker === CP)
+            game.attack.attacker_drm += 1
+        else
+            game.attack.defender_drm += 1
     }
 }
 
