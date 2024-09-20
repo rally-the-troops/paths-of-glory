@@ -252,6 +252,7 @@ const FOREST = "forest"
 // Piece indices
 const GE_1_ARMY = find_piece(GERMANY, '1 Army')
 const GE_2_ARMY = find_piece(GERMANY, '2 Army')
+const GE_11_ARMY = find_piece(GERMANY, '11 Army')
 const BRITISH_NE_ARMY = find_piece(BRITAIN, 'NE Army')
 const BEF_ARMY = find_piece(BRITAIN, 'BEF Army')
 const BEF_CORPS = find_piece(BRITAIN, 'BEF Corps')
@@ -3817,6 +3818,7 @@ function update_siege(space) {
 
 function cost_to_activate(space, type) {
     let nations = []
+    let pieces = []
     let has_russians = false
     let num_pieces = 0
     for_each_piece_in_space(space, (piece) => {
@@ -3826,6 +3828,7 @@ function cost_to_activate(space, type) {
         if (n === MONTENEGRO) n = SERBIA
         if (n === RUSSIA) has_russians = true
         set_add(nations, n)
+        pieces.push(piece)
     })
     let cost = nations.length
 
@@ -3848,13 +3851,24 @@ function cost_to_activate(space, type) {
         cost--
     }
 
-    // TODO: Sud Army and 11th Army events modify the activation cost
+    // TODO: Sud Army modifies the activation cost
+
 
     if (game.active === CP && game.events.moltke > 0 && !game.events.falkenhayn) {
         // Moltke modifies the activation cost, unless Falkenhayn also played
         if (nation === BELGIUM || nation === FRANCE) {
             cost = num_pieces
         }
+    }
+
+    if (game.events.eleventh_army > 0 && pieces.includes(GE_11_ARMY)) {
+        // Recalculate cost
+        let nations_with_armies = []
+        pieces.forEach((p) => {
+            if (data.pieces[p].type === ARMY)
+                set_add(nations_with_armies, data.pieces[p].nation)
+        })
+        cost = nations_with_armies.length
     }
 
     // After Fall of the Tsar, spaces with Russian units cost 1 per unit for combat only
@@ -5107,6 +5121,18 @@ events.tsar_takes_command = {
         game.events.tsar_takes_command = game.turn
         game.ops = data.cards[TSAR_TAKES_COMMAND].ops
         game.state = 'activate_spaces'
+    }
+}
+
+// CP #29
+events.eleventh_army = {
+    can_play() {
+        return true
+    },
+    play() {
+        push_undo()
+        game.events.eleventh_army = game.turn
+        goto_end_action()
     }
 }
 
