@@ -2058,7 +2058,7 @@ function get_units_eligible_to_entrench() {
     let entrenching_spaces = game.entrenching.map((p) => game.location[p])
     game.activated.move.forEach((s) => {
         let trench_lvl = get_trench_level(s, game.active)
-        if (trench_lvl < 2 && !entrenching_spaces.includes(s)) {
+        if (is_controlled_by(s, game.active) && trench_lvl < 2 && !entrenching_spaces.includes(s)) {
             for_each_piece_in_space(s, (p) => {
                 if (data.pieces[p].type === ARMY && !game.moved.includes(p)) {
                     units.push(p)
@@ -2168,6 +2168,16 @@ states.choose_pieces_to_move = {
 }
 
 function get_eligible_spaces_to_move() {
+    if (is_besieged(game.move.current)) {
+        let units_in_space_after_move = []
+        for_each_piece_in_space(game.move.current, (p) => {
+            if (!game.move.pieces.includes(p))
+                units_in_space_after_move.push(p)
+        })
+        if (units_in_space_after_move.length > 0 && !can_besiege(game.move.current, units_in_space_after_move))
+            return [] // Can't move out of this space because it would break the siege, unless moving all units out of the space
+    }
+
     let spaces = []
     let lowest_mf = 1000
     game.move.pieces.forEach((p) => {
@@ -2194,12 +2204,26 @@ function get_eligible_spaces_to_move() {
 }
 
 function move_stack_to_space(s) {
+    if (is_besieged(game.move.current)) {
+        let pieces_remaining = []
+        for_each_piece_in_space(game.move.current, (p) => {
+            if (!game.move.pieces.includes(p))
+                pieces_remaining.push(p)
+        })
+        if (!can_besiege(game.move.current, pieces_remaining)) {
+            set_delete(game.forts.besieged, game.move.current)
+        }
+        supply_cache = null
+    }
+
     update_russian_ne_restriction_flag(game.move.pieces, game.move.current, s)
+
     game.move.pieces.forEach((p) => {
         game.location[p] = s
     })
     game.move.spaces_moved++
     game.move.current = s
+
     if (!has_undestroyed_fort(s, other_faction(game.active))) {
         set_control(s, game.active)
         capture_trench(s, game.active)
@@ -2446,6 +2470,7 @@ function can_end_move(s) {
 function end_move_stack() {
     if (!is_controlled_by(game.move.current, game.active) && has_undestroyed_fort(game.move.current, other_faction(game.active))) {
         set_add(game.forts.besieged, game.move.current)
+        supply_cache = null
     }
 
     game.move.pieces.forEach((p) => {
@@ -3656,6 +3681,7 @@ states.perform_advance = {
             const end_space = game.location[game.attack.advancing_pieces[0]]
             if (has_undestroyed_fort(end_space, other_faction(game.attack.attacker))) {
                 set_add(game.forts.besieged, end_space)
+                supply_cache = null
             }
         }
         game.attack.advancing_pieces.length = 0
