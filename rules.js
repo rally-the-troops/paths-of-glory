@@ -2513,17 +2513,35 @@ function end_move_stack() {
     }
 }
 
+function piece_can_join_attack_without_breaking_siege(piece) {
+    if (!is_besieged(game.location[piece]))
+        return true
+
+    let pieces_remaining = []
+    for_each_piece_in_space(game.location[piece], (p) => {
+        if (piece !== p && !game.attack.pieces.includes(p))
+            pieces_remaining.push(p)
+    })
+
+    return can_besiege(game.location[piece], pieces_remaining)
+}
+
 states.choose_attackers = {
     inactive: 'Choosing units and space to attack',
     prompt() {
         view.prompt = `Select which units will attack then select a space to begin the attack`
+
         game.eligible_attackers.forEach((p) => {
-            gen_action_undo()
-            gen_action_piece(p)
+            if (game.attack.pieces.includes(p)) {
+                gen_action_piece(p)
+            } else if (piece_can_join_attack_without_breaking_siege(p)) {
+                gen_action_piece(p)
+            }
         })
         get_attackable_spaces(game.attack.pieces).forEach((s) => {
             gen_action_space(s)
         })
+        gen_action_undo()
         gen_action_pass()
     },
     piece(p) {
