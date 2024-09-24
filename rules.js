@@ -1892,6 +1892,7 @@ function start_action_round() {
     game.eligible_attackers = []
     game.moved = []
     game.attacked = []
+    game.retreated = []
     game.location.forEach((s, p) => {
         if (game.activated.attack.includes(s)) {
             game.eligible_attackers.push(p)
@@ -1948,6 +1949,7 @@ function goto_next_activation() {
 function goto_end_action() {
     delete game.moved
     delete game.attacked
+    delete game.retreated
 
     clear_undo()
 
@@ -2984,13 +2986,11 @@ function resolve_fire() {
         game.state = 'apply_attacker_losses'
     } else if (game.attack.is_flank) {
         resolve_attackers_fire()
-        game.active = other_faction(game.attack.attacker)
-        game.state = 'apply_defender_losses'
+        goto_defender_losses()
     } else {
         resolve_attackers_fire()
         resolve_defenders_fire()
-        game.active = other_faction(game.attack.attacker)
-        game.state = 'apply_defender_losses'
+        goto_defender_losses()
     }
 }
 
@@ -3098,7 +3098,8 @@ function resolve_defenders_fire() {
     let table = "corps"
 
     for_each_piece_in_space(game.attack.space, (p) => {
-        defender_cf += get_piece_cf(p)
+        if (!set_has(game.retreated, p))
+            defender_cf += get_piece_cf(p)
         if (data.pieces[p].type === ARMY)
             table = "army"
     })
@@ -3132,6 +3133,36 @@ function resolve_defenders_fire() {
     clear_undo()
 
     log(`Roll of ${roll} on the ${table} table causes ${game.attack.attacker_losses} losses for the attacker`)
+}
+
+states.eliminate_retreated_units = {
+    inactive: 'Eliminating Units that Previously Retreated',
+    prompt() {
+        let has_pieces_to_eliminate = false
+        for_each_piece_in_space(game.attack.space, (p) => {
+            if (set_has(game.retreated, p)) {
+                gen_action_piece(p)
+                has_pieces_to_eliminate = true
+            }
+        })
+
+        gen_action_undo()
+        if (has_pieces_to_eliminate) {
+            view.prompt = 'Eliminate units that previously retreated'
+        } else {
+            view.prompt = 'Eliminate units that previously retreated — Done'
+            gen_action_done()
+        }
+    },
+    piece(p) {
+        push_undo()
+        // Pieces eliminated in this condition are sent to the eliminated box and not replaced (12.5.6)
+        game.location[p] = game.active === AP ? AP_ELIMINATED_BOX : CP_ELIMINATED_BOX
+        array_remove_item(game.retreated, p)
+    },
+    done() {
+        game.state = 'apply_defender_losses'
+    }
 }
 
 states.apply_defender_losses = {
@@ -3244,12 +3275,19 @@ states.apply_attacker_losses = {
     done() {
         if (game.attack.failed_flank) {
             resolve_attackers_fire()
-            game.active = other_faction(game.attack.attacker)
-            game.state = 'apply_defender_losses'
+            goto_defender_losses()
         } else {
             determine_combat_winner()
         }
     }
+}
+
+function goto_defender_losses() {
+    game.active = other_faction(game.attack.attacker)
+    if (game.attack.defender_losses > 0 && get_pieces_in_space(game.attack.space).find((p) => set_has(game.retreated, p)) !== undefined)
+        game.state = 'eliminate_retreated_units'
+    else
+        game.state = 'apply_defender_losses'
 }
 
 const FORT_LOSS = -1
@@ -3592,6 +3630,7 @@ states.choose_retreat_path = {
         })
     },
     done() {
+        game.attack.retreating_pieces.forEach((p) => { set_add(game.retreated, p) })
         game.attack.retreat_paths.push(game.attack.retreat_path)
         game.attack.retreat_path = []
         game.attack.retreating_pieces.length = 0
