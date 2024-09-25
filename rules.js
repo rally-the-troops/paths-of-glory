@@ -5155,6 +5155,27 @@ events.chlorine_gas = {
     }
 }
 
+// CP #16
+events.liman_von_sanders = {
+    can_play() {
+        if (!game.attack)
+            return false
+        if (undefined !== game.attack.pieces.find(p => data.pieces[p].nation === TURKEY))
+            return true
+        return (undefined !== get_pieces_in_space(game.attack.space).find(p => data.pieces[p].nation === TURKEY))
+    },
+    can_apply_drm() {
+        return this.can_play()
+    },
+    apply_drm() {
+        log(`${card_name(LIMAN_VON_SANDERS)} adds +1 DRM`)
+        if (game.attack.attacker === CP)
+            game.attack.attacker_drm += 1
+        else
+            game.attack.defender_drm += 1
+    }
+}
+
 // CP #17
 events.mata_hari = {
     can_play() {
