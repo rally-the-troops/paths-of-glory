@@ -5994,6 +5994,25 @@ states.russian_cavalry = {
     }
 }
 
+// AP #58
+events.russian_guards = {
+    can_play() {
+        if (!game.attack)
+            return false
+        if (game.attack.attacker !== AP)
+            return false
+
+        return undefined !== game.attack.pieces.find(p => data.pieces[p].nation === RUSSIA)
+    },
+    can_apply_drm() {
+        return this.can_play()
+    },
+    apply_drm() {
+        log(`${card_name(RUSSIAN_GUARDS)} adds +1 DRM`)
+        game.attack.attacker_drm += 1
+    }
+}
+
 // AP #59
 events.alpine_troops = {
     can_play() {
