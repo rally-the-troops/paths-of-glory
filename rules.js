@@ -5210,6 +5210,25 @@ events.fortified_machine_guns = {
     }
 }
 
+// CP #19
+events.flamethrowers = {
+    can_play() {
+        if (!game.attack)
+            return false
+        if (game.attack.attacker !== CP)
+            return false
+
+        return undefined !== game.attack.pieces.find(p => data.pieces[p].nation === GERMANY)
+    },
+    can_apply_drm() {
+        return this.can_play()
+    },
+    apply_drm() {
+        log(`${card_name(FLAMETHROWERS)} adds +1 DRM`)
+        game.attack.attacker_drm += 1
+    }
+}
+
 // CP #25
 events.high_seas_fleet = {
     can_play() {
