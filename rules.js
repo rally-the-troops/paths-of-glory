@@ -1871,16 +1871,25 @@ states.activate_spaces = {
             game.ops += cost_to_activate(s, ATTACK)
             set_delete(game.activated.attack, s)
         }
+        if (game.sud_army_space === s) {
+            delete game.sud_army_space
+        }
     },
     activate_move(s) {
         push_undo()
         set_add(game.activated.move, s)
         game.ops -= cost_to_activate(s, MOVE)
+        if (!game.sud_army_space && is_possible_sud_army_stack(get_pieces_in_space(s))) {
+            game.sud_army_space = s
+        }
     },
     activate_attack(s) {
         push_undo()
         set_add(game.activated.attack, s)
         game.ops -= cost_to_activate(s, ATTACK)
+        if (!game.sud_army_space && is_possible_sud_army_stack(get_pieces_in_space(s))) {
+            game.sud_army_space = s
+        }
     },
     done() {
         start_action_round()
@@ -1947,9 +1956,11 @@ function goto_next_activation() {
 }
 
 function goto_end_action() {
+    // Clean up state that is per action round
     delete game.moved
     delete game.attacked
     delete game.retreated
+    delete game.sud_army_space
 
     clear_undo()
 
@@ -3873,6 +3884,18 @@ function update_siege(space) {
     }
 }
 
+function is_possible_sud_army_stack(pieces) {
+    let ge_corps = 0
+    let ah_pieces = 0
+    pieces.forEach((p) => {
+        if (data.pieces[p].nation === GERMANY && data.pieces[p].type === CORPS)
+            ge_corps++
+        if (data.pieces[p].nation === AUSTRIA_HUNGARY)
+            ah_pieces++
+    })
+    return ah_pieces === 1 && ge_corps >= 1 && ah_pieces + ge_corps === pieces.length
+}
+
 function cost_to_activate(space, type) {
     let nations = []
     let pieces = []
@@ -3908,8 +3931,12 @@ function cost_to_activate(space, type) {
         cost--
     }
 
-    // TODO: Sud Army modifies the activation cost
-
+    // Sud Army modifies the activation cost for one stack per action round
+    if (game.active === CP && game.events.sud_army > 0 && is_possible_sud_army_stack(pieces)) {
+        if (!game.sud_army_space || game.sud_army_space === space) {
+            cost = 1
+        }
+    }
 
     if (game.active === CP && game.events.moltke > 0 && !game.events.falkenhayn) {
         // Moltke modifies the activation cost, unless Falkenhayn also played
@@ -5069,6 +5096,18 @@ events.reichstag_truce = {
         push_undo()
         game.vp += 1
         start_action_round()
+    }
+}
+
+// CP #10
+events.sud_army = {
+    can_play() {
+        return true
+    },
+    play() {
+        push_undo()
+        game.events.sud_army = game.turn
+        goto_end_action()
     }
 }
 
