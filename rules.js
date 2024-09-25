@@ -5420,6 +5420,18 @@ events.mustard_gas = {
     }
 }
 
+// CP #37
+events.hoffmann = {
+    can_play() {
+        return game.events.h_l_take_command > 0
+    },
+    play() {
+        push_undo()
+        game.events.hoffmann = game.turn
+        goto_end_action()
+    }
+}
+
 // CP #39
 events.cp_air_superiority = {
     can_play() {

@@ -100,7 +100,7 @@ num,faction,commitment,ops,sr,remove,cc,ws,rp_a,rp_br,rp_fr,rp_it,rp_ru,rp_ah,rp
 34,cp,limited,5,5,TRUE,,1,,,,,,3,,4,2,Bulgaria,bulgaria_entry,Bulgaria joins the CP.,,
 35,cp,total,2,2,TRUE,TRUE,,,,,,,,,1,,Mustard Gas,mustard_gas,A GE attack adds a +1 drm.,,
 36,cp,total,2,2,TRUE,,2,,,,,,,,1,,U-Boats Unleashed,uboats_unleashed,"May only be played after ""H-L Take Command"". Subtract 1 BR RP during the Repl. Phase of each turn and prevent play of US Reinforcements until ""Convoy"" is played.",,
-37,cp,total,2,2,TRUE,,1,,,,,,,,1,,Hoffman,hoffman,"May only be played after ""H-L Take Command"". Adds +1 to all future CP Mandated Offensive die rolls.",,
+37,cp,total,2,2,TRUE,,1,,,,,,,,1,,Hoffmann,hoffmann,"May only be played after ""H-L Take Command"". Adds +1 to all future CP Mandated Offensive die rolls.",,
 38,cp,total,2,2,TRUE,,,,,,,,,,1,,German Reinforcements,,2 corps.,ge,GE Corps|GE Corps
 39,cp,total,2,2,TRUE,,,,,,,,,,1,,German Reinforcements,,2 corps.,ge,GE Corps|GE Corps
 40,cp,total,3,4,,TRUE,,,,,,,1,,2,1,Air Superiority,cp_air_superiority,A GE attack adds +1 drm.,,

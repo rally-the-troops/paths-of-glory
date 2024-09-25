@@ -1541,8 +1541,8 @@ const cards = [
         "remove": true,
         "ws": 1,
         "rpge": 1,
-        "name": "Hoffman",
-        "event": "hoffman",
+        "name": "Hoffmann",
+        "event": "hoffmann",
         "effect": "May only be played after \"H-L Take Command\". Adds +1 to all future CP Mandated Offensive die rolls."
     },
     {
