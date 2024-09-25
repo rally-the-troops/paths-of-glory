@@ -4558,6 +4558,48 @@ const pieces = [
         "rlf": 1,
         "rmf": 3,
         "rptype": "allied"
+    },
+    {
+        "faction": "ap",
+        "nation": "ru",
+        "name": "RU Cavalry Corps",
+        "type": "corps",
+        "counter": "corps_ru corps_ix_2",
+        "cf": 1,
+        "lf": 1,
+        "mf": 4,
+        "rcf": 0,
+        "rlf": 1,
+        "rmf": 4,
+        "rptype": "ru"
+    },
+    {
+        "faction": "ap",
+        "nation": "ru",
+        "name": "RU Cavalry Corps",
+        "type": "corps",
+        "counter": "corps_ru corps_ix_2",
+        "cf": 1,
+        "lf": 1,
+        "mf": 4,
+        "rcf": 0,
+        "rlf": 1,
+        "rmf": 4,
+        "rptype": "ru"
+    },
+    {
+        "faction": "ap",
+        "nation": "ru",
+        "name": "RU Czech Legion",
+        "type": "corps",
+        "counter": "corps_czl corps_ix_1",
+        "cf": 2,
+        "lf": 1,
+        "mf": 4,
+        "rcf": 1,
+        "rlf": 1,
+        "rmf": 4,
+        "rptype": "ru"
     }
 ]
 

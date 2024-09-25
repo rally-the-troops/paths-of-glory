@@ -829,7 +829,7 @@ function setup_reserve_corps(nation, quantity) {
 
 function find_unused_piece(nation, name) {
     const pieces = find_n_unused_pieces(nation, name, 1)
-    if (pieces.length == 0) {
+    if (pieces.length === 0) {
         throw new Error(`Could not find unused piece for nation ${nation} and name ${name}`)
     }
     return pieces[0]
@@ -840,11 +840,11 @@ function find_n_unused_pieces(nation, name, n) {
     let found = 0
     for (let i = 0; i < data.pieces.length; i++) {
         let piece = data.pieces[i]
-        if (piece.name === name && piece.nation === nation && game.location[i] == 0) {
+        if (piece.name === name && piece.nation === nation && game.location[i] === 0) {
             pieces.push(i)
             found++
         }
-        if (found == n) {
+        if (found === n) {
             return pieces
         }
     }
@@ -2448,6 +2448,11 @@ function can_enter_neareast(pieces) {
         // if any pieces is an army and it's either not a neareast army or it's a neareast army that was initially
         // placed outside the neareast map, then the stack can't enter the neareast map
         if (data.pieces[p].type === ARMY && (!neareast_armies.includes(p) || game.ne_armies_placed_outside_neareast.includes(p))) {
+            return false
+        }
+
+        // Per the event card that brings them into play, the Russian Cavalry Corps units cannot enter the Near East map
+        if (data.pieces[p].name === "RU Cavalry Corps") {
             return false
         }
     }
@@ -5607,6 +5612,51 @@ states.paris_taxis = {
         goto_end_action()
     },
     pass() {
+        goto_end_action()
+    }
+}
+
+// AP #57
+events.russian_cavalry = {
+    can_play() {
+        return true
+    },
+    play() {
+        push_undo()
+        game.units_to_place = find_n_unused_pieces(RUSSIA, 'RU Cavalry Corps', 2)
+        game.state = 'russian_cavalry'
+    }
+}
+
+states.russian_cavalry = {
+    inactive: 'Placing Russian Cavalry',
+    prompt() {
+        if (game.units_to_place.length > 0) {
+            view.prompt = 'Place the Russian Cavalry'
+            for (let p = 1; p < data.pieces.length; ++p) {
+                if (game.location[p] !== 0 &&
+                    data.pieces[p].nation === RUSSIA &&
+                    data.pieces[p].type === ARMY &&
+                    data.spaces[game.location[p]].nation === RUSSIA &&
+                    is_unit_supplied(p) &&
+                    !would_overstack(game.location[p], game.units_to_place, AP)) {
+                    gen_action_space(game.location[p])
+                }
+            }
+        } else {
+            view.prompt = 'Place the Russian Cavalry - Done'
+            gen_action_done()
+        }
+        gen_action_undo()
+    },
+    space(s) {
+        push_undo()
+        game.units_to_place.forEach((p) => {
+            game.location[p] = s
+        })
+        game.units_to_place.length = 0
+    },
+    done() {
         goto_end_action()
     }
 }
