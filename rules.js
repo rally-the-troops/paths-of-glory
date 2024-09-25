@@ -259,9 +259,14 @@ const BEF_CORPS = find_piece(BRITAIN, 'BEF Corps')
 const MEF_ARMY = find_piece(BRITAIN, 'MEF Army')
 const AUS_CORPS = find_piece(BRITAIN, 'AUS Corps')
 const CND_CORPS = find_piece(BRITAIN, 'CND Corps')
+const PT_CORPS = find_piece(BRITAIN, 'PT Corps')
 const CAU_ARMY = find_piece(RUSSIA, 'CAU Army')
 const BRITISH_ANA_CORPS = find_piece(BRITAIN, 'ANA Corps')
 const TURKISH_SN_CORPS = find_piece('sn', 'SN Corps')
+
+function is_minor_british_nation(piece) {
+    return piece === AUS_CORPS || piece === CND_CORPS || piece === PT_CORPS || piece === BRITISH_ANA_CORPS
+}
 
 function nation_name(nation) {
     switch (nation) {
@@ -1065,11 +1070,7 @@ function satisfies_mo(mo, attackers, defenders, space) {
         let piece = data.pieces[a]
         if (piece.nation !== attacker_nation)
             return false
-        if (attacker_nation === BRITAIN &&
-            (piece.counter.startsWith('cnd') ||
-                piece.counter.startsWith('pt') ||
-                piece.counter.startsWith('aus') ||
-                piece.counter.startsWith('ana'))) {
+        if (attacker_nation === BRITAIN && is_minor_british_nation(a)) {
             return false
         }
         return true
@@ -5290,6 +5291,25 @@ events.bulgaria_entry = {
     }
 }
 
+// CP #39
+events.cp_air_superiority = {
+    can_play() {
+        if (!game.attack)
+            return false
+        if (game.attack.attacker !== CP)
+            return false
+
+        return undefined !== game.attack.pieces.find(p => data.pieces[p].nation === GERMANY)
+    },
+    can_apply_drm() {
+        return this.can_play()
+    },
+    apply_drm() {
+        log(`${card_name(AIR_SUPERIORITY_CP)} adds +1 DRM`)
+        game.attack.attacker_drm += 1
+    }
+}
+
 // CP #45
 events.treaty_of_brest_litovsk = {
     can_play() {
@@ -5490,6 +5510,71 @@ events.italy_entry = {
     play() {
         set_nation_at_war(ITALY)
         goto_end_action()
+    }
+}
+
+// AP #18
+events.hurricane_barrage = {
+    can_play() {
+        if (!game.attack)
+            return false
+        if (game.attack.attacker !== AP)
+            return false
+
+        for (let p of game.attack.pieces) {
+            if (data.pieces[p].nation === BRITAIN && !is_minor_british_nation(p))
+                return true
+        }
+        return false
+    },
+    can_apply_drm() {
+        return this.can_play()
+    },
+    apply_drm() {
+        log(`${card_name(HURRICANE_BARRAGE)} adds +1 DRM`)
+        game.attack.attacker_drm += 1
+    }
+}
+
+// AP #19
+events.ap_air_superiority = {
+    can_play() {
+        if (!game.attack)
+            return false
+        if (game.attack.attacker !== AP)
+            return false
+
+        for (let p of game.attack.pieces) {
+            if (data.pieces[p].nation === FRANCE || (data.pieces[p].nation === BRITAIN && !is_minor_british_nation(p)))
+                return true
+        }
+        return false
+    },
+    can_apply_drm() {
+        return this.can_play()
+    },
+    apply_drm() {
+        log(`${card_name(AIR_SUPERIORITY_AP)} adds +1 DRM`)
+        game.attack.attacker_drm += 1
+    }
+}
+
+// AP #21
+events.phosgene_gas = {
+    can_play() {
+        if (!game.attack)
+            return false
+        if (game.attack.attacker !== AP)
+            return false
+
+        return undefined !== game.attack.pieces.find(p => data.pieces[p].nation === FRANCE)
+    },
+    can_apply_drm() {
+        return this.can_play()
+    },
+    apply_drm() {
+        log(`${card_name(PHOSGENE_GAS)} adds +1 DRM`)
+        game.attack.attacker_drm += 1
     }
 }
 
