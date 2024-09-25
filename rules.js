@@ -5830,6 +5830,25 @@ events.grand_fleet = {
     }
 }
 
+// AP #36
+events.mine_attack = {
+    can_play() {
+        if (!game.attack)
+            return false
+        if (game.attack.attacker !== AP)
+            return false
+
+        return (get_trench_level(game.attack.space, CP) > 0 && undefined !== game.attack.pieces.find(p => data.pieces[p].nation === BRITAIN))
+    },
+    can_apply_drm() {
+        return this.can_play()
+    },
+    apply_drm() {
+        log(`${card_name(MINE_ATTACK)} adds +1 DRM`)
+        game.attack.attacker_drm += 1
+    }
+}
+
 // AP #37
 events.independent_air_force = {
     can_play() {
