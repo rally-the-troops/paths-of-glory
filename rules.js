@@ -5602,6 +5602,32 @@ events.pleve = {
     }
 }
 
+// AP #5
+events.putnik = {
+    can_play() {
+        if (game.turn > 7)
+            return false
+
+        if (!game.attack)
+            return false
+
+        if (game.attack.attacker === AP)
+            return undefined !== game.attack.pieces.find(p => data.pieces[p].nation === SERBIA)
+        else
+            return undefined !== get_pieces_in_space(game.attack.space).find(p => data.pieces[p].nation === SERBIA)
+    },
+    can_apply_drm() {
+        return this.can_play()
+    },
+    apply_drm() {
+        log(`${card_name(PUTNIK)} adds +1 DRM`)
+        if (game.attack.attacker === AP)
+            game.attack.attacker_drm += 1
+        else
+            game.attack.defender_drm += 1
+    }
+}
+
 // AP #7
 events.ap_severe_weather = {
     can_play() {
