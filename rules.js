@@ -5509,6 +5509,18 @@ events.bolshevik_revolution = {
     }
 }
 
+// CP #54
+events.h_l_take_command = {
+    can_play() {
+        return true
+    },
+    play() {
+        push_undo()
+        game.events.h_l_take_command = game.turn
+        goto_end_action()
+    }
+}
+
 // CP #57
 events.kaisertreu = {
     can_play() {
