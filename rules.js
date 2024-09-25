@@ -5184,7 +5184,7 @@ events.mata_hari = {
     play() {
         clear_undo()
         game.events.mata_hari = game.turn
-        log("Mata Hari reveals the contents of the Allied hand:")
+        log(`${card_name(MATA_HARI)} reveals the contents of the Allied hand:`)
         for (let c of game.ap.hand) {
             log(`${card_name(c)}`)
         }
@@ -5773,6 +5773,23 @@ events.phosgene_gas = {
     apply_drm() {
         log(`${card_name(PHOSGENE_GAS)} adds +1 DRM`)
         game.attack.attacker_drm += 1
+    }
+}
+
+// CP #23
+events.cloak_and_dagger = {
+    can_play() {
+        return true
+    },
+    play() {
+        clear_undo()
+        game.events.cloak_and_dagger = game.turn
+        log(`${card_name(CLOAK_AND_DAGGER)} reveals the contents of the CP hand:`)
+        for (let c of game.cp.hand) {
+            log(`${card_name(c)}`)
+        }
+        game.ops = data.cards[CLOAK_AND_DAGGER].ops
+        game.state = 'activate_spaces'
     }
 }
 
