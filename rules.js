@@ -5241,6 +5241,33 @@ events.high_seas_fleet = {
     }
 }
 
+// CP #26
+events.place_of_execution = {
+    can_play() {
+        if (!game.attack)
+            return false
+
+        if (!game.events.falkenhayn)
+            return false
+
+        if (game.events.h_l_take_command > 0)
+            return false
+
+        if (game.attack.attacker !== CP)
+            return false
+
+        const space_data = data.spaces[game.attack.space]
+        return space_data.nation === FRANCE && space_data.fort > 0 && !game.forts.destroyed.includes(game.attack.space)
+    },
+    can_apply_drm() {
+        return this.can_play()
+    },
+    apply_drm() {
+        log(`${card_name(PLACE_OF_EXECUTION)} adds +2 DRM`)
+        game.attack.attacker_drm += 2
+    }
+}
+
 // CP #27
 events.zeppelin_raids = {
     can_play() {
