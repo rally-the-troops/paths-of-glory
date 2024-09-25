@@ -5545,6 +5545,25 @@ events.kaisertreu = {
     }
 }
 
+// CP #62
+events.achtung_panzer = {
+    can_play() {
+        if (!game.attack)
+            return false
+        if (game.attack.attacker !== CP)
+            return false
+
+        return (undefined === data.spaces[game.attack.space].terrain && undefined !== game.attack.pieces.find(p => data.pieces[p].nation === GERMANY))
+    },
+    can_apply_drm() {
+        return this.can_play()
+    },
+    apply_drm() {
+        log(`${card_name(ACHTUNG_PANZER)} adds +1 DRM`)
+        game.attack.attacker_drm += 1
+    }
+}
+
 // === ALLIED POWER EVENTS ===
 
 // AP #2
