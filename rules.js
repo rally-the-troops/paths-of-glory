@@ -5873,6 +5873,20 @@ events.greece_entry = {
     }
 }
 
+// AP #52
+events.convoy = {
+    can_play() {
+        return game.events.uboats_unleashed > 0
+    },
+    play() {
+        push_undo()
+        game.events.convoy = game.turn
+        log(`${card_name(CONVOY)} subtracts 1 VP`)
+        game.vp--
+        goto_end_action()
+    }
+}
+
 // AP #54
 events.zimmermann_telegram = {
     can_play() {
