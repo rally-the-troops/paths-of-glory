@@ -2250,7 +2250,6 @@ function move_stack_to_space(s) {
         if (!can_besiege(game.move.current, pieces_remaining)) {
             set_delete(game.forts.besieged, game.move.current)
         }
-        supply_cache = null
     }
 
     update_russian_ne_restriction_flag(game.move.pieces, game.move.current, s)
@@ -4009,7 +4008,7 @@ function goto_attrition_phase() {
     supply_cache = null
     get_oos_pieces().forEach((p) => {
         const faction = data.pieces[p].faction
-        if (game.location[p] == MEDINA && data.pieces[p].nation == TURKEY) {
+        if (game.location[p] === MEDINA && data.pieces[p].nation === TURKEY) {
             // Turkish units in Medina do not suffer attrition, even though they may be OOS
         } else {
             game.attrition[faction].pieces.push(p)
@@ -4948,8 +4947,9 @@ function query_supply() {
 
 function get_oos_pieces() {
     let oos_pieces = []
+    const moving_pieces = game.move ? game.move.pieces : []
     for (let p = 1; p < data.pieces.length; ++p) {
-        if (game.location[p] !== 0 && game.location[p] < AP_RESERVE_BOX && !is_unit_supplied(p)) {
+        if (game.location[p] !== 0 && game.location[p] < AP_RESERVE_BOX && !is_unit_supplied(p) && !moving_pieces.includes(p)) {
             oos_pieces.push(p)
         }
     }
