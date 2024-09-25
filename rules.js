@@ -5333,6 +5333,49 @@ events.alpenkorps = {
     }
 }
 
+// CP #32
+events.war_in_africa = {
+    can_play() {
+        return true
+    },
+    play() {
+        push_undo()
+        game.events.war_in_africa = game.turn
+        game.active = AP
+        game.state = 'war_in_africa'
+    }
+}
+
+states.war_in_africa = {
+    inactive: 'War in Africa: Allied Powers choose to remove a British Corps or lose 1 VP',
+    prompt() {
+        view.prompt = 'War in Africa event: Remove a British Corps or pass to lose 1 VP'
+        for (let p = 1; p < data.pieces.length; ++p) {
+            if (data.pieces[p].nation === BRITAIN &&
+                data.pieces[p].type === CORPS &&
+                game.location[p] !== 0 &&
+                !is_minor_british_nation(p))
+                gen_action_piece(p)
+        }
+        gen_action_pass()
+    },
+    piece(p) {
+        const space = game.location[p]
+        log(`War in Africa event removes ${piece_name(p)} from ${space_name(space)}`)
+        game.location[p] = 0
+        game.removed.push(p)
+        update_siege(space)
+        game.active = CP
+        goto_end_action()
+    },
+    pass() {
+        log(`War in Africa event adds 1 VP`)
+        game.vp++
+        game.active = CP
+        goto_end_action()
+    }
+}
+
 // CP #33
 events.walter_rathenau = {
     can_play() {
