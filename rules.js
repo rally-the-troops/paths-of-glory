@@ -6029,6 +6029,27 @@ events.alpine_troops = {
     }
 }
 
+// AP #60
+events.czech_legion = {
+    can_play() {
+        return true
+    },
+    play() {
+        push_undo()
+        for (let p = 1; p < data.pieces.length; ++p) {
+            const piece_data = data.pieces[p]
+            if (game.location[p] === CP_ELIMINATED_BOX && piece_data.nation === AUSTRIA_HUNGARY && piece_data.type === CORPS) {
+                game.location[p] = 0
+                game.removed.push(p)
+                break
+            }
+        }
+        const czech_legion = find_piece(RUSSIA, 'RU Czech Legion')
+        game.location[czech_legion] = AP_RESERVE_BOX
+        goto_end_action()
+    }
+}
+
 // === COMMON LIBRARY ===
 
 function gen_action(action, argument) {
