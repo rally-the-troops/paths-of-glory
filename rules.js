@@ -5401,6 +5401,25 @@ events.bulgaria_entry = {
     }
 }
 
+// CP #35
+events.mustard_gas = {
+    can_play() {
+        if (!game.attack)
+            return false
+        if (game.attack.attacker !== CP)
+            return false
+
+        return undefined !== game.attack.pieces.find(p => data.pieces[p].nation === GERMANY)
+    },
+    can_apply_drm() {
+        return this.can_play()
+    },
+    apply_drm() {
+        log(`${card_name(MUSTARD_GAS)} adds +1 DRM`)
+        game.attack.attacker_drm += 1
+    }
+}
+
 // CP #39
 events.cp_air_superiority = {
     can_play() {
