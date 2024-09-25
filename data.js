@@ -326,7 +326,7 @@ const cards = [
         "rpfr": 1,
         "rpru": 1,
         "name": "Phosgene Gas",
-        "event": "phosphene_gas",
+        "event": "phosgene_gas",
         "effect": "A FR attack adds +1 drm."
     },
     {

@@ -19,7 +19,7 @@ num,faction,commitment,ops,sr,remove,cc,ws,rp_a,rp_br,rp_fr,rp_it,rp_ru,rp_ah,rp
 18,ap,limited,2,2,,TRUE,,,1,1,,1,,,,,Hurricane Barrage,hurricane_barrage,A BR attack adds a +1 drm.,,
 19,ap,limited,2,2,,TRUE,,,1,1,,1,,,,,Air Superiority,ap_air_superiority,A BR or FR attack adds +1 drm.,,
 20,ap,limited,2,2,TRUE,,,,1,1,,1,,,,,British Reinforcements,,"AUS Corps, CND Corps.",br,AUS Corps|CND Corps
-21,ap,limited,2,2,TRUE,TRUE,,,1,1,,1,,,,,Phosgene Gas,phosphene_gas,A FR attack adds +1 drm.,,
+21,ap,limited,2,2,TRUE,TRUE,,,1,1,,1,,,,,Phosgene Gas,phosgene_gas,A FR attack adds +1 drm.,,
 22,ap,limited,3,4,TRUE,,,,1,1,1,2,,,,,Italian Reinforcements,,May only be played after ITALY joins the Allies. 5th Army.,it,5 Army
 23,ap,limited,2,2,TRUE,,,,1,1,,1,,,,,Cloak and Dagger,cloak_and_dagger,Allied player may examine all cards in the CP player's hand and then conduct Operations using this card.,,
 24,ap,limited,3,4,TRUE,,,,1,1,1,2,,,,,French Reinforcements,,7th Army.,fr,7 Army
