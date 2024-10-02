@@ -1242,6 +1242,9 @@ function can_play_event(card) {
         if (game.events.uboats_unleashed > 0 && !game.events.convoy && card_data.reinfnation === US)
             return false
 
+        if (card === MEF && (!nation_at_war(TURKEY) || game.events.salonika > 0))
+            return false
+
         return nation_at_war(card_data.reinfnation)
     }
 
@@ -3990,9 +3993,8 @@ function cost_to_activate(space, type) {
     //  may use the MEF Beachhead for supply.
     if (game.active === AP && set_has(nations, BRITAIN) && is_space_supplied_through_mef(space)) {
         cost = 0
-        const mef_army = find_piece(BRITAIN, "MEF Army")
         for_each_piece_in_space(space, (p) => {
-            if (p === mef_army) {
+            if (p === MEF_ARMY) {
                 cost += 3
             } else {
                 cost++ // This might be incorrect if the player has units in the space that are not _allowed_ to trace supply through the MEF Beachhead
