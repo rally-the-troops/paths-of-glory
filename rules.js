@@ -3085,6 +3085,17 @@ function get_fire_result(t, cf, shifts, roll) {
     return table[col].result[roll-1]
 }
 
+function trench_effects_canceled() {
+    for (let c of game.combat_cards) {
+        if (data.cards[c].faction === game.attack.attacker) {
+            let evt = events[data.cards[c].event]
+            if (evt && evt.can_cancel_trenches !== undefined && evt.can_cancel_trenches()) {
+                return true
+            }
+        }
+    }
+}
+
 function resolve_attackers_fire() {
     let attacker_cf = 0
     let table = "corps"
@@ -3099,7 +3110,7 @@ function resolve_attackers_fire() {
     game.combat_cards.forEach((c) => {
         if (data.cards[c].faction === game.attack.attacker) {
             let evt = events[data.cards[c].event]
-            if (evt && evt.can_apply_drm())
+            if (evt && evt.can_apply_drm !== undefined && evt.can_apply_drm())
                 evt.apply_drm()
         }
     })
@@ -3126,7 +3137,7 @@ function resolve_attackers_fire() {
     }
 
     // Trench shifts
-    if (!attacking_unoccupied_fort()) {
+    if (!attacking_unoccupied_fort() && !trench_effects_canceled()) {
         if (get_trench_level(game.attack.space, other_faction(game.attack.attacker)) === 2) {
             attacker_shifts -= 2
             log(`Attacker's fire shifts 2L for Trenches`)
@@ -3165,7 +3176,7 @@ function resolve_defenders_fire() {
     log(`Defending with ${defender_cf} combat factors`)
 
     let defender_shifts = 0
-    if (get_trench_level(game.attack.space, other_faction(game.attack.attacker)) > 0) {
+    if (get_trench_level(game.attack.space, other_faction(game.attack.attacker)) > 0 && !trench_effects_canceled()) {
         defender_shifts += 1
         log(`Defender's fire shifts 1R for trench`)
     }
@@ -5499,6 +5510,25 @@ events.cp_air_superiority = {
     apply_drm() {
         log(`${card_name(AIR_SUPERIORITY_CP)} adds +1 DRM`)
         game.attack.attacker_drm += 1
+    }
+}
+
+// CP #43
+events.von_below = {
+    can_play() {
+        if (!game.attack)
+            return false
+        if (game.attack.attacker !== CP)
+            return false
+        let defenders = get_pieces_in_space(game.attack.space)
+        for (let d of defenders) {
+            if (data.pieces[d].nation !== ITALY)
+                return false
+        }
+        return true
+    },
+    can_cancel_trenches() {
+        return this.can_play()
     }
 }
 
