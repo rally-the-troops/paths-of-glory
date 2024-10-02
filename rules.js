@@ -934,7 +934,7 @@ function set_nation_at_war(nation) {
         // Other 4 Romanian pieces are setup by player choice
     }
 
-    if (nation === GREECE) {
+    if (nation === GREECE && !game.events.salonika) {
         setup_piece(GREECE, 'GR Corps', 'Athens')
         setup_piece(GREECE, 'GR Corps', 'Florina')
         setup_piece(GREECE, 'GR Corps', 'Larisa')
@@ -1841,6 +1841,12 @@ states.activate_spaces = {
                 gen_action('deactivate', s)
             } else {
                 if (is_space_supplied(game.active, s)) {
+                    if (!nation_at_war(GREECE) && game.events.salonika > 0) {
+                        // Limited Greek entry: prevent activating spaces with Greek units
+                        if (contains_piece_of_nation(s, GREECE))
+                            return
+                    }
+
                     if (game.ops >= cost_to_activate(s, MOVE))
                         gen_action('activate_move', s)
 
@@ -2388,9 +2394,14 @@ function can_move_to(s, moving_pieces) {
 
     // Units may not enter a space in a neutral nation, but all units may freely enter any nation immediately after it
     // enters the war.
-    // TODO: Exceptions: Limited Greek Entry
-    if (!nation_at_war(data.spaces[s].nation))
-        return false
+    if (!nation_at_war(data.spaces[s].nation)) {
+        if (data.spaces[s].nation === GREECE && game.events.salonika > 0) {
+            if (contains_piece_of_nation(s, GREECE))
+                return false
+        } else {
+            return false
+        }
+    }
 
     // TODO: Units may always enter Albania. Albanian spaces are considered Allied Controlled at Start for SR purposes.
     //  Albanian spaces check Attrition supply by tracing normally to an Allied supply source or tracing to Taranto
@@ -2682,6 +2693,11 @@ function get_attackable_spaces(attackers) {
 
     if (is_invalid_multinational_attack(attackers)) {
         return []
+    }
+
+    // Limited Greek entry
+    if (!nation_at_war(GREECE) && game.events.salonika > 0) {
+        eligible_spaces = eligible_spaces.filter((s) => data.spaces[s].nation !== GREECE || !contains_piece_of_nation(s, GREECE))
     }
 
     const russian_attacker = attackers.find((p) => data.pieces[p].nation === RUSSIA) !== undefined
@@ -4550,7 +4566,7 @@ function get_army_replacement_spaces(p) {
         //  Also 17.1.5: Serbian Army units may be recreated at Salonika if the Salonika or Greece Neutral Entry Event
         //  Cards have been played and Salonika is under Allied control. They may also be recreated in Belgrade
         //  following normal reinforcement restrictions.
-        if (game.events.salonika > 0 || game.events.greece_neutral_entry > 0) {
+        if (game.events.salonika > 0 || game.events.greece_entry > 0) {
             if (is_controlled_by(SALONIKA_SPACE, AP) && is_space_supplied(AP, SALONIKA_SPACE))
                 spaces.push(SALONIKA_SPACE)
         }
@@ -4744,8 +4760,16 @@ function generate_supply_cache(faction, cache, sources, use_ports, nation) {
     // Block spaces that are in nations not yet at war
     for (let s = 1; s < data.spaces.length; ++s) {
         let nation = data.spaces[s].nation
-        if (!nation_at_war(nation))
-            set_add(blocked_spaces, s)
+        if (!nation_at_war(nation)) {
+            if (nation === GREECE && game.events.salonika > 0) {
+                // Limited Greek entry (9.5.2.4): Greek units are on the map and they block move/supply, but empty
+                // Greek spaces do not block supply
+                if (contains_piece_of_nation(s, GREECE))
+                    set_add(blocked_spaces, s)
+            } else {
+                set_add(blocked_spaces, s)
+            }
+        }
     }
 
     // Block enemy controlled spaces, unless besieging an enemy fort in the space
@@ -4879,6 +4903,9 @@ function is_unit_supplied(p) {
         return true
 
     if (nation === "sn" && data.spaces[location].map === "neareast")
+        return true
+
+    if (nation === GREECE && !nation_at_war(GREECE) && game.events.salonika > 0) // Limited Greek entry
         return true
 
     if (!supply_cache) search_supply()
@@ -5848,6 +5875,61 @@ events.landships = {
     play() {
         push_undo()
         game.events.landships = game.turn
+        goto_end_action()
+    }
+}
+
+// AP #30
+events.salonika = {
+    can_play() {
+        return (!game.events.greece_entry || (is_controlled_by(SALONIKA_SPACE, AP) && !is_fully_stacked(SALONIKA_SPACE, AP)))
+    },
+    play() {
+        game.events.salonika = game.turn
+        if (!game.events.greece_entry) {
+            setup_piece(GREECE, 'GR Corps', 'Athens')
+            setup_piece(GREECE, 'GR Corps', 'Florina')
+            setup_piece(GREECE, 'GR Corps', 'Larisa')
+        }
+        game.salonika_sr_remaining = 3
+        game.state = 'salonika'
+    }
+}
+
+states.salonika = {
+    inactive: 'Choosing units to SR to Salonika',
+    prompt() {
+        view.prompt = `Choose a unit to SR to Salonika (${game.salonika_sr_remaining} remaining)`
+        if (!is_fully_stacked(SALONIKA_SPACE, AP) && game.salonika_sr_remaining > 0) {
+            for (let p = 1; p < data.pieces.length; ++p) {
+                const loc = game.location[p]
+                const nation = data.pieces[p].nation
+                if (loc !== 0 &&
+                    loc !== SALONIKA_SPACE &&
+                    data.pieces[p].type === CORPS &&
+                    (nation === FRANCE || (nation === BRITAIN && !is_minor_british_nation(p))) &&
+                    (is_port(loc, AP) || AP_RESERVE_BOX === loc)) {
+                    gen_action_piece(p)
+                }
+            }
+        }
+        gen_action_undo()
+        if (game.salonika_sr_remaining < 3) {
+            gen_action_done()
+        }
+    },
+    piece(p) {
+        push_undo()
+
+        game.salonika_sr_remaining--
+        log(`SR ${piece_name(p)} from ${space_name(game.location[p])} to ${space_name(SALONIKA_SPACE)}`)
+        game.location[p] = SALONIKA_SPACE
+        set_control(SALONIKA_SPACE, AP)
+    },
+    done() {
+        delete game.salonika_sr_remaining
+        const num_actions = game.ap.actions.length
+        game.ap.actions[num_actions - 1].type = ACTION_SR
         goto_end_action()
     }
 }
