@@ -1239,10 +1239,10 @@ function can_play_event(card) {
         if (game.reinf_this_turn && game.reinf_this_turn[card_data.reinfnation])
             return false
 
-        if (!nation_at_war(card_data.reinfnation))
+        if (game.events.uboats_unleashed > 0 && !game.events.convoy && card_data.reinfnation === US)
             return false
 
-        return true
+        return nation_at_war(card_data.reinfnation)
     }
 
     let evt = events[data.cards[card].event]
@@ -4287,6 +4287,11 @@ function apply_replacement_phase_events() {
         game.rp.ge++
         log("Walter Rathenau event adds 1 German RP")
     }
+
+    if (game.rp.br >= 1 && game.events.uboats_unleashed > 0 && !game.events.convoy) {
+        game.rp.br--
+        log("U-Boats Unleashed event subtracts 1 British RP")
+    }
 }
 
 function goto_replacement_phase() {
@@ -4353,7 +4358,12 @@ function set_rps_of_type(type, value) {
 states.replacement_phase = {
     inactive: 'Choose replacements',
     prompt() {
-        view.prompt = 'Choose a unit to receive replacements, or choose an eliminated unit to return to play'
+        if (has_rps(game.active)) {
+            view.prompt = 'Choose a unit to receive replacements, or choose an eliminated unit to return to play'
+        } else {
+            view.prompt = 'Choose a unit to receive replacements, or choose an eliminated unit to return to play - Done'
+        }
+
         let units = get_replaceable_units()
         units.forEach((p) => {
             gen_action_piece(p)
@@ -5420,6 +5430,18 @@ events.mustard_gas = {
     }
 }
 
+// CP #36
+events.uboats_unleashed = {
+    can_play() {
+        return game.events.h_l_take_command > 0
+    },
+    play() {
+        push_undo()
+        game.events.uboats_unleashed = game.turn
+        goto_end_action()
+    }
+}
+
 // CP #37
 events.hoffmann = {
     can_play() {
@@ -5776,7 +5798,7 @@ events.phosgene_gas = {
     }
 }
 
-// CP #23
+// AP #23
 events.cloak_and_dagger = {
     can_play() {
         return true
