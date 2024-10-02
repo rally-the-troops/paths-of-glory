@@ -5586,6 +5586,18 @@ events.achtung_panzer = {
     }
 }
 
+// CP #65
+events.prince_max = {
+    can_play() {
+        return game.turn <= 16
+    },
+    play() {
+        push_undo()
+        game.events.prince_max = game.turn
+        goto_end_action()
+    }
+}
+
 // === ALLIED POWER EVENTS ===
 
 // AP #2

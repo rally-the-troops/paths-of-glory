@@ -851,7 +851,7 @@ const cards = [
         "rpru": 4,
         "name": "Zimmermann Telegram",
         "event": "zimmermann_telegram",
-        "effect": "May only be played if U.S. entry marker is in the \"Zimmermann Telegram Allowed\" box. Subtract 1 VP. US joins the Allies. Allows play of \"Over There\" card on any following turn."
+        "effect": "May only be played if U.S. entry marker is in the \"Zimmerman Telegram Allowed\" box. Subtract 1 VP. US joins the Allies. Allows play of \"Over There\" card on any following turn."
     },
     {
         "num": 55,
@@ -1951,13 +1951,14 @@ const cards = [
         "ops": 4,
         "sr": 4,
         "remove": true,
+        "ws": 3,
         "rpah": 2,
         "rpbu": 1,
         "rpge": 3,
         "rptu": 1,
         "name": "Prince Max",
         "event": "prince_max",
-        "effect": "May not be played after \"H-L Take Command\" or on or after Turn 13. The \"H-L Take Command\" card is permanently removed from the game. A draw is treated as a CP Victory (including tournament play)."
+        "effect": "May not be played after turn 16. Increases War Status by 3."
     }
 ]
 

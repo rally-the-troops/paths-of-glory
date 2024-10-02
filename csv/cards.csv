@@ -128,4 +128,4 @@ num,faction,commitment,ops,sr,remove,cc,ws,rp_a,rp_br,rp_fr,rp_it,rp_ru,rp_ah,rp
 62,cp,total,2,2,TRUE,TRUE,,,,,,,,,1,,Achtung: Panzer,achtung_panzer,A GE attack vs. a clear space adds +1 drm.,,
 63,cp,total,3,4,TRUE,,,,,,,,1,,2,1,Russian Desertions,russian_desertions,"May be played after ""Fall Of The Tsar"".  CP may reduce four 2-step RU units.",,
 64,cp,total,3,4,TRUE,TRUE,,,,,,,1,,2,1,Alberich,alberich,"May not be used if Allies play ""Royal Tank Corps"" or ""Yanks and Tanks"".  Cancels any one Allied attack in France/Belgium. Any Allied CC cards are considered not played.",,
-65,cp,total,4,4,TRUE,,,,,,,,2,1,3,1,Prince Max,prince_max,"May not be played after ""H-L Take Command"" or on or after Turn 13. The ""H-L Take Command"" card is permanently removed from the game. A draw is treated as a CP Victory (including tournament play).",,
+65,cp,total,4,4,TRUE,,3,,,,,,2,1,3,1,Prince Max,prince_max,May not be played after turn 16. Increases War Status by 3.,,
