@@ -696,6 +696,8 @@ function goto_start_turn() {
     log_h1(`Turn ${game.turn} - ${turn_season_and_year(game.turn)}`)
     log_br()
     log_h1(`${faction_name(game.active)} Action ${game[game.active].actions.length+1}`)
+
+    update_russian_capitulation()
 }
 
 const SEASON_NONE = "None"
@@ -2048,7 +2050,7 @@ function update_russian_capitulation() {
         if (previous_level < 5) log(`${card_name(BOLSHEVIK_REVOLUTION)} can now be played`)
     } else if (game.events.fall_of_the_tsar > 0) {
         game.russian_capitulation = 4
-        if (previous_level > 2) log(`${card_name(BOLSHEVIK_REVOLUTION)} can no longer be played`)
+        if (previous_level > 4) log(`${card_name(BOLSHEVIK_REVOLUTION)} can no longer be played`)
     } else if (events.fall_of_the_tsar.can_play()) {
         game.russian_capitulation = 3
         if (previous_level < 3) log(`${card_name(FALL_OF_THE_TSAR)} can now be played`)
@@ -5732,6 +5734,45 @@ events.achtung_panzer = {
     apply() {
         log(`${card_name(ACHTUNG_PANZER)} adds +1 DRM`)
         game.attack.attacker_drm += 1
+    }
+}
+
+// CP #63
+events.russian_desertions = {
+    can_play() {
+        return game.events.fall_of_the_tsar > 0
+    },
+    play() {
+        game.events.russian_desertions = game.turn
+        game.state = 'russian_desertions'
+        game.russian_desertions_remaining = 4
+        push_undo()
+    }
+}
+
+states.russian_desertions = {
+    inactive: 'Russian Desertions: Choosing units to reduce',
+    prompt() {
+        view.prompt = `Choose a Russian unit to reduce (${game.russian_desertions_remaining} remaining)`
+        gen_action_undo()
+        if (game.russian_desertions_remaining > 0) {
+            for (let p = 1; p < data.pieces.length; ++p) {
+                if (game.location[p] !== 0 && data.pieces[p].nation === RUSSIA && !is_unit_reduced(p)) {
+                    gen_action_piece(p)
+                }
+            }
+        }
+        gen_action_done()
+    },
+    piece(p) {
+        push_undo()
+        game.reduced.push(p)
+        log(`Reduced ${piece_name(p)} in ${space_name(game.location[p])}`)
+        game.russian_desertions_remaining--
+    },
+    done() {
+        delete game.russian_desertions_remaining
+        goto_end_action()
     }
 }
 
