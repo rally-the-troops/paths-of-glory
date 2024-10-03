@@ -3033,11 +3033,14 @@ function adds_flanking_drm(space, attacking_faction, attack_space) {
 }
 
 function resolve_fire() {
+    const von_hutier_active = game.combat_cards.includes(VON_HUTIER) && events.von_hutier.can_play()
     if (game.attack.failed_flank) {
         resolve_defenders_fire()
         game.active = game.attack.attacker
         game.state = 'apply_attacker_losses'
-    } else if (game.attack.is_flank) {
+    } else if (game.attack.is_flank || von_hutier_active) {
+        if (von_hutier_active)
+            log(`${card_name(VON_HUTIER)} active, attacker fires first`)
         resolve_attackers_fire()
         goto_defender_losses()
     } else {
@@ -3085,17 +3088,6 @@ function get_fire_result(t, cf, shifts, roll) {
     return table[col].result[roll-1]
 }
 
-function trench_effects_canceled() {
-    for (let c of game.combat_cards) {
-        if (data.cards[c].faction === game.attack.attacker) {
-            let evt = events[data.cards[c].event]
-            if (evt && evt.can_cancel_trenches !== undefined && evt.can_cancel_trenches()) {
-                return true
-            }
-        }
-    }
-}
-
 function resolve_attackers_fire() {
     let attacker_cf = 0
     let table = "corps"
@@ -3110,8 +3102,8 @@ function resolve_attackers_fire() {
     game.combat_cards.forEach((c) => {
         if (data.cards[c].faction === game.attack.attacker) {
             let evt = events[data.cards[c].event]
-            if (evt && evt.can_apply_drm !== undefined && evt.can_apply_drm())
-                evt.apply_drm()
+            if (evt && evt.can_apply !== undefined && evt.can_apply())
+                evt.apply()
         }
     })
 
@@ -3137,7 +3129,7 @@ function resolve_attackers_fire() {
     }
 
     // Trench shifts
-    if (!attacking_unoccupied_fort() && !trench_effects_canceled()) {
+    if (!attacking_unoccupied_fort() && !game.attack.trenches_canceled) {
         if (get_trench_level(game.attack.space, other_faction(game.attack.attacker)) === 2) {
             attacker_shifts -= 2
             log(`Attacker's fire shifts 2L for Trenches`)
@@ -3175,19 +3167,19 @@ function resolve_defenders_fire() {
 
     log(`Defending with ${defender_cf} combat factors`)
 
-    let defender_shifts = 0
-    if (get_trench_level(game.attack.space, other_faction(game.attack.attacker)) > 0 && !trench_effects_canceled()) {
-        defender_shifts += 1
-        log(`Defender's fire shifts 1R for trench`)
-    }
-
     game.combat_cards.forEach((c) => {
         if (data.cards[c].faction === other_faction(game.attack.attacker)) {
             let evt = events[data.cards[c].event]
-            if (evt && evt.can_apply_drm())
-                evt.apply_drm()
+            if (evt && evt.can_apply())
+                evt.apply()
         }
     })
+
+    let defender_shifts = 0
+    if (get_trench_level(game.attack.space, other_faction(game.attack.attacker)) > 0 && !game.attack.trenches_canceled) {
+        defender_shifts += 1
+        log(`Defender's fire shifts 1R for trench`)
+    }
 
     let roll = roll_die(6) + game.attack.defender_drm
     let clamped_roll = roll > 6 ? 6 : roll < 1 ? 1 : roll
@@ -3273,7 +3265,7 @@ states.apply_defender_losses = {
 
         if (game.attack.failed_flank) {
             determine_combat_winner()
-        } else if (game.attack.is_flank) {
+        } else if (game.attack.is_flank || (game.combat_cards.includes(VON_HUTIER) && events.von_hutier.can_play())) {
             resolve_defenders_fire()
             game.active = game.attack.attacker
             game.state = 'apply_attacker_losses'
@@ -5037,10 +5029,10 @@ events.von_francois = {
 
         return undefined !== get_pieces_in_space(game.attack.space).find(p => data.pieces[p].nation === RUSSIA)
     },
-    can_apply_drm() {
+    can_apply() {
         return this.can_play()
     },
-    apply_drm() {
+    apply() {
         log(`${card_name(VON_FRANCOIS)} adds +1 DRM`)
         game.attack.attacker_drm += 1
     }
@@ -5059,10 +5051,10 @@ events.cp_severe_weather = {
 
         return (terrain === SWAMP && (season === SEASON_FALL || season === SEASON_SPRING))
     },
-    can_apply_drm() {
+    can_apply() {
         return this.can_play()
     },
-    apply_drm() {
+    apply() {
         log(`${card_name(SEVERE_WEATHER_CP)} adds +2 DRM`)
         game.attack.defender_drm += 2
     }
@@ -5196,10 +5188,10 @@ events.chlorine_gas = {
     can_play() {
         return (game.attack && game.attack.attacker === CP && undefined !== game.attack.pieces.find(p => data.pieces[p].nation === GERMANY))
     },
-    can_apply_drm() {
+    can_apply() {
         return this.can_play()
     },
-    apply_drm() {
+    apply() {
         log(`${card_name(CHLORINE_GAS)} adds +1 DRM`)
         game.attack.attacker_drm += 1
     }
@@ -5214,10 +5206,10 @@ events.liman_von_sanders = {
             return true
         return (undefined !== get_pieces_in_space(game.attack.space).find(p => data.pieces[p].nation === TURKEY))
     },
-    can_apply_drm() {
+    can_apply() {
         return this.can_play()
     },
-    apply_drm() {
+    apply() {
         log(`${card_name(LIMAN_VON_SANDERS)} adds +1 DRM`)
         if (game.attack.attacker === CP)
             game.attack.attacker_drm += 1
@@ -5251,10 +5243,10 @@ events.fortified_machine_guns = {
                 get_trench_level(game.attack.space) > 0 &&
                 undefined !== get_pieces_in_space(game.attack.space).find(p => data.pieces[p].nation === GERMANY))
     },
-    can_apply_drm() {
+    can_apply() {
         return this.can_play()
     },
-    apply_drm() {
+    apply() {
         log(`${card_name(FORTIFIED_MACHINE_GUNS)} adds +1 DRM`)
         game.attack.defender_drm += 1
     }
@@ -5270,10 +5262,10 @@ events.flamethrowers = {
 
         return undefined !== game.attack.pieces.find(p => data.pieces[p].nation === GERMANY)
     },
-    can_apply_drm() {
+    can_apply() {
         return this.can_play()
     },
-    apply_drm() {
+    apply() {
         log(`${card_name(FLAMETHROWERS)} adds +1 DRM`)
         game.attack.attacker_drm += 1
     }
@@ -5309,10 +5301,10 @@ events.place_of_execution = {
         const space_data = data.spaces[game.attack.space]
         return space_data.nation === FRANCE && space_data.fort > 0 && !game.forts.destroyed.includes(game.attack.space)
     },
-    can_apply_drm() {
+    can_apply() {
         return this.can_play()
     },
-    apply_drm() {
+    apply() {
         log(`${card_name(PLACE_OF_EXECUTION)} adds +2 DRM`)
         game.attack.attacker_drm += 2
     }
@@ -5371,10 +5363,10 @@ events.alpenkorps = {
                 data.spaces[game.attack.space].terrain === MOUNTAIN &&
                 undefined !== get_pieces_in_space(game.attack.space).find(p => data.pieces[p].nation === GERMANY))
     },
-    can_apply_drm() {
+    can_apply() {
         return this.can_play()
     },
-    apply_drm() {
+    apply() {
         log(`${card_name(ALPENKORPS)} adds +1 DRM`)
         if (game.attack.attacker === CP)
             game.attack.attacker_drm += 1
@@ -5461,10 +5453,10 @@ events.mustard_gas = {
 
         return undefined !== game.attack.pieces.find(p => data.pieces[p].nation === GERMANY)
     },
-    can_apply_drm() {
+    can_apply() {
         return this.can_play()
     },
-    apply_drm() {
+    apply() {
         log(`${card_name(MUSTARD_GAS)} adds +1 DRM`)
         game.attack.attacker_drm += 1
     }
@@ -5504,10 +5496,10 @@ events.cp_air_superiority = {
 
         return undefined !== game.attack.pieces.find(p => data.pieces[p].nation === GERMANY)
     },
-    can_apply_drm() {
+    can_apply() {
         return this.can_play()
     },
-    apply_drm() {
+    apply() {
         log(`${card_name(AIR_SUPERIORITY_CP)} adds +1 DRM`)
         game.attack.attacker_drm += 1
     }
@@ -5527,8 +5519,32 @@ events.von_below = {
         }
         return true
     },
-    can_cancel_trenches() {
-        return this.can_play()
+    can_apply() {
+        return this.can_play() && !game.attack.trenches_canceled
+    },
+    apply() {
+        log(`${card_name(VON_BELOW)} cancels trenches`)
+        game.attack.trenches_canceled = true
+    }
+}
+
+// CP #44
+events.von_hutier = {
+    can_play() {
+        if (!game.attack)
+            return false
+        if (game.attack.attacker !== CP)
+            return false
+        if (!contains_piece_of_nation(game.attack.space, RUSSIA))
+            return false
+        return true
+    },
+    can_apply() {
+        return this.can_play() && !game.attack.trenches_canceled
+    },
+    apply() {
+        log(`${card_name(VON_HUTIER)} cancels trenches`)
+        game.attack.trenches_canceled = true
     }
 }
 
@@ -5612,10 +5628,10 @@ events.kaisertreu = {
         else
             return undefined !== get_pieces_in_space(game.attack.space).find(p => data.pieces[p].nation === AUSTRIA_HUNGARY)
     },
-    can_apply_drm() {
+    can_apply() {
         return this.can_play()
     },
-    apply_drm() {
+    apply() {
         if (game.attack.attacker === CP) {
             log(`${card_name(KAISERTREU)} adds +1 DRM`)
             game.attack.attacker_drm += 1
@@ -5636,10 +5652,10 @@ events.achtung_panzer = {
 
         return (undefined === data.spaces[game.attack.space].terrain && undefined !== game.attack.pieces.find(p => data.pieces[p].nation === GERMANY))
     },
-    can_apply_drm() {
+    can_apply() {
         return this.can_play()
     },
-    apply_drm() {
+    apply() {
         log(`${card_name(ACHTUNG_PANZER)} adds +1 DRM`)
         game.attack.attacker_drm += 1
     }
@@ -5681,10 +5697,10 @@ events.pleve = {
         else
             return undefined !== get_pieces_in_space(game.attack.space).find(p => data.pieces[p].nation === RUSSIA)
     },
-    can_apply_drm() {
+    can_apply() {
         return this.can_play()
     },
-    apply_drm() {
+    apply() {
         if (game.attack.attacker === AP) {
             log(`${card_name(PLEVE)} adds +1 DRM`)
             game.attack.attacker_drm += 1
@@ -5709,10 +5725,10 @@ events.putnik = {
         else
             return undefined !== get_pieces_in_space(game.attack.space).find(p => data.pieces[p].nation === SERBIA)
     },
-    can_apply_drm() {
+    can_apply() {
         return this.can_play()
     },
-    apply_drm() {
+    apply() {
         log(`${card_name(PUTNIK)} adds +1 DRM`)
         if (game.attack.attacker === AP)
             game.attack.attacker_drm += 1
@@ -5734,10 +5750,10 @@ events.ap_severe_weather = {
 
         return (terrain === SWAMP && (season === SEASON_FALL || season === SEASON_SPRING))
     },
-    can_apply_drm() {
+    can_apply() {
         return this.can_play()
     },
-    apply_drm() {
+    apply() {
         log(`${card_name(SEVERE_WEATHER_AP)} adds +2 DRM`)
         game.attack.defender_drm += 2
     }
@@ -5818,10 +5834,10 @@ events.hurricane_barrage = {
         }
         return false
     },
-    can_apply_drm() {
+    can_apply() {
         return this.can_play()
     },
-    apply_drm() {
+    apply() {
         log(`${card_name(HURRICANE_BARRAGE)} adds +1 DRM`)
         game.attack.attacker_drm += 1
     }
@@ -5841,10 +5857,10 @@ events.ap_air_superiority = {
         }
         return false
     },
-    can_apply_drm() {
+    can_apply() {
         return this.can_play()
     },
-    apply_drm() {
+    apply() {
         log(`${card_name(AIR_SUPERIORITY_AP)} adds +1 DRM`)
         game.attack.attacker_drm += 1
     }
@@ -5860,10 +5876,10 @@ events.phosgene_gas = {
 
         return undefined !== game.attack.pieces.find(p => data.pieces[p].nation === FRANCE)
     },
-    can_apply_drm() {
+    can_apply() {
         return this.can_play()
     },
-    apply_drm() {
+    apply() {
         log(`${card_name(PHOSGENE_GAS)} adds +1 DRM`)
         game.attack.attacker_drm += 1
     }
@@ -5988,10 +6004,10 @@ events.mine_attack = {
 
         return (get_trench_level(game.attack.space, CP) > 0 && undefined !== game.attack.pieces.find(p => data.pieces[p].nation === BRITAIN))
     },
-    can_apply_drm() {
+    can_apply() {
         return this.can_play()
     },
-    apply_drm() {
+    apply() {
         log(`${card_name(MINE_ATTACK)} adds +1 DRM`)
         game.attack.attacker_drm += 1
     }
@@ -6152,10 +6168,10 @@ events.russian_guards = {
 
         return undefined !== game.attack.pieces.find(p => data.pieces[p].nation === RUSSIA)
     },
-    can_apply_drm() {
+    can_apply() {
         return this.can_play()
     },
-    apply_drm() {
+    apply() {
         log(`${card_name(RUSSIAN_GUARDS)} adds +1 DRM`)
         game.attack.attacker_drm += 1
     }
@@ -6168,10 +6184,10 @@ events.alpine_troops = {
             return false
         return !!(game.attack.attacker === AP && game.attack.pieces.every(p => data.pieces[p].nation === ITALY));
     },
-    can_apply_drm() {
+    can_apply() {
         return this.can_play()
     },
-    apply_drm() {
+    apply() {
         log(`${card_name(ALPINE_TROOPS)} adds +1 DRM`)
         game.attack.attacker_drm += 1
     }
