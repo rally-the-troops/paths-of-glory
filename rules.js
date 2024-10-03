@@ -6111,6 +6111,31 @@ events.greece_entry = {
     }
 }
 
+// AP #48
+events.royal_tank_corps = {
+    can_play() {
+        if (!game.attack)
+            return false
+        if (game.attack.attacker !== AP)
+            return false
+        if (!game.events.h_l_take_command)
+            return false
+        if (undefined === game.attack.pieces.find(p => data.pieces[p].nation === BRITAIN))
+            return false
+        const nation = data.spaces[game.attack.space].nation
+        if (nation !== FRANCE && nation !== BELGIUM)
+            return false
+        return (!data.spaces[game.attack.space].terrain)
+    },
+    can_apply() {
+        return this.can_play()
+    },
+    apply() {
+        log(`${card_name(ROYAL_TANK_CORPS)} cancels trenches`)
+        game.attack.trenches_canceled = true
+    }
+}
+
 // AP #52
 events.convoy = {
     can_play() {
