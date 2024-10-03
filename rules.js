@@ -2811,7 +2811,6 @@ states.negate_trench = {
     prompt() {
         view.prompt = 'Play any combat cards that would negate trenches'
 
-
         game[game.active].hand.forEach((c) => {
             if (TRENCH_NEGATING_CARDS.includes(c)) {
                 gen_action_card(c)
@@ -2984,7 +2983,7 @@ states.attacker_combat_cards = {
         view.prompt = `Play combat cards`
 
         game[game.active].hand.forEach((c) => {
-            if (data.cards[c].cc && !TRENCH_NEGATING_CARDS.includes(c)) {
+            if (data.cards[c].cc) {
                 let evt = events[data.cards[c].event]
                 if (evt && evt.can_play())
                     gen_action_card(c)
@@ -3540,6 +3539,10 @@ function determine_combat_winner() {
     // "They shall not pass" is not discarded when the result is a tie (12.2.11)
     if (game.attack.attacker_losses === game.attack.defender_losses && to_discard.includes(THEY_SHALL_NOT_PASS))
         array_remove_item(to_discard, THEY_SHALL_NOT_PASS)
+    // Yanks and Tanks is not really a combat card, but it behaves like one for the duration of the action round it is
+    // played. However, it should not be discarded after the combat.
+    if (to_discard.includes(YANKS_AND_TANKS))
+        array_remove_item(to_discard, YANKS_AND_TANKS)
 
     // Now do the actual discard
     to_discard.forEach((c) => {
@@ -6109,6 +6112,30 @@ events.grand_fleet = {
     }
 }
 
+// AP #35
+events.yanks_and_tanks = {
+    can_play() {
+        return true
+    },
+    play() {
+        game.events.yanks_and_tanks = game.turn
+        game.ops = data.cards[YANKS_AND_TANKS].ops
+        game.state = 'activate_spaces'
+        game.combat_cards.push(YANKS_AND_TANKS)
+    },
+    can_apply() {
+        if (!game.attack)
+            return false
+        if (game.attack.attacker !== AP)
+            return false
+        return (undefined !== game.attack.pieces.find(p => data.pieces[p].nation === US))
+    },
+    apply() {
+        log(`${card_name(YANKS_AND_TANKS)} adds +2 DRM`)
+        game.attack.attacker_drm += 2
+    }
+}
+
 // AP #36
 events.mine_attack = {
     can_play() {
@@ -6214,6 +6241,7 @@ events.over_there = {
     play() {
         push_undo()
         game.events.over_there = game.turn
+        set_nation_at_war(US)
         game.ops = data.cards[OVER_THERE].ops
         game.state = 'activate_spaces'
     }
