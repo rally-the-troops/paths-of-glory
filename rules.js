@@ -1950,6 +1950,11 @@ function end_move_activation() {
 }
 
 function end_attack_activation() {
+    if (game.attack.used_peace_offensive && !game.attack.did_advance) {
+        log(`${faction_name(game.active)} failed to advance after using ${card_name(PEACE_OFFENSIVE)}, -1 VP`)
+        game.vp--
+    }
+
     if (game.eligible_attackers.length === 0)
         game.activated.attack = []
     game.attack = null
@@ -2797,14 +2802,16 @@ function can_be_attacked(s) {
     return retval
 }
 
+const TRENCH_NEGATING_CARDS = [ROYAL_TANK_CORPS, VON_BELOW, VON_HUTIER, MICHAEL, BLUCHER, PEACE_OFFENSIVE]
+
 states.negate_trench = {
     inactive: 'Attacker Choosing Whether to Negate Trenches',
     prompt() {
         view.prompt = 'Play any combat cards that would negate trenches'
 
-        const trench_negating_cards = [ROYAL_TANK_CORPS, VON_BELOW, VON_HUTIER, MICHAEL, BLUCHER, PEACE_OFFENSIVE]
+
         game[game.active].hand.forEach((c) => {
-            if (trench_negating_cards.includes(c)) {
+            if (TRENCH_NEGATING_CARDS.includes(c)) {
                 gen_action_card(c)
             }
         })
@@ -2975,7 +2982,7 @@ states.attacker_combat_cards = {
         view.prompt = `Play combat cards`
 
         game[game.active].hand.forEach((c) => {
-            if (data.cards[c].cc) {
+            if (data.cards[c].cc && !TRENCH_NEGATING_CARDS.includes(c)) {
                 let evt = events[data.cards[c].event]
                 if (evt && evt.can_play())
                     gen_action_card(c)
@@ -3798,6 +3805,7 @@ states.perform_advance = {
     },
     space(s) {
         push_undo()
+        game.attack.did_advance = true
         game.attack.advancing_pieces.forEach((p) => {
             game.location[p] = s
         })
@@ -5557,6 +5565,72 @@ events.treaty_of_brest_litovsk = {
         push_undo()
         game.events.treaty_of_brest_litovsk = game.turn
         goto_end_action()
+    }
+}
+
+// CP #49
+events.michael = {
+    can_play() {
+        if (!game.attack)
+            return false
+        if (game.attack.attacker !== CP)
+            return false
+        if (!game.events.h_l_take_command)
+            return false
+        return (undefined !== game.attack.pieces.find(p => data.pieces[p].nation === GERMANY))
+    },
+    can_apply() {
+        return this.can_play()
+    },
+    apply() {
+        game.attack.attacker_drm++
+        if (!game.attack.trenches_canceled) {
+            log(`${card_name(MICHAEL)} cancels trenches and adds +1 DRM`)
+            game.attack.trenches_canceled = true
+        } else {
+            log(`${card_name(MICHAEL)} adds +1 DRM`)
+        }
+    }
+}
+
+// CP #50
+events.blucher = {
+    can_play() {
+        if (!game.attack)
+            return false
+        if (game.attack.attacker !== CP)
+            return false
+        if (!game.events.h_l_take_command)
+            return false
+        return (undefined !== game.attack.pieces.find(p => data.pieces[p].nation === GERMANY))
+    },
+    can_apply() {
+        return this.can_play() && !game.attack.trenches_canceled
+    },
+    apply() {
+        log(`${card_name(BLUCHER)} cancels trenches`)
+        game.attack.trenches_canceled = true
+    }
+}
+
+// CP #51
+events.peace_offensive = {
+    can_play() {
+        if (!game.attack)
+            return false
+        if (game.attack.attacker !== CP)
+            return false
+        if (!game.events.h_l_take_command)
+            return false
+        return (undefined !== game.attack.pieces.find(p => data.pieces[p].nation === GERMANY))
+    },
+    can_apply() {
+        return this.can_play() && !game.attack.trenches_canceled
+    },
+    apply() {
+        log(`${card_name(PEACE_OFFENSIVE)} cancels trenches`)
+        game.attack.trenches_canceled = true
+        game.attack.used_peace_offensive = true
     }
 }
 
