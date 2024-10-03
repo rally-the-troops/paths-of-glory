@@ -85,7 +85,7 @@
 .army_it { background-image: url(pieces/army_it.webp); background-size: 225px 90px; }
 .army_ru { background-image: url(pieces/army_ru.webp); background-size: 585px 90px; }
 .army_sb { background-image: url(pieces/army_sb.webp); background-size: 90px 90px; }
-.army_usa { background-image: url(pieces/army_usa.webp); background-size: 90px 90px; }
+.army_us { background-image: url(pieces/army_usa.webp); background-size: 90px 90px; }
 
 .corps_ah { background-image: url(pieces/corps_ah.webp); background-size: 36px 72px; }
 .corps_be { background-image: url(pieces/corps_be.webp); background-size: 36px 72px; }
