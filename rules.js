@@ -2824,7 +2824,6 @@ states.negate_trench = {
         array_remove_item(game[game.active].hand, c)
         game.combat_cards.push(c)
         log(`${faction_name(game.active)} plays ${card_name(c)}`)
-        this.next()
     },
     next() {
         if (attacker_can_flank()) {
