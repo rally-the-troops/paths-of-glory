@@ -2669,6 +2669,9 @@ function attacker_can_flank() {
 }
 
 function defender_can_withdraw() {
+    // TODO: Check if there are any spaces to withdraw to?
+    // TODO: Check if the defender has passed on withdrawal for the turn?
+    // TODO: Maybe check if the withdrawal card is removed/discarded?
     return !attacking_unoccupied_fort()
 }
 
@@ -3150,6 +3153,8 @@ function resolve_attackers_fire() {
     let clamped_roll = roll > 6 ? 6 : roll < 1 ? 1 : roll
     game.attack.defender_losses = get_fire_result(table, attacker_cf, attacker_shifts, clamped_roll)
     game.attack.defender_losses_taken = 0
+    game.attack.defender_loss_pieces = []
+    game.attack.defender_replacements = {}
 
     clear_undo()
 
@@ -3236,7 +3241,7 @@ states.apply_defender_losses = {
         let loss_options = []
         if (game.attack.defender_losses - game.attack.defender_losses_taken > 0) {
             const fort_strength = has_undestroyed_fort(game.attack.space, game.active) ? data.spaces[game.attack.space].fort : 0
-            loss_options = get_loss_options(game.attack.defender_losses - game.attack.defender_losses_taken, get_pieces_in_space(game.attack.space), fort_strength)
+            loss_options = get_loss_options(true, game.attack.defender_losses - game.attack.defender_losses_taken, get_pieces_in_space(game.attack.space), fort_strength)
         }
         if (loss_options.length > 0) {
             view.prompt = `Take losses (${game.attack.defender_losses_taken}/${game.attack.defender_losses})`
@@ -3255,8 +3260,9 @@ states.apply_defender_losses = {
     piece(p) {
         push_undo()
         game.attack.defender_losses_taken += get_piece_lf(p)
+        game.attack.defender_loss_pieces.push(p)
         if (is_unit_reduced(p)) {
-            eliminate_piece(p)
+            game.attack.defender_replacements[p] = eliminate_piece(p)
         } else {
             reduce_piece(p)
         }
@@ -3268,15 +3274,75 @@ states.apply_defender_losses = {
         log(`Destroyed fort in ${space_name(s)}`)
     },
     done() {
+        push_undo()
         update_siege(game.attack.space)
 
-        if (game.attack.failed_flank) {
+        const flank_attack_active = game.attack.is_flank || (game.combat_cards.includes(VON_HUTIER) && events.von_hutier.can_play())
+        if (!flank_attack_active && is_withdrawal_active() && game.attack.defender_loss_pieces.length > 0) {
+            // If this is not a flank attack and the defender played Withdrawal, they choose a step loss to negate
+            // If this was a flank attack, then the defender will not negate the step loss until the attacker has taken
+            // their losses
+            game.state = 'withdrawal_negate_step_loss'
+        } else if (game.attack.failed_flank) {
             determine_combat_winner()
         } else if (game.attack.is_flank || (game.combat_cards.includes(VON_HUTIER) && events.von_hutier.can_play())) {
             resolve_defenders_fire()
+            clear_undo()
             game.active = game.attack.attacker
             game.state = 'apply_attacker_losses'
         } else {
+            clear_undo()
+            game.active = game.attack.attacker
+            game.state = 'apply_attacker_losses'
+        }
+    }
+}
+
+states.withdrawal_negate_step_loss = {
+    inactive: 'Defender Choosing Step Loss to Negate from Withdrawal',
+    prompt() {
+        view.prompt = 'Choose a step loss to negate from withdrawal'
+
+        const has_corps_option = game.attack.defender_loss_pieces.find((p) => data.pieces[p].type === CORPS) !== undefined
+        game.attack.defender_loss_pieces.forEach((p) => {
+            if (data.pieces[p].type === CORPS || !has_corps_option)
+                gen_action_piece(p)
+        })
+
+        gen_action_undo()
+        gen_action_done()
+    },
+    piece(p) {
+        push_undo()
+        // Restore the step that was previously lost, restoring the piece to the attack location on the map and
+        //  removing it from the eliminated pieces area if necessary
+        log(`${card_name(game.attack.attacker === CP ? WITHDRAWAL_AP : WITHDRAWAL_CP)} negates step loss for ${piece_name(p)}`)
+        if (game.removed.includes(p) || game.location[p] === AP_ELIMINATED_BOX || game.location[p] === CP_ELIMINATED_BOX) {
+            array_remove_item(game.removed, p)
+            if (!game.reduced.includes(p)) {
+                game.reduced.push(p)
+            }
+
+            // If the piece was replaced, move the replacement back to the reserve box
+            if (game.attack.defender_replacements[p]) {
+                let replacement = game.attack.defender_replacements[p]
+                game.location[replacement] = game.active === CP ? CP_RESERVE_BOX : AP_RESERVE_BOX
+            }
+
+            game.location[p] = game.attack.space
+        } else if (game.reduced.includes(p)) {
+            array_remove_item(game.reduced, p)
+        }
+        this.done()
+    },
+    done() {
+        if (game.attack.failed_flank || game.attack.is_flank || (game.combat_cards.includes(VON_HUTIER) && events.von_hutier.can_play())) {
+            // This was a flank attack, so the attacker already took losses (before or after the defender, depending on
+            // whether the flank failed)
+            determine_combat_winner()
+        } else {
+            // Not a flank attack, so we now proceed to the attacker's losses
+            clear_undo()
             game.active = game.attack.attacker
             game.state = 'apply_attacker_losses'
         }
@@ -3311,7 +3377,7 @@ states.apply_attacker_losses = {
 
         let loss_options = []
         if (game.attack.attacker_losses - game.attack.attacker_losses_taken > 0)
-            loss_options = get_loss_options(game.attack.attacker_losses - game.attack.attacker_losses_taken, game.attack.pieces, 0, game.attack.attacker_losses_taken === 0)
+            loss_options = get_loss_options(false,game.attack.attacker_losses - game.attack.attacker_losses_taken, game.attack.pieces, 0)
         if (loss_options.length > 0) {
             view.prompt = `Take losses (${game.attack.attacker_losses_taken}/${game.attack.attacker_losses})`
             loss_options.forEach((p) => {
@@ -3339,6 +3405,11 @@ states.apply_attacker_losses = {
         if (game.attack.failed_flank) {
             resolve_attackers_fire()
             goto_defender_losses()
+        } else if (is_withdrawal_active() && game.attack.defender_loss_pieces.length > 0 && (game.attack.is_flank || (game.combat_cards.includes(VON_HUTIER) && events.von_hutier.can_play()))) {
+            // If this was a flank attack and the defender played Withdrawal, they now choose their step loss to negate
+            clear_undo()
+            game.active = other_faction(game.active)
+            game.state = 'withdrawal_negate_step_loss'
         } else {
             determine_combat_winner()
         }
@@ -3355,9 +3426,11 @@ function goto_defender_losses() {
 
 const FORT_LOSS = -1
 
-function get_loss_options(to_satisfy, units, fort_strength, is_attacker_first_loss) {
+function get_loss_options(is_defender, to_satisfy, units, fort_strength) {
+    const is_first_pick = (is_defender && game.attack.defender_losses_taken === 0) || (!is_defender && game.attack.attacker_losses_taken === 0)
+
     // If this is the attacker's first loss, check for priority units first
-    if (is_attacker_first_loss) {
+    if (!is_defender && is_first_pick) {
         if (units.includes(BEF_ARMY)) return [BEF_ARMY]
         if (units.includes(BEF_CORPS)) return [BEF_CORPS]
         let priority_units = []
@@ -3384,8 +3457,22 @@ function get_loss_options(to_satisfy, units, fort_strength, is_attacker_first_lo
     let valid_paths = []
     build_loss_tree(loss_tree, valid_paths)
 
+    if (is_defender && is_first_pick && is_withdrawal_active()) {
+        // If the defender is choosing losses and has played withdrawal, they must choose a path that includes a corps
+        // step loss, if possible
+        let valid_paths_with_corps = valid_paths.filter((path) => {
+            return path.picked.find((p) => data.pieces[p].type === CORPS) !== undefined
+        })
+        if (valid_paths_with_corps.length > 0) {
+            valid_paths = valid_paths_with_corps
+        }
+    }
+
     let valid_units = []
-    valid_paths.forEach((path) => valid_units.push(path.picked[0]))
+    valid_paths.forEach((path) => {
+        valid_units.push(path.picked[0])
+    })
+
     return valid_units
 }
 
@@ -3517,7 +3604,19 @@ function find_replacement(unit, available_replacements) {
     return 0
 }
 
+function is_withdrawal_active() {
+    if (!game.attack)
+        return false
+
+    if (game.attack.attacker === CP)
+        return game.combat_cards.includes(WITHDRAWAL_AP)
+    else
+        return game.combat_cards.includes(WITHDRAWAL_CP)
+}
+
 function determine_combat_winner() {
+    const was_withdrawal_active = is_withdrawal_active()
+
     // Discard the loser's combat cards, or both player's cards if it's a tie
     let to_discard = []
     if (game.attack.defender_losses >= game.attack.attacker_losses) {
@@ -3561,7 +3660,10 @@ function determine_combat_winner() {
         game.active = other_faction(game.attack.attacker)
         game.attack.to_retreat = defender_pieces
         game.attack.retreating_pieces = []
-        game.attack.retreat_length = (game.attack.defender_losses - game.attack.attacker_losses === 1) ? 1 : 2
+        if (was_withdrawal_active)
+            game.attack.retreat_length = 1
+        else
+            game.attack.retreat_length = (game.attack.defender_losses - game.attack.attacker_losses === 1) ? 1 : 2
         game.attack.retreat_paths = []
         game.attack.to_advance = game.attack.pieces.filter((p) => !is_unit_reduced(p))
         game.attack.advancing_pieces = []
@@ -3618,7 +3720,7 @@ states.cancel_retreat = {
         } else {
             reduce_piece(p)
         }
-        log(`Retreat canceled by taking an extra step loss`)
+        log(`Retreat canceled by taking an extra step loss to ${piece_name(p)}`)
         end_attack_activation()
         goto_next_activation()
     },
