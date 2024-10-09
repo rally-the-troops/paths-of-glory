@@ -2812,7 +2812,7 @@ states.negate_trench = {
         view.prompt = 'Play any combat cards that would negate trenches'
 
         game[game.active].hand.forEach((c) => {
-            if (TRENCH_NEGATING_CARDS.includes(c)) {
+            if (TRENCH_NEGATING_CARDS.includes(c) && events[data.cards[c].event].can_play()) {
                 gen_action_card(c)
             }
         })
