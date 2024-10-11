@@ -6142,7 +6142,8 @@ events.landships = {
     play() {
         push_undo()
         game.events.landships = game.turn
-        goto_end_action()
+        game.ops = data.cards[LANDSHIPS].ops
+        game.state = 'activate_spaces'
     }
 }
 
