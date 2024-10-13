@@ -8,6 +8,19 @@ function army() {
 	montage -mode concatenate -tile 1x tmp1.png tmp2.png out/army_${1}.png
 }
 
+function army2() {
+	OUT=$1
+	shift
+	A=
+	B=
+	for XXX in $*
+	do
+		A="$A out_large/${XXX}.png"
+		B="$B out_large/${XXX}_back.png"
+	done
+	montage -mode concatenate -tile x2 $A $B out/army_$OUT.png
+}
+
 function corps() {
 	OUT=$1
 	shift
@@ -30,6 +43,7 @@ army it
 army ru
 army sb
 army usa
+army2 tu tu_army_aol tu_army_yld
 
 corps br ana_xxx aus_xxx bef_xxx br_xxx cnd_xxx pt_xxx
 corps ah ah_xxx
@@ -43,9 +57,9 @@ corps it it_xxx
 corps mn mn_xxx
 corps pol pol_xxx
 corps ro ro_xxx
-corps ru ru_xxx
+corps ru ru_xxx ru_xxx_cav
 corps sb sb_xxx
-corps tu tu_xxx
+corps tu tu_xxx sn_xxx
 corps usa usa_xxx
 
 cp \

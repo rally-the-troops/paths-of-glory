@@ -193,6 +193,8 @@ large1 1 6 16 prince_max
 
 small2 1 9 13 it_xxx
 
+small2 1 10 13 sn_xxx
+
 small3 1 10 19 move attack
 small2 1 10 20 game_turn
 
@@ -233,6 +235,7 @@ small1 2 10 19 cp_action_5
 small1 2 10 20 cp_action_6
 
 small2 2 11 11 usa_xxx
+small2 2 11 15 ru_xxx_cav
 small2 2 11 16 czl_xxx
 small2 2 11 17 pol_xxx
 small1 2 11 19 trench_attempt

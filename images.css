@@ -86,6 +86,7 @@
 .army_ru { background-image: url(pieces/army_ru.webp); background-size: 585px 90px; }
 .army_sb { background-image: url(pieces/army_sb.webp); background-size: 90px 90px; }
 .army_us { background-image: url(pieces/army_usa.webp); background-size: 90px 90px; }
+.army_tu { background-image: url(pieces/army_tu.webp); background-size: 90px 90px; }
 
 .corps_ah { background-image: url(pieces/corps_ah.webp); background-size: 36px 72px; }
 .corps_be { background-image: url(pieces/corps_be.webp); background-size: 36px 72px; }
@@ -99,9 +100,9 @@
 .corps_mn { background-image: url(pieces/corps_mn.webp); background-size: 36px 72px; }
 .corps_pol { background-image: url(pieces/corps_pol.webp); background-size: 36px 72px; }
 .corps_ro { background-image: url(pieces/corps_ro.webp); background-size: 36px 72px; }
-.corps_ru { background-image: url(pieces/corps_ru.webp); background-size: 36px 72px; }
+.corps_ru { background-image: url(pieces/corps_ru.webp); background-size: 72px 72px; }
 .corps_sb { background-image: url(pieces/corps_sb.webp); background-size: 36px 72px; }
-.corps_tu { background-image: url(pieces/corps_tu.webp); background-size: 36px 72px; }
+.corps_tu { background-image: url(pieces/corps_tu.webp); background-size: 72px 72px; }
 .corps_us { background-image: url(pieces/corps_usa.webp); background-size: 36px 72px; }
 
 .card_ap_0{background-image:url(cards.1x/card_back_ap.jpg)}
