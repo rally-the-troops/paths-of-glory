@@ -8,7 +8,6 @@ let game, view
 
 let states = {}
 let events = {}
-let supply_cache
 
 const AP = "ap"
 const CP = "cp"
@@ -940,7 +939,7 @@ function set_nation_at_war(nation) {
         setup_piece(GREECE, 'GR Corps', 'Larisa')
     }
 
-    supply_cache = undefined
+    game.supply_cache = null
 }
 
 // === Mandated Offensives ===
@@ -2340,7 +2339,7 @@ function set_control(s, faction) {
     }
 
     game.control[s] = new_control
-    supply_cache = null
+    game.supply_cache = null
 
     update_russian_capitulation()
 }
@@ -2531,7 +2530,7 @@ function can_end_move(s) {
 function end_move_stack() {
     if (!is_controlled_by(game.move.current, game.active) && has_undestroyed_fort(game.move.current, other_faction(game.active))) {
         set_add(game.forts.besieged, game.move.current)
-        supply_cache = null
+        game.supply_cache = null
     }
 
     game.move.pieces.forEach((p) => {
@@ -3170,7 +3169,7 @@ function resolve_attackers_fire() {
     })
 
     // -3 DRM if all attackers are in the Sinai space
-    if (game.attack.pieces.every((p) => game.location[p] === SINAI)) {
+    if (game.attack.pieces.every((p) => game.location[p] === SINAI) && !(game.attack.attacker === AP && game.events.sinai_pipeline > 0)) {
         game.attack.attacker_drm -= 3
         log(`All attackers in Sinai, -3 DRM`)
     }
@@ -3986,7 +3985,7 @@ states.perform_advance = {
             const end_space = game.location[game.attack.advancing_pieces[0]]
             if (has_undestroyed_fort(end_space, other_faction(game.attack.attacker))) {
                 set_add(game.forts.besieged, end_space)
-                supply_cache = null
+                game.supply_cache = null
             }
         }
         game.attack.advancing_pieces.length = 0
@@ -4081,7 +4080,7 @@ function update_siege(space) {
     let pieces_in_space = get_pieces_in_space(space)
     if (!can_besiege(space, pieces_in_space)) {
         set_delete(game.forts.besieged, space)
-        supply_cache = null
+        game.supply_cache = null
     }
 }
 
@@ -4200,7 +4199,7 @@ function goto_attrition_phase() {
     //  tracing to Taranto even while Italy is still Neutral.
 
     // Get all OOS pieces that should suffer attrition
-    supply_cache = null
+    game.supply_cache = null
     get_oos_pieces().forEach((p) => {
         const faction = data.pieces[p].faction
         if (game.location[p] === MEDINA && data.pieces[p].nation === TURKEY) {
@@ -6404,6 +6403,17 @@ events.royal_tank_corps = {
     apply() {
         log(`${card_name(ROYAL_TANK_CORPS)} cancels trenches`)
         game.attack.trenches_canceled = true
+    }
+}
+
+// AP #49
+events.sinai_pipeline = {
+    can_play() {
+        return true
+    },
+    play() {
+        game.events.sinai_pipeline = game.turn
+        goto_end_action()
     }
 }
 
