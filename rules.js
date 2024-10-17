@@ -3214,14 +3214,15 @@ function resolve_attackers_fire() {
 }
 
 function resolve_defenders_fire() {
+    const defender = other_faction(game.attack.attacker)
     let defender_cf = 0
-    let table = "corps"
+    let table = CORPS
 
     for_each_piece_in_space(game.attack.space, (p) => {
         if (!set_has(game.retreated, p))
             defender_cf += get_piece_cf(p)
         if (data.pieces[p].type === ARMY)
-            table = "army"
+            table = ARMY
     })
 
     const space_data = data.spaces[game.attack.space]
@@ -3232,15 +3233,21 @@ function resolve_defenders_fire() {
     log(`Defending with ${defender_cf} combat factors`)
 
     game.attack.combat_cards.forEach((c) => {
-        if (data.cards[c].faction === other_faction(game.attack.attacker)) {
+        if (data.cards[c].faction === defender) {
             let evt = events[data.cards[c].event]
-            if (evt && evt.can_apply())
+            if (evt && evt.can_apply()) {
                 evt.apply()
+
+                // It would be nice to move this inside the event, but that would probably mean storing the table in
+                // a variable in game.attack, which seems kind of silly
+                if (c === KEMAL)
+                    table = ARMY
+            }
         }
     })
 
     let defender_shifts = 0
-    if (get_trench_level(game.attack.space, other_faction(game.attack.attacker)) > 0 && !game.attack.trenches_canceled) {
+    if (get_trench_level(game.attack.space, defender) > 0 && !game.attack.trenches_canceled) {
         defender_shifts += 1
         log(`Defender's fire shifts 1R for trench`)
     }
@@ -5547,6 +5554,27 @@ events.alpenkorps = {
             game.attack.attacker_drm += 1
         else
             game.attack.defender_drm += 1
+    }
+}
+
+// CP #31
+events.kemal = {
+    can_play() {
+        if (!game.attack)
+            return false
+        if (game.attack.attacker !== AP)
+            return false
+        return (undefined !== get_pieces_in_space(game.attack.space).find(p => data.pieces[p].nation === TURKEY && get_piece_cf(p) > 0))
+    },
+    can_apply() {
+        if (!game.attack)
+            return false
+        if (game.attack.attacker !== AP)
+            return false
+        return (undefined !== get_pieces_in_space(game.attack.space).find(p => data.pieces[p].nation === TURKEY))
+    },
+    apply() {
+        log(`${card_name(KEMAL)} lets the defender fire on the Army table`)
     }
 }
 
