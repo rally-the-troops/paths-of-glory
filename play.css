@@ -106,6 +106,10 @@ aside { min-width: 220px; }
     box-shadow: 0 0 0 2px yellow;
 }
 
+.card.active {
+    box-shadow: 0 0 0 2px blue;
+}
+
 .card.enabled {
     cursor: pointer;
 }

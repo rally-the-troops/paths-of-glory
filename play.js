@@ -1343,6 +1343,11 @@ function update_card(id) {
             card.cc_element.classList.add("show")
         else
             card.cc_element.classList.remove("show")
+
+        if (view.attack && view.attack.combat_cards.includes(id))
+            card.cc_element.classList.add("active")
+        else
+            card.cc_element.classList.remove("active")
     }
 }
 

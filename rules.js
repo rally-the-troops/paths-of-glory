@@ -414,8 +414,6 @@ exports.view = function(state, current) {
         oos_pieces: get_oos_pieces(),
     }
 
-
-
     if (current === AP) {
         view.hand = game.ap.hand
     } else if (current === CP) {
@@ -1941,7 +1939,8 @@ function start_attack_activation() {
         space: 0,
         attacker: game.active,
         attacker_drm: 0,
-        defender_drm: 0
+        defender_drm: 0,
+        combat_cards: [] // Combat cards selected for use in this attack
     }
     game.state = 'choose_attackers'
 }
@@ -2826,6 +2825,7 @@ states.negate_trench = {
         clear_undo()
         array_remove_item(game[game.active].hand, c)
         game.combat_cards.push(c)
+        game.attack.combat_cards.push(c)
         log(`${faction_name(game.active)} plays ${card_name(c)}`)
     },
     next() {
@@ -2895,6 +2895,7 @@ states.play_wireless_intercepts = {
     card(c) {
         array_remove_item(game[game.active].hand, c)
         game.combat_cards.push(c)
+        game.attack.combat_cards.push(c)
         log(`${faction_name(game.active)} plays ${card_name(c)}`)
         log('Flank attack successful')
         game.attack.is_flank = true
@@ -2970,6 +2971,7 @@ states.choose_withdrawal = {
         clear_undo()
         array_remove_item(game[game.active].hand, c)
         game.combat_cards.push(c)
+        game.attack.combat_cards.push(c)
         log(`${faction_name(game.active)} plays ${card_name(c)}`)
         this.pass()
     },
@@ -2982,7 +2984,7 @@ states.choose_withdrawal = {
 states.attacker_combat_cards = {
     inactive: 'Attacker Combat Cards',
     prompt() {
-        view.prompt = `Play combat cards`
+        view.prompt = `Select combat cards for this attack`
 
         game[game.active].hand.forEach((c) => {
             if (data.cards[c].cc) {
@@ -2991,13 +2993,34 @@ states.attacker_combat_cards = {
                     gen_action_card(c)
             }
         })
+
+        game.combat_cards.forEach((c) => {
+          if (data.cards[c].faction === game.active)
+              gen_action_card(c)
+        })
+
+        gen_action_undo()
         gen_action_done()
     },
     card(c) {
-        clear_undo()
-        array_remove_item(game[game.active].hand, c)
-        game.combat_cards.push(c)
-        log(`${faction_name(game.active)} plays ${card_name(c)}`)
+        if (game.combat_cards.includes(c)) {
+            // This is a played combat card, so toggle whether it is active in this attack
+            push_undo()
+            if (game.attack.combat_cards.includes(c)) {
+                array_remove_item(game.attack.combat_cards, c)
+                log(`${faction_name(game.active)} chooses not to use ${card_name(c)}`)
+            } else {
+                game.attack.combat_cards.push(c)
+                log(`${faction_name(game.active)} chooses to use ${card_name(c)}`)
+            }
+        } else {
+            // Card was not played yet, so add it to the played combat cards and make it active for this attack
+            clear_undo()
+            array_remove_item(game[game.active].hand, c)
+            game.combat_cards.push(c)
+            game.attack.combat_cards.push(c)
+            log(`${faction_name(game.active)} plays ${card_name(c)}`)
+        }
     },
     done() {
         game.active = other_faction(game.attack.attacker)
@@ -3016,13 +3039,34 @@ states.defender_combat_cards = {
                     gen_action_card(c)
             }
         })
+
+        game.combat_cards.forEach((c) => {
+            if (data.cards[c].faction === game.active)
+                gen_action_card(c)
+        })
+
+        gen_action_undo()
         gen_action_done()
     },
     card(c) {
-        clear_undo()
-        array_remove_item(game[game.active].hand, c)
-        game.combat_cards.push(c)
-        log(`${faction_name(game.active)} plays ${card_name(c)}`)
+        if (game.combat_cards.includes(c)) {
+            // This is a played combat card, so toggle whether it is active in this attack
+            push_undo()
+            if (game.attack.combat_cards.includes(c)) {
+                array_remove_item(game.attack.combat_cards, c)
+                log(`${faction_name(game.active)} chooses not to use ${card_name(c)}`)
+            } else {
+                game.attack.combat_cards.push(c)
+                log(`${faction_name(game.active)} chooses to use ${card_name(c)}`)
+            }
+        } else {
+            // Card was not played yet, so add it to the played combat cards and make it active for this attack
+            clear_undo()
+            array_remove_item(game[game.active].hand, c)
+            game.combat_cards.push(c)
+            game.attack.combat_cards.push(c)
+            log(`${faction_name(game.active)} plays ${card_name(c)}`)
+        }
     },
     done() {
         begin_combat()
@@ -3043,7 +3087,7 @@ function adds_flanking_drm(space, attacking_faction, attack_space) {
 }
 
 function resolve_fire() {
-    const von_hutier_active = game.combat_cards.includes(VON_HUTIER) && events.von_hutier.can_play()
+    const von_hutier_active = game.attack.combat_cards.includes(VON_HUTIER) && events.von_hutier.can_play()
     if (game.attack.failed_flank) {
         resolve_defenders_fire()
         game.active = game.attack.attacker
@@ -3109,7 +3153,7 @@ function resolve_attackers_fire() {
     }
 
     // Determine DRM based on played combat cards
-    game.combat_cards.forEach((c) => {
+    game.attack.combat_cards.forEach((c) => {
         if (data.cards[c].faction === game.attack.attacker) {
             let evt = events[data.cards[c].event]
             if (evt && evt.can_apply !== undefined && evt.can_apply())
@@ -3179,7 +3223,7 @@ function resolve_defenders_fire() {
 
     log(`Defending with ${defender_cf} combat factors`)
 
-    game.combat_cards.forEach((c) => {
+    game.attack.combat_cards.forEach((c) => {
         if (data.cards[c].faction === other_faction(game.attack.attacker)) {
             let evt = events[data.cards[c].event]
             if (evt && evt.can_apply())
@@ -3277,7 +3321,7 @@ states.apply_defender_losses = {
         push_undo()
         update_siege(game.attack.space)
 
-        const flank_attack_active = game.attack.is_flank || (game.combat_cards.includes(VON_HUTIER) && events.von_hutier.can_play())
+        const flank_attack_active = game.attack.is_flank || (game.attack.combat_cards.includes(VON_HUTIER) && events.von_hutier.can_play())
         if (!flank_attack_active && is_withdrawal_active() && game.attack.defender_loss_pieces.length > 0) {
             // If this is not a flank attack and the defender played Withdrawal, they choose a step loss to negate
             // If this was a flank attack, then the defender will not negate the step loss until the attacker has taken
@@ -3285,7 +3329,7 @@ states.apply_defender_losses = {
             game.state = 'withdrawal_negate_step_loss'
         } else if (game.attack.failed_flank) {
             determine_combat_winner()
-        } else if (game.attack.is_flank || (game.combat_cards.includes(VON_HUTIER) && events.von_hutier.can_play())) {
+        } else if (game.attack.is_flank || (game.attack.combat_cards.includes(VON_HUTIER) && events.von_hutier.can_play())) {
             resolve_defenders_fire()
             clear_undo()
             game.active = game.attack.attacker
@@ -3336,7 +3380,7 @@ states.withdrawal_negate_step_loss = {
         this.done()
     },
     done() {
-        if (game.attack.failed_flank || game.attack.is_flank || (game.combat_cards.includes(VON_HUTIER) && events.von_hutier.can_play())) {
+        if (game.attack.failed_flank || game.attack.is_flank || (game.attack.combat_cards.includes(VON_HUTIER) && events.von_hutier.can_play())) {
             // This was a flank attack, so the attacker already took losses (before or after the defender, depending on
             // whether the flank failed)
             determine_combat_winner()
@@ -3405,7 +3449,7 @@ states.apply_attacker_losses = {
         if (game.attack.failed_flank) {
             resolve_attackers_fire()
             goto_defender_losses()
-        } else if (is_withdrawal_active() && game.attack.defender_loss_pieces.length > 0 && (game.attack.is_flank || (game.combat_cards.includes(VON_HUTIER) && events.von_hutier.can_play()))) {
+        } else if (is_withdrawal_active() && game.attack.defender_loss_pieces.length > 0 && (game.attack.is_flank || (game.attack.combat_cards.includes(VON_HUTIER) && events.von_hutier.can_play()))) {
             // If this was a flank attack and the defender played Withdrawal, they now choose their step loss to negate
             clear_undo()
             game.active = other_faction(game.active)
@@ -3609,9 +3653,9 @@ function is_withdrawal_active() {
         return false
 
     if (game.attack.attacker === CP)
-        return game.combat_cards.includes(WITHDRAWAL_AP)
+        return game.attack.combat_cards.includes(WITHDRAWAL_AP)
     else
-        return game.combat_cards.includes(WITHDRAWAL_CP)
+        return game.attack.combat_cards.includes(WITHDRAWAL_CP)
 }
 
 function determine_combat_winner() {
@@ -3621,17 +3665,17 @@ function determine_combat_winner() {
     let to_discard = []
     if (game.attack.defender_losses >= game.attack.attacker_losses) {
         const defender = other_faction(game.attack.attacker)
-        to_discard.concat(game.combat_cards.filter((c) => data.cards[c].faction === defender))
+        to_discard.concat(game.attack.combat_cards.filter((c) => data.cards[c].faction === defender))
     }
     if (game.attack.attacker_losses >= game.attack.defender_losses)
-        to_discard.concat(game.combat_cards.filter((c) => data.cards[c].faction === game.attack.attacker))
+        to_discard.concat(game.attack.combat_cards.filter((c) => data.cards[c].faction === game.attack.attacker))
     // Some combat cards are discarded or removed, even when the card's owner wins the combat
-    game.combat_cards.forEach((c) => {
+    game.attack.combat_cards.forEach((c) => {
         // Any * cards that are removed after use
         if (data.cards[c].remove && !to_discard.includes(c))
             to_discard.push(c)
-        // MINE_ATTACK and KEMAL are discarded after use
-        if ((c === MINE_ATTACK || c === KEMAL) && !to_discard.includes(c))
+        // MINE_ATTACK, KEMAL, and ROYAL_TANK_CORPS are discarded after use
+        if ((c === MINE_ATTACK || c === KEMAL || c === ROYAL_TANK_CORPS) && !to_discard.includes(c))
             to_discard.push(c)
     })
     // "They shall not pass" is not discarded when the result is a tie (12.2.11)
@@ -3645,6 +3689,7 @@ function determine_combat_winner() {
     // Now do the actual discard
     to_discard.forEach((c) => {
         array_remove_item(game.combat_cards, c)
+        array_remove_item(game.attack.combat_cards, c)
         if (data.cards[c].remove)
             game[data.cards[c].faction].removed.push(c)
         else
@@ -6224,6 +6269,7 @@ events.yanks_and_tanks = {
         game.ops = data.cards[YANKS_AND_TANKS].ops
         game.state = 'activate_spaces'
         game.combat_cards.push(YANKS_AND_TANKS)
+        game.attack.combat_cards.push(YANKS_AND_TANKS)
     },
     can_apply() {
         if (!game.attack)
