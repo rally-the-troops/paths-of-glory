@@ -3003,7 +3003,7 @@ states.attacker_combat_cards = {
         })
 
         game.combat_cards.forEach((c) => {
-          if (data.cards[c].faction === game.active)
+          if (data.cards[c].faction === game.active && events[data.cards[c].event].can_apply())
               gen_action_card(c)
         })
 
@@ -3049,7 +3049,7 @@ states.defender_combat_cards = {
         })
 
         game.combat_cards.forEach((c) => {
-            if (data.cards[c].faction === game.active)
+            if (data.cards[c].faction === game.active && events[data.cards[c].event].can_apply())
                 gen_action_card(c)
         })
 
