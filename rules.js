@@ -2619,6 +2619,14 @@ function goto_attack() {
         log(`${faction_name(game.active)} satisfied mandatory offensive`)
     }
 
+    if (game.events.french_mutiny > 0 && game.attack.attacker === AP) {
+        const french_attacking = undefined !== game.attack.pieces.find((p) => data.pieces[p].nation === FRANCE)
+        const us_supporting = undefined !== game.attack.pieces.find((p) => data.pieces[p].nation === US)
+        if (french_attacking && !us_supporting) {
+            game.french_attacked_without_us_support = true // Set a flag to track this for the French Mutiny event, which will update the VP at end of turn
+        }
+    }
+
     if (can_play_combat_cards() && get_trench_level(game.attack.space, other_faction(game.attack.attacker)) > 0) {
         // if defending space has a trench, go to 'negate_trench'
         game.state = 'negate_trench'
@@ -4332,13 +4340,21 @@ function goto_war_status_phase() {
         game.vp += 1
         log_h2(`${nation_name(ITALY)} is still neutral but ${faction_name(AP)} at Total War, +1 VP`)
     }
+
+    const french_mutiny_active = game.events.french_mutiny > 0 && game.ap.mo === FRANCE
     // If AP failed to conduct their mandated offensive, +1 VP (except FR after French Mutiny event)
-    if (game.ap.mo !== NONE && !(game.ap.mo === FRANCE && game.events.french_mutiny)) {
+    if (game.ap.mo !== NONE && !french_mutiny_active) {
         game.vp += 1
         game.ap.missed_mo.push(game.turn)
         log_h2(`${faction_name(AP)} failed to conduct their mandated offensive, +1 VP`)
     }
-    // TODO: If French unit attacked without US support after French Mutiny, when FR MO, +1 VP
+
+    // If French unit attacked without US support after French Mutiny, when FR MO, +1 VP
+    if (french_mutiny_active && game.french_attacked_without_us_support) {
+        game.vp += 1
+        log_h2(`French unit attacked without US support after French Mutiny, +1 VP`)
+    }
+    delete game.french_attacked_without_us_support
 
     // E.2. Determine if either player has won an Automatic Victory.
     if (game.vp <= 0) {
@@ -5715,6 +5731,17 @@ events.treaty_of_brest_litovsk = {
     play() {
         push_undo()
         game.events.treaty_of_brest_litovsk = game.turn
+        goto_end_action()
+    }
+}
+
+// CP #47
+events.french_mutiny = {
+    can_play() {
+        return true
+    },
+    play() {
+        game.events.french_mutiny = game.turn
         goto_end_action()
     }
 }
