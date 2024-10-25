@@ -1954,7 +1954,8 @@ function start_attack_activation() {
         attacker: game.active,
         attacker_drm: 0,
         defender_drm: 0,
-        combat_cards: [] // Combat cards selected for use in this attack
+        combat_cards: [], // Combat cards selected for use in this attack
+        new_combat_cards: [] // CC played during this attack
     }
     game.state = 'choose_attackers'
 }
@@ -3064,11 +3065,11 @@ states.attacker_combat_cards = {
             array_remove_item(game[game.active].hand, c)
             game.combat_cards.push(c)
             game.attack.combat_cards.push(c)
+            game.attack.new_combat_cards.push(c)
             log(`${faction_name(game.active)} plays ${card_name(c)}`)
-            if (is_lloyd_george_active() && [MICHAEL, BLUCHER, PEACE_OFFENSIVE].includes(c)) {
-                log(`${card_name(c)} cancels the effects of ${card_name(LLOYD_GEORGE)}`)
-                game.events.lloyd_george_canceled = true
-            }
+            let evt = events[data.cards[c].event]
+            if (evt && evt.play)
+                evt.play()
         }
     },
     done() {
@@ -3114,7 +3115,11 @@ states.defender_combat_cards = {
             array_remove_item(game[game.active].hand, c)
             game.combat_cards.push(c)
             game.attack.combat_cards.push(c)
+            game.attack.new_combat_cards.push(c)
             log(`${faction_name(game.active)} plays ${card_name(c)}`)
+            let evt = events[data.cards[c].event]
+            if (evt && evt.play)
+                evt.play()
         }
     },
     done() {
@@ -5851,13 +5856,18 @@ events.michael = {
         return this.can_play()
     },
     apply() {
-        game.events.michael = game.turn
         game.attack.attacker_drm++
         if (!game.attack.trenches_canceled) {
             log(`${card_name(MICHAEL)} cancels trenches and adds +1 DRM`)
             game.attack.trenches_canceled = true
         } else {
             log(`${card_name(MICHAEL)} adds +1 DRM`)
+        }
+    },
+    play() {
+        game.events.michael = game.turn
+        if (is_lloyd_george_active()) {
+            cancel_lloyd_george(MICHAEL)
         }
     }
 }
@@ -5877,9 +5887,14 @@ events.blucher = {
         return this.can_play() && !game.attack.trenches_canceled
     },
     apply() {
-        game.events.blucher = game.turn
         log(`${card_name(BLUCHER)} cancels trenches`)
         game.attack.trenches_canceled = true
+    },
+    play() {
+        game.events.blucher = game.turn
+        if (is_lloyd_george_active()) {
+            cancel_lloyd_george(BLUCHER)
+        }
     }
 }
 
@@ -5898,10 +5913,15 @@ events.peace_offensive = {
         return this.can_play() && !game.attack.trenches_canceled
     },
     apply() {
-        game.events.peace_offensive = game.turn
         log(`${card_name(PEACE_OFFENSIVE)} cancels trenches`)
         game.attack.trenches_canceled = true
         game.attack.used_peace_offensive = true
+    },
+    play() {
+        game.events.peace_offensive = game.turn
+        if (is_lloyd_george_active()) {
+            cancel_lloyd_george(PEACE_OFFENSIVE)
+        }
     }
 }
 
@@ -5976,6 +5996,11 @@ events.lloyd_george = {
 
 function is_lloyd_george_active() {
     return game.events.lloyd_george === game.turn && !game.events.lloyd_george_canceled
+}
+
+function cancel_lloyd_george(card) {
+    game.events.lloyd_george_canceled = true
+    log(`${card_name(card)} cancels Lloyd George`)
 }
 
 // CP #57
@@ -6118,6 +6143,45 @@ states.russian_desertions = {
     done() {
         delete game.russian_desertions_remaining
         goto_end_action()
+    }
+}
+
+// CP #64
+events.alberich = {
+    can_play() {
+        if (!game.attack)
+            return false
+        if (game.attack.attacker !== AP)
+            return false
+        if (game.attack.combat_cards.includes(ROYAL_TANK_CORPS) || game.attack.combat_cards.includes(YANKS_AND_TANKS))
+            return false
+        return [FRANCE, BELGIUM].includes(data.spaces[game.attack.space].nation)
+    },
+    can_apply() {
+        return this.can_play()
+    },
+    apply() {
+    },
+    play() {
+        game.events.alberich = game.turn
+        log(`${card_name(ALBERICH)} cancels the attack`)
+
+        // Return any combat cards the Allies played in this attack
+        for (let new_cc of game.attack.new_combat_cards) {
+            const card_data = data.cards[new_cc]
+            if (card_data.faction === AP) {
+                game.ap.hand.push(new_cc)
+                array_remove_item(game.combat_cards, new_cc)
+            }
+        }
+
+        // Return Alberich card from play
+        array_remove_item(game.combat_cards, ALBERICH)
+        game.cp.removed.push(ALBERICH)
+
+        // Cancel the attack
+        end_attack_activation()
+        goto_next_activation()
     }
 }
 
