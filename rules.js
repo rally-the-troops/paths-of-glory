@@ -2740,6 +2740,11 @@ function get_attackable_spaces(attackers) {
         }
     })
 
+    // Lloyd George prevents attacks against German defenders with level 2 trenches while active
+    if (is_lloyd_george_active() && attackers.find((p) => data.pieces[p].nation === BRITAIN) !== undefined) {
+        eligible_spaces = eligible_spaces.filter((s) => !(get_trench_level(s, CP) === 2 && contains_piece_of_nation(s, GERMANY)))
+    }
+
     return eligible_spaces
 }
 
@@ -3027,6 +3032,10 @@ states.attacker_combat_cards = {
             game.combat_cards.push(c)
             game.attack.combat_cards.push(c)
             log(`${faction_name(game.active)} plays ${card_name(c)}`)
+            if (is_lloyd_george_active() && [MICHAEL, BLUCHER, PEACE_OFFENSIVE].includes(c)) {
+                log(`${card_name(c)} cancels the effects of ${card_name(LLOYD_GEORGE)}`)
+                game.events.lloyd_george_canceled = true
+            }
         }
     },
     done() {
@@ -5895,6 +5904,21 @@ events.h_l_take_command = {
         game.events.h_l_take_command = game.turn
         goto_end_action()
     }
+}
+
+// CP #55
+events.lloyd_george = {
+    can_play() {
+        return true
+    },
+    play() {
+        game.events.lloyd_george = game.turn
+        goto_end_action()
+    }
+}
+
+function is_lloyd_george_active() {
+    return game.events.lloyd_george === game.turn && !game.events.lloyd_george_canceled
 }
 
 // CP #57
