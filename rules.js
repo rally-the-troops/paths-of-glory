@@ -1179,6 +1179,21 @@ function get_trench_level(s, faction) {
     return level ?? 0
 }
 
+function get_trench_level_for_attack(s, faction) {
+    const base_lvl = get_trench_level(s, faction)
+    if (!game.attack)
+        return base_lvl
+
+    if (base_lvl === 0 &&
+        game.attack.attacker === AP &&
+        game.attack.combat_cards.includes(TURK_DETERMINATION) &&
+        events[data.cards[TURK_DETERMINATION].event].can_apply()) {
+        return 1
+    }
+
+    return base_lvl
+}
+
 // === GAME STATES ===
 
 states.action_phase = {
@@ -2639,7 +2654,7 @@ function goto_attack() {
         }
     }
 
-    if (can_play_combat_cards() && get_trench_level(game.attack.space, other_faction(game.attack.attacker)) > 0) {
+    if (can_play_combat_cards() && get_trench_level_for_attack(game.attack.space, other_faction(game.attack.attacker)) > 0) {
         // if defending space has a trench, go to 'negate_trench'
         game.state = 'negate_trench'
     } else if (attacker_can_flank()) {
@@ -3218,10 +3233,10 @@ function resolve_attackers_fire() {
 
     // Trench shifts
     if (!attacking_unoccupied_fort() && !game.attack.trenches_canceled) {
-        if (get_trench_level(game.attack.space, other_faction(game.attack.attacker)) === 2) {
+        if (get_trench_level_for_attack(game.attack.space, other_faction(game.attack.attacker)) === 2) {
             attacker_shifts -= 2
             log(`Attacker's fire shifts 2L for Trenches`)
-        } else if (get_trench_level(game.attack.space, other_faction(game.attack.attacker)) === 1) {
+        } else if (get_trench_level_for_attack(game.attack.space, other_faction(game.attack.attacker)) === 1) {
             attacker_shifts -= 1
             log(`Attacker's fire shifts 1L for Trenches`)
         }
@@ -3273,7 +3288,7 @@ function resolve_defenders_fire() {
     })
 
     let defender_shifts = 0
-    if (get_trench_level(game.attack.space, defender) > 0 && !game.attack.trenches_canceled) {
+    if (get_trench_level_for_attack(game.attack.space, defender) > 0 && !game.attack.trenches_canceled) {
         defender_shifts += 1
         log(`Defender's fire shifts 1R for trench`)
     }
@@ -3776,7 +3791,7 @@ function determine_combat_winner() {
 
 function defender_can_cancel_retreat() {
     const terrain = data.spaces[game.attack.space].terrain
-    if (terrain === MOUNTAIN || terrain === SWAMP || terrain === DESERT || terrain === FOREST || get_trench_level(game.attack.space, other_faction(game.attacker)) > 0) {
+    if (terrain === MOUNTAIN || terrain === SWAMP || terrain === DESERT || terrain === FOREST || get_trench_level_for_attack(game.attack.space, other_faction(game.attacker)) > 0) {
         let step_count = 0
         for_each_piece_in_space(game.attack.space, (p) => {
             if (is_unit_reduced(p)) {
@@ -5990,6 +6005,25 @@ events.polish_restoration = {
             game.location[p] = CP_RESERVE_BOX
         }
         goto_end_action()
+    }
+}
+
+// CP #60
+events.turk_determination = {
+    can_play() {
+        if (!game.attack)
+            return false
+        if (game.attack.attacker !== AP)
+            return false
+        if (!contains_piece_of_nation(game.attack.space, TURKEY))
+            return false
+        return get_trench_level(game.attack.space, CP) === 0
+    },
+    can_apply() {
+        return this.can_play()
+    },
+    apply() {
+        log(`${card_name(TURK_DETERMINATION)} acts as a trench`)
     }
 }
 
