@@ -2383,6 +2383,19 @@ function contains_piece_of_nation(s, nation) {
     return false
 }
 
+// Returns false if there are no pieces in the space
+function contains_only_pieces_of_nation(s, nation) {
+    let found_piece = false
+    for (let p = 1; p < data.pieces.length; ++p)
+        if (game.location[p] === s) {
+            if (data.pieces[p].nation === nation)
+                found_piece = true
+            else
+                return false
+        }
+    return found_piece
+}
+
 function can_move_to(s, moving_pieces) {
     let contains_enemy = contains_piece_of_faction(s, other_faction(game.active))
     if (contains_enemy)
@@ -2743,6 +2756,11 @@ function get_attackable_spaces(attackers) {
     // Lloyd George prevents attacks against German defenders with level 2 trenches while active
     if (is_lloyd_george_active() && attackers.find((p) => data.pieces[p].nation === BRITAIN) !== undefined) {
         eligible_spaces = eligible_spaces.filter((s) => !(get_trench_level(s, CP) === 2 && contains_piece_of_nation(s, GERMANY)))
+    }
+
+    // Stavka Timidity prevents Russian attacks against entrenched German defenders for the turn it is played
+    if (game.turn === game.events.stavka_timidity && attackers.find((p) => data.pieces[p].nation === RUSSIA) !== undefined) {
+        eligible_spaces = eligible_spaces.filter((s) => !(get_trench_level(s, CP) > 0 && contains_only_pieces_of_nation(s, GERMANY)))
     }
 
     return eligible_spaces
@@ -5942,6 +5960,17 @@ events.kaisertreu = {
             log(`${card_name(KAISERTREU)} adds +1 DRM`)
             game.attack.defender_drm += 1
         }
+    }
+}
+
+// CP #58
+events.stavka_timidity = {
+    can_play() {
+        return game.events.tsar_takes_command > 0
+    },
+    play() {
+        game.events.stavka_timidity = game.turn
+        goto_end_action()
     }
 }
 
