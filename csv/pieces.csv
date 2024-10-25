@@ -187,3 +187,6 @@ ap,gr,GR Corps,corps,corps_gr corps_ix_1,1,1,3,0,1,3,,,allied
 ap,ru,RU Cavalry Corps,corps,corps_ru corps_ix_2,1,1,4,0,1,4,,,ru
 ap,ru,RU Cavalry Corps,corps,corps_ru corps_ix_2,1,1,4,0,1,4,,,ru
 ap,ru,RU Czech Legion,corps,corps_czl corps_ix_1,2,1,4,1,1,4,,,ru
+cp,ge,POL Corps,corps,corps_pol corps_ix_1,2,1,4,1,1,4,,,ge
+cp,ge,POL Corps,corps,corps_pol corps_ix_1,2,1,4,1,1,4,,,ge
+cp,ge,POL Corps,corps,corps_pol corps_ix_1,2,1,4,1,1,4,,,ge

@@ -4601,6 +4601,48 @@ const pieces = [
         "rlf": 1,
         "rmf": 4,
         "rptype": "ru"
+    },
+    {
+        "faction": "cp",
+        "nation": "ge",
+        "name": "POL Corps",
+        "type": "corps",
+        "counter": "corps_pol corps_ix_1",
+        "cf": 2,
+        "lf": 1,
+        "mf": 4,
+        "rcf": 1,
+        "rlf": 1,
+        "rmf": 4,
+        "rptype": "ge"
+    },
+    {
+        "faction": "cp",
+        "nation": "ge",
+        "name": "POL Corps",
+        "type": "corps",
+        "counter": "corps_pol corps_ix_1",
+        "cf": 2,
+        "lf": 1,
+        "mf": 4,
+        "rcf": 1,
+        "rlf": 1,
+        "rmf": 4,
+        "rptype": "ge"
+    },
+    {
+        "faction": "cp",
+        "nation": "ge",
+        "name": "POL Corps",
+        "type": "corps",
+        "counter": "corps_pol corps_ix_1",
+        "cf": 2,
+        "lf": 1,
+        "mf": 4,
+        "rcf": 1,
+        "rlf": 1,
+        "rmf": 4,
+        "rptype": "ge"
     }
 ]
 

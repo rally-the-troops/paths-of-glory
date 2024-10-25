@@ -4646,6 +4646,9 @@ function get_replaceable_units() {
         if (all_capitals_occupied(piece_data.nation))
             continue
 
+        if (is_controlled_by(WARSAW, AP) && piece_data.name === 'POL Corps')
+            continue
+
         if (game.location[i] === AP_ELIMINATED_BOX ||
             game.location[i] === CP_ELIMINATED_BOX ||
             (is_unit_reduced(i) && is_unit_supplied(i))) {
@@ -5970,6 +5973,22 @@ events.stavka_timidity = {
     },
     play() {
         game.events.stavka_timidity = game.turn
+        goto_end_action()
+    }
+}
+
+// CP #59
+events.polish_restoration = {
+    can_play() {
+        return is_controlled_by(WARSAW, CP)
+    },
+    play() {
+        game.events.polish_restoration = game.turn
+        game.vp--
+        const polish_corps = find_n_unused_pieces(GERMANY, 'POL Corps', 3)
+        for (let p of polish_corps) {
+            game.location[p] = CP_RESERVE_BOX
+        }
         goto_end_action()
     }
 }
