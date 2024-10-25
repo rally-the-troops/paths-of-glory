@@ -3123,6 +3123,13 @@ states.defender_combat_cards = {
 }
 
 function begin_combat() {
+    if (is_haig_active() &&
+        get_trench_level(game.attack.space, CP) > 0 &&
+        contains_piece_of_nation(game.attack.space, GERMANY) &&
+        [FRANCE, BELGIUM, GERMANY].includes(data.spaces[game.attack.space].nation) &&
+        game.attack.pieces.find((p) => data.pieces[p].nation === BRITAIN) !== undefined) {
+        game.attack.haig_cancels_ge_retreat = true
+    }
     resolve_fire()
 }
 
@@ -3757,6 +3764,17 @@ function determine_combat_winner() {
 
     // Decide if the defender should retreat, attacker should advance, or if the combat is over
     let defender_pieces = get_pieces_in_space(game.attack.space)
+
+    // Not sure if the non-German pieces should still retreat if Haig cancels the German retreat
+    if (game.attack.haig_cancels_ge_retreat &&
+        get_trench_level_for_attack(game.attack.space, CP) > 0 &&
+        defender_pieces.find((p) => data.pieces[p].nation === GERMANY) !== undefined) {
+        log(`${card_name(HAIG)} cancels the retreat`)
+        end_attack_activation()
+        goto_next_activation()
+        return
+    }
+
     if ((game.attack.defender_losses > game.attack.attacker_losses && attacker_has_full_strength_unit && defender_pieces.length > 0) || was_withdrawal_active) {
         game.active = other_faction(game.attack.attacker)
         game.attack.to_retreat = defender_pieces
@@ -5833,6 +5851,7 @@ events.michael = {
         return this.can_play()
     },
     apply() {
+        game.events.michael = game.turn
         game.attack.attacker_drm++
         if (!game.attack.trenches_canceled) {
             log(`${card_name(MICHAEL)} cancels trenches and adds +1 DRM`)
@@ -5858,6 +5877,7 @@ events.blucher = {
         return this.can_play() && !game.attack.trenches_canceled
     },
     apply() {
+        game.events.blucher = game.turn
         log(`${card_name(BLUCHER)} cancels trenches`)
         game.attack.trenches_canceled = true
     }
@@ -5878,6 +5898,7 @@ events.peace_offensive = {
         return this.can_play() && !game.attack.trenches_canceled
     },
     apply() {
+        game.events.peace_offensive = game.turn
         log(`${card_name(PEACE_OFFENSIVE)} cancels trenches`)
         game.attack.trenches_canceled = true
         game.attack.used_peace_offensive = true
@@ -6025,6 +6046,21 @@ events.turk_determination = {
     apply() {
         log(`${card_name(TURK_DETERMINATION)} acts as a trench`)
     }
+}
+
+// CP #61
+events.haig = {
+    can_play() {
+        return true
+    },
+    play() {
+        game.events.haig = game.turn
+        goto_end_action()
+    }
+}
+
+function is_haig_active() {
+    return game.events.haig === game.turn && !(game.events.michael > 0 || game.events.blucher > 0 || game.events.peace_offensive > 0)
 }
 
 // CP #62
