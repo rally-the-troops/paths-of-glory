@@ -1204,6 +1204,7 @@ states.action_phase = {
         for (let i = 0; i < p.hand.length; ++i)
             gen_card_menu(p.hand[i])
         gen_action('single_op')
+        // If not playing the Historical scenario, add an action here for offering peace terms
     },
     play_event(card) {
         if (data.cards[card].reinfnation) {
@@ -1835,6 +1836,20 @@ function get_available_reinforcement_spaces(p) {
     }
 
     return spaces
+}
+
+function roll_peace_terms(faction_offering, combined_war_status) {
+    clear_undo()
+    let roll = roll_die(6)
+    if (roll <= 2 || (roll === 3 && combined_war_status < 20)) {
+        game.vp += faction_offering === AP ? 1 : -1
+        log(`Peace terms roll of ${roll} results in 1 VP for the ${faction_name(faction_offering)}`)
+    } else if (roll === 6) {
+        game.vp += faction_offering === AP ? -1 : 1
+        log(`Peace terms roll of ${roll} backfires, giving 1 VP to the ${faction_name(other_faction(faction_offering))}`)
+    } else {
+        log(`Peace terms roll of ${roll} has no effect`)
+    }
 }
 
 function is_neareast_space(s) {
@@ -6864,6 +6879,18 @@ events.czech_legion = {
         }
         const czech_legion = find_piece(RUSSIA, 'RU Czech Legion')
         game.location[czech_legion] = AP_RESERVE_BOX
+        goto_end_action()
+    }
+}
+
+// AP #62
+events.the_sixtus_affair = {
+    can_play() {
+        return true
+    },
+    play() {
+        game.events.the_sixtus_affair = game.turn
+        roll_peace_terms(AP, 0)
         goto_end_action()
     }
 }
