@@ -1273,6 +1273,9 @@ function can_play_sr(card) {
 }
 
 function can_play_rps(card) {
+    if (game.turn === game.events.influenza)
+        return false
+
     let action = get_last_action()
     return action === undefined || action.type !== ACTION_RP
 }
@@ -6912,6 +6915,17 @@ events.backs_to_the_wall = {
     apply() {
         log(`${card_name(BACKS_TO_THE_WALL)} cancels retreat`)
         game.attack.retreat_canceled = true
+    }
+}
+
+// AP #65
+events.influenza = {
+    can_play() {
+        return game.ap.ws + game.cp.ws >= 30
+    },
+    play() {
+        game.events.influenza = game.turn
+        goto_end_action()
     }
 }
 
