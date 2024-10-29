@@ -3135,6 +3135,7 @@ function begin_combat() {
         game.attack.pieces.find((p) => data.pieces[p].nation === BRITAIN) !== undefined) {
         game.attack.haig_cancels_ge_retreat = true
     }
+
     resolve_fire()
 }
 
@@ -3775,6 +3776,12 @@ function determine_combat_winner() {
         get_trench_level_for_attack(game.attack.space, CP) > 0 &&
         defender_pieces.find((p) => data.pieces[p].nation === GERMANY) !== undefined) {
         log(`${card_name(HAIG)} cancels the retreat`)
+        end_attack_activation()
+        goto_next_activation()
+        return
+    }
+
+    if (game.attack.retreat_canceled && defender_pieces.length > 0) {
         end_attack_activation()
         goto_next_activation()
         return
@@ -6572,6 +6579,28 @@ events.independent_air_force = {
         push_undo()
         game.events.independent_air_force = game.turn
         goto_end_action()
+    }
+}
+
+// AP #39
+events.they_shall_not_pass = {
+    can_play() {
+        if (!game.attack)
+            return false
+        if (game.attack.attacker !== CP)
+            return false
+        if (data.spaces[game.attack.space].nation !== FRANCE)
+            return false
+        if (!has_undestroyed_fort(game.attack.space, AP))
+            return false
+        return undefined !== get_pieces_in_space(game.attack.space).find(p => data.pieces[p].nation === FRANCE)
+    },
+    can_apply() {
+        return this.can_play()
+    },
+    apply() {
+        game.attack.retreat_canceled = true
+        log(`${card_name(THEY_SHALL_NOT_PASS)} cancels retreat`)
     }
 }
 
