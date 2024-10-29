@@ -6895,6 +6895,26 @@ events.the_sixtus_affair = {
     }
 }
 
+// AP #63
+events.backs_to_the_wall = {
+    can_play() {
+        if (!game.attack)
+            return false
+        if (game.attack.attacker !== CP)
+            return false
+        if (![FRANCE, BELGIUM].includes(data.spaces[game.attack.space].nation))
+            return false
+        return undefined !== get_pieces_in_space(game.attack.space).find(p => data.pieces[p].nation === BRITAIN && data.pieces[p].type === ARMY)
+    },
+    can_apply() {
+        return this.can_play()
+    },
+    apply() {
+        log(`${card_name(BACKS_TO_THE_WALL)} cancels retreat`)
+        game.attack.retreat_canceled = true
+    }
+}
+
 // === COMMON LIBRARY ===
 
 function gen_action(action, argument) {
