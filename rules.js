@@ -6604,6 +6604,20 @@ events.they_shall_not_pass = {
     }
 }
 
+// AP #40
+events.fourteen_points = {
+    can_play() {
+        return game.events.zimmermann_telegram > 0
+    },
+    play() {
+        // This event also prevents the Central Powers from offering peace terms, but offering peace terms is not
+        // allowed at all in the Historical scenario (5.7.2), so there's no way to implement that currently.
+        game.events.fourteen_points = game.turn
+        game.vp--
+        goto_end_action()
+    }
+}
+
 // AP #44
 events.greece_entry = {
     is_neutral_entry: true,
