@@ -2784,6 +2784,11 @@ function get_attackable_spaces(attackers) {
 
 function get_nation_for_multinational_attacks(piece) {
     let nation = data.pieces[piece].nation
+
+    if (data.pieces[piece].faction === AP && game.turn === game.events.everyone_into_battle) {
+        return AP
+    }
+
     switch (nation) {
         case "sn":
             return TURKEY
@@ -4173,6 +4178,7 @@ function cost_to_activate(space, type) {
     let pieces = []
     let has_russians = false
     let num_pieces = 0
+    let faction = AP
     for_each_piece_in_space(space, (piece) => {
         num_pieces++
         let n = data.pieces[piece].nation
@@ -4181,8 +4187,15 @@ function cost_to_activate(space, type) {
         if (n === RUSSIA) has_russians = true
         set_add(nations, n)
         pieces.push(piece)
+        if (data.pieces[piece].faction === CP) faction = CP
     })
     let cost = nations.length
+
+    if (faction === AP &&
+        game.turn === game.events.everyone_into_battle &&
+        [ITALY, FRANCE, BELGIUM].includes(data.spaces[space].nation)) {
+        cost = 1
+    }
 
     const spaces_where_belgian_units_treated_as_british = [
         AMIENS,
@@ -4239,7 +4252,7 @@ function cost_to_activate(space, type) {
     //  activated space must be paid. This rule does not apply if the MEF is brought in as a normal reinforcement
     //  under 9.5.3.4. No Allied Army except the MEF may use the MEF Beachhead for supply. Only BR and AUS Corps
     //  may use the MEF Beachhead for supply.
-    if (game.active === AP && set_has(nations, BRITAIN) && is_space_supplied_through_mef(space)) {
+    if (faction === AP && set_has(nations, BRITAIN) && is_space_supplied_through_mef(space)) {
         cost = 0
         for_each_piece_in_space(space, (p) => {
             if (p === MEF_ARMY) {
@@ -6662,6 +6675,17 @@ events.sinai_pipeline = {
     },
     play() {
         game.events.sinai_pipeline = game.turn
+        goto_end_action()
+    }
+}
+
+// AP #51
+events.everyone_into_battle = {
+    can_play() {
+        return (game.events.michael > 0 || game.events.blucher > 0 || game.events.peace_offensive > 0)
+    },
+    play() {
+        game.events.everyone_into_battle = game.turn
         goto_end_action()
     }
 }
