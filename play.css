@@ -389,11 +389,12 @@ body.shift .highlight {
 .unit.army_ix_8 { background-position: -315px 0px; }
 .unit.army_ix_9 { background-position: -360px 0px; }
 .unit.army_ix_10 { background-position: -405px 0px; }
-.unit.army_ix_11 { background-position: -495px 0px; }
-.unit.army_ix_12 { background-position: -540px 0px; }
-.unit.army_ix_13 { background-position: -585px 0px; }
-.unit.army_ix_14 { background-position: -630px 0px; }
-.unit.army_ix_15 { background-position: -675px 0px; }
+.unit.army_ix_11 { background-position: -450px 0px; }
+.unit.army_ix_12 { background-position: -495px 0px; }
+.unit.army_ix_13 { background-position: -540px 0px; }
+.unit.army_ix_14 { background-position: -585px 0px; }
+.unit.army_ix_15 { background-position: -630px 0px; }
+.unit.army_ix_16 { background-position: -675px 0px; }
 
 .unit.army_ix_1.reduced { background-position: 0px -45px; }
 .unit.army_ix_2.reduced { background-position: -45px -45px; }
