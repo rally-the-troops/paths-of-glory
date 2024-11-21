@@ -155,39 +155,6 @@ function sub_space_name(match, p1, offset, string) {
     return `<span class="spacetip" onmouseenter="on_focus_space_tip(${s})" onmouseleave="on_blur_space_tip(${s})" onclick="on_click_space_tip(${s})">${n}</span>`
 }
 
-function on_log(text) {
-    let p = document.createElement("div")
-    text = text.replace(/&/g, "&amp;")
-    text = text.replace(/</g, "&lt;")
-    text = text.replace(/>/g, "&gt;")
-    text = text.replace(/#(\d+)[^\]]*\]/g,
-        '<span class="tip" onmouseenter="on_focus_card_tip($1)" onmouseleave="on_blur_card_tip()">$&</span>')
-    text = text.replace(/%(\d+)/g, sub_space_name)
-
-    if (text.match(/^\.h1/)) {
-        text = text.substring(4)
-        p.className = 'h1'
-    }
-    if (text.match(/^\.h2/)) {
-        text = text.substring(4)
-        if (text === 'AP')
-            p.className = 'h2 ap'
-        else if (text === 'CP')
-            p.className = 'h2 cp'
-        else
-            p.className = 'h2'
-    }
-
-    if (text.indexOf("\n") < 0) {
-        p.innerHTML = text
-    } else {
-        text = text.split("\n")
-        p.appendChild(on_log_line(text[0]))
-        for (let i = 1; i < text.length; ++i)
-            p.appendChild(on_log_line(text[i], "indent"))
-    }
-    return p
-}
 
 function show_card_list(id, list) {
     document.getElementById(id).classList.remove("hide")
@@ -1529,6 +1496,97 @@ function toggle_marker(id, show) {
 function on_click_space_tip(s) {
     scroll_into_view(ui.space_list[s])
 }
+
+
+const ICONS_SVG = {
+	B0: '<span class="black d0"></span>',
+	B1: '<span class="black d1"></span>',
+	B2: '<span class="black d2"></span>',
+	B3: '<span class="black d3"></span>',
+	B4: '<span class="black d4"></span>',
+	B5: '<span class="black d5"></span>',
+	B6: '<span class="black d6"></span>',
+	W0: '<span class="white d0"></span>',
+	W1: '<span class="white d1"></span>',
+	W2: '<span class="white d2"></span>',
+	W3: '<span class="white d3"></span>',
+	W4: '<span class="white d4"></span>',
+	W5: '<span class="white d5"></span>',
+	W6: '<span class="white d6"></span>',
+}
+
+const ICONS_TXT = {
+	B0: "\u25cf",
+	B1: "\u2776",
+	B2: "\u2777",
+	B3: "\u2778",
+	B4: "\u2779",
+	B5: "\u277A",
+	B6: "\u277B",
+	W0: "\u25cb",
+	W1: "\u2460",
+	W2: "\u2461",
+	W3: "\u2462",
+	W4: "\u2463",
+	W5: "\u2464",
+	W6: "\u2465",
+}
+
+function sub_icon(match) {
+	return ICONS_SVG[match]
+}
+
+function on_log(text) {
+    let p = document.createElement("div")
+    text = text.replace(/&/g, "&amp;")
+    text = text.replace(/</g, "&lt;")
+    text = text.replace(/>/g, "&gt;")
+    text = text.replace(/#(\d+)[^\]]*\]/g,
+        '<span class="tip" onmouseenter="on_focus_card_tip($1)" onmouseleave="on_blur_card_tip()">$&</span>')
+    text = text.replace(/%(\d+)/g, sub_space_name)
+
+    text = text.replace(/\b[BW]\d\b/g, sub_icon)
+
+    if (text.match(/^\.h1/)) {
+        text = text.substring(4)
+        p.className = 'h1'
+    }
+    if (text.match(/^\.h2/)) {
+        text = text.substring(4)
+        if (text === 'AP')
+            p.className = 'h2 ap'
+        else if (text === 'CP')
+            p.className = 'h2 cp'
+        else
+            p.className = 'h2'
+    }
+
+    if (text.match(/^\.h3cp/)) {
+		text = text.substring(6)
+		p.className = "h3 cp"
+	} else if (text.match(/^\.h3ap/)) {
+		text = text.substring(6)
+		p.className = "h3 ap"
+	} else if (text.match(/^\.h3/)) {
+		text = text.substring(4)
+		p.className = "h3"
+    }
+
+
+
+    if (text.indexOf("\n") < 0) {
+        p.innerHTML = text
+    } else {
+        text = text.split("\n")
+        p.appendChild(on_log_line(text[0]))
+        for (let i = 1; i < text.length; ++i)
+            p.appendChild(on_log_line(text[i], "indent"))
+    }
+    return p
+}
+
+
+
 
 function update_map() {
     if (!view)

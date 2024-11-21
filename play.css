@@ -1,11 +1,18 @@
 main { background-color: dimgray; }
 aside { background-color: darkgray; }
 header { background-color: gainsboro; }
+<<<<<<< Updated upstream
 body.ap header.your_turn { background-color: hsl(49, 31%, 86%); }
 body.ap header.your_turn { background-color: hsl(49, 48%, 64%); }
 body.cp header.your_turn { background-color: hsl(198, 48%, 64%); }
 #role_ap, #log .h2.ap { background-color: hsl(49, 31%, 86%); }
 #role_cp, #log .h2.cp { background-color: #b8d0dc }
+=======
+body.AP header.your_turn { background-color: pink; }
+body.CP header.your_turn { background-color: #d8d8d8; }
+#role_ap, #log .h2.ap { background-color: pink; }
+#role_cp, #log .h2.cp { background-color: #d8d8d8; }
+>>>>>>> Stashed changes
 
 :root {
     --highlight-color: yellow;
@@ -25,9 +32,18 @@ aside { min-width: 220px; }
 
 #log { background-color: whitesmoke; }
 #log > div { padding-left: 20px; text-indent: -12px; }
+<<<<<<< Updated upstream
 #log .h1 { background-color: silver; font-weight: bold; padding-top:2px; padding-bottom:2px; text-align: center; }
 #log .h2 { background-color: lightgrey; padding-top:2px; padding-bottom:2px; text-align: center; }
 #log .h3 { background-color: gainsboro; padding-top:2px; padding-bottom:2px; text-align: center; }
+=======
+#log .h1 { background-color: tan; font-weight: bold; padding-top:2px; padding-bottom:2px; text-align: center; }
+#log .h2 { background-color: wheat; padding-top:2px; padding-bottom:2px; text-align: center; }
+#log .h3 { background-color: antiquewhite; padding-top:2px; padding-bottom:2px; text-align: center; }
+#log .h3.cp { background-color: #d8d8d8; padding-top:2px; padding-bottom:2px; text-align: center; }
+#log .h3.ap { background-color: pink; padding-top:2px; padding-bottom:2px; text-align: center; }
+
+>>>>>>> Stashed changes
 #log .b { text-transform: uppercase; }
 
 #log .tip { color: blue; }
@@ -217,6 +233,38 @@ aside { min-width: 220px; }
     text-align: center;
     white-space: normal;
 }
+
+/* Dices */
+
+#log .white, #log .black {
+	display: inline-block;
+	vertical-align: -2px;
+	width: 11px;
+	height: 11px;
+	border-radius: 0px;
+	background-size: 600% 100%;
+	background-repeat: no-repeat;
+}
+
+#log .white {
+	background-image: url(pieces/die_black_pips.svg);
+	background-color: #fff;
+	border: 1px solid #555;
+}
+
+#log .black {
+	background-image: url(pieces/die_white_pips.svg);
+	background-color: #777;
+	border: 1px solid #222;
+}
+
+.d0 { background-position: -100% 0 }
+.d1 { background-position: 0% 0; }
+.d2 { background-position: 20% 0; }
+.d3 { background-position: 40% 0; }
+.d4 { background-position: 60% 0; }
+.d5 { background-position: 80% 0; }
+.d6 { background-position: 100% 0; }
 
 /* MAP */
 

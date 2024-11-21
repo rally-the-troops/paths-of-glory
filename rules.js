@@ -692,14 +692,15 @@ function setup_initial_decks() {
 }
 
 function goto_start_turn() {
-    roll_mandated_offensives()
 
     game.state = 'action_phase'
     game.active = CP
     log_br()
     log_h1(`Turn ${game.turn} - ${turn_season_and_year(game.turn)}`)
     log_br()
-    log_h1(`${faction_name(game.active)} Action ${game[game.active].actions.length+1}`)
+    roll_mandated_offensives()
+    log_br()
+    log_h3(`${faction_name(game.active)} Action ${game[game.active].actions.length+1}`)
 
     update_russian_capitulation()
 }
@@ -1030,8 +1031,9 @@ function roll_mandated_offensives() {
         cp_mo = NONE
     }
 
-    log_h2(`AP rolled ${ap_roll} resulting in a mandated offensive for ${nation_name(ap_mo)}`)
-    log_h2(`CP rolled ${cp_roll} resulting in a mandated offensive for ${nation_name(cp_mo)}`)
+    log(`Mandated offensive :`)
+    log(`CP roll: W${cp_roll} -> ${nation_name(cp_mo)}`)
+    log(`AP roll: W${ap_roll} -> ${nation_name(ap_mo)}`)
 
     game.ap.mo = ap_mo
     game.cp.mo = cp_mo
@@ -2048,7 +2050,7 @@ function goto_end_action() {
     if (game.ap.actions.length < 6 || game.cp.actions.length < 6) {
         game.active = other_faction(game.active)
         game.state = 'action_phase'
-        log_h1(`${faction_name(game.active)} Action ${game[game.active].actions.length+1}`)
+        log_h3(`${faction_name(game.active)} Action ${game[game.active].actions.length+1}`)
     } else {
         goto_attrition_phase()
     }
@@ -7099,4 +7101,15 @@ function log_h2(msg) {
     log_br()
     log(".h2 " + msg)
     log_br()
+}
+
+function log_h3(msg) {
+    log_br();
+    if (game.active === AP)
+        log(".h3ap " + msg);
+    else if (game.active === CP)
+        log(".h3cp " + msg);
+    else
+        log(".h3 " + msg);
+    log_br();
 }
