@@ -1,10 +1,11 @@
 main { background-color: dimgray; }
 aside { background-color: darkgray; }
 header { background-color: gainsboro; }
-body.AP header.your_turn { background-color: pink; }
-body.CP header.your_turn { background-color: #c9e3f0; }
-#role_ap, #log .h2.ap { background-color: pink; }
-#role_cp, #log .h2.cp { background-color: #c9e3f0; }
+body.ap header.your_turn { background-color: hsl(49, 31%, 86%); }
+body.ap header.your_turn { background-color: hsl(49, 48%, 64%); }
+body.cp header.your_turn { background-color: hsl(198, 48%, 64%); }
+#role_ap, #log .h2.ap { background-color: hsl(49, 31%, 86%); }
+#role_cp, #log .h2.cp { background-color: #b8d0dc }
 
 :root {
     --highlight-color: yellow;
@@ -22,11 +23,11 @@ aside { min-width: 220px; }
 
 /* LOG */
 
-#log { background-color: floralwhite; }
+#log { background-color: whitesmoke; }
 #log > div { padding-left: 20px; text-indent: -12px; }
-#log .h1 { background-color: tan; font-weight: bold; padding-top:2px; padding-bottom:2px; text-align: center; }
-#log .h2 { background-color: wheat; padding-top:2px; padding-bottom:2px; text-align: center; }
-#log .h3 { background-color: antiquewhite; padding-top:2px; padding-bottom:2px; text-align: center; }
+#log .h1 { background-color: silver; font-weight: bold; padding-top:2px; padding-bottom:2px; text-align: center; }
+#log .h2 { background-color: lightgrey; padding-top:2px; padding-bottom:2px; text-align: center; }
+#log .h3 { background-color: gainsboro; padding-top:2px; padding-bottom:2px; text-align: center; }
 #log .b { text-transform: uppercase; }
 
 #log .tip { color: blue; }
