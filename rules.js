@@ -1351,7 +1351,6 @@ states.choose_sr_unit = {
                 gen_action_piece(p)
             }
         })
-        gen_action_undo()
         gen_action_done()
     },
     piece(p) {
@@ -1419,7 +1418,6 @@ states.choose_sr_destination = {
         view.prompt = `Choose destination for Strategic Redeployment`
         let destinations = find_sr_destinations()
         destinations.forEach(gen_action_space)
-        gen_action_undo()
     },
     space(s) {
         push_undo()
@@ -1732,10 +1730,8 @@ states.place_reinforcements = {
             spaces.forEach((s) => {
                 gen_action_space(s)
             })
-            gen_action_undo()
         } else {
             view.prompt = `Place reinforcements - Done`
-            gen_action_undo()
             gen_action_done()
         }
     },
@@ -1908,7 +1904,6 @@ states.activate_spaces = {
                 }
             }
         })
-        gen_action_undo()
         gen_action_done()
     },
     deactivate(s) {
@@ -2125,7 +2120,6 @@ states.choose_move_space = {
         if (!space_eligible_to_move) { // This can happen if all spaces are entrenching, for example
             gen_action_done()
         }
-        gen_action_undo()
     },
     space(s) {
         push_undo()
@@ -2169,7 +2163,6 @@ states.choose_entrench_units = {
         get_units_eligible_to_entrench().forEach((p) => {
             gen_action_piece(p)
         })
-        gen_action_undo()
         gen_action_done()
     },
     piece(p) {
@@ -2204,7 +2197,6 @@ states.place_event_trench = {
             gen_action_done()
         }
 
-        gen_action_undo()
     },
     space(s) {
         log(`Placed a trench in ${space_name(s)}`)
@@ -2234,7 +2226,6 @@ states.choose_pieces_to_move = {
         } else {
             gen_action('done')
         }
-        gen_action_undo()
     },
     piece(p) {
         if (game.move.pieces.includes(p)) {
@@ -2334,7 +2325,6 @@ states.move_stack = {
             game.move.pieces.forEach((p) => { gen_action_piece(p) })
         }
 
-        gen_action_undo()
 
         if (can_end_move(game.move.current))
             gen_action('end_move')
@@ -2630,7 +2620,6 @@ states.choose_attackers = {
         get_attackable_spaces(game.attack.pieces).forEach((s) => {
             gen_action_space(s)
         })
-        gen_action_undo()
         gen_action_pass()
     },
     piece(p) {
@@ -2929,7 +2918,6 @@ states.choose_flank_attack = {
             set_add(attack_spaces, game.location[p])
         })
         attack_spaces.forEach(gen_action_space)
-        gen_action_undo()
         gen_action_pass()
     },
     space(s) {
@@ -2965,7 +2953,6 @@ states.play_wireless_intercepts = {
         if (game[game.active].hand.includes(WIRELESS_INTERCEPTS)) {
             gen_action_card(WIRELESS_INTERCEPTS)
         }
-        gen_action_undo()
         gen_action_pass()
     },
     card(c) {
@@ -3075,7 +3062,6 @@ states.attacker_combat_cards = {
               gen_action_card(c)
         })
 
-        gen_action_undo()
         gen_action_done()
     },
     card(c) {
@@ -3125,7 +3111,6 @@ states.defender_combat_cards = {
                 gen_action_card(c)
         })
 
-        gen_action_undo()
         gen_action_done()
     },
     card(c) {
@@ -3357,7 +3342,6 @@ states.eliminate_retreated_units = {
             }
         })
 
-        gen_action_undo()
         if (has_pieces_to_eliminate) {
             view.prompt = 'Eliminate units that previously retreated'
         } else {
@@ -3379,7 +3363,6 @@ states.eliminate_retreated_units = {
 states.apply_defender_losses = {
     inactive: 'Defender taking losses',
     prompt() {
-        gen_action_undo()
 
         let loss_options = []
         if (game.attack.defender_losses - game.attack.defender_losses_taken > 0) {
@@ -3452,7 +3435,6 @@ states.withdrawal_negate_step_loss = {
                 gen_action_piece(p)
         })
 
-        gen_action_undo()
         gen_action_done()
     },
     piece(p) {
@@ -3516,7 +3498,6 @@ function reduce_piece(p) {
 states.apply_attacker_losses = {
     inactive: 'Attacker Applying Losses',
     prompt() {
-        gen_action_undo()
 
         let loss_options = []
         if (game.attack.attacker_losses - game.attack.attacker_losses_taken > 0)
@@ -3901,7 +3882,6 @@ states.defender_retreat = {
         game.attack.retreating_pieces.forEach((p) => {
             gen_action_piece(p)
         })
-        gen_action_undo()
         if (game.attack.retreating_pieces.length > 0) {
             gen_action_next()
         } else {
@@ -3932,7 +3912,6 @@ states.choose_retreat_path = {
     inactive: 'Defender Retreating',
     prompt() {
 
-        gen_action_undo()
         if (game.attack.retreat_path.length === game.attack.retreat_length) {
             view.prompt = `End retreat?`
             gen_action_done()
@@ -4067,7 +4046,6 @@ states.perform_advance = {
     prompt() {
         view.prompt = `Choose next space to advance`
         get_possible_advance_spaces().forEach(gen_action_space)
-        gen_action_undo()
         gen_action_done()
     },
     space(s) {
@@ -4680,7 +4658,6 @@ states.replacement_phase = {
         units.forEach((p) => {
             gen_action_piece(p)
         })
-        gen_action_undo()
         gen_action_done()
     },
     piece(p) {
@@ -4772,7 +4749,6 @@ states.choose_second_replacement_corps = {
                 gen_action_space(game.active === AP ? AP_RESERVE_BOX : CP_RESERVE_BOX)
         }
 
-        gen_action_undo()
     },
     piece(p) {
         push_undo()
@@ -4817,7 +4793,6 @@ states.choose_replacement_army = {
         if (is_unit_reduced(game.who) && full_replacement_allowed)
             gen_action_piece(game.who)
         get_army_replacement_spaces(game.who).forEach(gen_action_space)
-        gen_action_undo()
     },
     piece(p) {
         if (is_unit_reduced(p)) {
@@ -4963,10 +4938,6 @@ function gen_action_card(c) {
     gen_action('card', c)
 }
 
-function gen_action_undo() {
-    // nothing - can remove this
-}
-
 function card_name(card) {
     return `#${card} ${cards[card].name} [${cards[card].ops}/${cards[card].sr}]`
 }
@@ -5024,7 +4995,6 @@ states.place_new_neutral_units = {
             view.prompt = 'Done placing new units'
             gen_action_done()
         }
-        gen_action_undo()
 
     },
     space(s) {
@@ -5365,7 +5335,6 @@ states.landwehr = {
     inactive: 'Choose units for the Landwehr event',
     prompt() {
         view.prompt = `Choose a reduced unit to strengthen (${game.landwehr_replacements} remaining)`
-        gen_action_undo()
         if (game.landwehr_replacements > 0) {
             for (let p = 1; p < data.pieces.length; ++p) {
                 if (data.pieces[p].nation === GERMANY && is_unit_reduced(p) && is_unit_supplied(p)) {
@@ -6164,7 +6133,6 @@ states.russian_desertions = {
     inactive: 'Russian Desertions: Choosing units to reduce',
     prompt() {
         view.prompt = `Choose a Russian unit to reduce (${game.russian_desertions_remaining} remaining)`
-        gen_action_undo()
         if (game.russian_desertions_remaining > 0) {
             for (let p = 1; p < data.pieces.length; ++p) {
                 if (game.location[p] !== 0 && data.pieces[p].nation === RUSSIA && !is_unit_reduced(p)) {
@@ -6526,7 +6494,6 @@ states.salonika = {
                 }
             }
         }
-        gen_action_undo()
         if (game.salonika_sr_remaining < 3) {
             gen_action_done()
         }
@@ -6774,7 +6741,6 @@ states.paris_taxis = {
                 gen_action_piece(p)
             }
         }
-        gen_action_undo()
         gen_action_pass()
     },
     piece(p) {
@@ -6818,7 +6784,6 @@ states.russian_cavalry = {
             view.prompt = 'Place the Russian Cavalry - Done'
             gen_action_done()
         }
-        gen_action_undo()
     },
     space(s) {
         push_undo()
