@@ -435,7 +435,14 @@ exports.view = function(state, current) {
         else
             inactive_prompt(game.state.replace(/_/g, " "))
     } else {
+        view.actions = {}
         states[game.state].prompt()
+        if (view.actions.undo === undefined) {
+            if (game.undo && game.undo.length > 0)
+                view.actions.undo = 1
+            else
+                view.actions.undo = 0
+        }
     }
 
     return view
@@ -4957,12 +4964,7 @@ function gen_action_card(c) {
 }
 
 function gen_action_undo() {
-    if (!view.actions)
-        view.actions = {}
-    if (game.undo && game.undo.length > 0)
-        view.actions.undo = 1
-    else
-        view.actions.undo = 0
+    // nothing - can remove this
 }
 
 function card_name(card) {
