@@ -249,19 +249,19 @@ const DESERT = "desert"
 const FOREST = "forest"
 
 // Piece indices
-const GE_1_ARMY = find_piece(GERMANY, '1 Army')
-const GE_2_ARMY = find_piece(GERMANY, '2 Army')
-const GE_11_ARMY = find_piece(GERMANY, '11 Army')
-const BRITISH_NE_ARMY = find_piece(BRITAIN, 'NE Army')
-const BEF_ARMY = find_piece(BRITAIN, 'BEF Army')
-const BEF_CORPS = find_piece(BRITAIN, 'BEF Corps')
-const MEF_ARMY = find_piece(BRITAIN, 'MEF Army')
-const AUS_CORPS = find_piece(BRITAIN, 'AUS Corps')
-const CND_CORPS = find_piece(BRITAIN, 'CND Corps')
-const PT_CORPS = find_piece(BRITAIN, 'PT Corps')
-const CAU_ARMY = find_piece(RUSSIA, 'CAU Army')
-const BRITISH_ANA_CORPS = find_piece(BRITAIN, 'ANA Corps')
-const TURKISH_SN_CORPS = find_piece('sn', 'SN Corps')
+const GE_1_ARMY = find_piece(GERMANY, 'GE 1')
+const GE_2_ARMY = find_piece(GERMANY, 'GE 2')
+const GE_11_ARMY = find_piece(GERMANY, 'GE 11')
+const BRITISH_NE_ARMY = find_piece(BRITAIN, 'BR NE')
+const BEF_ARMY = find_piece(BRITAIN, 'BR BEF')
+const BEF_CORPS = find_piece(BRITAIN, 'BR BEFc')
+const MEF_ARMY = find_piece(BRITAIN, 'BR MEF')
+const AUS_CORPS = find_piece(BRITAIN, 'AUSc')
+const CND_CORPS = find_piece(BRITAIN, 'CNDc')
+const PT_CORPS = find_piece(BRITAIN, 'PTc')
+const CAU_ARMY = find_piece(RUSSIA, 'RU CAU')
+const BRITISH_ANA_CORPS = find_piece(BRITAIN, 'BR ANAc')
+const TURKISH_SN_CORPS = find_piece('sn', 'TU SNc')
 
 function is_minor_british_nation(piece) {
     return piece === AUS_CORPS || piece === CND_CORPS || piece === PT_CORPS || piece === BRITISH_ANA_CORPS
@@ -455,66 +455,66 @@ exports.setup = function (seed, scenario, options) {
 
     log_h1("Paths of Glory")
 
-    setup_piece('ge', '1 Army', 'Aachen')
-    setup_piece('ge', '2 Army', 'Koblenz')
-    setup_piece('ge', '3 Army', 'Koblenz')
-    setup_piece('ge', '4 Army', 'Metz')
-    setup_piece('ge', '5 Army', 'Metz')
-    setup_piece('ge', '6 Army', 'Strasbourg')
-    setup_piece('ge', '7 Army', 'Mulhouse', true)
-    setup_piece('ge', 'GE Corps', 'Bremen', true)
-    setup_piece('fr', '1 Army', 'Nancy')
-    setup_piece('fr', '2 Army', 'Nancy')
-    setup_piece('fr', '3 Army', 'Verdun')
-    setup_piece('fr', '4 Army', 'Verdun')
-    setup_piece('fr', '5 Army', 'Sedan')
-    setup_piece('fr', '6 Army', 'Paris', true)
-    setup_piece('fr', '9 Army', 'Bar le Duc', true)
-    setup_piece('fr', 'FR Corps', 'Belfort')
-    setup_piece('fr', 'FR Corps', 'Belfort')
-    setup_piece('fr', 'FR Corps', 'Grenoble')
-    setup_piece('be', '1 Army', 'Antwerp')
-    setup_piece('br', 'BEF Army', 'Brussels')
+    setup_piece('ge', 'GE 1', 'Aachen')
+    setup_piece('ge', 'GE 2', 'Koblenz')
+    setup_piece('ge', 'GE 3', 'Koblenz')
+    setup_piece('ge', 'GE 4', 'Metz')
+    setup_piece('ge', 'GE 5', 'Metz')
+    setup_piece('ge', 'GE 6', 'Strasbourg')
+    setup_piece('ge', 'GE 7', 'Mulhouse', true)
+    setup_piece('ge', 'GEc', 'Bremen', true)
+    setup_piece('fr', 'FR 1', 'Nancy')
+    setup_piece('fr', 'FR 2', 'Nancy')
+    setup_piece('fr', 'FR 3', 'Verdun')
+    setup_piece('fr', 'FR 4', 'Verdun')
+    setup_piece('fr', 'FR 5', 'Sedan')
+    setup_piece('fr', 'FR 6', 'Paris', true)
+    setup_piece('fr', 'FR 9', 'Bar le Duc', true)
+    setup_piece('fr', 'FRc', 'Belfort')
+    setup_piece('fr', 'FRc', 'Belfort')
+    setup_piece('fr', 'FRc', 'Grenoble')
+    setup_piece('be', 'BE 1', 'Antwerp')
+    setup_piece('br', 'BR BEF', 'Brussels')
 
-    setup_piece('ge', '8 Army', 'Insterberg')
-    setup_piece('ge', 'GE Corps', 'Insterberg')
-    setup_piece('ge', 'GE Corps', 'Oppeln', true)
-    setup_piece('ah', 'A-H Corps', 'Cracow')
-    setup_piece('ah', '1 Army', 'Tarnow')
-    setup_piece('ah', '4 Army', 'Przemysl')
-    setup_piece('ah', 'A-H Corps', 'Stanislau')
-    setup_piece('ah', '2 Army', 'Munkacs', true)
-    setup_piece('ah', '3 Army', 'Tarnopol')
-    setup_piece('ah', 'A-H Corps', 'Czernowitz')
-    setup_piece('ah', 'A-H Corps', 'Timisvar')
-    setup_piece('ah', 'A-H Corps', 'Villach')
-    setup_piece('ah', '6 Army', 'Sarajevo')
-    setup_piece('ah', '5 Army', 'Novi Sad')
+    setup_piece('ge', 'GE 8', 'Insterberg')
+    setup_piece('ge', 'GEc', 'Insterberg')
+    setup_piece('ge', 'GEc', 'Oppeln', true)
+    setup_piece('ah', 'AHc', 'Cracow')
+    setup_piece('ah', 'AH 1', 'Tarnow')
+    setup_piece('ah', 'AH 4', 'Przemysl')
+    setup_piece('ah', 'AHc', 'Stanislau')
+    setup_piece('ah', 'AH 2', 'Munkacs', true)
+    setup_piece('ah', 'AH 3', 'Tarnopol')
+    setup_piece('ah', 'AHc', 'Czernowitz')
+    setup_piece('ah', 'AHc', 'Timisvar')
+    setup_piece('ah', 'AHc', 'Villach')
+    setup_piece('ah', 'AH 6', 'Sarajevo')
+    setup_piece('ah', 'AH 5', 'Novi Sad')
 
-    setup_piece('mn', 'MN Corps', 'Cetinje')
-    setup_piece('sb', '2 Army', 'Valjevo')
-    setup_piece('sb', '1 Army', 'Belgrade')
+    setup_piece('mn', 'MNc', 'Cetinje')
+    setup_piece('sb', 'SB 2', 'Valjevo')
+    setup_piece('sb', 'SB 1', 'Belgrade')
 
-    setup_piece('ru', 'RU Corps', 'Odessa')
-    setup_piece('ru', 'RU Corps', 'Lutsk')
-    setup_piece('ru', 'RU Corps', 'Szawli')
-    setup_piece('ru', 'RU Corps', 'Riga')
-    setup_piece('ru', 'RU Corps', 'Grodno')
-    setup_piece('ru', '1 Army', 'Kovno')
-    setup_piece('ru', '2 Army', 'Lomza')
-    setup_piece('ru', '4 Army', 'Ivangorod')
-    setup_piece('ru', '5 Army', 'Lublin')
-    setup_piece('ru', '3 Army', 'Dubno')
-    setup_piece('ru', '8 Army', 'Kamenets-Podolski')
-    setup_piece('ru', 'RU Corps', 'Kars')
-    setup_piece('ru', 'RU Corps', 'Erivan')
-    setup_piece('ru', 'RU Corps', 'Batum')
+    setup_piece('ru', 'RUc', 'Odessa')
+    setup_piece('ru', 'RUc', 'Lutsk')
+    setup_piece('ru', 'RUc', 'Szawli')
+    setup_piece('ru', 'RUc', 'Riga')
+    setup_piece('ru', 'RUc', 'Grodno')
+    setup_piece('ru', 'RU 1', 'Kovno')
+    setup_piece('ru', 'RU 2', 'Lomza')
+    setup_piece('ru', 'RU 4', 'Ivangorod')
+    setup_piece('ru', 'RU 5', 'Lublin')
+    setup_piece('ru', 'RU 3', 'Dubno')
+    setup_piece('ru', 'RU 8', 'Kamenets-Podolski')
+    setup_piece('ru', 'RUc', 'Kars')
+    setup_piece('ru', 'RUc', 'Erivan')
+    setup_piece('ru', 'RUc', 'Batum')
 
-    setup_piece('br', 'BR Corps', 'Basra')
-    setup_piece('br', 'BR Corps', 'Cairo', true)
-    setup_piece('br', 'BR Corps', 'Port Said', true)
+    setup_piece('br', 'BRc', 'Basra')
+    setup_piece('br', 'BRc', 'Cairo', true)
+    setup_piece('br', 'BRc', 'Port Said', true)
 
-    setup_piece('br', 'BEF Corps', 'AP Reserve Box')
+    setup_piece('br', 'BR BEFc', 'AP Reserve Box')
     setup_reserve_corps(ITALY, 4)
     setup_reserve_corps(FRANCE, 7)
     setup_reserve_corps(BRITAIN, 1)
@@ -808,29 +808,29 @@ function setup_reserve_corps(nation, quantity) {
     let space = 'AP Reserve Box'
     switch (nation) {
         case ITALY:
-            unit = 'IT Corps'
+            unit = 'ITc'
             break
         case FRANCE:
-            unit = 'FR Corps'
+            unit = 'FRc'
             break
         case BRITAIN:
-            unit = 'BR Corps'
+            unit = 'BRc'
             break
         case RUSSIA:
-            unit = 'RU Corps'
+            unit = 'RUc'
             break
         case BELGIUM:
-            unit = 'BE Corps'
+            unit = 'BEc'
             break
         case SERBIA:
-            unit = 'SB Corps'
+            unit = 'SBc'
             break
         case AUSTRIA_HUNGARY:
-            unit = 'A-H Corps'
+            unit = 'AHc'
             space = 'CP Reserve Box'
             break
         case GERMANY:
-            unit = 'GE Corps'
+            unit = 'GEc'
             space - 'CP Reserve Box'
             break
     }
@@ -1032,7 +1032,7 @@ function roll_mandated_offensives() {
     }
 
     log(`Mandated offensive :`)
-    log(`CP roll: W${cp_roll} -> ${nation_name(cp_mo)}`)
+    log(`CP roll: B${cp_roll} -> ${nation_name(cp_mo)}`)
     log(`AP roll: W${ap_roll} -> ${nation_name(ap_mo)}`)
 
     game.ap.mo = ap_mo
@@ -1787,17 +1787,17 @@ function get_available_reinforcement_spaces(p) {
     }
 
     // Special placement options for French Orient Army, British NE Army, Russian CAU Army, and British MEF Army
-    if (piece_data.name === 'Orient Army') {
+    if (piece_data.name === 'FR Orient') {
         spaces.push(SALONIKA_SPACE)
-    } else if (piece_data.name === 'NE Army') {
+    } else if (piece_data.name === 'BR NE') {
         spaces.push(ALEXANDRIA)
-    } else if (piece_data.name === 'CAU Army') {
+    } else if (piece_data.name === 'RU CAU') {
         // any supplied space in Russia on the NE map
         for (let s = 1; s < data.spaces.length; s++) {
             if (data.spaces[s].nation === RUSSIA && data.spaces[s].map === 'neareast' && is_space_supplied(AP, s))
                 spaces.push(s)
         }
-    } else if (piece_data.name === 'MEF Army') {
+    } else if (piece_data.name === 'BR MEF') {
         spaces.push(MEF1)
         spaces.push(MEF2)
         spaces.push(MEF3)
@@ -2461,7 +2461,7 @@ function can_move_to(s, moving_pieces) {
     //  even while Italy is still Neutral.
 
     // Neither the BEF Corps nor Army may move in or attack into any space outside Britain, France, Belgium, and Germany.
-    if (moving_pieces.includes(find_piece(BRITAIN, 'BEF Corps')) || moving_pieces.includes(find_piece(BRITAIN, 'BEF Army'))) {
+    if (moving_pieces.includes(find_piece(BRITAIN, 'BR BEFc')) || moving_pieces.includes(find_piece(BRITAIN, 'BR BEF'))) {
         if (data.spaces[s].nation !== BRITAIN && data.spaces[s].nation !== FRANCE && data.spaces[s].nation !== BELGIUM && data.spaces[s].nation !== GERMANY) {
             return false
         }
@@ -2499,12 +2499,12 @@ function can_move_to(s, moving_pieces) {
 }
 
 const neareast_armies = [
-    find_piece(RUSSIA, 'CAU Army'),
-    find_piece(BRITAIN, 'NE Army'),
-    find_piece(FRANCE, 'Orient Army'),
-    find_piece(BRITAIN, 'MEF Army'),
-    find_piece(TURKEY, 'YLD Army'),
-    find_piece(TURKEY, 'AoI Army')
+    find_piece(RUSSIA, 'RU CAU'),
+    find_piece(BRITAIN, 'BR NE'),
+    find_piece(FRANCE, 'FR Orient'),
+    find_piece(BRITAIN, 'BR MEF'),
+    find_piece(TURKEY, 'TU YLD'),
+    find_piece(TURKEY, 'TU AoI')
 ]
 
 function can_enter_neareast(pieces) {
@@ -2516,7 +2516,7 @@ function can_enter_neareast(pieces) {
         }
 
         // Per the event card that brings them into play, the Russian Cavalry Corps units cannot enter the Near East map
-        if (data.pieces[p].name === "RU Cavalry Corps") {
+        if (data.pieces[p].name === "RU CAVc") {
             return false
         }
     }
@@ -2659,7 +2659,7 @@ function goto_attack() {
     const mo = game.active === AP ? game.ap.mo : game.cp.mo
     if (mo !== NONE && satisfies_mo(mo, game.attack.pieces, get_pieces_in_space(game.attack.space), game.attack.space)) {
         game[game.active].mo = NONE
-        log(`${faction_name(game.active)} satisfied mandatory offensive`)
+        log(`${faction_name(mo)} mandatory offensive: Done`)
     }
 
     if (game.events.french_mutiny > 0 && game.attack.attacker === AP) {
@@ -6469,9 +6469,9 @@ events.salonika = {
     play() {
         game.events.salonika = game.turn
         if (!game.events.greece_entry) {
-            setup_piece(GREECE, 'GR Corps', 'Athens')
-            setup_piece(GREECE, 'GR Corps', 'Florina')
-            setup_piece(GREECE, 'GR Corps', 'Larisa')
+            setup_piece(GREECE, 'GRc', 'Athens')
+            setup_piece(GREECE, 'GRc', 'Florina')
+            setup_piece(GREECE, 'GRc', 'Larisa')
         }
         game.salonika_sr_remaining = 3
         game.state = 'salonika'

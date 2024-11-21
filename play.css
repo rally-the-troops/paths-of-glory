@@ -239,15 +239,16 @@ aside { min-width: 220px; }
 	background-repeat: no-repeat;
 }
 
+
 #log .white {
-	background-image: url(pieces/die_black_pips.svg);
-	background-color: #fff;
+	background-image: url(pieces/die_white_pips.svg);
+	background-color: blue;
 	border: 1px solid #555;
 }
 
 #log .black {
 	background-image: url(pieces/die_white_pips.svg);
-	background-color: #777;
+	background-color: grey;
 	border: 1px solid #222;
 }
 

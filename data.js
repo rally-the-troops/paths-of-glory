@@ -1611,7 +1611,7 @@ const cards = [
         "rpge": 2,
         "rptu": 1,
         "name": "Turkish Reinforcements",
-        "effect": "YLD Army.",
+        "effect": "YLD.",
         "reinfnation": "tu",
         "reinf": "YLD Army"
     },
@@ -1967,7 +1967,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ge",
-        "name": "1 Army",
+        "name": "GE 1",
         "type": "army",
         "counter": "army_ge army_ix_1",
         "cf": 5,
@@ -1981,7 +1981,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ge",
-        "name": "2 Army",
+        "name": "GE 2",
         "type": "army",
         "counter": "army_ge army_ix_2",
         "cf": 5,
@@ -1995,7 +1995,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ge",
-        "name": "3 Army",
+        "name": "GE 3",
         "type": "army",
         "counter": "army_ge army_ix_3",
         "cf": 5,
@@ -2009,7 +2009,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ge",
-        "name": "4 Army",
+        "name": "GE 4",
         "type": "army",
         "counter": "army_ge army_ix_4",
         "cf": 5,
@@ -2023,7 +2023,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ge",
-        "name": "5 Army",
+        "name": "GE 5",
         "type": "army",
         "counter": "army_ge army_ix_5",
         "cf": 5,
@@ -2037,7 +2037,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ge",
-        "name": "6 Army",
+        "name": "GE 6",
         "type": "army",
         "counter": "army_ge army_ix_6",
         "cf": 5,
@@ -2051,7 +2051,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ge",
-        "name": "7 Army",
+        "name": "GE 7",
         "type": "army",
         "counter": "army_ge army_ix_7",
         "cf": 5,
@@ -2065,7 +2065,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ge",
-        "name": "8 Army",
+        "name": "GE 8",
         "type": "army",
         "counter": "army_ge army_ix_8",
         "cf": 5,
@@ -2079,7 +2079,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ge",
-        "name": "9 Army",
+        "name": "GE 9",
         "type": "army",
         "counter": "army_ge army_ix_9",
         "cf": 5,
@@ -2093,7 +2093,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ge",
-        "name": "10 Army",
+        "name": "GE 10",
         "type": "army",
         "counter": "army_ge army_ix_10",
         "cf": 5,
@@ -2107,7 +2107,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ge",
-        "name": "11 Army",
+        "name": "GE 11",
         "type": "army",
         "counter": "army_ge army_ix_11",
         "cf": 5,
@@ -2121,7 +2121,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ge",
-        "name": "12 Army",
+        "name": "GE 12",
         "type": "army",
         "counter": "army_ge army_ix_12",
         "cf": 5,
@@ -2135,7 +2135,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ge",
-        "name": "14 Army",
+        "name": "GE 14",
         "type": "army",
         "counter": "army_ge army_ix_13",
         "cf": 5,
@@ -2149,7 +2149,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ge",
-        "name": "17 Army",
+        "name": "GE 17",
         "type": "army",
         "counter": "army_ge army_ix_14",
         "cf": 5,
@@ -2163,7 +2163,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ge",
-        "name": "18 Army",
+        "name": "GE 18",
         "type": "army",
         "counter": "army_ge army_ix_15",
         "cf": 5,
@@ -2177,7 +2177,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ah",
-        "name": "1 Army",
+        "name": "AH 1",
         "type": "army",
         "counter": "army_ah army_ix_1",
         "cf": 3,
@@ -2191,7 +2191,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ah",
-        "name": "2 Army",
+        "name": "AH 2",
         "type": "army",
         "counter": "army_ah army_ix_2",
         "cf": 3,
@@ -2205,7 +2205,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ah",
-        "name": "3 Army",
+        "name": "AH 3",
         "type": "army",
         "counter": "army_ah army_ix_3",
         "cf": 3,
@@ -2219,7 +2219,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ah",
-        "name": "4 Army",
+        "name": "AH 4",
         "type": "army",
         "counter": "army_ah army_ix_4",
         "cf": 3,
@@ -2233,7 +2233,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ah",
-        "name": "5 Army",
+        "name": "AH 5",
         "type": "army",
         "counter": "army_ah army_ix_5",
         "cf": 3,
@@ -2247,7 +2247,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ah",
-        "name": "6 Army",
+        "name": "AH 6",
         "type": "army",
         "counter": "army_ah army_ix_6",
         "cf": 3,
@@ -2261,7 +2261,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ah",
-        "name": "7 Army",
+        "name": "AH 7",
         "type": "army",
         "counter": "army_ah army_ix_7",
         "cf": 3,
@@ -2275,7 +2275,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ah",
-        "name": "10 Army",
+        "name": "AH 10",
         "type": "army",
         "counter": "army_ah army_ix_8",
         "cf": 3,
@@ -2289,7 +2289,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ah",
-        "name": "11 Army",
+        "name": "AH 11",
         "type": "army",
         "counter": "army_ah army_ix_9",
         "cf": 3,
@@ -2303,7 +2303,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "it",
-        "name": "1 Army",
+        "name": "IT 1",
         "type": "army",
         "counter": "army_it army_ix_1",
         "cf": 2,
@@ -2317,7 +2317,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "it",
-        "name": "2 Army",
+        "name": "IT 2",
         "type": "army",
         "counter": "army_it army_ix_2",
         "cf": 2,
@@ -2331,7 +2331,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "it",
-        "name": "3 Army",
+        "name": "IT 3",
         "type": "army",
         "counter": "army_it army_ix_3",
         "cf": 2,
@@ -2345,7 +2345,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "it",
-        "name": "4 Army",
+        "name": "IT 4",
         "type": "army",
         "counter": "army_it army_ix_4",
         "cf": 2,
@@ -2359,7 +2359,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "it",
-        "name": "5 Army",
+        "name": "IT 5",
         "type": "army",
         "counter": "army_it army_ix_5",
         "cf": 2,
@@ -2373,7 +2373,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "tu",
-        "name": "YLD Army",
+        "name": "TU YLD",
         "type": "army",
         "counter": "army_tu army_ix_2",
         "cf": 1,
@@ -2388,7 +2388,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "tu",
-        "name": "AoI Army",
+        "name": "TU AoI",
         "type": "army",
         "counter": "army_tu army_ix_1",
         "cf": 1,
@@ -2403,7 +2403,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "fr",
-        "name": "1 Army",
+        "name": "FR 1",
         "type": "army",
         "counter": "army_fr army_ix_1",
         "cf": 3,
@@ -2417,7 +2417,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "fr",
-        "name": "2 Army",
+        "name": "FR 2",
         "type": "army",
         "counter": "army_fr army_ix_2",
         "cf": 3,
@@ -2431,7 +2431,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "fr",
-        "name": "3 Army",
+        "name": "FR 3",
         "type": "army",
         "counter": "army_fr army_ix_3",
         "cf": 3,
@@ -2445,7 +2445,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "fr",
-        "name": "4 Army",
+        "name": "FR 4",
         "type": "army",
         "counter": "army_fr army_ix_4",
         "cf": 3,
@@ -2459,7 +2459,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "fr",
-        "name": "5 Army",
+        "name": "FR 5",
         "type": "army",
         "counter": "army_fr army_ix_5",
         "cf": 3,
@@ -2473,7 +2473,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "fr",
-        "name": "6 Army",
+        "name": "FR 6",
         "type": "army",
         "counter": "army_fr army_ix_6",
         "cf": 3,
@@ -2487,7 +2487,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "fr",
-        "name": "7 Army",
+        "name": "FR 7",
         "type": "army",
         "counter": "army_fr army_ix_7",
         "cf": 3,
@@ -2501,7 +2501,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "fr",
-        "name": "9 Army",
+        "name": "FR 9",
         "type": "army",
         "counter": "army_fr army_ix_8",
         "cf": 3,
@@ -2515,7 +2515,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "fr",
-        "name": "10 Army",
+        "name": "FR 10",
         "type": "army",
         "counter": "army_fr army_ix_9",
         "cf": 3,
@@ -2529,7 +2529,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "fr",
-        "name": "Orient Army",
+        "name": "FR Orient",
         "type": "army",
         "counter": "army_fr army_ix_10",
         "cf": 3,
@@ -2544,7 +2544,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "br",
-        "name": "1 Army",
+        "name": "BR 1",
         "type": "army",
         "counter": "army_br army_ix_1",
         "cf": 4,
@@ -2558,7 +2558,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "br",
-        "name": "2 Army",
+        "name": "BR 2",
         "type": "army",
         "counter": "army_br army_ix_2",
         "cf": 4,
@@ -2572,7 +2572,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "br",
-        "name": "3 Army",
+        "name": "BR 3",
         "type": "army",
         "counter": "army_br army_ix_3",
         "cf": 4,
@@ -2586,7 +2586,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "br",
-        "name": "4 Army",
+        "name": "BR 4",
         "type": "army",
         "counter": "army_br army_ix_4",
         "cf": 4,
@@ -2600,7 +2600,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "br",
-        "name": "5 Army",
+        "name": "BR 5",
         "type": "army",
         "counter": "army_br army_ix_5",
         "cf": 4,
@@ -2614,7 +2614,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "br",
-        "name": "BEF Army",
+        "name": "BR BEF",
         "type": "army",
         "counter": "army_br army_ix_6",
         "cf": 5,
@@ -2628,7 +2628,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "br",
-        "name": "NE Army",
+        "name": "BR NE",
         "type": "army",
         "counter": "army_br army_ix_8",
         "cf": 4,
@@ -2643,7 +2643,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "br",
-        "name": "MEF Army",
+        "name": "BR MEF",
         "type": "army",
         "counter": "army_br army_ix_7",
         "cf": 1,
@@ -2658,7 +2658,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "us",
-        "name": "1 Army",
+        "name": "US 1",
         "type": "army",
         "counter": "army_us army_ix_1",
         "cf": 5,
@@ -2672,7 +2672,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "us",
-        "name": "2 Army",
+        "name": "US 2",
         "type": "army",
         "counter": "army_us army_ix_2",
         "cf": 5,
@@ -2686,7 +2686,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ru",
-        "name": "1 Army",
+        "name": "RU 1",
         "type": "army",
         "counter": "army_ru army_ix_1",
         "cf": 3,
@@ -2700,7 +2700,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ru",
-        "name": "2 Army",
+        "name": "RU 2",
         "type": "army",
         "counter": "army_ru army_ix_2",
         "cf": 3,
@@ -2714,7 +2714,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ru",
-        "name": "3 Army",
+        "name": "RU 3",
         "type": "army",
         "counter": "army_ru army_ix_3",
         "cf": 3,
@@ -2728,7 +2728,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ru",
-        "name": "4 Army",
+        "name": "RU 4",
         "type": "army",
         "counter": "army_ru army_ix_4",
         "cf": 3,
@@ -2742,7 +2742,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ru",
-        "name": "5 Army",
+        "name": "RU 5",
         "type": "army",
         "counter": "army_ru army_ix_5",
         "cf": 3,
@@ -2756,7 +2756,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ru",
-        "name": "6 Army",
+        "name": "RU 6",
         "type": "army",
         "counter": "army_ru army_ix_6",
         "cf": 3,
@@ -2770,7 +2770,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ru",
-        "name": "7 Army",
+        "name": "RU 7",
         "type": "army",
         "counter": "army_ru army_ix_7",
         "cf": 3,
@@ -2784,7 +2784,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ru",
-        "name": "8 Army",
+        "name": "RU 8",
         "type": "army",
         "counter": "army_ru army_ix_8",
         "cf": 3,
@@ -2798,7 +2798,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ru",
-        "name": "9 Army",
+        "name": "RU 9",
         "type": "army",
         "counter": "army_ru army_ix_9",
         "cf": 3,
@@ -2812,7 +2812,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ru",
-        "name": "10 Army",
+        "name": "RU 10",
         "type": "army",
         "counter": "army_ru army_ix_10",
         "cf": 3,
@@ -2826,7 +2826,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ru",
-        "name": "11 Army",
+        "name": "RU 11",
         "type": "army",
         "counter": "army_ru army_ix_11",
         "cf": 3,
@@ -2840,7 +2840,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ru",
-        "name": "12 Army",
+        "name": "RU 12",
         "type": "army",
         "counter": "army_ru army_ix_12",
         "cf": 3,
@@ -2854,7 +2854,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ru",
-        "name": "CAU Army",
+        "name": "RU CAU",
         "type": "army",
         "counter": "army_ru army_ix_13",
         "cf": 3,
@@ -2869,7 +2869,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "be",
-        "name": "1 Army",
+        "name": "BE 1",
         "type": "army",
         "counter": "army_be army_ix_1",
         "cf": 2,
@@ -2883,7 +2883,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "sb",
-        "name": "1 Army",
+        "name": "SB 1",
         "type": "army",
         "counter": "army_sb army_ix_1",
         "cf": 2,
@@ -2897,7 +2897,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "sb",
-        "name": "2 Army",
+        "name": "SB 2",
         "type": "army",
         "counter": "army_sb army_ix_2",
         "cf": 2,
@@ -2911,7 +2911,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ge",
-        "name": "GE Corps",
+        "name": "GEc",
         "type": "corps",
         "counter": "corps_ge corps_ix_1",
         "cf": 2,
@@ -2925,7 +2925,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ge",
-        "name": "GE Corps",
+        "name": "GEc",
         "type": "corps",
         "counter": "corps_ge corps_ix_1",
         "cf": 2,
@@ -2939,7 +2939,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ge",
-        "name": "GE Corps",
+        "name": "GEc",
         "type": "corps",
         "counter": "corps_ge corps_ix_1",
         "cf": 2,
@@ -2953,7 +2953,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ge",
-        "name": "GE Corps",
+        "name": "GEc",
         "type": "corps",
         "counter": "corps_ge corps_ix_1",
         "cf": 2,
@@ -2967,7 +2967,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ge",
-        "name": "GE Corps",
+        "name": "GEc",
         "type": "corps",
         "counter": "corps_ge corps_ix_1",
         "cf": 2,
@@ -2981,7 +2981,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ge",
-        "name": "GE Corps",
+        "name": "GEc",
         "type": "corps",
         "counter": "corps_ge corps_ix_1",
         "cf": 2,
@@ -2995,7 +2995,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ge",
-        "name": "GE Corps",
+        "name": "GEc",
         "type": "corps",
         "counter": "corps_ge corps_ix_1",
         "cf": 2,
@@ -3009,7 +3009,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ge",
-        "name": "GE Corps",
+        "name": "GEc",
         "type": "corps",
         "counter": "corps_ge corps_ix_1",
         "cf": 2,
@@ -3023,7 +3023,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ge",
-        "name": "GE Corps",
+        "name": "GEc",
         "type": "corps",
         "counter": "corps_ge corps_ix_1",
         "cf": 2,
@@ -3037,7 +3037,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ge",
-        "name": "GE Corps",
+        "name": "GEc",
         "type": "corps",
         "counter": "corps_ge corps_ix_1",
         "cf": 2,
@@ -3051,7 +3051,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ge",
-        "name": "GE Corps",
+        "name": "GEc",
         "type": "corps",
         "counter": "corps_ge corps_ix_1",
         "cf": 2,
@@ -3065,7 +3065,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ge",
-        "name": "GE Corps",
+        "name": "GEc",
         "type": "corps",
         "counter": "corps_ge corps_ix_1",
         "cf": 2,
@@ -3079,7 +3079,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ge",
-        "name": "GE Corps",
+        "name": "GEc",
         "type": "corps",
         "counter": "corps_ge corps_ix_1",
         "cf": 2,
@@ -3093,7 +3093,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ge",
-        "name": "GE Corps",
+        "name": "GEc",
         "type": "corps",
         "counter": "corps_ge corps_ix_1",
         "cf": 2,
@@ -3107,7 +3107,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ge",
-        "name": "GE Corps",
+        "name": "GEc",
         "type": "corps",
         "counter": "corps_ge corps_ix_1",
         "cf": 2,
@@ -3121,7 +3121,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ge",
-        "name": "GE Corps",
+        "name": "GEc",
         "type": "corps",
         "counter": "corps_ge corps_ix_1",
         "cf": 2,
@@ -3135,7 +3135,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ge",
-        "name": "GE Corps",
+        "name": "GEc",
         "type": "corps",
         "counter": "corps_ge corps_ix_1",
         "cf": 2,
@@ -3149,7 +3149,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ge",
-        "name": "GE Corps",
+        "name": "GEc",
         "type": "corps",
         "counter": "corps_ge corps_ix_1",
         "cf": 2,
@@ -3163,7 +3163,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ge",
-        "name": "GE Corps",
+        "name": "GEc",
         "type": "corps",
         "counter": "corps_ge corps_ix_1",
         "cf": 2,
@@ -3177,7 +3177,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ah",
-        "name": "A-H Corps",
+        "name": "AHc",
         "type": "corps",
         "counter": "corps_ah corps_ix_1",
         "cf": 1,
@@ -3191,7 +3191,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ah",
-        "name": "A-H Corps",
+        "name": "AHc",
         "type": "corps",
         "counter": "corps_ah corps_ix_1",
         "cf": 1,
@@ -3205,7 +3205,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ah",
-        "name": "A-H Corps",
+        "name": "AHc",
         "type": "corps",
         "counter": "corps_ah corps_ix_1",
         "cf": 1,
@@ -3219,7 +3219,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ah",
-        "name": "A-H Corps",
+        "name": "AHc",
         "type": "corps",
         "counter": "corps_ah corps_ix_1",
         "cf": 1,
@@ -3233,7 +3233,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ah",
-        "name": "A-H Corps",
+        "name": "AHc",
         "type": "corps",
         "counter": "corps_ah corps_ix_1",
         "cf": 1,
@@ -3247,7 +3247,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ah",
-        "name": "A-H Corps",
+        "name": "AHc",
         "type": "corps",
         "counter": "corps_ah corps_ix_1",
         "cf": 1,
@@ -3261,7 +3261,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ah",
-        "name": "A-H Corps",
+        "name": "AHc",
         "type": "corps",
         "counter": "corps_ah corps_ix_1",
         "cf": 1,
@@ -3275,7 +3275,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ah",
-        "name": "A-H Corps",
+        "name": "AHc",
         "type": "corps",
         "counter": "corps_ah corps_ix_1",
         "cf": 1,
@@ -3289,7 +3289,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ah",
-        "name": "A-H Corps",
+        "name": "AHc",
         "type": "corps",
         "counter": "corps_ah corps_ix_1",
         "cf": 1,
@@ -3303,7 +3303,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ah",
-        "name": "A-H Corps",
+        "name": "AHc",
         "type": "corps",
         "counter": "corps_ah corps_ix_1",
         "cf": 1,
@@ -3317,7 +3317,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ah",
-        "name": "A-H Corps",
+        "name": "AHc",
         "type": "corps",
         "counter": "corps_ah corps_ix_1",
         "cf": 1,
@@ -3331,7 +3331,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "tu",
-        "name": "TU Corps",
+        "name": "TUc",
         "type": "corps",
         "counter": "corps_tu corps_ix_1",
         "cf": 1,
@@ -3345,7 +3345,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "tu",
-        "name": "TU Corps",
+        "name": "TUc",
         "type": "corps",
         "counter": "corps_tu corps_ix_1",
         "cf": 1,
@@ -3359,7 +3359,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "tu",
-        "name": "TU Corps",
+        "name": "TUc",
         "type": "corps",
         "counter": "corps_tu corps_ix_1",
         "cf": 1,
@@ -3373,7 +3373,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "tu",
-        "name": "TU Corps",
+        "name": "TUc",
         "type": "corps",
         "counter": "corps_tu corps_ix_1",
         "cf": 1,
@@ -3387,7 +3387,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "tu",
-        "name": "TU Corps",
+        "name": "TUc",
         "type": "corps",
         "counter": "corps_tu corps_ix_1",
         "cf": 1,
@@ -3401,7 +3401,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "tu",
-        "name": "TU Corps",
+        "name": "TUc",
         "type": "corps",
         "counter": "corps_tu corps_ix_1",
         "cf": 1,
@@ -3415,7 +3415,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "tu",
-        "name": "TU Corps",
+        "name": "TUc",
         "type": "corps",
         "counter": "corps_tu corps_ix_1",
         "cf": 1,
@@ -3429,7 +3429,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "tu",
-        "name": "TU Corps",
+        "name": "TUc",
         "type": "corps",
         "counter": "corps_tu corps_ix_1",
         "cf": 1,
@@ -3443,7 +3443,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "tu",
-        "name": "TU Corps",
+        "name": "TUc",
         "type": "corps",
         "counter": "corps_tu corps_ix_1",
         "cf": 1,
@@ -3457,7 +3457,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "tu",
-        "name": "TU Corps",
+        "name": "TUc",
         "type": "corps",
         "counter": "corps_tu corps_ix_1",
         "cf": 1,
@@ -3471,7 +3471,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "tu",
-        "name": "TU Corps",
+        "name": "TUc",
         "type": "corps",
         "counter": "corps_tu corps_ix_1",
         "cf": 1,
@@ -3485,7 +3485,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "tu",
-        "name": "TU Corps",
+        "name": "TUc",
         "type": "corps",
         "counter": "corps_tu corps_ix_1",
         "cf": 1,
@@ -3499,7 +3499,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "tu",
-        "name": "TU Corps",
+        "name": "TUc",
         "type": "corps",
         "counter": "corps_tu corps_ix_1",
         "cf": 1,
@@ -3513,7 +3513,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "tu",
-        "name": "TU Corps",
+        "name": "TUc",
         "type": "corps",
         "counter": "corps_tu corps_ix_1",
         "cf": 1,
@@ -3527,7 +3527,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "it",
-        "name": "IT Corps",
+        "name": "ITc",
         "type": "corps",
         "counter": "corps_it corps_ix_1",
         "cf": 1,
@@ -3541,7 +3541,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "it",
-        "name": "IT Corps",
+        "name": "ITc",
         "type": "corps",
         "counter": "corps_it corps_ix_1",
         "cf": 1,
@@ -3555,7 +3555,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "it",
-        "name": "IT Corps",
+        "name": "ITc",
         "type": "corps",
         "counter": "corps_it corps_ix_1",
         "cf": 1,
@@ -3569,7 +3569,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "it",
-        "name": "IT Corps",
+        "name": "ITc",
         "type": "corps",
         "counter": "corps_it corps_ix_1",
         "cf": 1,
@@ -3583,7 +3583,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "it",
-        "name": "IT Corps",
+        "name": "ITc",
         "type": "corps",
         "counter": "corps_it corps_ix_1",
         "cf": 1,
@@ -3597,7 +3597,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "it",
-        "name": "IT Corps",
+        "name": "ITc",
         "type": "corps",
         "counter": "corps_it corps_ix_1",
         "cf": 1,
@@ -3611,7 +3611,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "it",
-        "name": "IT Corps",
+        "name": "ITc",
         "type": "corps",
         "counter": "corps_it corps_ix_1",
         "cf": 1,
@@ -3625,7 +3625,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "us",
-        "name": "US Corps",
+        "name": "USc",
         "type": "corps",
         "counter": "corps_us corps_ix_1",
         "cf": 2,
@@ -3639,7 +3639,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "us",
-        "name": "US Corps",
+        "name": "USc",
         "type": "corps",
         "counter": "corps_us corps_ix_1",
         "cf": 2,
@@ -3653,7 +3653,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "us",
-        "name": "US Corps",
+        "name": "USc",
         "type": "corps",
         "counter": "corps_us corps_ix_1",
         "cf": 2,
@@ -3667,7 +3667,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "us",
-        "name": "US Corps",
+        "name": "USc",
         "type": "corps",
         "counter": "corps_us corps_ix_1",
         "cf": 2,
@@ -3681,7 +3681,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "mn",
-        "name": "MN Corps",
+        "name": "MNc",
         "type": "corps",
         "counter": "corps_mn corps_ix_1",
         "cf": 1,
@@ -3695,7 +3695,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "sn",
-        "name": "SN Corps",
+        "name": "TU SNc",
         "type": "corps",
         "counter": "corps_tu corps_ix_2",
         "cf": 1,
@@ -3709,7 +3709,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "be",
-        "name": "BE Corps",
+        "name": "BEc",
         "type": "corps",
         "counter": "corps_be corps_ix_1",
         "cf": 1,
@@ -3723,7 +3723,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ru",
-        "name": "RU Corps",
+        "name": "RUc",
         "type": "corps",
         "counter": "corps_ru corps_ix_1",
         "cf": 1,
@@ -3737,7 +3737,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ru",
-        "name": "RU Corps",
+        "name": "RUc",
         "type": "corps",
         "counter": "corps_ru corps_ix_1",
         "cf": 1,
@@ -3751,7 +3751,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ru",
-        "name": "RU Corps",
+        "name": "RUc",
         "type": "corps",
         "counter": "corps_ru corps_ix_1",
         "cf": 1,
@@ -3765,7 +3765,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ru",
-        "name": "RU Corps",
+        "name": "RUc",
         "type": "corps",
         "counter": "corps_ru corps_ix_1",
         "cf": 1,
@@ -3779,7 +3779,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ru",
-        "name": "RU Corps",
+        "name": "RUc",
         "type": "corps",
         "counter": "corps_ru corps_ix_1",
         "cf": 1,
@@ -3793,7 +3793,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ru",
-        "name": "RU Corps",
+        "name": "RUc",
         "type": "corps",
         "counter": "corps_ru corps_ix_1",
         "cf": 1,
@@ -3807,7 +3807,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ru",
-        "name": "RU Corps",
+        "name": "RUc",
         "type": "corps",
         "counter": "corps_ru corps_ix_1",
         "cf": 1,
@@ -3821,7 +3821,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ru",
-        "name": "RU Corps",
+        "name": "RUc",
         "type": "corps",
         "counter": "corps_ru corps_ix_1",
         "cf": 1,
@@ -3835,7 +3835,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ru",
-        "name": "RU Corps",
+        "name": "RUc",
         "type": "corps",
         "counter": "corps_ru corps_ix_1",
         "cf": 1,
@@ -3849,7 +3849,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ru",
-        "name": "RU Corps",
+        "name": "RUc",
         "type": "corps",
         "counter": "corps_ru corps_ix_1",
         "cf": 1,
@@ -3863,7 +3863,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ru",
-        "name": "RU Corps",
+        "name": "RUc",
         "type": "corps",
         "counter": "corps_ru corps_ix_1",
         "cf": 1,
@@ -3877,7 +3877,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ru",
-        "name": "RU Corps",
+        "name": "RUc",
         "type": "corps",
         "counter": "corps_ru corps_ix_1",
         "cf": 1,
@@ -3891,7 +3891,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ru",
-        "name": "RU Corps",
+        "name": "RUc",
         "type": "corps",
         "counter": "corps_ru corps_ix_1",
         "cf": 1,
@@ -3905,7 +3905,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ru",
-        "name": "RU Corps",
+        "name": "RUc",
         "type": "corps",
         "counter": "corps_ru corps_ix_1",
         "cf": 1,
@@ -3919,7 +3919,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ru",
-        "name": "RU Corps",
+        "name": "RUc",
         "type": "corps",
         "counter": "corps_ru corps_ix_1",
         "cf": 1,
@@ -3933,7 +3933,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ru",
-        "name": "RU Corps",
+        "name": "RUc",
         "type": "corps",
         "counter": "corps_ru corps_ix_1",
         "cf": 1,
@@ -3947,7 +3947,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ru",
-        "name": "RU Corps",
+        "name": "RUc",
         "type": "corps",
         "counter": "corps_ru corps_ix_1",
         "cf": 1,
@@ -3961,7 +3961,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ru",
-        "name": "RU Corps",
+        "name": "RUc",
         "type": "corps",
         "counter": "corps_ru corps_ix_1",
         "cf": 1,
@@ -3975,7 +3975,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "fr",
-        "name": "FR Corps",
+        "name": "FRc",
         "type": "corps",
         "counter": "corps_fr corps_ix_1",
         "cf": 1,
@@ -3989,7 +3989,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "fr",
-        "name": "FR Corps",
+        "name": "FRc",
         "type": "corps",
         "counter": "corps_fr corps_ix_1",
         "cf": 1,
@@ -4003,7 +4003,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "fr",
-        "name": "FR Corps",
+        "name": "FRc",
         "type": "corps",
         "counter": "corps_fr corps_ix_1",
         "cf": 1,
@@ -4017,7 +4017,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "fr",
-        "name": "FR Corps",
+        "name": "FRc",
         "type": "corps",
         "counter": "corps_fr corps_ix_1",
         "cf": 1,
@@ -4031,7 +4031,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "fr",
-        "name": "FR Corps",
+        "name": "FRc",
         "type": "corps",
         "counter": "corps_fr corps_ix_1",
         "cf": 1,
@@ -4045,7 +4045,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "fr",
-        "name": "FR Corps",
+        "name": "FRc",
         "type": "corps",
         "counter": "corps_fr corps_ix_1",
         "cf": 1,
@@ -4059,7 +4059,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "fr",
-        "name": "FR Corps",
+        "name": "FRc",
         "type": "corps",
         "counter": "corps_fr corps_ix_1",
         "cf": 1,
@@ -4073,7 +4073,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "fr",
-        "name": "FR Corps",
+        "name": "FRc",
         "type": "corps",
         "counter": "corps_fr corps_ix_1",
         "cf": 1,
@@ -4087,7 +4087,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "fr",
-        "name": "FR Corps",
+        "name": "FRc",
         "type": "corps",
         "counter": "corps_fr corps_ix_1",
         "cf": 1,
@@ -4101,7 +4101,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "fr",
-        "name": "FR Corps",
+        "name": "FRc",
         "type": "corps",
         "counter": "corps_fr corps_ix_1",
         "cf": 1,
@@ -4115,7 +4115,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "br",
-        "name": "BR Corps",
+        "name": "BRc",
         "type": "corps",
         "counter": "corps_br corps_ix_4",
         "cf": 2,
@@ -4129,7 +4129,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "br",
-        "name": "BR Corps",
+        "name": "BRc",
         "type": "corps",
         "counter": "corps_br corps_ix_4",
         "cf": 2,
@@ -4143,7 +4143,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "br",
-        "name": "BR Corps",
+        "name": "BRc",
         "type": "corps",
         "counter": "corps_br corps_ix_4",
         "cf": 2,
@@ -4157,7 +4157,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "br",
-        "name": "BR Corps",
+        "name": "BRc",
         "type": "corps",
         "counter": "corps_br corps_ix_4",
         "cf": 2,
@@ -4171,7 +4171,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "br",
-        "name": "BR Corps",
+        "name": "BRc",
         "type": "corps",
         "counter": "corps_br corps_ix_4",
         "cf": 2,
@@ -4185,7 +4185,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "br",
-        "name": "BR Corps",
+        "name": "BRc",
         "type": "corps",
         "counter": "corps_br corps_ix_4",
         "cf": 2,
@@ -4199,7 +4199,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "br",
-        "name": "BR Corps",
+        "name": "BRc",
         "type": "corps",
         "counter": "corps_br corps_ix_4",
         "cf": 2,
@@ -4213,7 +4213,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "br",
-        "name": "BR Corps",
+        "name": "BRc",
         "type": "corps",
         "counter": "corps_br corps_ix_4",
         "cf": 2,
@@ -4227,7 +4227,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "br",
-        "name": "BR Corps",
+        "name": "BRc",
         "type": "corps",
         "counter": "corps_br corps_ix_4",
         "cf": 2,
@@ -4241,7 +4241,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "br",
-        "name": "BR Corps",
+        "name": "BRc",
         "type": "corps",
         "counter": "corps_br corps_ix_4",
         "cf": 2,
@@ -4255,7 +4255,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "br",
-        "name": "ANA Corps",
+        "name": "BR ANAc",
         "type": "corps",
         "counter": "corps_br corps_ix_1",
         "cf": 1,
@@ -4269,7 +4269,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "br",
-        "name": "PT Corps",
+        "name": "PTc",
         "type": "corps",
         "counter": "corps_br corps_ix_6",
         "cf": 1,
@@ -4283,7 +4283,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "br",
-        "name": "AUS Corps",
+        "name": "AUSc",
         "type": "corps",
         "counter": "corps_br corps_ix_2",
         "cf": 2,
@@ -4297,7 +4297,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "br",
-        "name": "CND Corps",
+        "name": "CNDc",
         "type": "corps",
         "counter": "corps_br corps_ix_5",
         "cf": 2,
@@ -4311,7 +4311,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "br",
-        "name": "BEF Corps",
+        "name": "BR BEFc",
         "type": "corps",
         "counter": "corps_br corps_ix_3",
         "cf": 2,
@@ -4325,7 +4325,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "sb",
-        "name": "SB Corps",
+        "name": "SBc",
         "type": "corps",
         "counter": "corps_sb corps_ix_1",
         "cf": 1,
@@ -4339,7 +4339,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "sb",
-        "name": "SB Corps",
+        "name": "SBc",
         "type": "corps",
         "counter": "corps_sb corps_ix_1",
         "cf": 1,
@@ -4353,7 +4353,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "bu",
-        "name": "BU Corps",
+        "name": "BUc",
         "type": "corps",
         "counter": "corps_bu corps_ix_1",
         "cf": 2,
@@ -4367,7 +4367,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "bu",
-        "name": "BU Corps",
+        "name": "BUc",
         "type": "corps",
         "counter": "corps_bu corps_ix_1",
         "cf": 2,
@@ -4381,7 +4381,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "bu",
-        "name": "BU Corps",
+        "name": "BUc",
         "type": "corps",
         "counter": "corps_bu corps_ix_1",
         "cf": 2,
@@ -4395,7 +4395,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "bu",
-        "name": "BU Corps",
+        "name": "BUc",
         "type": "corps",
         "counter": "corps_bu corps_ix_1",
         "cf": 2,
@@ -4409,7 +4409,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "bu",
-        "name": "BU Corps",
+        "name": "BUc",
         "type": "corps",
         "counter": "corps_bu corps_ix_1",
         "cf": 2,
@@ -4423,7 +4423,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "bu",
-        "name": "BU Corps",
+        "name": "BUc",
         "type": "corps",
         "counter": "corps_bu corps_ix_1",
         "cf": 2,
@@ -4437,7 +4437,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ro",
-        "name": "RO Corps",
+        "name": "ROc",
         "type": "corps",
         "counter": "corps_ro corps_ix_1",
         "cf": 1,
@@ -4451,7 +4451,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ro",
-        "name": "RO Corps",
+        "name": "ROc",
         "type": "corps",
         "counter": "corps_ro corps_ix_1",
         "cf": 1,
@@ -4465,7 +4465,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ro",
-        "name": "RO Corps",
+        "name": "ROc",
         "type": "corps",
         "counter": "corps_ro corps_ix_1",
         "cf": 1,
@@ -4479,7 +4479,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ro",
-        "name": "RO Corps",
+        "name": "ROc",
         "type": "corps",
         "counter": "corps_ro corps_ix_1",
         "cf": 1,
@@ -4493,7 +4493,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ro",
-        "name": "RO Corps",
+        "name": "ROc",
         "type": "corps",
         "counter": "corps_ro corps_ix_1",
         "cf": 1,
@@ -4507,7 +4507,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ro",
-        "name": "RO Corps",
+        "name": "ROc",
         "type": "corps",
         "counter": "corps_ro corps_ix_1",
         "cf": 1,
@@ -4521,7 +4521,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "gr",
-        "name": "GR Corps",
+        "name": "GRc",
         "type": "corps",
         "counter": "corps_gr corps_ix_1",
         "cf": 1,
@@ -4535,7 +4535,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "gr",
-        "name": "GR Corps",
+        "name": "GRc",
         "type": "corps",
         "counter": "corps_gr corps_ix_1",
         "cf": 1,
@@ -4549,7 +4549,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "gr",
-        "name": "GR Corps",
+        "name": "GRc",
         "type": "corps",
         "counter": "corps_gr corps_ix_1",
         "cf": 1,
@@ -4563,7 +4563,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ru",
-        "name": "RU Cavalry Corps",
+        "name": "RU CAVc",
         "type": "corps",
         "counter": "corps_ru corps_ix_2",
         "cf": 1,
@@ -4577,7 +4577,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ru",
-        "name": "RU Cavalry Corps",
+        "name": "RU CAVc",
         "type": "corps",
         "counter": "corps_ru corps_ix_2",
         "cf": 1,
@@ -4591,7 +4591,7 @@ const pieces = [
     {
         "faction": "ap",
         "nation": "ru",
-        "name": "RU Czech Legion",
+        "name": "RU Czlc",
         "type": "corps",
         "counter": "corps_czl corps_ix_1",
         "cf": 2,
@@ -4605,7 +4605,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ge",
-        "name": "POL Corps",
+        "name": "PLc",
         "type": "corps",
         "counter": "corps_pol corps_ix_1",
         "cf": 2,
@@ -4619,7 +4619,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ge",
-        "name": "POL Corps",
+        "name": "PLc",
         "type": "corps",
         "counter": "corps_pol corps_ix_1",
         "cf": 2,
@@ -4633,7 +4633,7 @@ const pieces = [
     {
         "faction": "cp",
         "nation": "ge",
-        "name": "POL Corps",
+        "name": "PLc",
         "type": "corps",
         "counter": "corps_pol corps_ix_1",
         "cf": 2,
