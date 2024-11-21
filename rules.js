@@ -1230,7 +1230,6 @@ states.action_phase = {
         goto_play_rps(card)
     },
     single_op() {
-        push_undo()
         goto_play_ops(undefined)
     }
 }
