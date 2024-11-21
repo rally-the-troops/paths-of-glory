@@ -3059,8 +3059,9 @@ states.attacker_combat_cards = {
         })
 
         game.combat_cards.forEach((c) => {
-          if (data.cards[c].faction === game.active && events[data.cards[c].event].can_apply())
-              gen_action_card(c)
+            let evt = events[data.cards[c].event]
+            if (data.cards[c].faction === game.active && evt && evt.can_apply())
+                gen_action_card(c)
         })
 
         gen_action_done()
@@ -3108,7 +3109,8 @@ states.defender_combat_cards = {
         })
 
         game.combat_cards.forEach((c) => {
-            if (data.cards[c].faction === game.active && events[data.cards[c].event].can_apply())
+            let evt = events[data.cards[c].event]
+            if (data.cards[c].faction === game.active && evt && evt.can_apply())
                 gen_action_card(c)
         })
 
