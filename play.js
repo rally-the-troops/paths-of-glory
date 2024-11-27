@@ -1538,6 +1538,17 @@ function sub_icon(match) {
 
 function on_log(text) {
     let p = document.createElement("div")
+
+    if (text.match(/^>>/)) {
+		text = text.substring(2)
+		p.className = "ii"
+	}
+
+	if (text.match(/^>/)) {
+		text = text.substring(1)
+		p.className = "i"
+	}
+
     text = text.replace(/&/g, "&amp;")
     text = text.replace(/</g, "&lt;")
     text = text.replace(/>/g, "&gt;")

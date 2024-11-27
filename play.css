@@ -42,6 +42,8 @@ aside { min-width: 220px; }
 #log .tip { color: blue; }
 #log .tip:hover { text-decoration: underline; }
 #log .spacetip:hover { text-decoration: underline; cursor: pointer; }
+#log div.i { padding-left: 32px; text-indent: -12px; }
+#log div.ii { padding-left: 44px; text-indent: -12px; }
 
 #log .indent {
     padding-left: 12px;

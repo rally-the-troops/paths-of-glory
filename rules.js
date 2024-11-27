@@ -1290,7 +1290,7 @@ function can_play_rps(card) {
 
 function goto_play_event(card) {
     push_undo()
-    log(`Played ${card_name(card)} for the event`)
+    log(`${card_name(card)} - Event`)
     let active_player = get_active_player()
     array_remove_item(active_player.hand, card)
     game.last_card = card
@@ -1321,7 +1321,7 @@ function goto_play_ops(card) {
         game.ops = 1
     } else {
         record_action(ACTION_OP, card)
-        log(`Played ${card_name(card)} for Operations`)
+        log(`${card_name(card)} - Operations`)
         play_card(card)
         game.ops = data.cards[card].ops
     }
@@ -1338,7 +1338,7 @@ function goto_play_sr(card) {
         done: []
     }
 
-    log(`Played ${card_name(card)} for Strategic Redeployment`)
+    log(`${card_name(card)} - Strategic Redeployment`)
     play_card(card)
     game.state = 'choose_sr_unit'
 }
@@ -6763,7 +6763,7 @@ events.russian_cavalry = {
     },
     play() {
         push_undo()
-        game.units_to_place = find_n_unused_pieces(RUSSIA, 'RU Cavalry Corps', 2)
+        game.units_to_place = find_n_unused_pieces(RUSSIA, 'RU CAVc', 2)
         game.state = 'russian_cavalry'
     }
 }
@@ -6790,6 +6790,7 @@ states.russian_cavalry = {
     },
     space(s) {
         push_undo()
+        logii(`RU Cavc placed in ` +  data.spaces[s].name)
         game.units_to_place.forEach((p) => {
             game.location[p] = s
         })
@@ -7090,7 +7091,10 @@ function log_br() {
 }
 
 function logi(msg) {
-    game.log.push(">" + msg)
+    game.log.push(">" + msg);
+}
+function logii(msg) {
+    game.log.push(">>" + msg);
 }
 
 function log_h1(msg) {
