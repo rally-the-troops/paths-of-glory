@@ -904,47 +904,47 @@ function set_nation_at_war(nation) {
     game.war[nation] = 1
 
     if (nation === TURKEY) {
-        setup_piece('tu', 'TU Corps', 'Constantinople')
-        setup_piece('tu', 'TU Corps', 'Balikesir')
-        setup_piece('tu', 'TU Corps', 'Gallipoli')
-        setup_piece('tu', 'TU Corps', 'Ankara')
-        setup_piece('tu', 'TU Corps', 'Erzerum')
-        setup_piece('tu', 'TU Corps', 'Rize')
-        setup_piece('tu', 'TU Corps', 'Van')
-        setup_piece('tu', 'TU Corps', 'Adana')
-        setup_piece('tu', 'TU Corps', 'Mosul')
-        setup_piece('tu', 'TU Corps', 'Damascus')
-        setup_piece('tu', 'TU Corps', 'Gaza')
-        setup_piece('tu', 'TU Corps', 'Medina')
-        setup_piece('tu', 'TU Corps', 'Baghdad')
+        setup_piece('tu', 'TUc', 'Constantinople')
+        setup_piece('tu', 'TUc', 'Balikesir')
+        setup_piece('tu', 'TUc', 'Gallipoli')
+        setup_piece('tu', 'TUc', 'Ankara')
+        setup_piece('tu', 'TUc', 'Erzerum')
+        setup_piece('tu', 'TUc', 'Rize')
+        setup_piece('tu', 'TUc', 'Van')
+        setup_piece('tu', 'TUc', 'Adana')
+        setup_piece('tu', 'TUc', 'Mosul')
+        setup_piece('tu', 'TUc', 'Damascus')
+        setup_piece('tu', 'TUc', 'Gaza')
+        setup_piece('tu', 'TUc', 'Medina')
+        setup_piece('tu', 'TUc', 'Baghdad')
     }
 
     if (nation === ITALY) {
-        setup_piece('it', 'IT Corps', 'Rome')
-        setup_piece('it', 'IT Corps', 'Turin')
-        setup_piece('it', 'IT Corps', 'Taranto')
-        setup_piece('it', '1 Army', 'Verona', true)
-        setup_piece('it', '2 Army', 'Udine', true)
-        setup_piece('it', '3 Army', 'Maggiore', true)
-        setup_piece('it', '4 Army', 'Asiago', true)
+        setup_piece('it', 'ITc', 'Rome')
+        setup_piece('it', 'ITc', 'Turin')
+        setup_piece('it', 'ITc', 'Taranto')
+        setup_piece('it', 'IT 1', 'Verona', true)
+        setup_piece('it', 'IT 2', 'Udine', true)
+        setup_piece('it', 'IT 3', 'Maggiore', true)
+        setup_piece('it', 'IT 4', 'Asiago', true)
     }
 
     if (nation === BULGARIA) {
-        setup_piece(BULGARIA, 'BU Corps', 'Sofia')
-        setup_piece(BULGARIA, 'BU Corps', 'Sofia')
+        setup_piece(BULGARIA, 'BUc', 'Sofia')
+        setup_piece(BULGARIA, 'BUc', 'Sofia')
         // Other 4 Bulgarian pieces are setup by player choice
     }
 
     if (nation === ROMANIA) {
-        setup_piece(ROMANIA, 'RO Corps', 'Bucharest')
-        setup_piece(ROMANIA, 'RO Corps', 'Bucharest')
+        setup_piece(ROMANIA, 'ROc', 'Bucharest')
+        setup_piece(ROMANIA, 'ROc', 'Bucharest')
         // Other 4 Romanian pieces are setup by player choice
     }
 
     if (nation === GREECE && !game.events.salonika) {
-        setup_piece(GREECE, 'GR Corps', 'Athens')
-        setup_piece(GREECE, 'GR Corps', 'Florina')
-        setup_piece(GREECE, 'GR Corps', 'Larisa')
+        setup_piece(GREECE, 'GRc', 'Athens')
+        setup_piece(GREECE, 'GRc', 'Florina')
+        setup_piece(GREECE, 'GRc', 'Larisa')
     }
 
     game.supply_cache = null
@@ -3715,7 +3715,7 @@ function find_replacement(unit, available_replacements) {
     if (unit_data.nation === BRITAIN) {
         for (let i = 0; i < available_replacements.length; ++i) {
             let replacement_data = data.pieces[available_replacements[i]]
-            if (replacement_data.name === "BR Corps") {
+            if (replacement_data.name === 'BRc') {
                 return available_replacements[i]
             }
         }
@@ -4709,7 +4709,7 @@ function get_replaceable_units() {
         if (all_capitals_occupied(piece_data.nation))
             continue
 
-        if (is_controlled_by(WARSAW, AP) && piece_data.name === 'POL Corps')
+        if (is_controlled_by(WARSAW, AP) && piece_data.name === 'PLc')
             continue
 
         if (game.location[i] === AP_ELIMINATED_BOX ||
@@ -5163,7 +5163,7 @@ function is_unit_supplied(p) {
     if (location === 0)
         return true
 
-    if (data.pieces[p].name === "ANA Corps" && data.spaces[location].map === "neareast")
+    if (data.pieces[p].name === "BR ANAc" && data.spaces[location].map === "neareast")
         return true
 
     if (nation === MONTENEGRO)
@@ -5720,7 +5720,7 @@ events.bulgaria_entry = {
     },
     play() {
         set_nation_at_war(BULGARIA)
-        game.units_to_place = find_n_unused_pieces(BULGARIA, 'BU Corps', 4)
+        game.units_to_place = find_n_unused_pieces(BULGARIA, 'BUc', 4)
         game.state = 'place_new_neutral_units'
     }
 }
@@ -6058,7 +6058,7 @@ events.polish_restoration = {
     play() {
         game.events.polish_restoration = game.turn
         game.vp--
-        const polish_corps = find_n_unused_pieces(GERMANY, 'POL Corps', 3)
+        const polish_corps = find_n_unused_pieces(GERMANY, 'PLc', 3)
         for (let p of polish_corps) {
             game.location[p] = CP_RESERVE_BOX
         }
@@ -6338,7 +6338,7 @@ events.romania_entry = {
     },
     play() {
         set_nation_at_war(ROMANIA)
-        game.units_to_place = find_n_unused_pieces(ROMANIA, 'RO Corps', 4)
+        game.units_to_place = find_n_unused_pieces(ROMANIA, 'ROc', 4)
         game.state = 'place_new_neutral_units'
     }
 }
