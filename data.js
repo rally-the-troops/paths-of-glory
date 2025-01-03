@@ -17,7 +17,7 @@ const cards = [
         "name": "British Reinforcements",
         "effect": "2nd Army, 1 corps.",
         "reinfnation": "br",
-        "reinf": "2 Army|BR Corps"
+        "reinf": "BR 2|BRc"
     },
     {
         "num": 2,
@@ -50,7 +50,7 @@ const cards = [
         "name": "Russian Reinforcements",
         "effect": "11th Army, 1 corps.",
         "reinfnation": "ru",
-        "reinf": "11 Army|RU Corps"
+        "reinf": "RU 11|RUc"
     },
     {
         "num": 4,
@@ -123,7 +123,7 @@ const cards = [
         "name": "Russian Reinforcements",
         "effect": "2 corps.",
         "reinfnation": "ru",
-        "reinf": "RU Corps|RU Corps"
+        "reinf": "RUc|RUc"
     },
     {
         "num": 9,
@@ -154,7 +154,7 @@ const cards = [
         "name": "French Reinforcements",
         "effect": "10th Army.",
         "reinfnation": "fr",
-        "reinf": "10 Army"
+        "reinf": "FR 10"
     },
     {
         "num": 11,
@@ -170,7 +170,7 @@ const cards = [
         "name": "Russian Reinforcements",
         "effect": "9th Army, 10th Army.",
         "reinfnation": "ru",
-        "reinf": "9 Army|10 Army"
+        "reinf": "RU 9|RU 10"
     },
     {
         "num": 12,
@@ -220,7 +220,7 @@ const cards = [
         "name": "British Reinforcements",
         "effect": "1st Army, 1 corps.",
         "reinfnation": "br",
-        "reinf": "1 Army|BR Corps"
+        "reinf": "BR 1|BRc"
     },
     {
         "num": 15,
@@ -236,7 +236,7 @@ const cards = [
         "name": "British Reinforcements",
         "effect": "4th Army, 1 corps.",
         "reinfnation": "br",
-        "reinf": "4 Army|BR Corps"
+        "reinf": "BR 4|BRc"
     },
     {
         "num": 16,
@@ -312,7 +312,7 @@ const cards = [
         "name": "British Reinforcements",
         "effect": "AUS Corps, CND Corps.",
         "reinfnation": "br",
-        "reinf": "AUS Corps|CND Corps"
+        "reinf": "AUSc|CNDc"
     },
     {
         "num": 21,
@@ -343,7 +343,7 @@ const cards = [
         "name": "Italian Reinforcements",
         "effect": "May only be played after ITALY joins the Allies. 5th Army.",
         "reinfnation": "it",
-        "reinf": "5 Army"
+        "reinf": "IT 5"
     },
     {
         "num": 23,
@@ -373,7 +373,7 @@ const cards = [
         "name": "French Reinforcements",
         "effect": "7th Army.",
         "reinfnation": "fr",
-        "reinf": "7 Army"
+        "reinf": "FR 7"
     },
     {
         "num": 25,
@@ -389,7 +389,7 @@ const cards = [
         "name": "Russian Reinforcements",
         "effect": "6th Army, 7th Army, 2 corps.",
         "reinfnation": "ru",
-        "reinf": "6 Army|7 Army|RU Corps|RU Corps"
+        "reinf": "RU 6|RU 7|RUc|RUc"
     },
     {
         "num": 26,
@@ -454,7 +454,7 @@ const cards = [
         "name": "Yudenitch (RU Reinforcements)",
         "effect": "Place the Russian CAU Army in any supplied space in Russia on the Near East map.",
         "reinfnation": "ru",
-        "reinf": "CAU Army"
+        "reinf": "RU CAU"
     },
     {
         "num": 30,
@@ -489,7 +489,7 @@ const cards = [
         "name": "MEF (BR Reinforcements)",
         "effect": "May only be played if Turkey is at war and before \"Salonika\". Place the MEF Army at any MEF space. See 9.5.3.5.",
         "reinfnation": "br",
-        "reinf": "MEF Army"
+        "reinf": "BR MEF"
     },
     {
         "num": 32,
@@ -504,7 +504,7 @@ const cards = [
         "name": "Russian Reinforcements",
         "effect": "12th Army.",
         "reinfnation": "ru",
-        "reinf": "12 Army"
+        "reinf": "RU 12"
     },
     {
         "num": 33,
@@ -534,7 +534,7 @@ const cards = [
         "name": "British Reinforcements",
         "effect": "3rd Army, 2 corps.",
         "reinfnation": "br",
-        "reinf": "3 Army|BR Corps|BR Corps"
+        "reinf": "BR 3|BRc|BRc"
     },
     {
         "num": 35,
@@ -594,7 +594,7 @@ const cards = [
         "name": "USA Reinforcements",
         "effect": "May only be played after \"Over There\". 1 corps.",
         "reinfnation": "us",
-        "reinf": "US Corps"
+        "reinf": "USc"
     },
     {
         "num": 39,
@@ -638,7 +638,7 @@ const cards = [
         "name": "Arab Northern Army (BR Reinforcements)",
         "effect": "May only be played if Turkey is at war. Place the British ANA Corps in the Arabia space.",
         "reinfnation": "br",
-        "reinf": "ANA Corps"
+        "reinf": "BR ANAc"
     },
     {
         "num": 42,
@@ -654,7 +654,7 @@ const cards = [
         "name": "British Reinforcements",
         "effect": "5th Army, 1 corps, PT Corps.",
         "reinfnation": "br",
-        "reinf": "5 Army|BR Corps|PT Corps"
+        "reinf": "BR 5|BRc|PTc"
     },
     {
         "num": 43,
@@ -670,7 +670,7 @@ const cards = [
         "name": "USA Reinforcements",
         "effect": "May only be played after \"Over There\". 1st Army, 2 corps.",
         "reinfnation": "us",
-        "reinf": "1 Army|US Corps|US Corps"
+        "reinf": "US 1|USc|USc"
     },
     {
         "num": 44,
@@ -784,7 +784,7 @@ const cards = [
         "name": "Allenby (BR Reinforcements)",
         "effect": "May only be played after \"Sinai Pipeline\". Place the British NE Army in Alexandria.",
         "reinfnation": "br",
-        "reinf": "NE Army"
+        "reinf": "BR NE"
     },
     {
         "num": 51,
@@ -834,7 +834,7 @@ const cards = [
         "name": "Army of the Orient (FR Reinforcements)",
         "effect": "Place the French Orient Army in the Salonika space if Allied controlled, subject to stacking limits.",
         "reinfnation": "fr",
-        "reinf": "Orient Army"
+        "reinf": "FR Orient"
     },
     {
         "num": 54,
@@ -1004,7 +1004,7 @@ const cards = [
         "name": "USA Reinforcements",
         "effect": "May only be played after 'Over There'. 2 Corps [2-1-4/1-1-4]",
         "reinfnation": "us",
-        "reinf": "US Corps|US Corps"
+        "reinf": "USc|USc"
     },
     {
         "num": 65,
@@ -1113,7 +1113,7 @@ const cards = [
         "name": "German Reinforcements",
         "effect": "9th Army.",
         "reinfnation": "ge",
-        "reinf": "9 Army"
+        "reinf": "GE 9"
     },
     {
         "num": 8,
@@ -1186,7 +1186,7 @@ const cards = [
         "name": "German Reinforcements",
         "effect": "10th Army, 2 corps.",
         "reinfnation": "ge",
-        "reinf": "10 Army|GE Corps|GE Corps"
+        "reinf": "GE 10|GEc|GEc"
     },
     {
         "num": 13,
@@ -1218,7 +1218,7 @@ const cards = [
         "name": "Austria",
         "effect": "Hungary Reinforcements - 7th Army, 2 corps.",
         "reinfnation": "ah",
-        "reinf": "7 Army|A-H Corps|A-H Corps"
+        "reinf": "AH 7|AHc|AHc"
     },
     {
         "num": 15,
@@ -1296,7 +1296,7 @@ const cards = [
         "name": "Austria",
         "effect": "Hungary Reinforcements - 10th Army.",
         "reinfnation": "ah",
-        "reinf": "10 Army"
+        "reinf": "AH 10"
     },
     {
         "num": 21,
@@ -1311,7 +1311,7 @@ const cards = [
         "name": "German Reinforcements",
         "effect": "11th Army, 1 corps.",
         "reinfnation": "ge",
-        "reinf": "11 Army|GE Corps"
+        "reinf": "GE 11|GEc"
     },
     {
         "num": 22,
@@ -1326,7 +1326,7 @@ const cards = [
         "name": "German Reinforcements",
         "effect": "12th Army, 1 corps.",
         "reinfnation": "ge",
-        "reinf": "12 Army|GE Corps"
+        "reinf": "GE 12|GEc"
     },
     {
         "num": 23,
@@ -1341,7 +1341,7 @@ const cards = [
         "name": "Austria - Hungary Reinforcements",
         "effect": "11th Army.",
         "reinfnation": "ah",
-        "reinf": "11 Army"
+        "reinf": "AH 11"
     },
     {
         "num": 24,
@@ -1356,7 +1356,7 @@ const cards = [
         "name": "Libyan Revolt (TU Reinforcements)",
         "effect": "(May only be played if there are no Allied units in the Libya space.) Place the SN unit in Libya.",
         "reinfnation": "tu",
-        "reinf": "SN Corps"
+        "reinf": "TU SNc"
     },
     {
         "num": 25,
@@ -1556,7 +1556,7 @@ const cards = [
         "name": "German Reinforcements",
         "effect": "2 corps.",
         "reinfnation": "ge",
-        "reinf": "GE Corps|GE Corps"
+        "reinf": "GEc|GEc"
     },
     {
         "num": 39,
@@ -1569,7 +1569,7 @@ const cards = [
         "name": "German Reinforcements",
         "effect": "2 corps.",
         "reinfnation": "ge",
-        "reinf": "GE Corps|GE Corps"
+        "reinf": "GEc|GEc"
     },
     {
         "num": 40,
@@ -1598,7 +1598,7 @@ const cards = [
         "name": "German Reinforcements",
         "effect": "14th Army.",
         "reinfnation": "ge",
-        "reinf": "14 Army"
+        "reinf": "GE 14"
     },
     {
         "num": 42,
@@ -1613,7 +1613,7 @@ const cards = [
         "name": "Turkish Reinforcements",
         "effect": "YLD.",
         "reinfnation": "tu",
-        "reinf": "YLD Army"
+        "reinf": "TU YLD"
     },
     {
         "num": 43,
@@ -1675,7 +1675,7 @@ const cards = [
         "name": "German Reinforcements",
         "effect": "17th Army, 18th Army.",
         "reinfnation": "ge",
-        "reinf": "17 Army|18 Army"
+        "reinf": "GE 17|GE 18"
     },
     {
         "num": 47,
@@ -1707,7 +1707,7 @@ const cards = [
         "name": "Turkish Reinforcements",
         "effect": "AoI Army.",
         "reinfnation": "tu",
-        "reinf": "AoI Army"
+        "reinf": "TU AoI"
     },
     {
         "num": 49,
