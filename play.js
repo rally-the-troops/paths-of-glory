@@ -272,6 +272,7 @@ const marker_info = {
     blucher: { name: "Blucher", counter: "marker blucher ", size: 45 },
     moltke: { name: "Moltke", counter: "marker moltke ", size: 45 },
     oberost: { name: "Oberost", counter: "marker oberost ", size: 45 },
+    great_retreat: { name: "Great Retreat", counter: "marker great_retreat ", size: 45 },
 }
 
 let markers = {
@@ -1382,7 +1383,7 @@ function update_turn_track() {
         "h_l_take_command", "zeppelin_raids", "peace_offensive", "hoffmann",
         "guns_of_august", "landships", "race_to_the_sea", "michael",
         "entrench", "_11th_army", "independent_air_force", "blucher",
-        "moltke", "oberost"
+        "moltke", "oberost", "great_retreat"
     ]
     event_markers.forEach((marker) => {
         if (view.events[marker] > 0) {

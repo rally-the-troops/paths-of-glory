@@ -76,6 +76,8 @@
 .marker.moltke:before { font-size: 11px; content:"Moltke"; }
 .marker.oberost { text-align: center; width: 45px; height: 45px; }
 .marker.oberost:before { font-size: 11px; content:"Oberost"; }
+.marker.great_retreat { text-align: center; width: 45px; height: 45px; }
+.marker.great_retreat:before { font-size: 11px; content:"Great Retreat"; }
 
 .army_ah { background-image: url(pieces/army_ah.webp); background-size: 405px 90px; }
 .army_be { background-image: url(pieces/army_be.webp); background-size: 45px 90px; }

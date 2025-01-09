@@ -2670,17 +2670,48 @@ function goto_attack() {
         }
     }
 
+    goto_attack_step_great_retreat()
+}
+
+function goto_attack_step_great_retreat() {
+    if (game.turn === game.events.great_retreat && undefined !== get_pieces_in_space(game.attack.space).find((p) => data.pieces[p].nation === RUSSIA)) {
+        game.active = other_faction(game.active)
+        game.state = 'great_retreat_option'
+    } else {
+        goto_attack_step_trench_negation()
+    }
+}
+
+function goto_attack_step_trench_negation() {
     if (can_play_combat_cards() && get_trench_level_for_attack(game.attack.space, other_faction(game.attack.attacker)) > 0) {
         // if defending space has a trench, go to 'negate_trench'
         game.state = 'negate_trench'
-    } else if (attacker_can_flank()) {
+    } else {
+        goto_attack_step_flank()
+    }
+}
+
+function goto_attack_step_flank() {
+    if (attacker_can_flank()) {
         // if attacker can flank, go to 'choose_flank_attack'
         game.state = 'choose_flank_attack'
-    } else if (defender_can_withdraw()) {
+    } else {
+        goto_attack_step_withdrawal()
+    }
+}
+
+function goto_attack_step_withdrawal() {
+    if (defender_can_withdraw()) {
         // if defender can withdraw, go to 'choose_withdrawal'
         game.active = other_faction(game.active)
         game.state = 'choose_withdrawal'
-    } else if (can_play_combat_cards()) {
+    } else {
+        goto_attack_step_combat_cards()
+    }
+}
+
+function goto_attack_step_combat_cards() {
+    if (can_play_combat_cards()) {
         game.state = 'attacker_combat_cards'
     } else {
         begin_combat()
@@ -2895,18 +2926,7 @@ states.negate_trench = {
         log(`${faction_name(game.active)} plays ${card_name(c)}`)
     },
     next() {
-        if (attacker_can_flank()) {
-            // if attacker can flank, go to 'choose_flank_attack'
-            game.state = 'choose_flank_attack'
-        } else if (defender_can_withdraw()) {
-            // if defender can withdraw, go to 'choose_withdrawal'
-            game.active = other_faction(game.active)
-            game.state = 'choose_withdrawal'
-        } else if (can_play_combat_cards()) {
-            game.state = 'attacker_combat_cards'
-        } else {
-            begin_combat()
-        }
+        goto_attack_step_flank()
     }
 }
 
@@ -2929,15 +2949,7 @@ states.choose_flank_attack = {
             this.pass()
     },
     pass() {
-        if (defender_can_withdraw()) {
-            // if defender can withdraw, go to 'choose_withdrawal'
-            game.active = other_faction(game.active)
-            game.state = 'choose_withdrawal'
-        } else if (can_play_combat_cards()) {
-            game.state = 'attacker_combat_cards'
-        } else {
-            begin_combat()
-        }
+        goto_attack_step_withdrawal()
     }
 }
 
@@ -2963,15 +2975,7 @@ states.play_wireless_intercepts = {
         log(`${faction_name(game.active)} plays ${card_name(c)}`)
         log('Flank attack successful')
         game.attack.is_flank = true
-        if (defender_can_withdraw()) {
-            // if defender can withdraw, go to 'choose_withdrawal'
-            game.active = other_faction(game.active)
-            game.state = 'choose_withdrawal'
-        } else if (can_play_combat_cards()) {
-            game.state = 'attacker_combat_cards'
-        } else {
-            begin_combat()
-        }
+        goto_attack_step_withdrawal()
     },
     pass() {
         roll_flank_attack()
@@ -3009,15 +3013,7 @@ function roll_flank_attack() {
         clear_undo()
     }
 
-    if (defender_can_withdraw()) {
-        // if defender can withdraw, go to 'choose_withdrawal'
-        game.active = other_faction(game.active)
-        game.state = 'choose_withdrawal'
-    } else if (can_play_combat_cards()) {
-        game.state = 'attacker_combat_cards'
-    } else {
-        begin_combat()
-    }
+    goto_attack_step_withdrawal()
 }
 
 states.choose_withdrawal = {
@@ -3041,7 +3037,7 @@ states.choose_withdrawal = {
     },
     pass() {
         game.active = other_faction(game.active)
-        game.state = 'attacker_combat_cards'
+        goto_attack_step_combat_cards()
     }
 }
 
@@ -3955,21 +3951,24 @@ states.choose_retreat_path = {
     }
 }
 
-function get_retreat_options() {
-    let p = game.attack.retreating_pieces[0]
+function get_retreat_options(pieces, from, length_retreated) {
+    let retreating_pieces = pieces || game.attack.retreating_pieces
+    let origin = from || game.attack.space
+    let p = retreating_pieces[0]
     let options = []
     let s = game.location[p]
+    length_retreated = length_retreated || 0
     let has_friendly_option = false
     let has_in_supply_option = false
 
-    get_connected_spaces_for_pieces(s, game.attack.retreating_pieces).forEach((conn) => {
-        if (conn === game.attack.space)
+    get_connected_spaces_for_pieces(s, retreating_pieces).forEach((conn) => {
+        if (conn === origin)
             return
 
-        if (game.attack.retreat_path.length === 1 && would_overstack(conn, game.attack.retreating_pieces, game.active))
+        if (length_retreated === 1 && would_overstack(conn, retreating_pieces, game.active))
             return
 
-        if (game.attack.retreat_path.length === 1 && !is_controlled_by(conn, game.active))
+        if (length_retreated === 1 && !is_controlled_by(conn, game.active))
             return
 
         if (is_controlled_by(conn, game.active))
@@ -4005,7 +4004,7 @@ function get_retreat_options() {
     // Remove any spaces that would violate the Russian NE (non-SR) restriction
     const all_options = [...options]
     all_options.forEach((s) => {
-        if (!check_russian_ne_restriction(game.attack.retreating_pieces, s))
+        if (!check_russian_ne_restriction(retreating_pieces, s))
             set_delete(options, s)
     })
 
@@ -6447,6 +6446,89 @@ events.lusitania = {
         game.vp -= 1
         game.events.lusitania = game.turn
         goto_end_action()
+    }
+}
+
+// AP #27
+events.great_retreat = {
+    can_play() {
+        return true
+    },
+    play() {
+        game.events.great_retreat = game.turn
+        goto_end_action()
+    }
+}
+
+states.great_retreat_option = {
+    inactive: 'Great Retreat: Choosing whether to retreat Russian units',
+    prompt() {
+        view.prompt = 'Great Retreat: Choose whether to retreat Russian units before combat'
+        gen_action_pass()
+        get_pieces_in_space(game.attack.space).filter(p => data.pieces[p].nation === RUSSIA).forEach(gen_action_piece)
+    },
+    piece(p) {
+        push_undo()
+        game.state = 'great_retreat'
+        game.who = p
+    },
+    pass() {
+        game.active = game.attack.attacker
+        goto_attack_step_trench_negation()
+    }
+}
+
+states.great_retreat = {
+    inactive: 'Great Retreat: Retreating Russian units',
+    prompt() {
+        if (game.who !== 0) {
+            let options = get_retreat_options([game.who], game.attack.space, 0)
+            if (options.length > 0) {
+                view.prompt = `Choose a space to retreat ${piece_name(game.who)}`
+                options.forEach(gen_action_space)
+            } else {
+                // TODO: Must eliminate the unit
+            }
+        } else {
+            let pieces_to_retreat = get_pieces_in_space(game.attack.space).filter(p => data.pieces[p].nation === RUSSIA)
+            if (pieces_to_retreat.length === 0) {
+                view.prompt = `Great Retreat: done`
+                gen_action_done()
+            } else {
+                view.prompt = `Great Retreat: Choose a Russian unit to retreat`
+                pieces_to_retreat.forEach(gen_action_piece)
+            }
+        }
+    },
+    piece(p) {
+        push_undo()
+        game.who = p
+    },
+    space(s) {
+        push_undo()
+        log(`Retreat ${piece_name(game.who)} to ${space_name(s)}`)
+        game.location[game.who] = s
+        game.who = 0
+    },
+    done() {
+        // If the Great Retreat ends and there is still something left to attack, continue the next attack step
+        if (has_undestroyed_fort(game.attack.space, AP) || get_pieces_in_space(game.attack.space).length > 0) {
+            goto_attack_step_trench_negation()
+        } else {
+            // If there are full strength attackers, let them advance
+            game.active = game.attack.attacker
+            let full_strength_attackers = game.attack.pieces.filter((p) => !is_unit_reduced(p))
+            if (full_strength_attackers.length > 0) {
+                game.attack.retreat_length = 1
+                game.attack.to_advance = full_strength_attackers
+                game.attack.advancing_pieces = []
+                game.state = 'attacker_advance'
+            } else {
+                // If no full strength attackers, end the attack
+                end_attack_activation()
+                goto_next_activation()
+            }
+        }
     }
 }
 
