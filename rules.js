@@ -2,7 +2,6 @@
 
 const data = require("./data")
 const {cards} = require("./data")
-const {set} = require("express/lib/application");
 
 let game, view
 
