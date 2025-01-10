@@ -1699,7 +1699,7 @@ function goto_play_reinf(card) {
     let active_player = get_active_player()
     array_remove_item(active_player.hand, card)
     game.last_card = card
-    if (card_data.removed)
+    if (card_data.remove)
         active_player.removed.push(card)
     else
         active_player.discard.push(card)
