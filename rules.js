@@ -2712,6 +2712,13 @@ function goto_attack_step_withdrawal() {
 
 function goto_attack_step_combat_cards() {
     if (can_play_combat_cards()) {
+        // Start with all eligible combat cards selected
+        for (let cc of game.combat_cards) {
+            let evt = events[data.cards[cc].event]
+            if (evt && evt.can_apply()) {
+                game.attack.combat_cards.push(cc)
+            }
+        }
         game.state = 'attacker_combat_cards'
     } else {
         begin_combat()
@@ -6628,7 +6635,6 @@ events.yanks_and_tanks = {
         game.ops = data.cards[YANKS_AND_TANKS].ops
         game.state = 'activate_spaces'
         game.combat_cards.push(YANKS_AND_TANKS)
-        game.attack.combat_cards.push(YANKS_AND_TANKS)
     },
     can_apply() {
         if (!game.attack)
