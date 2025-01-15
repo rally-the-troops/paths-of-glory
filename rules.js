@@ -2782,9 +2782,16 @@ function attacker_can_flank() {
 }
 
 function defender_can_withdraw() {
-    // TODO: Check if there are any spaces to withdraw to?
-    // TODO: Check if the defender has passed on withdrawal for the turn?
-    // TODO: Maybe check if the withdrawal card is removed/discarded?
+    if (game.attack.attacker === CP && (game.ap.removed.includes(WITHDRAWAL_AP) || game.ap.discard.includes(WITHDRAWAL_AP)))
+        return false
+
+    if (game.attack.attacker === AP && (game.cp.removed.includes(WITHDRAWAL_CP) || game.cp.discard.includes(WITHDRAWAL_CP)))
+        return false
+
+    const withdrawal_spaces = get_retreat_options(get_pieces_in_space(game.attack.space), game.attack.space)
+    if (withdrawal_spaces.length === 0)
+        return false
+
     return !attacking_unoccupied_fort()
 }
 
