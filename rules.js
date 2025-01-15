@@ -227,6 +227,7 @@ const CONSTANTINOPLE = 219
 const POTI = 233
 const GROZNY = 234
 const MEF4 = 260
+const BASRA = 269
 const ARABIA_SPACE = 271
 const MEDINA = 272
 const SINAI = 277
@@ -3219,12 +3220,12 @@ function get_fire_result(t, cf, shifts, roll) {
 
 function resolve_attackers_fire() {
     let attacker_cf = 0
-    let table = "corps"
+    game.attack.attacker_table = CORPS
 
     for (let p of game.attack.pieces) {
         attacker_cf += get_piece_cf(p)
         if (data.pieces[p].type === ARMY)
-            table = "army"
+            game.attack.attacker_table = ARMY
     }
 
     // Determine DRM based on played combat cards
@@ -3270,26 +3271,26 @@ function resolve_attackers_fire() {
 
     let roll = roll_die(6) + game.attack.attacker_drm
     let clamped_roll = roll > 6 ? 6 : roll < 1 ? 1 : roll
-    game.attack.defender_losses = get_fire_result(table, attacker_cf, attacker_shifts, clamped_roll)
+    game.attack.defender_losses = get_fire_result(game.attack.attacker_table, attacker_cf, attacker_shifts, clamped_roll)
     game.attack.defender_losses_taken = 0
     game.attack.defender_loss_pieces = []
     game.attack.defender_replacements = {}
 
     clear_undo()
 
-    log(`Roll of ${roll} on the ${table} table causes ${game.attack.defender_losses} losses for the defender`)
+    log(`Roll of ${roll} on the ${game.attack.attacker_table} table causes ${game.attack.defender_losses} losses for the defender`)
 }
 
 function resolve_defenders_fire() {
     const defender = other_faction(game.attack.attacker)
     let defender_cf = 0
-    let table = CORPS
+    game.attack.defender_table = CORPS
 
     for_each_piece_in_space(game.attack.space, (p) => {
         if (!set_has(game.retreated, p))
             defender_cf += get_piece_cf(p)
         if (data.pieces[p].type === ARMY)
-            table = ARMY
+            game.attack.defender_table = ARMY
     })
 
     const space_data = data.spaces[game.attack.space]
@@ -3304,11 +3305,6 @@ function resolve_defenders_fire() {
             let evt = events[data.cards[c].event]
             if (evt && evt.can_apply()) {
                 evt.apply()
-
-                // It would be nice to move this inside the event, but that would probably mean storing the table in
-                // a variable in game.attack, which seems kind of silly
-                if (c === KEMAL)
-                    table = ARMY
             }
         }
     })
@@ -3321,12 +3317,12 @@ function resolve_defenders_fire() {
 
     let roll = roll_die(6) + game.attack.defender_drm
     let clamped_roll = roll > 6 ? 6 : roll < 1 ? 1 : roll
-    game.attack.attacker_losses = get_fire_result(table, defender_cf, defender_shifts, clamped_roll)
+    game.attack.attacker_losses = get_fire_result(game.attack.defender_table, defender_cf, defender_shifts, clamped_roll)
     game.attack.attacker_losses_taken = 0
 
     clear_undo()
 
-    log(`Roll of ${roll} on the ${table} table causes ${game.attack.attacker_losses} losses for the attacker`)
+    log(`Roll of ${roll} on the ${game.attack.defender_table} table causes ${game.attack.attacker_losses} losses for the attacker`)
 }
 
 states.eliminate_retreated_units = {
@@ -5131,13 +5127,17 @@ function search_supply() {
     game.supply_cache.salonika = {}
     // Italian units get a separate supply cache to allow for tracing supply across the Taranto-Valona connection
     game.supply_cache.italian = {}
+    // Separate supply cache for Basra to implement the Maude combat card
+    game.supply_cache.basra = {}
     for (let s = 0; s < data.spaces.length; ++s) {
         game.supply_cache.cp[s] = { sources: [], non_italian_path: false, non_mef_path: false }
         game.supply_cache.eastern[s] = { sources: [], non_italian_path: false, non_mef_path: false }
         game.supply_cache.western[s] = { sources: [], non_italian_path: false, non_mef_path: false }
         game.supply_cache.salonika[s] = { sources: [], non_italian_path: false, non_mef_path: false }
         game.supply_cache.italian[s] = { sources: [], non_italian_path: false, non_mef_path: false }
+        game.supply_cache.basra[s] = { sources: [], non_italian_path: false, non_mef_path: false }
     }
+
     let cp_sources = [ESSEN, BRESLAU]
     if (nation_at_war(BULGARIA))
         cp_sources.push(SOFIA)
@@ -5153,6 +5153,8 @@ function search_supply() {
     const western_supply_sources = [LONDON]
     generate_supply_cache(AP, game.supply_cache.western, western_supply_sources, true)
     generate_supply_cache(AP, game.supply_cache.italian, western_supply_sources, true, ITALY)
+
+    generate_supply_cache(AP, game.supply_cache.basra, [BASRA], false, BRITAIN)
 }
 
 function is_unit_supplied(p) {
@@ -5206,6 +5208,11 @@ function is_unit_supplied_through_italy(p) {
 
     const cache = get_supply_cache_for_piece(p)
     return !cache[game.location[p]].non_italian_path
+}
+
+function can_unit_trace_supply_to_basra(p) {
+    if (!game.supply_cache) search_supply()
+    return game.supply_cache.basra[game.location[p]].sources.length > 0
 }
 
 function is_space_supplied_through_mef(s) {
@@ -5651,7 +5658,8 @@ events.kemal = {
         return (undefined !== get_pieces_in_space(game.attack.space).find(p => data.pieces[p].nation === TURKEY))
     },
     apply() {
-        log(`${card_name(KEMAL)} lets the defender fire on the Army table`)
+        log(`${card_name(KEMAL)} - defender fires on the Army table`)
+        game.attack.defender_table = ARMY
     }
 }
 
@@ -6935,6 +6943,34 @@ events.czech_legion = {
         const czech_legion = find_piece(RUSSIA, 'RU Czech Legion')
         game.location[czech_legion] = AP_RESERVE_BOX
         goto_end_action()
+    }
+}
+
+// AP #61
+events.maude = {
+    can_play() {
+        if (!game.attack)
+            return false
+        let attacking_british_pieces = game.attack.pieces.filter(p => data.pieces[p].nation === BRITAIN)
+        if (attacking_british_pieces.length === 0)
+            return false
+
+        let supplied_from_basra = false
+        for (let p of attacking_british_pieces) {
+            if (can_unit_trace_supply_to_basra(p)) {
+                supplied_from_basra = true
+                break
+            }
+        }
+
+        return supplied_from_basra
+    },
+    can_apply() {
+        return this.can_play()
+    },
+    apply() {
+        log(`${card_name(MAUDE)} - attacker fires on the Army table`)
+        game.attack.attacker_table = ARMY
     }
 }
 
