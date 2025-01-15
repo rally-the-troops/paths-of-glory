@@ -1742,11 +1742,16 @@ states.place_reinforcements = {
         push_undo()
         const p = game.reinforcements.shift()
         game.location[p] = s
+        if (game.reduced.includes(p)) {
+            array_remove_item(game.reduced, p)
+        }
         log(`${piece_name(p)} placed in ${space_name(s)}`)
+
         if (neareast_armies.includes(p) && data.spaces[s].map !== 'neareast' && !is_mef_space(s)) {
             log(`${piece_name(p)} is a NE army placed outside the Near East, it will not be able to operate on the Near East map`)
             game.ne_armies_placed_outside_neareast.push(p)
         }
+
         if (is_mef_space(s)) {
             game.mef_beachhead = s
             log(`MEF beachhead established in ${space_name(s)}`)
