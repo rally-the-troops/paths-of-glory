@@ -78,6 +78,10 @@
 .marker.oberost:before { font-size: 11px; content:"Oberost"; }
 .marker.great_retreat { text-align: center; width: 45px; height: 45px; }
 .marker.great_retreat:before { font-size: 11px; content:"Great Retreat"; }
+.marker.landships { text-align: center; width: 45px; height: 45px; }
+.marker.landships:before { font-size: 11px; content:"Landships"; }
+.marker.entrench { text-align: center; width: 45px; height: 45px; }
+.marker.entrench:before { font-size: 11px; content:"Entrench"; }
 
 .army_ah { background-image: url(pieces/army_ah.webp); background-size: 405px 90px; }
 .army_be { background-image: url(pieces/army_be.webp); background-size: 45px 90px; }
