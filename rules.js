@@ -4966,7 +4966,8 @@ function get_connected_spaces(s, nation) {
     let connections = []
     if (data.spaces[s].connections)
         connections = connections.concat(data.spaces[s].connections)
-    if (nation !== undefined && data.spaces[s].limited_connections[nation])
+
+    if (nation !== undefined && data.spaces[s].limited_connections.hasOwnProperty(nation))
         connections = connections.concat(data.spaces[s].limited_connections[nation])
     return connections
 }
@@ -4985,7 +4986,7 @@ states.place_new_neutral_units = {
             let available_spaces = []
             const nation = data.pieces[game.units_to_place[0]].nation
             for (let s = 1; s < data.spaces.length; ++s) {
-                if (data.spaces[s].nation == nation) {
+                if (data.spaces[s].nation === nation) {
                     set_add(available_spaces, s)
                 }
             }
