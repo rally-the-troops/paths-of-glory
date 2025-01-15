@@ -6940,7 +6940,7 @@ events.czech_legion = {
                 break
             }
         }
-        const czech_legion = find_piece(RUSSIA, 'RU Czech Legion')
+        const czech_legion = find_piece(RUSSIA, 'RU Czlc')
         game.location[czech_legion] = AP_RESERVE_BOX
         goto_end_action()
     }
