@@ -2445,7 +2445,7 @@ function can_move_to(s, moving_pieces) {
     }
 
     // No units may enter a MEF space unless the MEF Beachhead marker is in the space.
-    if (is_mef_space(s) && !game.mef_beachhead === s) {
+    if (is_mef_space(s) && game.mef_beachhead !== s) {
         return false
     }
 
