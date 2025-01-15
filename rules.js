@@ -655,6 +655,8 @@ function create_empty_game_state(seed, scenario, options) {
 
         combat_cards: [], // Face-up played combat cards
 
+        action_state: {}, // State for the current action, cleared after each action
+
         reinf_this_turn: {}, // Which nations have received reinforcements this turn
         mef_beachhead: null, // Which space contains the MEF beachhead, if any
         mef_beachhead_captured: false, // Has the MEF beachhead been captured by CP?
@@ -1153,7 +1155,7 @@ function record_action(type, card) {
 
 function get_last_action() {
     let actions = game[game.active].actions
-    if (actions.length == 0)
+    if (actions.length === 0)
         return undefined
 
     return actions[actions.length-1]
@@ -2014,6 +2016,8 @@ function goto_end_action() {
     delete game.retreated
     delete game.sud_army_space
 
+    game.action_state = {} // Reset any state that lasts for the action round
+
     clear_undo()
 
     const failed_previously = game.failed_entrench
@@ -2678,6 +2682,14 @@ function goto_attack_step_great_retreat() {
         game.active = other_faction(game.active)
         game.state = 'great_retreat_option'
     } else {
+        goto_attack_step_brusilov_offensive()
+    }
+}
+
+function goto_attack_step_brusilov_offensive() {
+    if (game.action_state.brusilov_available && events.brusilov_offensive.can_apply()) {
+        game.state = 'brusilov_offensive_option'
+    } else {
         goto_attack_step_trench_negation()
     }
 }
@@ -2706,12 +2718,20 @@ function goto_attack_step_withdrawal() {
         game.active = other_faction(game.active)
         game.state = 'choose_withdrawal'
     } else {
+        goto_attack_step_kerensky_offensive()
+    }
+}
+
+function goto_attack_step_kerensky_offensive() {
+    if (game.action_state.kerensky_available && events.kerensky_offensive.can_apply()) {
+        game.state = 'kerensky_offensive_option'
+    } else {
         goto_attack_step_combat_cards()
     }
 }
 
 function goto_attack_step_combat_cards() {
-    if (can_play_combat_cards()) {
+     if (can_play_combat_cards()) {
         // Start with all eligible combat cards selected
         for (let cc of game.combat_cards) {
             let evt = events[data.cards[cc].event]
@@ -3044,7 +3064,7 @@ states.choose_withdrawal = {
     },
     pass() {
         game.active = other_faction(game.active)
-        goto_attack_step_combat_cards()
+        goto_attack_step_kerensky_offensive()
     }
 }
 
@@ -3243,6 +3263,10 @@ function resolve_attackers_fire() {
                 evt.apply()
         }
     })
+
+    if (game.action_state.brusilov_active) {
+        events.brusilov_offensive.apply_drm()
+    }
 
     // -3 DRM if all attackers are in the Sinai space
     if (game.attack.pieces.every((p) => game.location[p] === SINAI) && !(game.attack.attacker === AP && game.events.sinai_pipeline > 0)) {
@@ -6489,7 +6513,7 @@ states.great_retreat_option = {
     },
     pass() {
         game.active = game.attack.attacker
-        goto_attack_step_trench_negation()
+        goto_attack_step_brusilov_offensive()
     }
 }
 
@@ -6528,7 +6552,7 @@ states.great_retreat = {
     done() {
         // If the Great Retreat ends and there is still something left to attack, continue the next attack step
         if (has_undestroyed_fort(game.attack.space, AP) || get_pieces_in_space(game.attack.space).length > 0) {
-            goto_attack_step_trench_negation()
+            goto_attack_step_brusilov_offensive()
         } else {
             // If there are full strength attackers, let them advance
             game.active = game.attack.attacker
@@ -6727,6 +6751,89 @@ events.greece_entry = {
         game.events.greece_entry = game.turn
         set_nation_at_war(GREECE)
         goto_end_action()
+    }
+}
+
+// AP #45
+events.kerensky_offensive = {
+    can_play() {
+        return game.events.fall_of_the_tsar > 0 && !game.events.bolshevik_revolution > 0
+    },
+    play() {
+        game.events.kerensky_offensive = game.turn
+        game.ops = data.cards[KERENSKY_OFFENSIVE].ops
+        game.action_state.kerensky_available = true
+        game.state = 'activate_spaces'
+    },
+    can_apply() {
+        if (undefined === game.attack.pieces.find(p => data.pieces[p].nation === RUSSIA))
+            return false
+        if (undefined === get_pieces_in_space(game.attack.space).find(p => data.pieces[p].nation === AUSTRIA_HUNGARY || data.pieces[p].nation === BULGARIA || data.pieces[p].nation === TURKEY))
+            return false
+        return true
+    }
+}
+
+states.kerensky_offensive_option = {
+    inactive: 'Kerensky Offensive - Choosing whether to apply DRM',
+    prompt() {
+        view.prompt = 'Use Kerensky Offensive for +2 DRM?'
+        gen_action('use')
+        gen_action_pass()
+    },
+    use() {
+        delete game.action_state.kerensky_available
+        game.attack.attacker_drm += 2
+        log(`${card_name(KERENSKY_OFFENSIVE)} adds +2 DRM`)
+        goto_attack_step_combat_cards()
+    },
+    pass() {
+        goto_attack_step_combat_cards()
+    }
+}
+
+// AP #46
+events.brusilov_offensive = {
+    can_play() {
+        return true
+    },
+    play() {
+        game.events.brusilov_offensive = game.turn
+        game.ops = data.cards[BRUSILOV_OFFENSIVE].ops
+        game.action_state.brusilov_active = true
+        game.action_state.brusilov_available = true
+        game.state = 'activate_spaces'
+    },
+    can_apply() {
+        if (undefined === game.attack.pieces.find(p => data.pieces[p].nation === RUSSIA))
+            return false
+        if (undefined !== get_pieces_in_space(game.attack.space).find(p => data.pieces[p].nation === GERMANY))
+            return false
+        return get_trench_level_for_attack(game.attack.space, CP) > 0
+    },
+    apply_drm() {
+        if (undefined !== game.attack.pieces.find(p => data.pieces[p].nation === RUSSIA)) {
+            game.attack.attacker_drm += 1
+            log(`${card_name(BRUSILOV_OFFENSIVE)} adds +1 DRM`)
+        }
+    }
+}
+
+states.brusilov_offensive_option = {
+    inactive: 'Brusilov Offensive - Choosing whether to cancel trenches',
+    prompt() {
+        view.prompt = 'Use Brusilov Offensive to cancel trench effects?'
+        gen_action('use')
+        gen_action_pass()
+    },
+    use() {
+        delete game.action_state.brusilov_available
+        game.attack.trenches_canceled = true
+        log(`${card_name(BRUSILOV_OFFENSIVE)} cancels trench effects`)
+        goto_attack_step_flank()
+    },
+    pass() {
+        goto_attack_step_trench_negation()
     }
 }
 
