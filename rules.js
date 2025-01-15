@@ -6717,6 +6717,7 @@ events.greece_entry = {
         return can_play_neutral_entry()
     },
     play() {
+        game.events.greece_entry = game.turn
         set_nation_at_war(GREECE)
         goto_end_action()
     }
