@@ -702,7 +702,7 @@ function goto_start_turn() {
     log_br()
     roll_mandated_offensives()
     log_br()
-    log_h3(`${faction_name(game.active)} Action ${game[game.active].actions.length+1}`)
+    log_h2(`${faction_name(game.active)} Action ${game[game.active].actions.length+1}`)
 
     update_russian_capitulation()
 }
@@ -3255,8 +3255,7 @@ const fire_table = {
 function get_fire_result(t, cf, shifts, roll) {
     let table = fire_table[t]
     let col = 0
-    while (col < table.length) {
-        if (table[col].factors > cf) break
+    while (col < table.length && table[col].factors < cf) {
         col++
     }
     col += shifts
@@ -3288,14 +3287,13 @@ function resolve_attackers_fire() {
         events.brusilov_offensive.apply_drm()
     }
 
-    log(`Attacker's fire:`)
-    logi(`${attacker_cf} combat factors`)
-
     // -3 DRM if all attackers are in the Sinai space
     if (game.attack.pieces.every((p) => game.location[p] === SINAI) && !(game.attack.attacker === AP && game.events.sinai_pipeline > 0)) {
         game.attack.attacker_drm -= 3
         logi(`Attackers in Sinai: -3 DRM`)
     }
+
+    log(`Attacker's fire (${attacker_cf} cf):`)
 
     let attacker_shifts = 0
 
@@ -3351,8 +3349,7 @@ function resolve_defenders_fire() {
         defender_cf += space_data.fort
     }
 
-    log(`Defender's fire:`)
-    logi(`${defender_cf} combat factors`)
+    log(`Defender's fire (${defender_cf} cf):`)
 
     game.attack.combat_cards.forEach((c) => {
         if (data.cards[c].faction === defender) {
