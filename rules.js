@@ -3603,14 +3603,14 @@ function get_loss_options(is_defender, to_satisfy, units, fort_strength) {
 
     // If this is the attacker's first loss, check for priority units first
     if (!is_defender && is_first_pick) {
-        if (units.includes(BEF_ARMY)) return [BEF_ARMY]
-        if (units.includes(BEF_CORPS)) return [BEF_CORPS]
+        if (units.includes(BEF_ARMY) && to_satisfy >= get_piece_lf(BEF_ARMY)) return [BEF_ARMY]
+        if (units.includes(BEF_CORPS) && to_satisfy >= get_piece_lf(BEF_CORPS)) return [BEF_CORPS]
         let priority_units = []
-        if (units.includes(MEF_ARMY)) priority_units.push(MEF_ARMY)
-        if (units.includes(CAU_ARMY)) priority_units.push(CAU_ARMY)
+        if (units.includes(MEF_ARMY) && to_satisfy >= get_piece_lf(MEF_ARMY)) priority_units.push(MEF_ARMY)
+        if (units.includes(CAU_ARMY) && to_satisfy >= get_piece_lf(CAU_ARMY)) priority_units.push(CAU_ARMY)
         if (priority_units.length > 0) return priority_units
-        if (units.includes(AUS_CORPS)) return [AUS_CORPS]
-        if (units.includes(CND_CORPS)) return [CND_CORPS]
+        if (units.includes(AUS_CORPS) && to_satisfy >= get_piece_lf(AUS_CORPS)) return [AUS_CORPS]
+        if (units.includes(CND_CORPS) && to_satisfy >= get_piece_lf(CND_CORPS)) return [CND_CORPS]
         if (priority_units.length > 0) return priority_units
     }
 
