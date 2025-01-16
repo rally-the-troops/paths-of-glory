@@ -1092,9 +1092,10 @@ function satisfies_mo(mo, attackers, defenders, space) {
         let piece = data.pieces[d]
         if (attacker_nation === FRANCE || attacker_nation === BRITAIN) {
             return piece.nation === GERMANY
-        }
-        if (attacker_nation === GERMANY) {
+        } else if (attacker_nation === GERMANY) {
             return piece.nation === BELGIUM || piece.nation === FRANCE || piece.nation === BRITAIN || piece.nation === US
+        } else {
+            return true
         }
     })
     if (valid_defender === undefined)
