@@ -1033,9 +1033,9 @@ function roll_mandated_offensives() {
         cp_mo = NONE
     }
 
-    log(`Mandated offensive :`)
-    log(`CP roll: B${cp_roll} -> ${nation_name(cp_mo)}`)
-    log(`AP roll: W${ap_roll} -> ${nation_name(ap_mo)}`)
+    log(`Mandated offensives:`)
+    log(`CP: B${cp_roll} -> ${nation_name(cp_mo)}`)
+    log(`AP: W${ap_roll} -> ${nation_name(ap_mo)}`)
 
     game.ap.mo = ap_mo
     game.cp.mo = cp_mo
@@ -1163,11 +1163,11 @@ function get_last_action() {
 
 function can_play_neutral_entry() {
     for (let action of game.ap.actions) {
-        if (action.type == ACTION_NEUTRAL_ENTRY)
+        if (action.type === ACTION_NEUTRAL_ENTRY)
             return false
     }
     for (let action of game.cp.actions) {
-        if (action.type == ACTION_NEUTRAL_ENTRY)
+        if (action.type === ACTION_NEUTRAL_ENTRY)
             return false
     }
     return true
@@ -2663,12 +2663,16 @@ function goto_attack() {
         update_russian_ne_restriction_flag(game.attack.pieces, source, game.attack.space)
     })
 
-    log_h2(`${faction_name(game.active)} attacks ${space_name(game.attack.space)} with ${game.attack.pieces.map((p) => piece_name(p)).join(', ')}`)
+    log_h3(`Attack on ${space_name(game.attack.space)}`)
+    log(`Attackers:`)
+    for (let p of game.attack.pieces) {
+        logi(`${piece_name(p)} (${space_name(game.location[p])})`)
+    }
 
     const mo = game.active === AP ? game.ap.mo : game.cp.mo
     if (mo !== NONE && satisfies_mo(mo, game.attack.pieces, get_pieces_in_space(game.attack.space), game.attack.space)) {
         game[game.active].mo = NONE
-        log(`${faction_name(mo)} mandatory offensive: Done`)
+        log(`${faction_name(game.attack.attacker)} satisfies Mandated Offensive`)
     }
 
     if (game.events.french_mutiny > 0 && game.attack.attacker === AP) {
@@ -2982,10 +2986,11 @@ states.choose_flank_attack = {
     },
     space(s) {
         game.attack.pinning_space = s
+        log(`Flank attack, pinning from ${space_name(s)}`)
         if (can_play_wireless_intercepts())
             game.state = 'play_wireless_intercepts'
         else
-            this.pass()
+            roll_flank_attack()
     },
     pass() {
         goto_attack_step_withdrawal()
@@ -3023,7 +3028,8 @@ states.play_wireless_intercepts = {
 
 function roll_flank_attack() {
     if (game.attack.pinning_space) {
-        log(`Attempting to flank ${space_name(game.attack.space)}, pinning from ${space_name(game.attack.pinning_space)}`)
+        log(`Flanking:`)
+        logi(`Pinning space: ${space_name(game.attack.pinning_space)}`)
         const flanking_spaces = []
         let flank_drm = 0
         game.attack.pieces.forEach((p) => {
@@ -3036,17 +3042,17 @@ function roll_flank_attack() {
             if (adds_flanking_drm(s, game.attack.attacker)) {
                 add_drm = false
             }
-            log(`Flanking from ${space_name(s)} ${add_drm ? '+1 DRM' : 'adds no DRM'}`)
+            logi(`${space_name(s)}: ${add_drm ? '+1 DRM' : 'no DRM'}`)
             if (add_drm)
                 flank_drm++
         })
         const roll = roll_die(6)
-        log(`Flank roll: ${roll} + ${flank_drm} DRM = ${roll+flank_drm}`)
+        logi(`${fmt_roll(roll, flank_drm)}`)
         if (roll + flank_drm >= 4) {
-            log('Flank attack successful')
+            logi('Successful')
             game.attack.is_flank = true
         } else {
-            log('Flank attack failed')
+            logi('Failed')
             game.attack.failed_flank = true
         }
         clear_undo()
@@ -3209,7 +3215,7 @@ function resolve_fire() {
         game.state = 'apply_attacker_losses'
     } else if (game.attack.is_flank || von_hutier_active) {
         if (von_hutier_active)
-            log(`${card_name(VON_HUTIER)} active, attacker fires first`)
+            log(`${card_name(VON_HUTIER)}: attacker fires first`)
         resolve_attackers_fire()
         goto_defender_losses()
     } else {
@@ -3221,27 +3227,27 @@ function resolve_fire() {
 
 const fire_table = {
     corps: [
-        {factors: 0, result: [0, 0, 0, 0, 1, 1]},
-        {factors: 1, result: [0, 0, 0, 1, 1, 1]},
-        {factors: 2, result: [0, 1, 1, 1, 1, 1]},
-        {factors: 3, result: [1, 1, 1, 1, 2, 2]},
-        {factors: 4, result: [1, 1, 1, 2, 2, 2]},
-        {factors: 5, result: [1, 1, 2, 2, 2, 3]},
-        {factors: 6, result: [1, 1, 2, 2, 3, 3]},
-        {factors: 7, result: [1, 2, 2, 3, 3, 4]},
-        {factors: 8, result: [2, 2, 3, 3, 4, 4]}
+        {factors: 0, result: [0, 0, 0, 0, 1, 1], name: "0 (Corps)"},
+        {factors: 1, result: [0, 0, 0, 1, 1, 1], name: "1 (Corps)"},
+        {factors: 2, result: [0, 1, 1, 1, 1, 1], name: "2 (Corps)"},
+        {factors: 3, result: [1, 1, 1, 1, 2, 2], name: "3 (Corps)"},
+        {factors: 4, result: [1, 1, 1, 2, 2, 2], name: "4 (Corps)"},
+        {factors: 5, result: [1, 1, 2, 2, 2, 3], name: "5 (Corps)"},
+        {factors: 6, result: [1, 1, 2, 2, 3, 3], name: "6 (Corps)"},
+        {factors: 7, result: [1, 2, 2, 3, 3, 4], name: "7 (Corps)"},
+        {factors: 8, result: [2, 2, 3, 3, 4, 4], name: "8+ (Corps)"}
     ],
     army: [
-        {factors: 1, result:  [0, 1, 1, 1, 2, 2]},
-        {factors: 2, result:  [1, 1, 2, 2, 3, 3]},
-        {factors: 3, result:  [1, 2, 2, 3, 3, 4]},
-        {factors: 4, result:  [2, 2, 3, 3, 4, 4]},
-        {factors: 5, result:  [2, 3, 3, 4, 4, 5]},
-        {factors: 6, result:  [3, 3, 4, 4, 5, 5]},
-        {factors: 9, result:  [3, 4, 4, 5, 5, 7]},
-        {factors: 12, result: [4, 4, 5, 5, 7, 7]},
-        {factors: 15, result: [4, 5, 5, 7, 7, 7]},
-        {factors: 16, result: [5, 5, 7, 7, 7, 7]}
+        {factors: 1, result:  [0, 1, 1, 1, 2, 2], name: "1 (Army)"},
+        {factors: 2, result:  [1, 1, 2, 2, 3, 3], name: "2 (Army)"},
+        {factors: 3, result:  [1, 2, 2, 3, 3, 4], name: "3 (Army)"},
+        {factors: 4, result:  [2, 2, 3, 3, 4, 4], name: "4 (Army)"},
+        {factors: 5, result:  [2, 3, 3, 4, 4, 5], name: "5 (Army)"},
+        {factors: 6, result:  [3, 3, 4, 4, 5, 5], name: "6-8 (Army)"},
+        {factors: 9, result:  [3, 4, 4, 5, 5, 7], name: "9-11 (Army)"},
+        {factors: 12, result: [4, 4, 5, 5, 7, 7], name: "12-14 (Army)"},
+        {factors: 15, result: [4, 5, 5, 7, 7, 7], name: "15 (Army)"},
+        {factors: 16, result: [5, 5, 7, 7, 7, 7], name: "16+ (Army)"}
     ]
 }
 
@@ -3254,6 +3260,7 @@ function get_fire_result(t, cf, shifts, roll) {
     }
     col += shifts
     col = col < 0 ? 0 : col >= table.length ? table.length-1 : col
+    logi(`Column: ${table[col].name}`)
     return table[col].result[roll-1]
 }
 
@@ -3280,13 +3287,14 @@ function resolve_attackers_fire() {
         events.brusilov_offensive.apply_drm()
     }
 
+    log(`Attacker's fire:`)
+    logi(`${attacker_cf} combat factors`)
+
     // -3 DRM if all attackers are in the Sinai space
     if (game.attack.pieces.every((p) => game.location[p] === SINAI) && !(game.attack.attacker === AP && game.events.sinai_pipeline > 0)) {
         game.attack.attacker_drm -= 3
-        log(`All attackers in Sinai, -3 DRM`)
+        logi(`Attackers in Sinai: -3 DRM`)
     }
-
-    log(`Attacking with ${attacker_cf} combat factors`)
 
     let attacker_shifts = 0
 
@@ -3294,21 +3302,21 @@ function resolve_attackers_fire() {
     let terrain = data.spaces[game.attack.space].terrain;
     if (terrain === MOUNTAIN) {
         attacker_shifts -= 1
-        log(`Attacker's fire shifts 1L for Mountains`)
+        logi(`Mountains: shift 1L`)
     }
     if (terrain === SWAMP) {
         attacker_shifts -= 1
-        log(`Attacker's fire shifts 1L for Swamps`)
+        logi(`Swamps: shift 1L`)
     }
 
     // Trench shifts
     if (!attacking_unoccupied_fort() && !game.attack.trenches_canceled) {
         if (get_trench_level_for_attack(game.attack.space, other_faction(game.attack.attacker)) === 2) {
             attacker_shifts -= 2
-            log(`Attacker's fire shifts 2L for Trenches`)
+            logi(`Trenches: shift 2L`)
         } else if (get_trench_level_for_attack(game.attack.space, other_faction(game.attack.attacker)) === 1) {
             attacker_shifts -= 1
-            log(`Attacker's fire shifts 1L for Trenches`)
+            logi(`Trenches: shift 1L`)
         }
     }
 
@@ -3321,7 +3329,8 @@ function resolve_attackers_fire() {
 
     clear_undo()
 
-    log(`Roll of ${roll} on the ${game.attack.attacker_table} table causes ${game.attack.defender_losses} losses for the defender`)
+    logi(`Roll: ${fmt_roll(roll, game.attack.attacker_drm, game.attack.attacker)}`)
+    logi(`Defender losses: ${game.attack.defender_losses}`)
 }
 
 function resolve_defenders_fire() {
@@ -3341,7 +3350,8 @@ function resolve_defenders_fire() {
         defender_cf += space_data.fort
     }
 
-    log(`Defending with ${defender_cf} combat factors`)
+    log(`Defender's fire:`)
+    logi(`${defender_cf} combat factors`)
 
     game.attack.combat_cards.forEach((c) => {
         if (data.cards[c].faction === defender) {
@@ -3355,7 +3365,7 @@ function resolve_defenders_fire() {
     let defender_shifts = 0
     if (get_trench_level_for_attack(game.attack.space, defender) > 0 && !game.attack.trenches_canceled) {
         defender_shifts += 1
-        log(`Defender's fire shifts 1R for trench`)
+        logi(`Trenches: shift 1R`)
     }
 
     let roll = roll_die(6) + game.attack.defender_drm
@@ -3365,7 +3375,8 @@ function resolve_defenders_fire() {
 
     clear_undo()
 
-    log(`Roll of ${roll} on the ${game.attack.defender_table} table causes ${game.attack.attacker_losses} losses for the attacker`)
+    logi(`Roll: ${fmt_roll(roll, game.attack.defender_drm, other_faction(game.attack.attacker))}`)
+    logi(`Attacker losses: ${game.attack.attacker_losses}`)
 }
 
 states.eliminate_retreated_units = {
@@ -7362,4 +7373,19 @@ function log_h3(msg) {
     else
         log(".h3 " + msg);
     log_br();
+}
+
+function die_color(faction) {
+    if (faction === AP)
+        return 'W'
+    else
+        return 'B'
+}
+
+function fmt_roll(roll, drm, faction) {
+    faction = faction || game.active
+    let s = '' + die_color(faction) + roll
+    if (drm !== undefined && drm !== 0)
+        s = s + ` + ${drm} = ${roll + drm}`
+    return s
 }
