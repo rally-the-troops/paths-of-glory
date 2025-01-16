@@ -4521,26 +4521,26 @@ function goto_war_status_phase() {
     if (game.turn !== 1) {
         if (game.ap.ws >= 4 && game.ap.commitment === COMMITMENT_MOBILIZATION) {
             game.ap.commitment = COMMITMENT_LIMITED
-            log_h2("Allied Powers' War Commitment Level rises to Limited War")
+            log_h3("Allied Powers' War Commitment Level rises to Limited War", AP)
             add_cards_to_deck(AP, COMMITMENT_LIMITED, game.ap.deck)
             game.ap.shuffle = true
         }
         if (game.cp.ws >= 4 && game.cp.commitment === COMMITMENT_MOBILIZATION) {
             game.cp.commitment = COMMITMENT_LIMITED
-            log_h2("Central Powers' War Commitment Level rises to Limited War")
+            log_h3("Central Powers' War Commitment Level rises to Limited War", CP)
             add_cards_to_deck(CP, COMMITMENT_LIMITED, game.cp.deck)
             game.cp.shuffle = true
             set_nation_at_war(TURKEY)
         }
         if (game.ap.ws >= 11 && game.ap.commitment === COMMITMENT_LIMITED) {
             game.ap.commitment = COMMITMENT_TOTAL
-            log_h2("Allied Powers' War Commitment Level rises to Total War")
+            log_h3("Allied Powers' War Commitment Level rises to Total War", AP)
             add_cards_to_deck(AP, COMMITMENT_TOTAL, game.ap.deck)
             game.ap.shuffle = true
         }
         if (game.cp.ws >= 11 && game.cp.commitment === COMMITMENT_LIMITED) {
             game.cp.commitment = COMMITMENT_TOTAL
-            log_h2("Central Powers' War Commitment Level rises to Total War")
+            log_h3("Central Powers' War Commitment Level rises to Total War", CP)
             add_cards_to_deck(CP, COMMITMENT_TOTAL, game.cp.deck)
             game.cp.shuffle = true
         }
@@ -7362,11 +7362,12 @@ function log_h2(msg) {
     log_br()
 }
 
-function log_h3(msg) {
+function log_h3(msg, faction) {
+    faction = faction || game.active
     log_br();
-    if (game.active === AP)
+    if (faction === AP)
         log(".h3ap " + msg);
-    else if (game.active === CP)
+    else if (faction === CP)
         log(".h3cp " + msg);
     else
         log(".h3 " + msg);
