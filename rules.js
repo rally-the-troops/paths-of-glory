@@ -345,6 +345,18 @@ exports.query = function (state, current, q) {
         game = state
         return query_supply()
     }
+    if (q === 'discard') {
+        let discard = []
+        discard.push(...state.ap.discard)
+        discard.push(...state.cp.discard)
+        return discard
+    }
+    if (q === 'removed') {
+        let removed = []
+        removed.push(...state.ap.removed)
+        removed.push(...state.cp.removed)
+        return removed
+    }
     return null
 }
 

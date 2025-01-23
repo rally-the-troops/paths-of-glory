@@ -91,8 +91,15 @@ aside { min-width: 220px; }
     min-height: 340px;
 }
 
+.hand_label {
+    text-align: left;
+    color: white;
+    margin: 10px;
+}
+
 #combat_cards {
     background-color: #4d452b;
+    min-height: 0;
 }
 
 @media (max-width: 800px) {

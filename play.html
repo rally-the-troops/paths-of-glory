@@ -71,6 +71,8 @@
 			<summary><img src="/images/wooden-sign.svg"></summary>
 			<menu>
 				<li onclick="send_query('supply')"> Supply lines
+				<li onclick="send_query('removed')"> Removed
+				<li onclick="send_query('discard')"> Discard
 			</menu>
 		</details>
 		<button id="piece_button" onclick="toggle_counters()"><img src="/images/earth-america.svg"></button>
@@ -115,8 +117,10 @@
 			</div>
 		</div>
 	</div>
-	<div id="cards" class="hand"></div>
+	<div class="hand_label">Active Combat Cards</div>
 	<div id="combat_cards" class="hand"></div>
+	<div class="hand_label">Hand</div>
+	<div id="cards" class="hand"></div>
 </main>
 
 <footer id="status"></footer>

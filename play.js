@@ -181,6 +181,10 @@ function hide_card_list(id) {
 function on_reply(q, params) {
     if (q === 'supply')
         show_supply(params)
+    if (q === 'discard')
+        show_card_list("discard", params)
+    if (q === 'removed')
+        show_card_list("removed", params)
 }
 
 let ui = {
