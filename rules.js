@@ -674,15 +674,19 @@ function create_empty_game_state(seed, scenario, options) {
     }
 }
 
+function is_optional_card(c) {
+    return (c >= 56 && c <= 65) || (c >= 56+65 && c <= 65+65)
+}
+
 function setup_initial_decks() {
+    const include_optional_cards = game.options.optional_cards
+
     for (let i = 1; i < data.cards.length; i++) {
         if (i === GUNS_OF_AUGUST && game.options.start_with_guns_of_august) {
             game.cp.hand.push(i)
         } else if (data.cards[i].commitment === COMMITMENT_MOBILIZATION) {
-            if (data.cards[i].faction === AP) {
-                game.ap.deck.push(i)
-            } else if (data.cards[i].faction === CP) {
-                game.cp.deck.push(i)
+            if (include_optional_cards || !is_optional_card(i)) {
+                game[data.cards[i].faction].deck.push(i)
             }
         }
     }
@@ -4592,9 +4596,11 @@ function get_result_message(prefix, result) {
 }
 
 function add_cards_to_deck(faction, commitment, deck) {
+    const use_optional_cards = game.options.optional_cards
     for (let i = 1; i < data.cards.length; i++) {
         if (data.cards[i].commitment === commitment && data.cards[i].faction === faction) {
-            deck.push(i)
+            if (use_optional_cards || !is_optional_card(c))
+                deck.push(i)
         }
     }
 }
