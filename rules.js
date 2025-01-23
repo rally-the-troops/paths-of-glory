@@ -2673,7 +2673,7 @@ function goto_attack() {
     const mo = game.active === AP ? game.ap.mo : game.cp.mo
     if (mo !== NONE && satisfies_mo(mo, game.attack.pieces, get_pieces_in_space(game.attack.space), game.attack.space)) {
         game[game.active].mo = NONE
-        log(`${faction_name(game.attack.attacker)} satisfies Mandated Offensive`)
+        log(`${faction_name(game.attack.attacker)} satisfy Mandated Offensive`)
     }
 
     if (game.events.french_mutiny > 0 && game.attack.attacker === AP) {
@@ -3958,11 +3958,11 @@ states.choose_retreat_path = {
     inactive: 'Defender Retreating',
     prompt() {
 
-        if (game.attack.retreat_path.length === game.attack.retreat_length) {
+        if (game.attack.retreat_path.length === game.attack.retreat_length || game.attack.retreating_pieces.length === 0) {
             view.prompt = `End retreat?`
             gen_action_done()
         } else {
-            if (game.attack.retreat_path.length === 0) {
+            if (game.attack.retreat_path.length === 0 && game.attack.retreat_length > 1) {
                 view.prompt = `Choose space to retreat through`
             } else {
                 view.prompt = `Choose space to retreat to`
@@ -3972,6 +3972,13 @@ states.choose_retreat_path = {
             options.forEach((s) => {
                 gen_action_space(s)
             })
+
+            if (options.length === 0) {
+                view.prompt = `No valid retreat options — eliminate retreating units`
+                game.attack.retreating_pieces.forEach((p) => {
+                    gen_action_piece(p)
+                })
+            }
         }
     },
     space(s) {
@@ -3983,6 +3990,10 @@ states.choose_retreat_path = {
         game.attack.retreating_pieces.forEach((p) => {
             game.location[p] = s
         })
+    },
+    piece(p) {
+        array_remove_item(game.attack.retreating_pieces, p)
+        eliminate_piece(p, true)
     },
     done() {
         game.attack.retreating_pieces.forEach((p) => { set_add(game.retreated, p) })
@@ -4048,10 +4059,13 @@ function get_retreat_options(pieces, from, length_retreated) {
     // TODO: if any enemy spaces would result in the retreating unit being in supply, remove enemy spaces that would
     //  leave the retreating unit oos
 
-    // Remove any spaces that would violate the Russian NE (non-SR) restriction
+    // Remove any spaces that would violate the Russian NE (non-SR) restriction or stacking limits
     const all_options = [...options]
     all_options.forEach((s) => {
         if (!check_russian_ne_restriction(retreating_pieces, s))
+            set_delete(options, s)
+
+        if (would_overstack(s, retreating_pieces, game.active))
             set_delete(options, s)
     })
 
