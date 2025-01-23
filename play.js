@@ -83,7 +83,7 @@ let focus_box = document.getElementById("focus")
 
 let showing_supply = false
 
-function show_supply(supply) {
+function show_ap_supply(supply) {
     showing_supply = true
     for (let s = 1; s < spaces.length; ++s) {
         const western = supply.western[s].sources.length > 0
@@ -91,10 +91,18 @@ function show_supply(supply) {
         const cp = supply.cp[s].sources.length > 0
         spaces[s].element.classList.toggle("western_supply", western)
         spaces[s].element.classList.toggle("eastern_supply", eastern)
-        spaces[s].element.classList.toggle("cp_supply", cp)
-        spaces[s].element.classList.toggle("no_supply", !western && !eastern && !cp)
+        spaces[s].element.classList.toggle("no_supply", !western && !eastern)
     }
+    supply.oos_pieces.forEach(p => pieces[p].element.classList.add("oos"))
+}
 
+function show_cp_supply(supply) {
+    showing_supply = true
+    for (let s = 1; s < spaces.length; ++s) {
+        const cp = supply.cp[s].sources.length > 0
+        spaces[s].element.classList.toggle("cp_supply", cp)
+        spaces[s].element.classList.toggle("no_supply", !cp)
+    }
     supply.oos_pieces.forEach(p => pieces[p].element.classList.add("oos"))
 }
 
@@ -179,8 +187,10 @@ function hide_card_list(id) {
 }
 
 function on_reply(q, params) {
-    if (q === 'supply')
-        show_supply(params)
+    if (q === 'cp_supply')
+        show_cp_supply(params)
+    if (q === 'ap_supply')
+        show_ap_supply(params)
     if (q === 'discard')
         show_card_list("discard", params)
     if (q === 'removed')

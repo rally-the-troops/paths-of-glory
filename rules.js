@@ -341,7 +341,11 @@ exports.is_checkpoint = function (a, b) {
 }
 
 exports.query = function (state, current, q) {
-    if (q === 'supply') {
+    if (q === 'cp_supply') {
+        game = state
+        return query_supply()
+    }
+    if (q === 'ap_supply')  {
         game = state
         return query_supply()
     }

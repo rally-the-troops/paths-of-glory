@@ -341,61 +341,26 @@ body.shift .highlight {
     cursor: pointer;
     border-color: yellow;
 }
+body.ap header.your_turn { background-color: hsl(5, 65%, 70%); }
+body.cp header.your_turn { background-color: hsl(200, 40%, 70%); }
 
 #spaces div.western_supply {
-    border-top-color: blue;
-    border-left-color: blue;
-    border-bottom-color: transparent;
-    border-right-color: transparent;
-    border-style: dotted;
+    border-color: hsl(5, 65%, 70%);
 }
 
 #spaces div.eastern_supply {
-    border-top-color: darkred;
-    border-left-color: transparent;
-    border-bottom-color: transparent;
-    border-right-color: darkred;
-    border-style: dotted;
+    border-color: saddlebrown;
 }
 
 #spaces div.western_supply.eastern_supply {
-    border-top-color: blue;
-    border-left-color: blue;
-    border-bottom-color: darkred;
-    border-right-color: darkred;
-    border-style: dotted;
+    border-top-color: hsl(5, 65%, 70%);
+    border-left-color: hsl(5, 65%, 70%);
+    border-bottom-color: saddlebrown;
+    border-right-color: saddlebrown;
 }
 
 #spaces div.cp_supply {
-    border-top-color: dimgray;
-    border-left-color: dimgray;
-    border-bottom-color: dimgray;
-    border-right-color: dimgray;
-    border-style: dotted;
-}
-
-#spaces div.western_supply.cp_supply {
-    border-top-color: blue;
-    border-left-color: blue;
-    border-bottom-color: dimgray;
-    border-right-color: dimgray;
-    border-style: dotted;
-}
-
-#spaces div.eastern_supply.cp_supply {
-    border-top-color: darkred;
-    border-left-color: dimgray;
-    border-bottom-color: dimgray;
-    border-right-color: darkred;
-    border-style: dotted;
-}
-
-#spaces div.western_supply.eastern_supply.cp_supply {
-    border-top-color: dimgray;
-    border-left-color: blue;
-    border-bottom-color: dimgray;
-    border-right-color: darkred;
-    border-style: dotted;
+    border-color: hsl(200, 40%, 70%);
 }
 
 #spaces div.no_supply {
