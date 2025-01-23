@@ -80,7 +80,7 @@ aside { min-width: 220px; }
 /* CARDS */
 
 .hand {
-    margin: 10px auto;
+    margin: 20px auto;
     padding: 15px;
     display: flex;
     gap: 20px;
@@ -89,16 +89,19 @@ aside { min-width: 220px; }
     min-width: calc(242px * 3 + 30px + 20px * 2);
     max-width: calc(2550px - 30px);
     min-height: 340px;
+    position: relative;
 }
 
 .hand_label {
     text-align: left;
     color: white;
-    margin: 10px;
+    margin: 0 10px;
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 
 #combat_cards {
-    background-color: #4d452b;
     min-height: 0;
 }
 
@@ -133,7 +136,7 @@ aside { min-width: 220px; }
     cursor: pointer;
 }
 
-.hand .card { display: none; }
+.hand .card { display: none; margin: 15px 0; }
 .hand .card.show { display: block; }
 
 #turn_info {
