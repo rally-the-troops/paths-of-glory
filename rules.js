@@ -1856,14 +1856,15 @@ function get_available_reinforcement_spaces(p) {
 function roll_peace_terms(faction_offering, combined_war_status) {
     clear_undo()
     let roll = roll_die(6)
+    log(`Peace terms roll: ${fmt_roll(roll, 0, faction_offering)}`)
     if (roll <= 2 || (roll === 3 && combined_war_status < 20)) {
         game.vp += faction_offering === AP ? 1 : -1
-        log(`Peace terms roll of ${roll} results in 1 VP for the ${faction_name(faction_offering)}`)
+        logi(`Success, 1 VP for ${faction_name(faction_offering)}`)
     } else if (roll === 6) {
         game.vp += faction_offering === AP ? -1 : 1
-        log(`Peace terms roll of ${roll} backfires, giving 1 VP to the ${faction_name(other_faction(faction_offering))}`)
+        logi(`Failure, 1 VP for ${faction_name(other_faction(faction_offering))}`)
     } else {
-        log(`Peace terms roll of ${roll} has no effect`)
+        logi(`No effect`)
     }
 }
 
@@ -2033,16 +2034,17 @@ function goto_end_action() {
         game.entrenching.forEach((p) => {
             const roll = roll_die(6)
             const drm = failed_previously.includes(p) ? -1 : 0
+            log(`Entrench attempt in ${space_name(game.location[p])}`)
             const success = roll+drm <= get_piece_lf(p)
             if (success) {
-                log(`${piece_name(p)} successfully entrenches in ${space_name(game.location[p])} with a roll of ${roll+drm}${drm !== 0 ? ` (including ${drm} DRM)` : ''}`)
+                logi(`${fmt_roll(roll, drm)} -> Success`)
                 let lvl = get_trench_level(game.location[p], game.active)
                 set_trench_level(game.location[p], lvl+1, game.active)
             } else {
                 const nation = data.pieces[p].nation
                 if (game.options.failed_entrench && (nation === GERMANY || nation === BRITAIN || nation === FRANCE || nation === ITALY))
                     game.failed_entrench.push(p)
-                log(`${piece_name(p)} fails to entrench in ${space_name(game.location[p])} with a roll of ${roll+drm}${drm !== 0 ? ` (including ${drm} DRM)` : ''}`)
+                logi(`${fmt_roll(roll, drm)} -> Failure`)
             }
         })
         game.entrenching.length = 0
@@ -2372,7 +2374,7 @@ function set_control(s, faction) {
             game.vp++
             if (is_russian) game.cp.ru_vp++
         }
-        log(`${faction_name(faction)} gains ${space_name(s)} for 1 VP`)
+        log(`${faction_name(faction)} take ${space_name(s)} (1 VP)`)
     }
 
     if (s === game.mef_beachhead && !game.mef_beachhead_captured && faction === CP) {
@@ -4454,17 +4456,20 @@ states.siege_phase = {
     },
     space(s) {
         array_remove_item(game.sieges_to_roll, s)
+        log(`Siege of ${space_name(s)}`)
+        logi(`Fort strength: ${data.spaces[s].fort}`)
         let roll = roll_die(6)
         const drm = game.turn <= 2 ? -2 : 0
         const fort_str = data.spaces[s].fort
+        logi(`Roll: ${fmt_roll(roll, drm)}`)
         if (roll + drm > fort_str) {
-            log(`${faction_name(game.active)} successfully besiege ${space_name(s)} with a roll of ${roll+drm}`)
+            logi(`Success`)
             array_remove_item(game.forts.besieged, s)
             set_add(game.forts.destroyed, s)
             set_control(s, game.active)
             capture_trench(s, game.active)
         } else {
-            log(`${faction_name(game.active)} fail to besiege ${space_name(s)} with a roll of ${roll+drm}`)
+            logi(`Failure`)
         }
 
         if (game.sieges_to_roll.length === 0) {
