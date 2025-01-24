@@ -426,7 +426,7 @@ exports.view = function(state, current) {
         mef_beachhead: game.mef_beachhead_captured ? null : game.mef_beachhead,
         tsar_fell_cp_russian_vp: game.tsar_fell_cp_russian_vp,
 
-        oos_pieces: get_oos_pieces(),
+        oos_pieces: game.supply_cache ? game.supply_cache.oos_pieces : [],
     }
 
     if (current === AP) {
