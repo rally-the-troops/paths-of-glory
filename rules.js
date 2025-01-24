@@ -969,7 +969,7 @@ function set_nation_at_war(nation) {
         setup_piece(GREECE, 'GRc', 'Larisa')
     }
 
-    game.supply_cache = null
+    search_supply()
 }
 
 // === Mandated Offensives ===
@@ -2425,7 +2425,7 @@ function set_control(s, faction) {
     }
 
     game.control[s] = new_control
-    game.supply_cache = null
+    search_supply()
 
     update_russian_capitulation()
 }
@@ -2629,7 +2629,7 @@ function can_end_move(s) {
 function end_move_stack() {
     if (!is_controlled_by(game.move.current, game.active) && has_undestroyed_fort(game.move.current, other_faction(game.active))) {
         set_add(game.forts.besieged, game.move.current)
-        game.supply_cache = null
+        search_supply()
     }
 
     game.move.pieces.forEach((p) => {
@@ -4172,7 +4172,7 @@ states.perform_advance = {
             const end_space = game.location[game.attack.advancing_pieces[0]]
             if (has_undestroyed_fort(end_space, other_faction(game.attack.attacker))) {
                 set_add(game.forts.besieged, end_space)
-                game.supply_cache = null
+                search_supply()
             }
         }
         game.attack.advancing_pieces.length = 0
@@ -4267,7 +4267,7 @@ function update_siege(space) {
     let pieces_in_space = get_pieces_in_space(space)
     if (!can_besiege(space, pieces_in_space)) {
         set_delete(game.forts.besieged, space)
-        game.supply_cache = null
+        search_supply()
     }
 }
 
@@ -4394,7 +4394,7 @@ function goto_attrition_phase() {
     //  tracing to Taranto even while Italy is still Neutral.
 
     // Get all OOS pieces that should suffer attrition
-    game.supply_cache = null
+    search_supply()
     get_oos_pieces().forEach((p) => {
         const faction = data.pieces[p].faction
         if (game.location[p] === MEDINA && data.pieces[p].nation === TURKEY) {
@@ -4904,7 +4904,12 @@ states.choose_replacement_army = {
         const full_replacement_allowed = get_rps_of_type(rp_type) >= 2
         if (is_unit_reduced(game.who) && full_replacement_allowed)
             gen_action_piece(game.who)
-        get_army_replacement_spaces(game.who).forEach(gen_action_space)
+        const replacement_spaces = get_army_replacement_spaces(game.who)
+        replacement_spaces.forEach(gen_action_space)
+        if (replacement_spaces.length === 0) {
+            view.prompt = `No valid spaces to send ${piece_name(game.who)}`
+            gen_action_pass()
+        }
     },
     piece(p) {
         if (is_unit_reduced(p)) {
@@ -4921,6 +4926,12 @@ states.choose_replacement_army = {
         game.location[game.who] = s
         spend_rps(get_rp_type(game.who), is_unit_reduced(game.who) ? 1 : 2)
         log(`Returned ${piece_name(game.who)} to ${space_name(s)} at ${is_unit_reduced(game.who) ? 'reduced' : 'full'} strength`)
+        game.who = 0
+        game.state = 'replacement_phase'
+    },
+    pass() {
+        push_undo()
+        log(`No valid spaces to return ${piece_name(game.who)}`)
         game.who = 0
         game.state = 'replacement_phase'
     }
@@ -5271,6 +5282,8 @@ function search_supply() {
     generate_supply_cache(AP, game.supply_cache.italian, western_supply_sources, true, ITALY)
 
     generate_supply_cache(AP, game.supply_cache.basra, [BASRA], false, BRITAIN)
+
+    game.supply_cache.oos_pieces = get_oos_pieces()
 }
 
 function is_unit_supplied(p) {
@@ -5366,7 +5379,6 @@ function is_space_supplied(faction, s) {
 
 function query_supply() {
     if (!game.supply_cache) search_supply()
-    game.supply_cache.oos_pieces = get_oos_pieces()
     return game.supply_cache
 }
 

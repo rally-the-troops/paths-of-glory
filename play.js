@@ -1100,7 +1100,7 @@ function update_space(s) {
             }
             push_stack(stack, p, pe)
         }
-        if (view.oos_pieces.includes(p)) {
+        if (view.oos_pieces && view.oos_pieces.length > 0 && view.oos_pieces.includes(p)) {
             if (pieces[p].faction === AP) ap_oos = true
             if (pieces[p].faction === CP) cp_oos = true
         }
