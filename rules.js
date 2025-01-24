@@ -6729,7 +6729,7 @@ events.grand_fleet = {
     },
     play() {
         push_undo()
-        delete game.event.high_seas_fleet
+        delete game.events.high_seas_fleet
         goto_end_action()
     }
 }
