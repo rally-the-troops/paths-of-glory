@@ -4637,7 +4637,7 @@ function add_cards_to_deck(faction, commitment, deck) {
     const use_optional_cards = game.options.optional_cards
     for (let i = 1; i < data.cards.length; i++) {
         if (data.cards[i].commitment === commitment && data.cards[i].faction === faction) {
-            if (use_optional_cards || !is_optional_card(c))
+            if (use_optional_cards || !is_optional_card(i))
                 deck.push(i)
         }
     }
