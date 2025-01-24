@@ -1765,8 +1765,13 @@ states.place_reinforcements = {
             spaces.forEach((s) => {
                 gen_action_space(s)
             })
+
+            if (spaces.length === 0) {
+                view.prompt = `Place reinforcements: No valid spaces for ${piece_name(first_piece)}`
+                gen_action_pass()
+            }
         } else {
-            view.prompt = `Place reinforcements - Done`
+            view.prompt = `Place reinforcements: Done`
             gen_action_done()
         }
     },
@@ -1789,6 +1794,12 @@ states.place_reinforcements = {
             log(`MEF beachhead established in ${space_name(s)}`)
         }
         set_control(s, game.active)
+    },
+    pass() {
+        push_undo()
+        const p = game.reinforcements.shift()
+        game.location[p] = 0
+        log(`${piece_name(p)} could not be placed`)
     },
     done() {
         clear_undo()
