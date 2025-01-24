@@ -5083,11 +5083,14 @@ function get_connected_spaces_for_pieces(s, pieces) {
 
 function get_connected_spaces(s, nation) {
     let connections = []
-    if (data.spaces[s].connections)
-        connections = connections.concat(data.spaces[s].connections)
+    let space_data = data.spaces[s]
+    if (!space_data)
+        return connections
 
-    if (nation !== undefined && data.spaces[s].limited_connections.hasOwnProperty(nation))
-        connections = connections.concat(data.spaces[s].limited_connections[nation])
+    connections = connections.concat(space_data.connections)
+
+    if (nation !== undefined && space_data.limited_connections && space_data.limited_connections.hasOwnProperty(nation))
+        connections = connections.concat(space_data.limited_connections[nation])
     return connections
 }
 
