@@ -5084,7 +5084,7 @@ function get_connected_spaces_for_pieces(s, pieces) {
 function get_connected_spaces(s, nation) {
     let connections = []
     let space_data = data.spaces[s]
-    if (!space_data)
+    if (!space_data || s === 0)
         return connections
 
     connections = connections.concat(space_data.connections)
