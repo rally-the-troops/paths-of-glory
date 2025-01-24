@@ -84,6 +84,8 @@ let focus_box = document.getElementById("focus")
 let showing_supply = false
 
 function show_ap_supply(supply) {
+    if (showing_supply)
+        hide_supply()
     showing_supply = true
     for (let s = 1; s < spaces.length; ++s) {
         const western = supply.western[s].sources.length > 0
@@ -97,6 +99,8 @@ function show_ap_supply(supply) {
 }
 
 function show_cp_supply(supply) {
+    if (showing_supply)
+        hide_supply()
     showing_supply = true
     for (let s = 1; s < spaces.length; ++s) {
         const cp = supply.cp[s].sources.length > 0
