@@ -1440,8 +1440,12 @@ states.choose_sr_destination = {
     inactive: "Choosing destination for Strategic Redeployment",
     prompt() {
         view.prompt = `Choose destination for Strategic Redeployment`
-        let destinations = find_sr_destinations()
+        let destinations = get_sr_destinations(game.sr.unit)
         destinations.forEach(gen_action_space)
+        if (destinations.length === 0) {
+            view.prompt = `No valid destinations for Strategic Redeployment`
+            gen_action_pass()
+        }
     },
     space(s) {
         push_undo()
@@ -1452,13 +1456,20 @@ states.choose_sr_destination = {
         game.sr.unit = 0
         game.who = 0
         game.state = 'choose_sr_unit'
+    },
+    pass() {
+        push_undo()
+        set_add(game.sr.done, game.sr.unit)
+        game.sr.unit = 0
+        game.who = 0
+        game.state = 'choose_sr_unit'
     }
 }
 
-function find_sr_destinations() {
+function get_sr_destinations(unit) {
     let destinations = []
-    const start = game.location[game.sr.unit]
-    const nation = data.pieces[game.sr.unit].nation
+    const start = game.location[unit]
+    const nation = data.pieces[unit].nation
 
     if (start === AP_RESERVE_BOX || start === CP_RESERVE_BOX) {
         // Add all spaces containing a supplied unit of the correct nationality, except ANA Corps and SN Corps
@@ -1502,7 +1513,7 @@ function find_sr_destinations() {
         //  units tracing supply to Sofia or Constantinople, Turkish units tracing supply to Essen, Breslau or Sofia,
         //  Bulgarian units tracing supply to Essen, Breslau or Constantinople, and Russian and Romanian units tracing
         //  supply to Belgrade.
-    } else if (data.pieces[game.sr.unit].type === CORPS) {
+    } else if (data.pieces[unit].type === CORPS) {
         // Corps can SR to the reserve box
         if (game.active === AP) {
             set_add(destinations, AP_RESERVE_BOX)
@@ -1530,7 +1541,7 @@ function find_sr_destinations() {
     }
 
     // AP can SR Corps to any friendly-controlled port, CP can SR using ports in Germany and Russia
-    if (data.pieces[game.sr.unit].type === CORPS) {
+    if (data.pieces[unit].type === CORPS) {
         if (is_port(start, game.active)) {
             for (let s = 1; s < data.spaces.length; s++) {
                 if (is_port(s, game.active) && is_controlled_by(s, game.active)) {
@@ -1544,7 +1555,7 @@ function find_sr_destinations() {
     // Vienna or Budapest in the case of A-H), no Corps of that nation may SR to or from the Reserve Box as long as the
     // enemy control lasts. Exception: Belgian and Serb units are not affected by this restriction. The MN unit may not
     // use SR overland. It may SR to and from the Reserve Box.
-    if (data.pieces[game.sr.unit].nation !== BELGIUM && data.pieces[game.sr.unit].nation !== SERBIA && any_capital_occupied_or_besieged(data.pieces[game.sr.unit].nation)) {
+    if (data.pieces[unit].nation !== BELGIUM && data.pieces[unit].nation !== SERBIA && any_capital_occupied_or_besieged(data.pieces[unit].nation)) {
         set_delete(destinations, AP_RESERVE_BOX)
         set_delete(destinations, CP_RESERVE_BOX)
     }
@@ -1560,13 +1571,13 @@ function find_sr_destinations() {
 
         if (is_neareast_space(d) !== is_neareast_start) {
             // No more than one CP Corps may SR to or from the Near East map per turn. Exception: Turkish Corps do not count against this limit.
-            if (game.ne_restrictions.cp_sr && data.pieces[game.sr.unit].faction === CP && nation !== TURKEY) {
+            if (game.ne_restrictions.cp_sr && data.pieces[unit].faction === CP && nation !== TURKEY) {
                 set_delete(destinations, d)
                 continue
             }
 
             // No more than one Russian Corps (never an Army) may SR to or from the Near East map per turn.
-            if (game.ne_restrictions.ru_sr && data.pieces[game.sr.unit].nation === RUSSIA) {
+            if (game.ne_restrictions.ru_sr && data.pieces[unit].nation === RUSSIA) {
                 set_delete(destinations, d)
                 continue
             }
@@ -1575,18 +1586,18 @@ function find_sr_destinations() {
             if (!set_has(overland_destinations, d)) {
                 // No more than one British Corps (including the AUS Corps, but not including the CND, PT, or BEF Corps)
                 // may use Reserve Box SR to or from Near East or SR by sea to or from the Near East per turn.
-                if (data.pieces[game.sr.unit].nation === BRITAIN) {
+                if (data.pieces[unit].nation === BRITAIN) {
                     if (game.ne_restrictions.br_sr) {
                         set_delete(destinations, d)
                         continue
-                    } else if (!data.pieces[game.sr.unit].name.startsWith('BR') && !data.pieces[game.sr.unit].name.startsWith('AUS')) {
+                    } else if (!data.pieces[unit].name.startsWith('BR') && !data.pieces[unit].name.startsWith('AUS')) {
                         set_delete(destinations, d)
                     }
                 }
 
                 // It is not permitted to use Sea or Reserve Box SR of FR Corps, IT Corps, GR Corps, RO Corps, SB Corps,
                 // US Corps, BE Corps, CND, PT, or BEF corps to or from the NE.
-                if ([ITALY, FRANCE, GREECE, ROMANIA, SERBIA, US, BELGIUM].includes(data.pieces[game.sr.unit].nation)) {
+                if ([ITALY, FRANCE, GREECE, ROMANIA, SERBIA, US, BELGIUM].includes(data.pieces[unit].nation)) {
                     set_delete(destinations, d)
                 }
             }
