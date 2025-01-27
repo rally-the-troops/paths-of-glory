@@ -7466,3 +7466,84 @@ function fmt_roll(roll, drm, faction) {
         s = s + ` + ${drm} = ${roll + drm}`
     return s
 }
+
+// ASSERTS
+
+function assert_stacking_limits() {
+    const rule_text = "10.1.2 Stacking limits are in effect at all times except during SR and movement"
+
+    if (game.state in ['move_stack', 'choose_sr_unit', 'choose_sr_destination'])
+        return
+
+    for (const faction of [AP, CP]) {
+        for (let s = 1; s < AP_RESERVE_BOX; ++s) {
+            if (is_overstacked(s, faction)) {
+                throw new Error(`Rule violation by ${faction} in S${s} ${space_name(s)}: ${rule_text}`)
+            }
+        }
+    }
+}
+
+function assert_opposing_sides_not_stacked() {
+    const rule_text = "10.1.5 Units of opposing sides may never be stacked together. (unless besieged)"
+
+    for (let s = 1; s < AP_RESERVE_BOX; ++s) {
+        if (is_besieged(s))
+            continue
+        let has_ap = false
+        let has_cp = false
+        for (const p of get_pieces_in_space(s)) {
+            const faction = data.pieces[p].faction
+            if (faction === AP)
+                has_ap = true
+            else if (faction === CP)
+                has_cp = true
+        }
+        if (has_ap && has_cp) {
+            throw new Error(`Rule violation in S${s} ${space_name(s)}: ${rule_text}`)
+        }
+    }
+}
+
+function assert_trench_level() {
+    const rule_text = "11.2.3 [...] Trench levels may never be more than Level 2."
+
+    for (let s = 1; s < AP_RESERVE_BOX; ++s) {
+        if (get_trench_level(s) > 2) {
+            throw new Error(`Rule violation in S${s} ${space_name(s)}: ${rule_text}`)
+        }
+    }
+}
+
+function assert_reinforcement_rules() {
+    const rule_text = "9.5.3.3 Reinforcing Armies must be in supply when placed."
+    // XXX this is more of an example assertion, since there are so many exceptions in PoG.
+
+    if (game.state !== 'place_reinforcements')
+        return
+
+    if (!game.reinforcements.length)
+        return
+
+    const first_piece = game.reinforcements[0]
+    const first_piece_data = data.pieces[first_piece]
+    if (first_piece_data.type !== ARMY)
+        return
+
+    const spaces = get_available_reinforcement_spaces(first_piece)
+    spaces.forEach((s) => {
+        if (first_piece_data.name === 'BR MEF' && is_mef_space(s))
+            return
+        if (!is_space_supplied(game.active, s)) {
+            throw new Error(`Rule violation by allowing reinforcement of ${piece_name(first_piece)} in S${s} ${space_name(s)}: ${rule_text}`)
+        }
+    })
+}
+
+exports.assert_state = function(state) {
+    game = state
+    assert_stacking_limits()
+    assert_opposing_sides_not_stacked()
+    assert_trench_level()
+    assert_reinforcement_rules()
+}
