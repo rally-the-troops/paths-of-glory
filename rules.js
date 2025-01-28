@@ -3581,7 +3581,7 @@ function eliminate_piece(p, force_permanent_elimination) {
 }
 
 function reduce_piece(p) {
-    log(`Reduced ${piece_name(p)} in ${space_name(game.location[p])}`)
+    log(`Flipped ${piece_name(p)} in ${space_name(game.location[p])}`)
     game.reduced.push(p)
 }
 
@@ -4780,7 +4780,7 @@ states.replacement_phase = {
             if (game.location[p] === AP_ELIMINATED_BOX || game.location[p] === CP_ELIMINATED_BOX) {
                 game.state = 'choose_replacement_army'
             } else {
-                log(`Restored ${piece_name(p)} in ${space_name(game.location[p])} to full strength`)
+                log(`Flipped ${piece_name(p)} in ${space_name(game.location[p])} to full strength`)
                 array_remove_item(game.reduced, p)
                 spend_rps(get_rp_type(p), 1)
                 game.who = 0
@@ -4873,10 +4873,10 @@ states.choose_second_replacement_corps = {
                     game.reduced.push(corps)
                 const space = corps === BRITISH_ANA_CORPS ? ARABIA_SPACE : game.active === AP ? AP_RESERVE_BOX : CP_RESERVE_BOX
                 game.location[corps] = space
-                log(`Returned ${piece_name(corps)} to ${space_name(space)} at reduced strength`)
+                log(`Flipped ${piece_name(corps)} to ${space_name(space)} at reduced strength`)
             } else {
                 array_remove_item(game.reduced, corps)
-                log(`Restored ${piece_name(corps)} in ${space_name(game.location[corps])} to full strength`)
+                log(`Flipped ${piece_name(corps)} in ${space_name(game.location[corps])} to full strength`)
             }
         })
         spend_rps(get_rp_type(game.who), 1)
@@ -4890,7 +4890,7 @@ states.choose_second_replacement_corps = {
             array_remove_item(game.reduced, game.who)
         game.location[game.who] = s
         spend_rps(get_rp_type(game.who), 1)
-        log(`Returned ${piece_name(game.who)} to ${space_name(s)} at full strength`)
+        log(`Flipped ${piece_name(game.who)} to ${space_name(s)} at full strength`)
         game.who = 0
         game.state = 'replacement_phase'
     }
@@ -4899,7 +4899,7 @@ states.choose_second_replacement_corps = {
 states.choose_replacement_army = {
     inactive: 'Choose replacement army',
     prompt() {
-        view.prompt = 'Send to the map or select the unit again to toggle between full and reduced strength'
+        view.prompt = 'Send to the map or select the unit again to flip between full and reduced strength'
         const rp_type = get_rp_type(game.who)
         const full_replacement_allowed = get_rps_of_type(rp_type) >= 2
         if (is_unit_reduced(game.who) && full_replacement_allowed)
@@ -5066,7 +5066,12 @@ function card_name(card) {
 }
 
 function piece_name(piece) {
-    return `${data.pieces[piece].name}`
+    if (is_unit_reduced(piece)) {
+        return `(${data.pieces[piece].name})`
+    }
+    else {
+        return `${data.pieces[piece].name}`
+    }
 }
 
 function space_name(space) {
@@ -6285,7 +6290,7 @@ states.russian_desertions = {
     piece(p) {
         push_undo()
         game.reduced.push(p)
-        log(`Reduced ${piece_name(p)} in ${space_name(game.location[p])}`)
+        log(`Flipped ${piece_name(p)} in ${space_name(game.location[p])}`)
         game.russian_desertions_remaining--
     },
     done() {
@@ -7051,7 +7056,7 @@ states.paris_taxis = {
     },
     piece(p) {
         array_remove_item(game.reduced, p)
-        log(`Returned ${piece_name(p)} in ${space_name(game.location[p])} to full strength`)
+        log(`Flipped ${piece_name(p)} in ${space_name(game.location[p])} to full strength`)
         goto_end_action()
     },
     pass() {
