@@ -3923,8 +3923,7 @@ function determine_combat_winner() {
         game.attack.retreat_length = 1
         game.attack.retreat_paths = []
         game.attack.to_advance = game.attack.pieces.filter((p) => !is_unit_reduced(p))
-        game.attack.advancing_pieces = []
-        game.state = 'attacker_advance'
+        goto_attacker_advance()
     } else {
         end_attack_activation()
         goto_next_activation()
@@ -4005,7 +4004,7 @@ states.defender_retreat = {
     },
     done() {
         game.active = other_faction(game.active)
-        game.state = 'attacker_advance'
+        goto_attacker_advance()
     }
 }
 
@@ -4059,7 +4058,7 @@ states.choose_retreat_path = {
             game.state = 'defender_retreat'
         } else {
             game.active = other_faction(game.active)
-            game.state = 'attacker_advance'
+            goto_attacker_advance()
         }
     }
 }
@@ -4127,43 +4126,68 @@ function get_retreat_options(pieces, from, length_retreated) {
     return options
 }
 
-states.attacker_advance = {
-    inactive: 'Attacker Advancing',
-    prompt() {
-        view.prompt = `Choose which units to advance`
-        game.attack.to_advance.forEach((p) => {
-            gen_action_piece(p)
-        })
-        game.attack.advancing_pieces.forEach((p) => {
-            gen_action_piece(p)
-        })
-        gen_action_next()
-    },
-    piece(p) {
-        if (game.attack.advancing_pieces.includes(p)) {
-            array_remove_item(game.attack.advancing_pieces, p)
-            game.attack.to_advance.push(p)
-        } else {
-            game.attack.advancing_pieces.push(p)
-            array_remove_item(game.attack.to_advance, p)
-        }
-    },
-    next() {
-        if (game.attack.advancing_pieces.length > 0) {
-            game.attack.advance_length = 0
-            game.state = 'perform_advance'
-        } else {
-            end_attack_activation()
-            goto_next_activation()
-        }
+function goto_attacker_advance() {
+    if (game.attack.to_advance.length > 0) {
+        game.attack.advancing_pieces = []
+        game.attack.advance_length = 0
+        game.state = 'attacker_advance'
+    } else {
+        end_attack_activation()
+        goto_next_activation()
     }
 }
 
-states.perform_advance = {
+states.attacker_advance = {
+    inactive: 'Attacker Advancing',
+    prompt() {
+        const spaces = get_possible_advance_spaces(game.attack.advancing_pieces)
+        if (game.attack.advance_length === 0) {
+            view.prompt = `Select units to advance or select a space to begin advancing`
+            game.attack.to_advance.forEach((p) => {
+                gen_action_piece(p)
+            })
+        } else if (game.attack.advance_length === 1 && spaces.length > 0) {
+            view.prompt = `Continue advance?`
+        } else {
+            view.prompt = `Complete advance?`
+        }
+        spaces.forEach(gen_action_space)
+        gen_action_done()
+    },
+    piece(p) {
+        push_undo()
+        game.attack.advancing_pieces.push(p)
+        array_remove_item(game.attack.to_advance, p)
+    },
+    space(s) {
+        push_undo()
+        game.attack.did_advance = true
+        game.attack.advancing_pieces.forEach((p) => {
+            game.location[p] = s
+        })
+        game.attack.advance_length++
+        if (!has_undestroyed_fort(s, other_faction(game.active))) {
+            set_control(s, game.attack.attacker)
+        }
+        capture_trench(s, game.attack.attacker)
+    },
+    done() {
+        if (game.attack.advancing_pieces.length > 0) {
+            const end_space = game.location[game.attack.advancing_pieces[0]]
+            if (has_undestroyed_fort(end_space, other_faction(game.attack.attacker))) {
+                set_add(game.forts.besieged, end_space)
+                search_supply()
+            }
+        }
+        goto_attacker_advance()
+    }
+}
+
+/*states.perform_advance = {
     inactive: 'Attacker Advancing',
     prompt() {
         view.prompt = `Choose next space to advance`
-        get_possible_advance_spaces().forEach(gen_action_space)
+        get_possible_advance_spaces(game.attack.advancing_pieces).forEach(gen_action_space)
         gen_action_done()
     },
     space(s) {
@@ -4186,28 +4210,26 @@ states.perform_advance = {
                 search_supply()
             }
         }
-        game.attack.advancing_pieces.length = 0
-        game.attack.advance_length = 0
         if (game.attack.to_advance.length > 0)
-            game.state = 'attacker_advance'
+            goto_attacker_advance()
         else {
             end_attack_activation()
             goto_next_activation()
         }
     }
-}
+}*/
 
-function get_possible_advance_spaces() {
+function get_possible_advance_spaces(pieces) {
     if (game.attack.advance_length >= game.attack.retreat_length)
         return []
 
-    if (game.attack.advancing_pieces.length === 0)
+    if (pieces.length === 0)
         return []
 
-    let location_of_advancing_units = game.location[game.attack.advancing_pieces[0]]
+    let location_of_advancing_units = game.location[pieces[0]]
     // If the attacking pieces haven't entered the attack space (always true if this is a 1-space advance), that is the only choice
     if (game.attack.space !== location_of_advancing_units) {
-        if (can_advance_into(game.attack.space, game.attack.advancing_pieces))
+        if (can_advance_into(game.attack.space, pieces))
             return [game.attack.space]
         else
             return []
@@ -4223,7 +4245,7 @@ function get_possible_advance_spaces() {
 
     let spaces = []
     for (let path of game.attack.retreat_paths) {
-        if (can_advance_into(path[0], game.attack.advancing_pieces))
+        if (can_advance_into(path[0], pieces))
             set_add(spaces, path[0]) // Add the first retreat space from each retreated path
     }
 
@@ -6675,8 +6697,7 @@ states.great_retreat = {
             if (full_strength_attackers.length > 0) {
                 game.attack.retreat_length = 1
                 game.attack.to_advance = full_strength_attackers
-                game.attack.advancing_pieces = []
-                game.state = 'attacker_advance'
+                goto_attacker_advance()
             } else {
                 // If no full strength attackers, end the attack
                 end_attack_activation()
