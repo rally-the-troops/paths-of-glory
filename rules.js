@@ -2013,10 +2013,7 @@ function start_move_activation() {
         spaces_moved: 0,
         pieces: []
     }
-    if (can_entrench() && get_units_eligible_to_entrench().length > 0)
-        game.state = 'choose_entrench_units'
-    else
-        game.state = 'choose_move_space'
+    game.state = 'choose_move_space'
 }
 
 function start_attack_activation() {
@@ -2172,6 +2169,12 @@ states.choose_move_space = {
                 gen_action_space(s)
             }
         })
+
+        if (can_entrench() && get_units_eligible_to_entrench().length > 0) {
+            view.prompt = `Choose an activated space to begin moving or entrench`
+            gen_action('entrench')
+        }
+
         if (!space_eligible_to_move) { // This can happen if all spaces are entrenching, for example
             gen_action_done()
         }
@@ -2185,6 +2188,10 @@ states.choose_move_space = {
                 game.move.pieces.push(p)
         })
         game.state = 'choose_pieces_to_move'
+    },
+    entrench() {
+        push_undo()
+        game.state = 'choose_entrench_units'
     },
     done() {
         push_undo()
@@ -2224,9 +2231,13 @@ states.choose_entrench_units = {
         push_undo()
         log(`${piece_name(p)} will attempt to entrench in ${space_name(game.location[p])}`)
         game.entrenching.push(p)
+        // If there are no pieces left to move, deactivate the space
+        if (undefined === get_pieces_in_space(game.location[p]).find((unit) => { !game.entrenching.includes(unit) }))
+            set_delete(game.activated.move, game.location[p])
     },
     done() {
         push_undo()
+
         game.state = 'choose_move_space'
     }
 }
@@ -2266,7 +2277,7 @@ states.place_event_trench = {
 states.choose_pieces_to_move = {
     inactive: 'Choose units to move',
     prompt() {
-        view.prompt = `Choose units to move from ${space_name(game.move.initial)} or choose a space to begin moving`
+        view.prompt = `Move units from ${space_name(game.move.initial)}`
 
         for_each_piece_in_space(game.move.initial, (p) => {
             if (get_piece_mf(p) > 0 && !game.entrenching.includes(p) && !game.moved.includes(p)) {
