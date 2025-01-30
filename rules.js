@@ -969,7 +969,7 @@ function set_nation_at_war(nation) {
         setup_piece(GREECE, 'GRc', 'Larisa')
     }
 
-    search_supply()
+    update_supply()
 }
 
 // === Mandated Offensives ===
@@ -2436,7 +2436,7 @@ function set_control(s, faction) {
     }
 
     game.control[s] = new_control
-    search_supply()
+    update_supply()
 
     update_russian_capitulation()
 }
@@ -2640,7 +2640,7 @@ function can_end_move(s) {
 function end_move_stack() {
     if (!is_controlled_by(game.move.current, game.active) && has_undestroyed_fort(game.move.current, other_faction(game.active))) {
         set_add(game.forts.besieged, game.move.current)
-        search_supply()
+        update_supply()
     }
 
     game.move.pieces.forEach((p) => {
@@ -4176,48 +4176,12 @@ states.attacker_advance = {
             const end_space = game.location[game.attack.advancing_pieces[0]]
             if (has_undestroyed_fort(end_space, other_faction(game.attack.attacker))) {
                 set_add(game.forts.besieged, end_space)
-                search_supply()
+                update_supply()
             }
         }
         goto_attacker_advance()
     }
 }
-
-/*states.perform_advance = {
-    inactive: 'Attacker Advancing',
-    prompt() {
-        view.prompt = `Choose next space to advance`
-        get_possible_advance_spaces(game.attack.advancing_pieces).forEach(gen_action_space)
-        gen_action_done()
-    },
-    space(s) {
-        push_undo()
-        game.attack.did_advance = true
-        game.attack.advancing_pieces.forEach((p) => {
-            game.location[p] = s
-        })
-        game.attack.advance_length++
-        if (!has_undestroyed_fort(s, other_faction(game.active))) {
-            set_control(s, game.attack.attacker)
-        }
-        capture_trench(s, game.attack.attacker)
-    },
-    done() {
-        if (game.attack.advancing_pieces.length > 0) {
-            const end_space = game.location[game.attack.advancing_pieces[0]]
-            if (has_undestroyed_fort(end_space, other_faction(game.attack.attacker))) {
-                set_add(game.forts.besieged, end_space)
-                search_supply()
-            }
-        }
-        if (game.attack.to_advance.length > 0)
-            goto_attacker_advance()
-        else {
-            end_attack_activation()
-            goto_next_activation()
-        }
-    }
-}*/
 
 function get_possible_advance_spaces(pieces) {
     if (game.attack.advance_length >= game.attack.retreat_length)
@@ -4300,7 +4264,7 @@ function update_siege(space) {
     let pieces_in_space = get_pieces_in_space(space)
     if (!can_besiege(space, pieces_in_space)) {
         set_delete(game.forts.besieged, space)
-        search_supply()
+        update_supply()
     }
 }
 
@@ -4427,7 +4391,7 @@ function goto_attrition_phase() {
     //  tracing to Taranto even while Italy is still Neutral.
 
     // Get all OOS pieces that should suffer attrition
-    search_supply()
+    update_supply()
     get_oos_pieces().forEach((p) => {
         const faction = data.pieces[p].faction
         if (game.location[p] === MEDINA && data.pieces[p].nation === TURKEY) {
@@ -5287,7 +5251,7 @@ function is_italian_space(s) {
     return data.spaces[s].nation === ITALY
 }
 
-function search_supply() {
+function update_supply() {
     game.supply_cache = {}
     game.supply_cache.cp = {}
     game.supply_cache.eastern = {}
@@ -5345,7 +5309,7 @@ function is_unit_supplied(p) {
     if (nation === GREECE && !nation_at_war(GREECE) && game.events.salonika > 0) // Limited Greek entry
         return true
 
-    if (!game.supply_cache) search_supply()
+    if (!game.supply_cache) update_supply()
     const cache = get_supply_cache_for_piece(p)
 
     if (nation === SERBIA) {
@@ -5371,7 +5335,7 @@ function get_supply_cache_for_piece(p) {
 }
 
 function is_unit_supplied_through_italy(p) {
-    if (!game.supply_cache) search_supply()
+    if (!game.supply_cache) update_supply()
 
     if (!is_unit_supplied(p))
         return false
@@ -5381,12 +5345,12 @@ function is_unit_supplied_through_italy(p) {
 }
 
 function can_unit_trace_supply_to_basra(p) {
-    if (!game.supply_cache) search_supply()
+    if (!game.supply_cache) update_supply()
     return game.supply_cache.basra[game.location[p]].sources.length > 0
 }
 
 function is_space_supplied_through_mef(s) {
-    if (!game.supply_cache) search_supply()
+    if (!game.supply_cache) update_supply()
 
     if (!is_space_supplied(AP, s))
         return false
@@ -5395,7 +5359,7 @@ function is_space_supplied_through_mef(s) {
 }
 
 function is_space_supplied(faction, s) {
-    if (!game.supply_cache) search_supply()
+    if (!game.supply_cache) update_supply()
     if (faction === CP) {
         return game.supply_cache.cp[s].sources.length > 0
     } else {
@@ -5419,7 +5383,7 @@ function is_space_supplied(faction, s) {
 }
 
 function query_supply() {
-    if (!game.supply_cache) search_supply()
+    if (!game.supply_cache) update_supply()
     return game.supply_cache
 }
 
