@@ -88,9 +88,8 @@ function show_ap_supply(supply) {
         hide_supply()
     showing_supply = true
     for (let s = 1; s < spaces.length; ++s) {
-        const western = supply.western[s].sources.length > 0
-        const eastern = supply.eastern[s].sources.length > 0
-        const cp = supply.cp[s].sources.length > 0
+        const western = supply.western.sources[s].length > 0
+        const eastern = supply.eastern.sources[s].length > 0
         spaces[s].element.classList.toggle("western_supply", western)
         spaces[s].element.classList.toggle("eastern_supply", eastern)
         spaces[s].element.classList.toggle("no_supply", !western && !eastern)
@@ -103,7 +102,7 @@ function show_cp_supply(supply) {
         hide_supply()
     showing_supply = true
     for (let s = 1; s < spaces.length; ++s) {
-        const cp = supply.cp[s].sources.length > 0
+        const cp = supply.cp.sources[s].length > 0
         spaces[s].element.classList.toggle("cp_supply", cp)
         spaces[s].element.classList.toggle("no_supply", !cp)
     }

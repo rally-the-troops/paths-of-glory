@@ -426,7 +426,7 @@ exports.view = function(state, current) {
         mef_beachhead: game.mef_beachhead_captured ? null : game.mef_beachhead,
         tsar_fell_cp_russian_vp: game.tsar_fell_cp_russian_vp,
 
-        oos_pieces: game.supply_cache ? game.supply_cache.oos_pieces : [],
+        oos_pieces: game.supply ? game.supply.oos_pieces : [],
     }
 
     if (current === AP) {
@@ -5185,15 +5185,15 @@ function generate_supply_cache(faction, cache, sources, use_ports, nation) {
         while (frontier.length > 0) {
             let current = frontier.pop()
             if (!set_has(blocked_spaces, current)) {
-                set_add(cache[current].sources, source)
+                set_add(cache.sources[current], source)
                 get_connected_spaces(current, nation).forEach((conn) => {
-                    if (!set_has(cache[conn].sources, source)) {
+                    if (!set_has(cache.sources[conn], source)) {
                         set_add(frontier, conn)
                     }
                 })
                 if (set_has(friendly_ports, current)) {
                     friendly_ports.forEach((port) => {
-                        if (!set_has(cache[port].sources, source)) {
+                        if (!set_has(cache.sources[port], source)) {
                             set_add(frontier, port)
                         }
                     })
@@ -5211,7 +5211,7 @@ function generate_supply_cache(faction, cache, sources, use_ports, nation) {
             if (!set_has(visited, current)) {
                 set_add(visited, current)
                 if (!is_italian_space(current) && !set_has(blocked_spaces, current)) {
-                    cache[current].non_italian_path = true
+                    cache.non_italian_path[current] = true
                     get_connected_spaces(current, nation).forEach((conn) => {
                         set_add(frontier, conn)
                     })
@@ -5234,7 +5234,7 @@ function generate_supply_cache(faction, cache, sources, use_ports, nation) {
             if (!set_has(visited, current)) {
                 set_add(visited, current)
                 if (!is_mef_space(current) && !set_has(blocked_spaces, current)) {
-                    cache[current].non_mef_path = true
+                    cache.non_mef_path[current] = true
                     get_connected_spaces(current, nation).forEach((conn) => {
                         set_add(frontier, conn)
                     })
@@ -5254,43 +5254,32 @@ function is_italian_space(s) {
 }
 
 function update_supply() {
-    game.supply_cache = {}
-    game.supply_cache.cp = {}
-    game.supply_cache.eastern = {}
-    game.supply_cache.western = {}
-    game.supply_cache.salonika = {}
-    // Italian units get a separate supply cache to allow for tracing supply across the Taranto-Valona connection
-    game.supply_cache.italian = {}
-    // Separate supply cache for Basra to implement the Maude combat card
-    game.supply_cache.basra = {}
-    for (let s = 0; s < data.spaces.length; ++s) {
-        game.supply_cache.cp[s] = { sources: [], non_italian_path: false, non_mef_path: false }
-        game.supply_cache.eastern[s] = { sources: [], non_italian_path: false, non_mef_path: false }
-        game.supply_cache.western[s] = { sources: [], non_italian_path: false, non_mef_path: false }
-        game.supply_cache.salonika[s] = { sources: [], non_italian_path: false, non_mef_path: false }
-        game.supply_cache.italian[s] = { sources: [], non_italian_path: false, non_mef_path: false }
-        game.supply_cache.basra[s] = { sources: [], non_italian_path: false, non_mef_path: false }
-    }
-
     let cp_sources = [ESSEN, BRESLAU]
     if (nation_at_war(BULGARIA))
         cp_sources.push(SOFIA)
     if (nation_at_war(TURKEY))
         cp_sources.push(CONSTANTINOPLE)
-    generate_supply_cache(CP, game.supply_cache.cp, cp_sources, true)
 
-    const eastern_supply_sources = [PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE]
-    generate_supply_cache(AP, game.supply_cache.eastern, eastern_supply_sources, false, RUSSIA)
-    if (is_controlled_by(SALONIKA_SPACE, AP))
-        generate_supply_cache(AP, game.supply_cache.salonika, [SALONIKA_SPACE], false) // Separate cache for Serbian units only
+    game.supply = {
+        cp: search_supply(CP, cp_sources, true),
+        eastern: search_supply(AP, [PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE], false, RUSSIA),
+        western: search_supply(AP, [LONDON], true),
+        italian: search_supply(AP, [LONDON], true, ITALY),
+        salonika: search_supply(AP, [SALONIKA_SPACE], false),
+        basra: search_supply(AP, [BASRA], false, BRITAIN)
+    }
 
-    const western_supply_sources = [LONDON]
-    generate_supply_cache(AP, game.supply_cache.western, western_supply_sources, true)
-    generate_supply_cache(AP, game.supply_cache.italian, western_supply_sources, true, ITALY)
+    game.supply.oos_pieces = get_oos_pieces()
+}
 
-    generate_supply_cache(AP, game.supply_cache.basra, [BASRA], false, BRITAIN)
-
-    game.supply_cache.oos_pieces = get_oos_pieces()
+function search_supply(faction, sources, use_ports, nation) {
+    let cache = {
+        sources: data.spaces.map((s) => []),
+        non_italian_path: data.spaces.map((s) => false),
+        non_mef_path: data.spaces.map((s) => false)
+    }
+    generate_supply_cache(faction, cache, sources, use_ports, nation)
+    return cache
 }
 
 function is_unit_supplied(p) {
@@ -5311,59 +5300,59 @@ function is_unit_supplied(p) {
     if (nation === GREECE && !nation_at_war(GREECE) && game.events.salonika > 0) // Limited Greek entry
         return true
 
-    if (!game.supply_cache) update_supply()
+    if (!game.supply) update_supply()
     const cache = get_supply_cache_for_piece(p)
 
     if (nation === SERBIA) {
         if (data.spaces[location].nation === SERBIA)
             return true // Serbian units are always in supply in Serbia
-        else if (is_controlled_by(SALONIKA_SPACE, AP) && game.supply_cache.salonika[location].sources.length > 0)
+        else if (is_controlled_by(SALONIKA_SPACE, AP) && game.supply.salonika.sources[location].length > 0)
             return true // Serbian units can trace supply to Salonika if it is friendly controlled
     }
 
-    return cache[location].sources.length > 0
+    return cache.sources[location].length > 0
 }
 
 function get_supply_cache_for_piece(p) {
     let faction = data.pieces[p].faction
     let nation = data.pieces[p].nation
-    let cache = (faction === CP) ? game.supply_cache.cp : game.supply_cache.western
+    let cache = (faction === CP) ? game.supply.cp : game.supply.western
     if (nation === ITALY)
-        cache = game.supply_cache.italian
+        cache = game.supply.italian
     else if (nation === RUSSIA || nation === SERBIA || nation === ROMANIA) {
-        cache = game.supply_cache.eastern
+        cache = game.supply.eastern
     }
     return cache
 }
 
 function is_unit_supplied_through_italy(p) {
-    if (!game.supply_cache) update_supply()
+    if (!game.supply) update_supply()
 
     if (!is_unit_supplied(p))
         return false
 
     const cache = get_supply_cache_for_piece(p)
-    return !cache[game.location[p]].non_italian_path
+    return !cache.non_italian_path[game.location[p]]
 }
 
 function can_unit_trace_supply_to_basra(p) {
-    if (!game.supply_cache) update_supply()
-    return game.supply_cache.basra[game.location[p]].sources.length > 0
+    if (!game.supply) update_supply()
+    return game.supply.basra.sources[game.location[p]].length > 0
 }
 
 function is_space_supplied_through_mef(s) {
-    if (!game.supply_cache) update_supply()
+    if (!game.supply) update_supply()
 
     if (!is_space_supplied(AP, s))
         return false
 
-    return !game.supply_cache.western[s].non_mef_path
+    return !game.supply.western.non_mef_path[s]
 }
 
 function is_space_supplied(faction, s) {
-    if (!game.supply_cache) update_supply()
+    if (!game.supply) update_supply()
     if (faction === CP) {
-        return game.supply_cache.cp[s].sources.length > 0
+        return game.supply.cp.sources[s].length > 0
     } else {
         if (s === CETINJE) // Montenegro is always in supply
             return true
@@ -5380,16 +5369,16 @@ function is_space_supplied(faction, s) {
             }
         }
 
-        return game.supply_cache.eastern[s].sources.length > 0
-            || game.supply_cache.western[s].sources.length > 0
-            || game.supply_cache.italian[s].sources.length > 0
-            || is_controlled_by(SALONIKA_SPACE, AP) && game.supply_cache.salonika[s].sources.length > 0
+        return game.supply.eastern.sources[s].length > 0
+            || game.supply.western.sources[s].length > 0
+            || game.supply.italian.sources[s].length > 0
+            || is_controlled_by(SALONIKA_SPACE, AP) && game.supply.salonika.sources[s].length > 0
     }
 }
 
 function query_supply() {
-    if (!game.supply_cache) update_supply()
-    return game.supply_cache
+    if (!game.supply) update_supply()
+    return game.supply
 }
 
 function get_oos_pieces() {

@@ -349,21 +349,25 @@ body.cp header.your_turn { background-color: hsl(200, 40%, 70%); }
 
 #spaces div.western_supply {
     border-color: hsl(5, 65%, 90%);
+    background-color: hsla(229, 98%, 68%, 0.5);
 }
 
 #spaces div.eastern_supply {
-    border-color: saddlebrown;
+    border-color: #c69b48;
+    background-color: hsla(229, 98%, 68%, 0.5);
 }
 
 #spaces div.western_supply.eastern_supply {
     border-top-color: hsl(5, 65%, 90%);
     border-left-color: hsl(5, 65%, 90%);
-    border-bottom-color: saddlebrown;
-    border-right-color: saddlebrown;
+    border-bottom-color: #c69b48;
+    border-right-color: #c69b48;
+    background-color: hsla(229, 98%, 68%, 0.5);
 }
 
 #spaces div.cp_supply {
     border-color: hsl(200, 40%, 90%);
+    background-color: hsla(229, 98%, 68%, 0.5);
 }
 
 #spaces div.no_supply {
