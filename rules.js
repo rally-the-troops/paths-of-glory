@@ -4420,6 +4420,8 @@ function goto_attrition_phase() {
         if (has_undestroyed_fort(s, controlling_faction)) {
             continue // Under rule 14.3.6, spaces with undestroyed forts do not flip control
         }
+        if (controlling_faction === CP && game.location[TURKISH_SN_CORPS] === s) // SN corps keeps its space safe from attrition per 11.1.16
+            continue
         if (!is_space_supplied(controlling_faction, s)) {
             game.attrition[controlling_faction].spaces.push(s)
         }
@@ -5364,6 +5366,9 @@ function is_space_supplied(faction, s) {
         return game.supply_cache.cp[s].sources.length > 0
     } else {
         if (s === CETINJE) // Montenegro is always in supply
+            return true
+
+        if (s === ARABIA_SPACE && game.location[BRITISH_ANA_CORPS] === ARABIA_SPACE)
             return true
 
         if (data.spaces[s].nation === ALBANIA) {
