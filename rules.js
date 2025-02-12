@@ -260,7 +260,7 @@ const AUS_CORPS = find_piece(BRITAIN, 'AUSc')
 const CND_CORPS = find_piece(BRITAIN, 'CNDc')
 const PT_CORPS = find_piece(BRITAIN, 'PTc')
 const CAU_ARMY = find_piece(RUSSIA, 'RU CAU')
-const BRITISH_ANA_CORPS = find_piece(BRITAIN, 'BR ANAc')
+const BRITISH_ANA_CORPS = find_piece('ana', 'BR ANAc')
 const TURKISH_SN_CORPS = find_piece('sn', 'TU SNc')
 
 function is_minor_british_nation(piece) {

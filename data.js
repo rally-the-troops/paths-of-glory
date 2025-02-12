@@ -4254,7 +4254,7 @@ const pieces = [
     },
     {
         "faction": "ap",
-        "nation": "br",
+        "nation": "ana",
         "name": "BR ANAc",
         "type": "corps",
         "counter": "corps_br corps_ix_1",
