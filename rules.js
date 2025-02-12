@@ -923,9 +923,12 @@ function nation_at_war(nation) {
 }
 
 function set_nation_at_war(nation) {
+    if (nation_at_war(nation)) return
+
     game.war[nation] = 1
 
     if (nation === TURKEY) {
+        log_h3("Turkey enters the war")
         setup_piece('tu', 'TUc', 'Constantinople')
         setup_piece('tu', 'TUc', 'Balikesir')
         setup_piece('tu', 'TUc', 'Gallipoli')
@@ -942,6 +945,7 @@ function set_nation_at_war(nation) {
     }
 
     if (nation === ITALY) {
+        log_h3("Italy enters the war")
         setup_piece('it', 'ITc', 'Rome')
         setup_piece('it', 'ITc', 'Turin')
         setup_piece('it', 'ITc', 'Taranto')
@@ -952,21 +956,26 @@ function set_nation_at_war(nation) {
     }
 
     if (nation === BULGARIA) {
+        log_h3("Bulgaria enters the war")
         setup_piece(BULGARIA, 'BUc', 'Sofia')
         setup_piece(BULGARIA, 'BUc', 'Sofia')
         // Other 4 Bulgarian pieces are setup by player choice
     }
 
     if (nation === ROMANIA) {
+        log_h3("Romania enters the war")
         setup_piece(ROMANIA, 'ROc', 'Bucharest')
         setup_piece(ROMANIA, 'ROc', 'Bucharest')
         // Other 4 Romanian pieces are setup by player choice
     }
 
-    if (nation === GREECE && !game.events.salonika) {
-        setup_piece(GREECE, 'GRc', 'Athens')
-        setup_piece(GREECE, 'GRc', 'Florina')
-        setup_piece(GREECE, 'GRc', 'Larisa')
+    if (nation === GREECE) {
+        log_h3("Greece enters the war")
+        if (!game.events.salonika) {
+            setup_piece(GREECE, 'GRc', 'Athens')
+            setup_piece(GREECE, 'GRc', 'Florina')
+            setup_piece(GREECE, 'GRc', 'Larisa')
+        }
     }
 
     update_supply()
