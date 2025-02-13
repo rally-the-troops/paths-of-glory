@@ -1345,13 +1345,13 @@ function update_piece(id) {
 
     if ((view.activation && view.activation.includes(id)) ||
         (view.move && view.move.pieces.includes(id)) ||
-        (view.attack && view.attack.pieces.includes(id)))
+        (view.attack && view.attack.pieces.includes(id)) ||
+        (view.attack && view.attack.retreating_pieces && view.attack.retreating_pieces.includes(id)))
         piece.element.classList.add('activated')
     else
         piece.element.classList.remove('activated')
 
     if (view.who === id ||
-        (view.attack && view.attack.retreating_pieces && view.attack.retreating_pieces.includes(id)) ||
         (view.attack && view.attack.advancing_pieces && view.attack.advancing_pieces.includes(id)))
         piece.element.classList.add('selected')
     else
