@@ -1753,7 +1753,12 @@ function goto_play_reinf(card) {
         update_us_entry()
     }
 
-    const piece_nation = card === LIBYAN_REVOLT ? 'sn' : card_data.reinfnation // This card counts as Turkish reinforcements but places the 'sn' piece
+    let piece_nation = card_data.reinfnation
+    if (card === LIBYAN_REVOLT)
+        piece_nation = 'sn' // This card counts as Turkish reinforcements but places the 'sn' piece
+    if (card === ARAB_NORTHERN_ARMY)
+        piece_nation = 'ana' // This card counts as British reinforcements but places the 'ana' piece
+
     game.reinforcements = []
     card_data.reinf.split('|').forEach((name) => {
         let p = find_unused_piece(piece_nation, name)
