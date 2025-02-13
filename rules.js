@@ -5291,7 +5291,7 @@ function is_unit_supplied(p) {
     if (location === 0)
         return true
 
-    if (data.pieces[p].name === "BR ANAc" && data.spaces[location].map === "neareast")
+    if (p === BRITISH_ANA_CORPS && data.spaces[location].map === "neareast")
         return true
 
     if (nation === MONTENEGRO)
