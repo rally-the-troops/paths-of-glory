@@ -3922,7 +3922,7 @@ function determine_combat_winner() {
         if (defender_can_cancel_retreat()) {
             game.state = 'cancel_retreat'
         } else {
-            game.state = 'defender_retreat'
+            goto_defender_retreat()
         }
         push_undo()
     } else if (attacker_has_full_strength_unit && defender_pieces.length === 0) {
@@ -3977,38 +3977,30 @@ states.cancel_retreat = {
     },
     pass() {
         push_undo()
-        game.state = 'defender_retreat'
+        goto_defender_retreat()
     }
+}
+
+function goto_defender_retreat() {
+    game.attack.retreat_path = []
+    game.state = 'defender_retreat'
 }
 
 states.defender_retreat = {
     inactive: 'Defender Retreating',
     prompt() {
-        view.prompt = `Select units to retreat`
+        view.prompt = `Select next unit to retreat`
         game.attack.to_retreat.forEach((p) => {
             gen_action_piece(p)
         })
-        game.attack.retreating_pieces.forEach((p) => {
-            gen_action_piece(p)
-        })
-        if (game.attack.retreating_pieces.length > 0) {
-            gen_action_next()
-        } else {
+        if (game.attack.to_retreat.length === 0) {
             gen_action_done()
         }
     },
     piece(p) {
-        if (set_has(game.attack.retreating_pieces, p)) {
-            set_delete(game.attack.retreating_pieces, p)
-            set_add(game.attack.to_retreat, p)
-        } else {
-            set_delete(game.attack.to_retreat, p)
-            set_add(game.attack.retreating_pieces, p)
-        }
-    },
-    next() {
         push_undo()
-        game.attack.retreat_path = []
+        set_delete(game.attack.to_retreat, p)
+        set_add(game.attack.retreating_pieces, p)
         game.state = 'choose_retreat_path'
     },
     done() {
@@ -4020,16 +4012,11 @@ states.defender_retreat = {
 states.choose_retreat_path = {
     inactive: 'Defender Retreating',
     prompt() {
-
         if (game.attack.retreat_path.length === game.attack.retreat_length || game.attack.retreating_pieces.length === 0) {
-            view.prompt = `End retreat?`
+            view.prompt = `Retreat unit - Done`
             gen_action_done()
         } else {
-            if (game.attack.retreat_path.length === 0 && game.attack.retreat_length > 1) {
-                view.prompt = `Choose space to retreat through`
-            } else {
-                view.prompt = `Choose space to retreat to`
-            }
+            view.prompt = `Retreat unit`
 
             let options = get_retreat_options()
             options.forEach((s) => {
@@ -4064,7 +4051,7 @@ states.choose_retreat_path = {
         game.attack.retreat_path = []
         game.attack.retreating_pieces.length = 0
         if (game.attack.to_retreat.length > 0) {
-            game.state = 'defender_retreat'
+            goto_defender_retreat()
         } else {
             game.active = other_faction(game.active)
             goto_attacker_advance()
@@ -4155,13 +4142,15 @@ states.attacker_advance = {
             game.attack.to_advance.forEach((p) => {
                 gen_action_piece(p)
             })
+            if (game.attack.advancing_pieces.length === 0)
+                gen_action_pass()
         } else if (game.attack.advance_length === 1 && spaces.length > 0) {
-            view.prompt = `Continue advance?`
+            view.prompt = `Advance units`
         } else {
-            view.prompt = `Complete advance?`
+            view.prompt = `Advance units - Done`
+            gen_action_done()
         }
         spaces.forEach(gen_action_space)
-        gen_action_done()
     },
     piece(p) {
         push_undo()
@@ -4170,6 +4159,7 @@ states.attacker_advance = {
     },
     space(s) {
         push_undo()
+        // TODO: if advancing out of a space where you were besieging, check if the space is still besieged
         game.attack.did_advance = true
         game.attack.advancing_pieces.forEach((p) => {
             game.location[p] = s
@@ -4179,6 +4169,10 @@ states.attacker_advance = {
             set_control(s, game.attack.attacker)
         }
         capture_trench(s, game.attack.attacker)
+    },
+    pass() {
+        end_attack_activation()
+        goto_next_activation()
     },
     done() {
         if (game.attack.advancing_pieces.length > 0) {
