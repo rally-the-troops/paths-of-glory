@@ -3478,7 +3478,6 @@ states.eliminate_retreated_units = {
 states.apply_defender_losses = {
     inactive: 'Defender taking losses',
     prompt() {
-
         let loss_options = []
         if (game.attack.defender_losses - game.attack.defender_losses_taken > 0) {
             const fort_strength = has_undestroyed_fort(game.attack.space, game.active) ? data.spaces[game.attack.space].fort : 0
@@ -3503,7 +3502,16 @@ states.apply_defender_losses = {
         game.attack.defender_losses_taken += get_piece_lf(p)
         game.attack.defender_loss_pieces.push(p)
         if (is_unit_reduced(p)) {
-            game.attack.defender_replacements[p] = eliminate_piece(p)
+            const location = game.location[p]
+            let replacement_options = eliminate_piece(p)
+            if (replacement_options.length > 0) {
+                game.attack.replacement = {
+                    p: p,
+                    s: location,
+                    options: replacement_options
+                }
+                game.state = 'choose_defender_replacement'
+            }
         } else {
             reduce_piece(p)
         }
@@ -3536,6 +3544,22 @@ states.apply_defender_losses = {
             game.active = game.attack.attacker
             game.state = 'apply_attacker_losses'
         }
+    }
+}
+
+states.choose_defender_replacement = {
+    inactive: 'Defender Choosing Replacement',
+    prompt() {
+        view.prompt = `Choose a replacement for ${piece_name(game.attack.replacement.p)} in ${space_name(game.attack.replacement.s)}`
+        game.attack.replacement.options.forEach(gen_action_piece)
+    },
+    piece(p) {
+        push_undo()
+        game.location[p] = game.attack.replacement.s
+        game.attack.defender_replacements[game.attack.replacement.p] = p
+        log(`Replaced ${piece_name(game.attack.replacement.p)} in ${space_name(game.attack.replacement.s)} with ${piece_name(p)}`)
+        delete game.attack.replacement
+        game.state = 'apply_defender_losses'
     }
 }
 
@@ -3591,18 +3615,17 @@ states.withdrawal_negate_step_loss = {
 
 function eliminate_piece(p, force_permanent_elimination) {
     force_permanent_elimination = force_permanent_elimination || false
-    let replacement = find_replacement(p, get_units_in_reserve())
-    if (force_permanent_elimination || replacement === 0 || data.pieces[p].notreplaceable || !is_unit_supplied(p)) {
+    let replacement_options = get_replacement_options(p, get_units_in_reserve())
+    if (force_permanent_elimination || replacement_options.length === 0 || data.pieces[p].notreplaceable || !is_unit_supplied(p)) {
         // Permanently eliminate piece
         log(`Permanently eliminated ${piece_name(p)} in ${space_name(game.location[p])}`)
         game.removed.push(p)
         game.location[p] = 0
+        return replacement_options
     } else {
-        game.location[replacement] = game.location[p]
-        log(`Replaced ${piece_name(p)} in ${space_name(game.location[p])} with ${piece_name(replacement)}`)
         game.location[p] = game.active === AP ? AP_ELIMINATED_BOX : CP_ELIMINATED_BOX
     }
-    return replacement
+    return replacement_options
 }
 
 function reduce_piece(p) {
@@ -3631,11 +3654,17 @@ states.apply_attacker_losses = {
         push_undo()
         game.attack.attacker_losses_taken += get_piece_lf(p)
         if (is_unit_reduced(p)) {
-            let replacement = eliminate_piece(p)
-            if (replacement !== 0) {
-                game.attack.pieces.push(replacement)
-            }
+            const location = game.location[p]
+            let replacement_options = eliminate_piece(p)
             array_remove_item(game.attack.pieces, p)
+            if (replacement_options.length > 0) {
+                game.attack.replacement = {
+                    p: p,
+                    s: location,
+                    options: replacement_options
+                }
+                game.state = 'choose_attacker_replacement'
+            }
         } else {
             reduce_piece(p)
         }
@@ -3652,6 +3681,22 @@ states.apply_attacker_losses = {
         } else {
             determine_combat_winner()
         }
+    }
+}
+
+states.choose_attacker_replacement = {
+    inactive: 'Attacker Choosing Replacement',
+    prompt() {
+        view.prompt = `Choose a replacement for ${piece_name(game.attack.replacement.p)} in ${space_name(game.attack.replacement.s)}`
+        game.attack.replacement.options.forEach(gen_action_piece)
+    },
+    piece(p) {
+        push_undo()
+        game.attack.pieces.push(p)
+        game.location[p] = game.attack.replacement.s
+        log(`Replaced ${piece_name(game.attack.replacement.p)} in ${space_name(game.attack.replacement.s)} with ${piece_name(p)}`)
+        delete game.attack.replacement
+        game.state = 'apply_attacker_losses'
     }
 }
 
@@ -3764,12 +3809,12 @@ function build_loss_tree(parent, valid_paths) {
                 options: []
             }
 
-            let selected_replacement = find_replacement(unit, node.full_replacements)
+            let selected_replacement = find_any_replacement(unit, node.full_replacements)
             if (selected_replacement !== 0) {
                 array_remove_item(node.full_replacements, selected_replacement)
                 node.full_strength.push(selected_replacement)
             } else {
-                selected_replacement = find_replacement(unit, node.reduced_replacements)
+                selected_replacement = find_any_replacement(unit, node.reduced_replacements)
                 if (selected_replacement !== 0) {
                     array_remove_item(node.reduced_replacements, selected_replacement)
                     node.reduced.push(selected_replacement)
@@ -3811,36 +3856,37 @@ function build_loss_tree(parent, valid_paths) {
     }
 }
 
-function find_replacement(unit, available_replacements) {
+function find_any_replacement(unit, available_replacements) {
+    const options = get_replacement_options(unit, available_replacements)
+    if (options.length === 0)
+        return 0
+
+    return options[0]
+}
+
+function get_replacement_options(unit, available_replacements) {
+    let options = []
     let unit_data = data.pieces[unit]
     if (unit_data.type !== ARMY)
-        return 0
+        return options
 
     if (unit === BEF_ARMY) {
         if (available_replacements.includes(BEF_CORPS))
-            return BEF_CORPS
-        else
-            return 0
-    }
-
-    // British armies cannot be replaced by CND, AUS, or PT corps, so selecting on the name instead of nation
-    if (unit_data.nation === BRITAIN) {
-        for (let i = 0; i < available_replacements.length; ++i) {
-            let replacement_data = data.pieces[available_replacements[i]]
-            if (replacement_data.name === 'BRc') {
-                return available_replacements[i]
-            }
-        }
-        return 0
+            options.push(BEF_CORPS)
+        return options
     }
 
     for (let i = 0; i < available_replacements.length; ++i) {
         let replacement_data = data.pieces[available_replacements[i]]
-        if (replacement_data.type === CORPS && replacement_data.nation === unit_data.nation) {
-            return available_replacements[i]
+        if (replacement_data.type !== CORPS)
+            continue
+        if ((unit_data.nation === BRITAIN && replacement_data.name === 'BRc')  ||
+            (replacement_data.nation === unit_data.nation)) {
+            options.push(available_replacements[i])
         }
     }
-    return 0
+
+    return options
 }
 
 function is_withdrawal_active() {
@@ -3971,18 +4017,46 @@ states.cancel_retreat = {
     },
     piece(p) {
         push_undo()
+        log(`Retreat canceled by taking an extra step loss to ${piece_name(p)}`)
+
         if (is_unit_reduced(p)) {
-            eliminate_piece(p)
+            const location = game.location[p]
+            let replacement_options = eliminate_piece(p)
+            if (replacement_options.length > 0) {
+                game.attack.replacement = {
+                    p: p,
+                    s: location,
+                    options: replacement_options
+                }
+                game.state = 'choose_retreat_canceling_replacement'
+                return
+            }
         } else {
             reduce_piece(p)
         }
-        log(`Retreat canceled by taking an extra step loss to ${piece_name(p)}`)
+
         end_attack_activation()
         goto_next_activation()
     },
     pass() {
         push_undo()
         goto_defender_retreat()
+    }
+}
+
+states.choose_retreat_canceling_replacement = {
+    inactive: 'Defender Choosing Replacement',
+    prompt() {
+        view.prompt = `Choose a replacement for ${piece_name(game.attack.replacement.p)} in ${space_name(game.attack.replacement.s)}`
+        game.attack.replacement.options.forEach(gen_action_piece)
+    },
+    piece(p) {
+        push_undo()
+        game.location[p] = game.attack.replacement.s
+        log(`Replaced ${piece_name(game.attack.replacement.p)} in ${space_name(game.attack.replacement.s)} with ${piece_name(p)}`)
+        delete game.attack.replacement
+        end_attack_activation()
+        goto_next_activation()
     }
 }
 
