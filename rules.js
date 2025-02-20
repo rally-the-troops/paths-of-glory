@@ -196,6 +196,7 @@ const OSTEND = 18
 const CHATEAU_THIERRY = 20
 const MELUN = 21
 const SEDAN = 30
+const BRUSSELS = 31
 const ANTWERP = 32
 const LIEGE = 33
 const KOBLENZ = 41
