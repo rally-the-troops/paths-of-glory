@@ -83,6 +83,16 @@
 .marker.entrench { text-align: center; width: 45px; height: 45px; }
 .marker.entrench:before { font-size: 11px; content:"Entrench"; }
 
+.marker.ne_limit { background-size: 45px 45px; }
+.marker.ne_limit.ru_ne_move { background-image: url(pieces/ru_ne_move3.png); }
+.marker.ne_limit.ru_ne_move.used { background-image: url(pieces/ru_ne_move_used3.png); }
+.marker.ne_limit.ru_ne_sr { background-image: url(pieces/ru_ne_sr2.png); }
+.marker.ne_limit.ru_ne_sr.used { background-image: url(pieces/ru_ne_sr_used2.png); }
+.marker.ne_limit.cp_ne_sr { background-image: url(pieces/cp_ne_sr2.png); }
+.marker.ne_limit.cp_ne_sr.used { background-image: url(pieces/cp_ne_sr_used2.png); }
+.marker.ne_limit.br_ne_sr { background-image: url(pieces/br_ne_sr2.png); }
+.marker.ne_limit.br_ne_sr.used { background-image: url(pieces/br_ne_sr_used2.png); }
+
 .army_ah { background-image: url(pieces/army_ah.webp); background-size: 405px 90px; }
 .army_be { background-image: url(pieces/army_be.webp); background-size: 45px 90px; }
 .army_br { background-image: url(pieces/army_br.webp); background-size: 360px 90px; }
