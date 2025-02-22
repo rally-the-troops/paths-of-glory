@@ -428,6 +428,8 @@ exports.view = function(state, current) {
         tsar_fell_cp_russian_vp: game.tsar_fell_cp_russian_vp,
 
         oos_pieces: game.supply ? game.supply.oos_pieces : [],
+
+        ne_limits: game.ne_restrictions,
     }
 
     if (current === AP) {

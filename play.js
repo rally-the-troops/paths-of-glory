@@ -211,6 +211,12 @@ let ui = {
     last_card: document.getElementById("last_card"),
     turn_track: document.getElementById("turn_track"),
     general_records: document.getElementById("general_records"),
+    ne_limits: {
+        br_sr: document.getElementsByClassName("br_ne_sr")[0],
+        cp_sr: document.getElementsByClassName("cp_ne_sr")[0],
+        ru_sr: document.getElementsByClassName("ru_ne_sr")[0],
+        ru_move: document.getElementsByClassName("ru_ne_move")[0],
+    },
     space_list: [],
 }
 
@@ -1478,6 +1484,28 @@ function update_general_records_track() {
     })
 }
 
+function update_ne_limits() {
+    if (view.ne_limits.br_sr)
+        ui.ne_limits.br_sr.classList.add("used")
+    else
+        ui.ne_limits.br_sr.classList.remove("used")
+
+    if (view.ne_limits.cp_sr)
+        ui.ne_limits.cp_sr.classList.add("used")
+    else
+        ui.ne_limits.cp_sr.classList.remove("used")
+
+    if (view.ne_limits.ru_sr)
+        ui.ne_limits.ru_sr.classList.add("used")
+    else
+        ui.ne_limits.ru_sr.classList.remove("used")
+
+    if (view.ne_limits.ru_non_sr)
+        ui.ne_limits.ru_move.classList.add("used")
+    else
+        ui.ne_limits.ru_move.classList.remove("used")
+}
+
 const ACTION_REINF = "reinf"
 
 function update_action_round_marker(faction, round, action) {
@@ -1656,6 +1684,7 @@ function update_map() {
     update_turn_track()
     update_action_round_tracks()
 
+    update_ne_limits()
 
     document.getElementById("cp_hand").textContent = view.cp.hand
     document.getElementById("ap_hand").textContent = view.ap.hand
