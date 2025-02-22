@@ -576,7 +576,7 @@ body.bevel .event {
 .cp_mandatory_offensive.ge { left: 1170px; }
 .cp_mandatory_offensive.none { left: 1210px; }
 
-.ne_limit_markers {
+#ne_limit_markers {
     position: relative;
     left: 1900px;
     top: 950px;
@@ -587,7 +587,7 @@ body.bevel .event {
     justify-content: center;
     flex-wrap: wrap;
 }
-.ne_limit_markers .marker.ne_limit { display: block; position: relative; }
+#ne_limit_markers .marker.ne_limit { display: block; position: relative; }
 
 
 /* Action markers */
