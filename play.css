@@ -589,6 +589,12 @@ body.bevel .event {
 }
 #ne_limit_markers .marker.ne_limit { display: block; position: relative; }
 
+.marker.neutral { width: 100px; height: 80px; border-style: none; }
+.marker.neutral.it { position: relative; left: 720px; top: 980px; }
+.marker.neutral.bu { position: relative; left: 1500px; top: 1000px; }
+.marker.neutral.gr { position: relative; left: 1350px; top: 1120px; }
+.marker.neutral.ro { position: relative; left: 1550px; top: 670px; }
+.marker.neutral.tu { position: relative; left: 2000px; top: 700px; }
 
 /* Action markers */
 

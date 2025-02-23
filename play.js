@@ -217,6 +217,13 @@ let ui = {
         ru_sr: document.getElementsByClassName("ru_ne_sr")[0],
         ru_move: document.getElementsByClassName("ru_ne_move")[0],
     },
+    neutral: {
+        it: document.getElementById("neutral_it"),
+        bu: document.getElementById("neutral_bu"),
+        ro: document.getElementById("neutral_ro"),
+        gr: document.getElementById("neutral_gr"),
+        tu: document.getElementById("neutral_tu"),
+    },
     space_list: [],
 }
 
@@ -1504,6 +1511,33 @@ function update_ne_limits() {
         ui.ne_limits.ru_move.classList.add("used")
     else
         ui.ne_limits.ru_move.classList.remove("used")
+}
+
+function update_neutral_markers() {
+    if (view.war.it)
+        ui.neutral.it.classList.remove("hide")
+    else
+        ui.neutral.it.classList.add("hide")
+
+    if (view.war.bu)
+        ui.neutral.bu.classList.remove("hide")
+    else
+        ui.neutral.bu.classList.add("hide")
+
+    if (view.war.tu)
+        ui.neutral.tu.classList.remove("hide")
+    else
+        ui.neutral.tu.classList.add("hide")
+
+    if (view.war.ro)
+        ui.neutral.ro.classList.remove("hide")
+    else
+        ui.neutral.ro.classList.add("hide")
+
+    if (view.war.gr)
+        ui.neutral.gr.classList.remove("hide")
+    else
+        ui.neutral.gr.classList.add("hide")
 }
 
 const ACTION_REINF = "reinf"
