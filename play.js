@@ -1515,29 +1515,29 @@ function update_ne_limits() {
 
 function update_neutral_markers() {
     if (view.war.it)
-        ui.neutral.it.classList.remove("hide")
-    else
         ui.neutral.it.classList.add("hide")
+    else
+        ui.neutral.it.classList.remove("hide")
 
     if (view.war.bu)
-        ui.neutral.bu.classList.remove("hide")
-    else
         ui.neutral.bu.classList.add("hide")
+    else
+        ui.neutral.bu.classList.remove("hide")
 
     if (view.war.tu)
-        ui.neutral.tu.classList.remove("hide")
-    else
         ui.neutral.tu.classList.add("hide")
+    else
+        ui.neutral.tu.classList.remove("hide")
 
     if (view.war.ro)
-        ui.neutral.ro.classList.remove("hide")
-    else
         ui.neutral.ro.classList.add("hide")
+    else
+        ui.neutral.ro.classList.remove("hide")
 
     if (view.war.gr)
-        ui.neutral.gr.classList.remove("hide")
-    else
         ui.neutral.gr.classList.add("hide")
+    else
+        ui.neutral.gr.classList.remove("hide")
 }
 
 const ACTION_REINF = "reinf"
@@ -1719,6 +1719,7 @@ function update_map() {
     update_action_round_tracks()
 
     update_ne_limits()
+    update_neutral_markers()
 
     document.getElementById("cp_hand").textContent = view.cp.hand
     document.getElementById("ap_hand").textContent = view.ap.hand
