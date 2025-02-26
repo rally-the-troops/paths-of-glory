@@ -3634,6 +3634,11 @@ states.withdrawal_negate_step_loss = {
 }
 
 function eliminate_piece(p, force_permanent_elimination) {
+    if (data.pieces[p].type === CORPS) {
+        game.location[p] = game.active === AP ? AP_ELIMINATED_BOX : CP_ELIMINATED_BOX
+        return []
+    }
+
     force_permanent_elimination = force_permanent_elimination || false
     let replacement_options = get_replacement_options(p, get_units_in_reserve())
     if (force_permanent_elimination || replacement_options.length === 0 || data.pieces[p].notreplaceable || !is_unit_supplied(p)) {
@@ -3645,6 +3650,7 @@ function eliminate_piece(p, force_permanent_elimination) {
     } else {
         game.location[p] = game.active === AP ? AP_ELIMINATED_BOX : CP_ELIMINATED_BOX
     }
+
     return replacement_options
 }
 
@@ -4118,6 +4124,8 @@ states.choose_retreat_path = {
             view.prompt = `Retreat unit`
 
             let options = get_retreat_options()
+            options = []
+
             options.forEach((s) => {
                 gen_action_space(s)
             })
@@ -4143,6 +4151,15 @@ states.choose_retreat_path = {
     piece(p) {
         array_remove_item(game.attack.retreating_pieces, p)
         eliminate_piece(p, true)
+        // 12.4.7, section 2
+        // When an army is replaced by a corps and then that corps cannot fulfill a mandatory retreat, the army is
+        // permanently eliminated
+        for (let replaced in game.attack.defender_replacements) {
+            let replacement = game.attack.defender_replacements[replaced]
+            if (replacement === p) {
+                eliminate_piece(parseInt(replaced), true)
+            }
+        }
     },
     done() {
         game.attack.retreating_pieces.forEach((p) => { set_add(game.retreated, p) })
