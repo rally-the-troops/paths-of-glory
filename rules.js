@@ -4124,8 +4124,6 @@ states.choose_retreat_path = {
             view.prompt = `Retreat unit`
 
             let options = get_retreat_options()
-            options = []
-
             options.forEach((s) => {
                 gen_action_space(s)
             })
@@ -4262,6 +4260,7 @@ states.attacker_advance = {
                 gen_action_pass()
         } else if (game.attack.advance_length === 1 && spaces.length > 0) {
             view.prompt = `Advance units`
+            gen_action_done()
         } else {
             view.prompt = `Advance units - Done`
             gen_action_done()
@@ -4275,9 +4274,11 @@ states.attacker_advance = {
     },
     space(s) {
         push_undo()
-        // TODO: if advancing out of a space where you were besieging, check if the space is still besieged
+        let leaving_spaces = []
+
         game.attack.did_advance = true
         game.attack.advancing_pieces.forEach((p) => {
+            set_add(leaving_spaces, game.location[p])
             game.location[p] = s
         })
         game.attack.advance_length++
@@ -4285,6 +4286,13 @@ states.attacker_advance = {
             set_control(s, game.attack.attacker)
         }
         capture_trench(s, game.attack.attacker)
+
+        // If advancing out of a besieged space and pieces left behind are insufficient to maintain the siege, lift the siege
+        for (let left_space of leaving_spaces) {
+            if (is_besieged(left_space) && !can_besiege(left_space, get_pieces_in_space(left_space))) {
+                set_delete(game.forts.besieged, left_space)
+            }
+        }
     },
     pass() {
         end_attack_activation()
