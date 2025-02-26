@@ -5781,6 +5781,9 @@ events.high_seas_fleet = {
 // CP #26
 events.place_of_execution = {
     can_play() {
+        if (all_french_forts_destroyed() && !game.attack)
+            return true
+
         if (!game.attack)
             return false
 
@@ -5802,7 +5805,20 @@ events.place_of_execution = {
     apply() {
         log(`${card_name(PLACE_OF_EXECUTION)} adds +2 DRM`)
         game.attack.attacker_drm += 2
+    },
+    play() {
+        game.events.place_of_execution = game.turn
+        goto_end_action()
     }
+}
+
+function all_french_forts_destroyed() {
+    for (let s = 1; s < data.spaces.length; ++s) {
+        if (data.spaces[s].nation === FRANCE && data.spaces[s].fort > 0 && !game.forts.destroyed.includes(s)) {
+            return false
+        }
+    }
+    return true
 }
 
 // CP #27
