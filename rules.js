@@ -2852,6 +2852,10 @@ function attacker_can_flank() {
         return false
     }
 
+    // Cannot flank a trench
+    if (get_trench_level_for_attack(game.attack.space, other_faction(game.attack.attacker)) > 0)
+        return false
+
     // Attacker must have an army and attack from at least two spaces to flank
     let has_army = false
     let attack_spaces = []
