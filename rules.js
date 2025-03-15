@@ -2799,12 +2799,23 @@ function goto_attack_step_brusilov_offensive() {
 }
 
 function goto_attack_step_trench_negation() {
-    if (can_play_combat_cards() && get_trench_level_for_attack(game.attack.space, other_faction(game.attack.attacker)) > 0) {
+    if (can_play_combat_cards() &&
+        get_trench_level_for_attack(game.attack.space, other_faction(game.attack.attacker)) > 0 &&
+        has_trench_negating_card_in_hand(game.attack.attacker)) {
         // if defending space has a trench, go to 'negate_trench'
         game.state = 'negate_trench'
     } else {
         goto_attack_step_flank()
     }
+}
+
+function has_trench_negating_card_in_hand(faction) {
+    let hand = game[faction].hand
+    for (let c of TRENCH_NEGATING_CARDS) {
+        if (hand.includes(c))
+            return true
+    }
+    return false
 }
 
 function goto_attack_step_flank() {
@@ -2836,17 +2847,54 @@ function goto_attack_step_kerensky_offensive() {
 
 function goto_attack_step_combat_cards() {
      if (can_play_combat_cards()) {
-        // Start with all eligible combat cards selected
-        for (let cc of game.combat_cards) {
-            let evt = events[data.cards[cc].event]
-            if (evt && evt.can_apply()) {
-                game.attack.combat_cards.push(cc)
-            }
-        }
-        game.state = 'attacker_combat_cards'
-    } else {
+         // Start with all eligible combat cards selected
+         game.combat_cards.forEach((c) => {
+             if (could_apply_combat_card(c))
+                 game.attack.combat_cards.push(c)
+         })
+
+         if (game.attack.combat_cards.length > 0 || could_have_usable_combat_card(game.attack.attacker, true))
+             game.state = 'attacker_combat_cards'
+         else if (could_have_usable_combat_card(other_faction(game.attack.attacker))) {
+             game.active = other_faction(game.attack.attacker)
+             game.state = 'defender_combat_cards'
+         } else
+             begin_combat()
+     } else {
         begin_combat()
     }
+}
+
+function could_apply_combat_card(c) {
+    let card_data = data.cards[c]
+    if (!card_data.cc)
+        return false
+    let evt = events[card_data.event]
+    return !!(evt && evt.can_apply());
+}
+
+function could_have_usable_combat_card(faction, skip_deck) {
+    // If there are any cards already in play that could apply, return true
+    for (let c of game.combat_cards) {
+        if (could_apply_combat_card(c))
+            return true
+    }
+
+    // If there are any cards in hand that could apply, return true
+    for (let c of game[faction].hand) {
+        if (could_apply_combat_card(c))
+            return true
+    }
+
+    if (!skip_deck) {
+        // Finally, if there are any cards in the deck that could apply, return true so no information is leaked to teh other player
+        for (let c of game[faction].deck) {
+            if (could_apply_combat_card(c))
+                return true
+        }
+    }
+
+    return false
 }
 
 function attacking_unoccupied_fort() {
@@ -2885,11 +2933,11 @@ function attacker_can_flank() {
 }
 
 function defender_can_withdraw() {
-    if (game.attack.attacker === CP && (game.ap.removed.includes(WITHDRAWAL_AP) || game.ap.discard.includes(WITHDRAWAL_AP)))
+    let faction = other_faction(game.attack.attacker)
+    let withdrawal_card = faction === AP ? WITHDRAWAL_AP : WITHDRAWAL_CP
+    if (!game[faction].deck.includes(withdrawal_card) && !game[faction].hand.includes(withdrawal_card)) {
         return false
-
-    if (game.attack.attacker === AP && (game.cp.removed.includes(WITHDRAWAL_CP) || game.cp.discard.includes(WITHDRAWAL_CP)))
-        return false
+    }
 
     const withdrawal_spaces = get_retreat_options(get_defenders_pieces(), game.attack.space)
     if (withdrawal_spaces.length === 0)
@@ -3250,7 +3298,10 @@ states.attacker_combat_cards = {
     },
     done() {
         game.active = other_faction(game.attack.attacker)
-        game.state = 'defender_combat_cards'
+        if (game.attack.combat_cards.length > 0 || could_have_usable_combat_card(game.active))
+            game.state = 'defender_combat_cards'
+        else
+            begin_combat()
     }
 }
 
