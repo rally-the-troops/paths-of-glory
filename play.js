@@ -1733,6 +1733,7 @@ function update_map() {
     action_button("next", "Next")
     action_button("pick_up_all", "Pick Up All")
     action_button("entrench", "Entrench")
+    action_button("flank", "Flank")
     action_button("move", "Begin Move")
     action_button("end_move", "End Move")
     action_button("finish_attacks", "End Attack Phase")

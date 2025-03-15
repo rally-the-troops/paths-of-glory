@@ -3084,17 +3084,15 @@ states.negate_trench = {
 states.choose_flank_attack = {
     inactive: 'Attacker Choosing Whether to Attempt a Flank Attack',
     prompt() {
-        view.prompt = 'Choose a pinning space to attempt a flanking attack, or pass to skip flanking'
-        let attack_spaces = []
-        game.attack.pieces.forEach((p) => {
-            set_add(attack_spaces, game.location[p])
-        })
-        attack_spaces.forEach(gen_action_space)
+        let flanking_spaces = get_flanking_spaces(get_attack_spaces(game.attack.pieces), game.attack.space, game.attack.attacker)
+        let flank_roll_target = 4 - flanking_spaces.length
+        gen_action('flank')
         gen_action_pass()
+        view.prompt = `Flank attack? (Succeeds on ${Math.max(flank_roll_target, 1)}+)`
     },
-    space(s) {
-        game.attack.pinning_space = s
-        log(`Flank attack, pinning from ${space_name(s)}`)
+    flank() {
+        game.attack.attempt_flank = true
+        log(`Attempting flank attack`)
         if (can_play_wireless_intercepts())
             game.state = 'play_wireless_intercepts'
         else
@@ -3134,26 +3132,37 @@ states.play_wireless_intercepts = {
     }
 }
 
+function get_flanking_spaces(attack_spaces, defending_space, attacker) {
+    let flanking_spaces = []
+    for (let s of attack_spaces) {
+        if (adds_flanking_drm(s, game.attack.attacker, game.attack.space)) {
+            flanking_spaces.push(s)
+        }
+    }
+
+    if (attack_spaces.length === flanking_spaces.length) {
+        flanking_spaces.length = flanking_spaces.length - 1 // Just remove one space's DRM if all spaces could provide a DRM
+    }
+
+    return flanking_spaces
+}
+
+function get_attack_spaces(pieces) {
+    let attack_spaces = []
+    game.attack.pieces.forEach((p) => {
+        set_add(attack_spaces, game.location[p])
+    })
+    return attack_spaces
+}
+
 function roll_flank_attack() {
-    if (game.attack.pinning_space) {
-        log(`Flanking:`)
-        logi(`Pinning space: ${space_name(game.attack.pinning_space)}`)
-        const flanking_spaces = []
-        let flank_drm = 0
-        game.attack.pieces.forEach((p) => {
-            if (game.location[p] !== game.attack.pinning_space) {
-                set_add(flanking_spaces, game.location[p])
-            }
-        })
-        flanking_spaces.forEach((s) => {
-            let add_drm = true
-            if (adds_flanking_drm(s, game.attack.attacker)) {
-                add_drm = false
-            }
-            logi(`${space_name(s)}: ${add_drm ? '+1 DRM' : 'no DRM'}`)
-            if (add_drm)
-                flank_drm++
-        })
+    if (game.attack.attempt_flank) {
+        let attack_spaces = get_attack_spaces(game.attack.pieces)
+
+        let flanking_spaces = get_flanking_spaces(attack_spaces, game.attack.space, game.attack.attacker)
+        let flank_drm = flanking_spaces.length
+        flanking_spaces.forEach((s) => logi(`${space_name(s)}: +1 DRM'`))
+
         const roll = roll_die(6)
         logi(`${fmt_roll(roll, flank_drm)}`)
         if (roll + flank_drm >= 4) {
