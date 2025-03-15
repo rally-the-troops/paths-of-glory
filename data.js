@@ -940,7 +940,7 @@ const cards = [
         "rpru": 2,
         "name": "Czech Legion",
         "event": "czech_legion",
-        "effect": "Remove from the game 1 AH Corps from the CP Eliminated/Replacement Box. Add the RU Czech Legion orps to the Allied Reserve Box."
+        "effect": "Remove from the game 1 AH Corps from the CP Eliminated/Replacement Box. Add the RU Czech Legion corps to the Allied Reserve Box."
     },
     {
         "num": 61,

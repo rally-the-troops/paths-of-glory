@@ -3528,13 +3528,12 @@ states.apply_defender_losses = {
         if (is_unit_reduced(p)) {
             const location = game.location[p]
             let replacement_options = eliminate_piece(p)
-            if (replacement_options.length > 0) {
-                game.attack.replacement = {
-                    p: p,
-                    s: location,
-                    options: replacement_options
-                }
+            // If there are multiple options, defender must choose one
+            if (replacement_options.length > 1) {
+                game.attack.replacement = { p: p, s: location, options: replacement_options }
                 game.state = 'choose_defender_replacement'
+            } else if (replacement_options.length === 1) {
+                replace_defender_unit(p, location, replacement_options[0])
             }
         } else {
             reduce_piece(p)
@@ -3579,12 +3578,16 @@ states.choose_defender_replacement = {
     },
     piece(p) {
         push_undo()
-        game.location[p] = game.attack.replacement.s
-        game.attack.defender_replacements[game.attack.replacement.p] = p
-        log(`Replaced ${piece_name(game.attack.replacement.p)} in ${space_name(game.attack.replacement.s)} with ${piece_name(p)}`)
+        replace_defender_unit(game.attack.replacement.p, game.attack.replacement.s, p)
         delete game.attack.replacement
         game.state = 'apply_defender_losses'
     }
+}
+
+function replace_defender_unit(unit, location, replacement) {
+    log(`Replaced ${piece_name(unit)} in ${space_name(location)} with ${piece_name(replacement)}`)
+    game.location[replacement] = location
+    game.attack.defender_replacements[unit] = replacement
 }
 
 states.withdrawal_negate_step_loss = {
@@ -3687,13 +3690,12 @@ states.apply_attacker_losses = {
             const location = game.location[p]
             let replacement_options = eliminate_piece(p)
             array_remove_item(game.attack.pieces, p)
-            if (replacement_options.length > 0) {
-                game.attack.replacement = {
-                    p: p,
-                    s: location,
-                    options: replacement_options
-                }
+            // If there are multiple options, player must choose a replacement
+            if (replacement_options.length > 1) {
+                game.attack.replacement = { p: p, s: location, options: replacement_options }
                 game.state = 'choose_attacker_replacement'
+            } else if (replacement_options.length === 1) {
+                replace_attacker_unit(p, location, replacement_options[0])
             }
         } else {
             reduce_piece(p)
@@ -3722,12 +3724,16 @@ states.choose_attacker_replacement = {
     },
     piece(p) {
         push_undo()
-        game.attack.pieces.push(p)
-        game.location[p] = game.attack.replacement.s
-        log(`Replaced ${piece_name(game.attack.replacement.p)} in ${space_name(game.attack.replacement.s)} with ${piece_name(p)}`)
+        replace_attacker_unit(game.attack.replacement.p, game.attack.replacement.s, p)
         delete game.attack.replacement
         game.state = 'apply_attacker_losses'
     }
+}
+
+function replace_attacker_unit(unit, location, replacement) {
+    log(`Replaced ${piece_name(unit)} in ${space_name(location)} with ${piece_name(replacement)}`)
+    game.attack.pieces.push(replacement)
+    game.location[replacement] = location
 }
 
 function goto_defender_losses() {
@@ -3906,17 +3912,51 @@ function get_replacement_options(unit, available_replacements) {
         return options
     }
 
+    let full_options = []
+    let reduced_options = []
     for (let i = 0; i < available_replacements.length; ++i) {
         let replacement_data = data.pieces[available_replacements[i]]
         if (replacement_data.type !== CORPS)
             continue
-        if ((unit_data.nation === BRITAIN && replacement_data.name === 'BRc')  ||
-            (replacement_data.nation === unit_data.nation)) {
-            options.push(available_replacements[i])
+        if (replacement_data.name === 'RU CAVc' || replacement_data.name === 'RU Czlc')
+            continue // Russian cavalry corps and Czech Legion cannot be used as replacements
+        if ((unit_data.nation === BRITAIN && replacement_data.name === 'BRc') ||
+            (unit_data.nation !== BRITAIN && replacement_data.nation === unit_data.nation)) {
+                if (is_unit_reduced(available_replacements[i]))
+                    reduced_options.push(available_replacements[i])
+                else
+                    full_options.push(available_replacements[i])
         }
     }
 
-    return options
+    if (full_options.length > 1) {
+        let names = []
+        const first_option_name = data.pieces[full_options[0]].name
+        // Filter out duplicate units by name
+        full_options = full_options.filter((p) => {
+            if (set_has(names, data.pieces[p].name))
+                return false
+            else {
+                set_add(names, data.pieces[p].name)
+                return true
+            }
+        })
+    }
+
+    if (reduced_options.length > 1) {
+        let names = []
+        const first_option_name = data.pieces[reduced_options[0]].name
+        reduced_options = reduced_options.filter((p) => {
+            if (set_has(names, data.pieces[p].name))
+                return false
+            else {
+                set_add(names, data.pieces[p].name)
+                return true
+            }
+        }) // Filter out duplicate units by name
+    }
+
+    return full_options.length > 0 ? full_options : reduced_options
 }
 
 function is_withdrawal_active() {
@@ -4052,14 +4092,13 @@ states.cancel_retreat = {
         if (is_unit_reduced(p)) {
             const location = game.location[p]
             let replacement_options = eliminate_piece(p)
-            if (replacement_options.length > 0) {
-                game.attack.replacement = {
-                    p: p,
-                    s: location,
-                    options: replacement_options
-                }
+            // If there are multiple options, player must choose a replacement
+            if (replacement_options.length > 1) {
+                game.attack.replacement = { p: p, s: location, options: replacement_options }
                 game.state = 'choose_retreat_canceling_replacement'
                 return
+            } else if (replacement_options.length === 1) {
+                replace_retreat_canceling_unit(p, location, replacement_options[0])
             }
         } else {
             reduce_piece(p)
@@ -4082,12 +4121,16 @@ states.choose_retreat_canceling_replacement = {
     },
     piece(p) {
         push_undo()
-        game.location[p] = game.attack.replacement.s
-        log(`Replaced ${piece_name(game.attack.replacement.p)} in ${space_name(game.attack.replacement.s)} with ${piece_name(p)}`)
+        replace_retreat_canceling_unit(game.attack.replacement.p, game.attack.replacement.s, p)
         delete game.attack.replacement
         end_attack_activation()
         goto_next_activation()
     }
+}
+
+function replace_retreat_canceling_unit(unit, location, replacement) {
+    log(`Replaced ${piece_name(unit)} in ${space_name(location)} with ${piece_name(replacement)}`)
+    game.location[replacement] = location
 }
 
 function goto_defender_retreat() {
