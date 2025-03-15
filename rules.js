@@ -1179,6 +1179,20 @@ function get_piece_lf(p) {
     return is_unit_reduced(p) ? data.pieces[p].rlf : data.pieces[p].lf
 }
 
+function is_unit_eliminated(p) {
+    return game.location[p] === AP_ELIMINATED_BOX || game.location[p] === CP_ELIMINATED_BOX
+}
+
+function send_to_eliminated_box(p) {
+    if (is_unit_reduced(p))
+        array_remove_item(game.reduced, p)
+    if (data.pieces[p].faction === AP) {
+        game.location[p] = AP_ELIMINATED_BOX
+    } else {
+        game.location[p] = CP_ELIMINATED_BOX
+    }
+}
+
 function get_active_player() {
     if (game.active === AP) {
         return game.ap
@@ -3491,7 +3505,7 @@ states.eliminate_retreated_units = {
     piece(p) {
         push_undo()
         // Pieces eliminated in this condition are sent to the eliminated box and not replaced (12.5.6)
-        game.location[p] = game.active === AP ? AP_ELIMINATED_BOX : CP_ELIMINATED_BOX
+        send_to_eliminated_box(p)
         array_remove_item(game.retreated, p)
     },
     done() {
@@ -3585,7 +3599,7 @@ states.choose_defender_replacement = {
 }
 
 function replace_defender_unit(unit, location, replacement) {
-    log(`Replaced ${piece_name(unit)} in ${space_name(location)} with ${piece_name(replacement)}`)
+    log(`Replaced ${piece_name(unit, true)} in ${space_name(location)} with ${piece_name(replacement)}`)
     game.location[replacement] = location
     game.attack.defender_replacements[unit] = replacement
 }
@@ -3608,7 +3622,7 @@ states.withdrawal_negate_step_loss = {
         // Restore the step that was previously lost, restoring the piece to the attack location on the map and
         //  removing it from the eliminated pieces area if necessary
         log(`${card_name(game.attack.attacker === CP ? WITHDRAWAL_AP : WITHDRAWAL_CP)} negates step loss for ${piece_name(p)}`)
-        if (game.removed.includes(p) || game.location[p] === AP_ELIMINATED_BOX || game.location[p] === CP_ELIMINATED_BOX) {
+        if (game.removed.includes(p) || is_unit_eliminated(p)) {
             array_remove_item(game.removed, p)
             if (!game.reduced.includes(p)) {
                 game.reduced.push(p)
@@ -3642,7 +3656,8 @@ states.withdrawal_negate_step_loss = {
 
 function eliminate_piece(p, force_permanent_elimination) {
     if (data.pieces[p].type === CORPS) {
-        game.location[p] = game.active === AP ? AP_ELIMINATED_BOX : CP_ELIMINATED_BOX
+        log(`Eliminated ${piece_name(p)} in ${space_name(game.location[p])}`)
+        send_to_eliminated_box(p)
         return []
     }
 
@@ -3655,7 +3670,7 @@ function eliminate_piece(p, force_permanent_elimination) {
         game.location[p] = 0
         return replacement_options
     } else {
-        game.location[p] = game.active === AP ? AP_ELIMINATED_BOX : CP_ELIMINATED_BOX
+        send_to_eliminated_box(p)
     }
 
     return replacement_options
@@ -3731,7 +3746,7 @@ states.choose_attacker_replacement = {
 }
 
 function replace_attacker_unit(unit, location, replacement) {
-    log(`Replaced ${piece_name(unit)} in ${space_name(location)} with ${piece_name(replacement)}`)
+    log(`Replaced ${piece_name(unit, true)} in ${space_name(location)} with ${piece_name(replacement)}`)
     game.attack.pieces.push(replacement)
     game.location[replacement] = location
 }
@@ -4129,7 +4144,7 @@ states.choose_retreat_canceling_replacement = {
 }
 
 function replace_retreat_canceling_unit(unit, location, replacement) {
-    log(`Replaced ${piece_name(unit)} in ${space_name(location)} with ${piece_name(replacement)}`)
+    log(`Replaced ${piece_name(unit, true)} in ${space_name(location)} with ${piece_name(replacement)}`)
     game.location[replacement] = location
 }
 
@@ -4626,7 +4641,7 @@ states.attrition_phase = {
             game.location[p] = 0
             game.removed.push(p)
         } else {
-            game.location[p] = game.active === AP ? AP_ELIMINATED_BOX : CP_ELIMINATED_BOX
+            send_to_eliminated_box(p)
         }
         if (game.attrition[game.active].spaces.length === 0 && game.attrition[game.active].pieces.length === 0) {
             if (game.attrition[other_faction(game.active)].spaces.length > 0 || game.attrition[other_faction(game.active)].pieces.length > 0) {
@@ -4950,7 +4965,7 @@ states.replacement_phase = {
         const piece_data = data.pieces[p]
         game.who = p
         if (piece_data.type === ARMY) {
-            if (game.location[p] === AP_ELIMINATED_BOX || game.location[p] === CP_ELIMINATED_BOX) {
+            if (is_unit_eliminated(p)) {
                 game.state = 'choose_replacement_army'
             } else {
                 log(`Flipped ${piece_name(p)} in ${space_name(game.location[p])} to full strength`)
@@ -4994,9 +5009,7 @@ function get_replaceable_units() {
         if (is_controlled_by(WARSAW, AP) && piece_data.name === 'PLc')
             continue
 
-        if (game.location[i] === AP_ELIMINATED_BOX ||
-            game.location[i] === CP_ELIMINATED_BOX ||
-            (is_unit_reduced(i) && is_unit_supplied(i))) {
+        if (is_unit_eliminated(i) || (is_unit_reduced(i) && is_unit_supplied(i))) {
             units.push(i)
         }
     }
@@ -5027,7 +5040,7 @@ states.choose_second_replacement_corps = {
                 gen_action_piece(p)
             }
         })
-        if (game.location[game.who] === elim_box) {
+        if (is_unit_eliminated(game.who)) {
             if (game.who === BRITISH_ANA_CORPS)
                 gen_action_space(ARABIA_SPACE)
             else
@@ -5041,7 +5054,7 @@ states.choose_second_replacement_corps = {
         // they are now reduced, if they were on the map, flip them to full strength
         let pieces = [game.who, p]
         pieces.forEach((corps) => {
-            if (game.location[corps] === AP_ELIMINATED_BOX || game.location[corps] === CP_ELIMINATED_BOX) {
+            if (is_unit_eliminated(corps)) {
                 if (!is_unit_reduced(corps))
                     game.reduced.push(corps)
                 const space = corps === BRITISH_ANA_CORPS ? ARABIA_SPACE : game.active === AP ? AP_RESERVE_BOX : CP_RESERVE_BOX
@@ -5238,8 +5251,8 @@ function card_name(card) {
     return `#${card} ${cards[card].name} [${cards[card].ops}/${cards[card].sr}]`
 }
 
-function piece_name(piece) {
-    if (is_unit_reduced(piece)) {
+function piece_name(piece, show_as_reduced) {
+    if (show_as_reduced || is_unit_reduced(piece)) {
         return `(${data.pieces[piece].name})`
     }
     else {
@@ -7333,7 +7346,7 @@ events.czech_legion = {
         push_undo()
         for (let p = 1; p < data.pieces.length; ++p) {
             const piece_data = data.pieces[p]
-            if (game.location[p] === CP_ELIMINATED_BOX && piece_data.nation === AUSTRIA_HUNGARY && piece_data.type === CORPS) {
+            if (is_unit_eliminated(p) && piece_data.nation === AUSTRIA_HUNGARY && piece_data.type === CORPS) {
                 game.location[p] = 0
                 game.removed.push(p)
                 break
