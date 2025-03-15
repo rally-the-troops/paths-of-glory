@@ -1093,31 +1093,50 @@ function update_space(s) {
     let ap_oos = false
     let cp_oos = false
 
+    let full_armies = []
+    let reduced_armies = []
+    let full_corps = []
+    let reduced_corps = []
+
     for_each_piece_in_space(s, p => {
         let is_corps = pieces[p].type === CORPS
+        let is_reduced = view.reduced.includes(p)
+
         let pe = pieces[p].element
         pe.classList.remove('offmap')
         pe.classList.remove("inside")
-        if (view.reduced.includes(p))
+        if (is_reduced)
             pe.classList.add("reduced")
         else
             pe.classList.remove("reduced")
+
         if (is_corps) {
-            unshift_stack(stack, p, pe)
+            if (is_reduced) reduced_corps.push(p)
+            else full_corps.push(p)
         } else {
-            if (view.failed_entrench.includes(p)) {
-                push_stack(stack, 0, build_failed_entrench_marker(p))
-            } else {
-                destroy_failed_entrench_marker(p)
-            }
-            push_stack(stack, p, pe)
+            if (is_reduced) reduced_armies.push(p)
+            else full_armies.push(p)
         }
+    })
+
+    let ordered_pieces = full_armies.concat(reduced_armies).concat(full_corps).concat(reduced_corps)
+    ordered_pieces.forEach(p => {
+        let pe = pieces[p].element
+
+        unshift_stack(stack, p, pe)
+
+        if (view.failed_entrench.includes(p)) {
+            unshift_stack(stack, 0, build_failed_entrench_marker(p))
+        } else {
+            destroy_failed_entrench_marker(p)
+        }
+
         if (view.oos_pieces && view.oos_pieces.length > 0 && view.oos_pieces.includes(p)) {
             if (pieces[p].faction === AP) ap_oos = true
             if (pieces[p].faction === CP) cp_oos = true
         }
     })
-
+    
     if (view.mef_beachhead === s) {
         push_stack(stack, 0, build_marker(markers.mef_beachhead, e => e.space_id === s, { space_id: s }, marker_info.mef_beachhead))
     } else {
