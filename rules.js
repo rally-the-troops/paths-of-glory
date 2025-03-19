@@ -3421,12 +3421,11 @@ const fire_table = {
 
 function get_fire_result(t, cf, shifts, roll) {
     let table = fire_table[t]
-    let col = 0
-    while (col < table.length && table[col].factors < cf) {
-        col++
-    }
+    let col = 1
+    while (col < table.length && table[col].factors <= cf) { col++ } // Find first column where column factors > combat factors
+    col-- // Back up one column
     col += shifts
-    col = col < 0 ? 0 : col >= table.length ? table.length-1 : col
+    col = Math.min(Math.max(col, 0), table.length-1)
     logi(`Column: ${table[col].name}`)
     return table[col].result[roll-1]
 }

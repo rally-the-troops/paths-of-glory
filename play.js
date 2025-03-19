@@ -1136,7 +1136,7 @@ function update_space(s) {
             if (pieces[p].faction === CP) cp_oos = true
         }
     })
-    
+
     if (view.mef_beachhead === s) {
         push_stack(stack, 0, build_marker(markers.mef_beachhead, e => e.space_id === s, { space_id: s }, marker_info.mef_beachhead))
     } else {
