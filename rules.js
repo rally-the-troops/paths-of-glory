@@ -1266,10 +1266,15 @@ states.action_phase = {
     inactive: "Action Phase",
     prompt() {
         let p = get_active_player()
-        view.prompt = `Turn ${game.turn} Action ${p.actions.length+1}: Play a card or choose an action`
-        for (let i = 0; i < p.hand.length; ++i)
-            gen_card_menu(p.hand[i])
-        gen_action('single_op')
+        if (game.turn === 1 && game.scenario === HISTORICAL && p.actions.length === 0 && game.active === CP) {
+            view.prompt = `Turn ${game.turn} Action ${p.actions.length+1}: Play Guns of August`
+            gen_card_menu(GUNS_OF_AUGUST, true)
+        } else {
+            view.prompt = `Turn ${game.turn} Action ${p.actions.length + 1}: Play a card or choose an action`
+            for (let i = 0; i < p.hand.length; ++i)
+                gen_card_menu(p.hand[i])
+            gen_action('single_op')
+        }
         // If not playing the Historical scenario, add an action here for offering peace terms
     },
     play_event(card) {
@@ -1293,9 +1298,12 @@ states.action_phase = {
     }
 }
 
-function gen_card_menu(card) {
+function gen_card_menu(card, event_only) {
     // 9.5.2.5 - If CP is at Total War and AP is not, AP may only use the Italy and Romania cards for their event
-    if ((card === ROMANIA_ENTRY || card === ITALY_ENTRY) && game.cp.commitment === COMMITMENT_TOTAL && game.ap.commitment !== COMMITMENT_TOTAL) {
+    if ((card === ROMANIA_ENTRY || card === ITALY_ENTRY) && game.cp.commitment === COMMITMENT_TOTAL && game.ap.commitment !== COMMITMENT_TOTAL)
+        event_only = true
+
+    if (event_only) {
         if (can_play_event(card))
             gen_action('play_event', card)
     } else {
