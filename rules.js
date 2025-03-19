@@ -4122,7 +4122,7 @@ function determine_combat_winner() {
         game.attack.retreat_paths = []
         game.attack.to_advance = game.attack.pieces.filter((p) => !is_unit_reduced(p))
         game.attack.advancing_pieces = []
-        if (defender_can_cancel_retreat()) {
+        if (defender_can_cancel_retreat() && !was_withdrawal_active) {
             game.state = 'cancel_retreat'
         } else {
             goto_defender_retreat()
