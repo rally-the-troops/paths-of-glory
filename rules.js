@@ -529,7 +529,7 @@ exports.setup = function (seed, scenario, options) {
     setup_piece('ru', 'RUc', 'Erivan')
     setup_piece('ru', 'RUc', 'Batum')
 
-    setup_piece('br', 'BRc', 'Basra')
+    setup_piece('br', 'BRc', 'Basra', true)
     setup_piece('br', 'BRc', 'Cairo', true)
     setup_piece('br', 'BRc', 'Port Said', true)
 
