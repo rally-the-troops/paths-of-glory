@@ -4144,7 +4144,7 @@ function determine_combat_winner() {
 
 function defender_can_cancel_retreat() {
     const terrain = data.spaces[game.attack.space].terrain
-    if (terrain === MOUNTAIN || terrain === SWAMP || terrain === DESERT || terrain === FOREST || get_trench_level_for_attack(game.attack.space, other_faction(game.attacker)) > 0) {
+    if (terrain === MOUNTAIN || terrain === SWAMP || terrain === DESERT || terrain === FOREST || get_trench_level_for_attack(game.attack.space, other_faction(game.attack.attacker)) > 0) {
         let step_count = 0
         for_each_piece_in_space(game.attack.space, (p) => {
             if (is_unit_reduced(p)) {
@@ -4159,7 +4159,7 @@ function defender_can_cancel_retreat() {
 }
 
 states.cancel_retreat = {
-    inactive: 'Defender Retreating',
+    inactive: 'Defender choosing whether to cancel retreat',
     prompt() {
         view.prompt = `Cancel retreat by taking an extra step loss or pass to begin retreat`
         for_each_piece_in_space(game.attack.space, (p) => {
