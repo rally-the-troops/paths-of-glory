@@ -6058,38 +6058,51 @@ events.war_in_africa = {
         return true
     },
     play() {
-        push_undo()
         game.events.war_in_africa = game.turn
         game.active = AP
+        game.war_in_africa_removed = 0
         game.state = 'war_in_africa'
+        clear_undo()
     }
 }
 
 states.war_in_africa = {
     inactive: 'War in Africa: Allied Powers choose to remove a British Corps or lose 1 VP',
     prompt() {
-        view.prompt = 'War in Africa event: Remove a British Corps or pass to lose 1 VP'
-        for (let p = 1; p < data.pieces.length; ++p) {
-            if (data.pieces[p].nation === BRITAIN &&
-                data.pieces[p].type === CORPS &&
-                game.location[p] !== 0 &&
-                !is_minor_british_nation(p))
-                gen_action_piece(p)
+        if (game.war_in_africa_removed === 0) {
+            view.prompt = 'War in Africa event: Remove a British Corps or pass to lose 1 VP'
+            for (let p = 1; p < data.pieces.length; ++p) {
+                if (data.pieces[p].nation === BRITAIN &&
+                    data.pieces[p].type === CORPS &&
+                    game.location[p] !== 0 &&
+                    !is_minor_british_nation(p) &&
+                    p !== BEF_CORPS)
+                    gen_action_piece(p)
+            }
+            gen_action_pass()
+        } else {
+            view.prompt = 'War in Africa event: Done'
+            gen_action_done()
         }
-        gen_action_pass()
     },
     piece(p) {
+        push_undo()
         const space = game.location[p]
-        log(`War in Africa event removes ${piece_name(p)} from ${space_name(space)}`)
+        log(`Permanently removed ${piece_name(p)} (${space_name(space)})`)
         game.location[p] = 0
         game.removed.push(p)
+        game.war_in_africa_removed = p
         update_siege(space)
-        game.active = CP
-        goto_end_action()
     },
     pass() {
         log(`War in Africa event adds 1 VP`)
         game.vp++
+        game.active = CP
+        delete game.war_in_africa_removed
+        goto_end_action()
+    },
+    done() {
+        delete game.war_in_africa_removed
         game.active = CP
         goto_end_action()
     }
