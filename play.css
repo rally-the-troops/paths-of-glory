@@ -344,6 +344,11 @@ body.shift .highlight {
     cursor: pointer;
     border-color: yellow;
 }
+
+#spaces div.selected {
+    border-color: blue;
+}
+
 body.ap header.your_turn { background-color: hsl(5, 65%, 70%); }
 body.cp header.your_turn { background-color: hsl(200, 40%, 70%); }
 

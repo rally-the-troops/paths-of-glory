@@ -1758,6 +1758,7 @@ function update_map() {
     action_button("finish_attacks", "End Attack Phase")
     action_button("done", "Done")
     action_button("undo", "Undo")
+    action_button("attack", "Attack")
 }
 
 function on_update() {

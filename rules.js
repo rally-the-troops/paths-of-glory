@@ -423,6 +423,7 @@ exports.view = function(state, current) {
         control: game.control,
         events: game.events,
         who: game.who,
+        where: game.where,
         combat_cards: game.combat_cards,
         mef_beachhead: game.mef_beachhead_captured ? null : game.mef_beachhead,
         tsar_fell_cp_russian_vp: game.tsar_fell_cp_russian_vp,
@@ -2733,7 +2734,12 @@ states.choose_attackers = {
         get_attackable_spaces(game.attack.pieces).forEach((s) => {
             gen_action_space(s)
         })
-        gen_action_pass()
+        if (game.attack.pieces.length > 0 && game.attack.space !== 0) {
+            view.prompt = `Begin attack at ${space_name(game.attack.space)}?`
+            gen_action('attack')
+        } else {
+            gen_action_pass()
+        }
     },
     piece(p) {
         push_undo()
@@ -2746,12 +2752,16 @@ states.choose_attackers = {
         push_undo()
         game.attack.space = s
         game.attacked.push(s)
-        goto_attack()
+        game.where = s
     },
     pass() {
         game.eligible_attackers = []
         end_attack_activation()
         goto_next_activation()
+    },
+    attack() {
+        game.where = 0
+        goto_attack()
     }
 }
 
@@ -2768,9 +2778,14 @@ function goto_attack() {
 
     log_h3(`Attack on ${space_name(game.attack.space)}`)
     log(`Attackers:`)
-    for (let p of game.attack.pieces) {
-        logi(`${piece_name(p)} (${space_name(game.location[p])})`)
-    }
+    attack_sources.forEach((source) => {
+        let attackers_in_space = game.attack.pieces.filter((p) => game.location[p] === source)
+        logi(`${attackers_in_space.map((p) => piece_name(p)).join(', ')} (${space_name(source)})`)
+    })
+    log(`Defenders:`)
+    for_each_piece_in_space(game.attack.space, (p) => {
+        logi(`${piece_name(p)}`)
+    })
 
     const mo = game.active === AP ? game.ap.mo : game.cp.mo
     if (mo !== NONE && satisfies_mo(mo, game.attack.pieces, get_defenders_pieces(), game.attack.space)) {
@@ -3217,7 +3232,7 @@ function roll_flank_attack() {
 
         let flanking_spaces = get_flanking_spaces(attack_spaces, game.attack.space, game.attack.attacker)
         let flank_drm = flanking_spaces.length
-        flanking_spaces.forEach((s) => logi(`${space_name(s)}: +1 DRM'`))
+        flanking_spaces.forEach((s) => logi(`${space_name(s)}: +1 DRM`))
 
         const roll = roll_die(6)
         logi(`${fmt_roll(roll, flank_drm)}`)
