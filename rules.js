@@ -4387,6 +4387,7 @@ function goto_attacker_advance() {
         game.attack.advancing_pieces = []
         game.attack.advance_length = 0
         game.state = 'attacker_advance'
+        push_undo()
     } else {
         end_attack_activation()
         goto_next_activation()
@@ -4415,12 +4416,10 @@ states.attacker_advance = {
         spaces.forEach(gen_action_space)
     },
     piece(p) {
-        push_undo()
         game.attack.advancing_pieces.push(p)
         array_remove_item(game.attack.to_advance, p)
     },
     space(s) {
-        push_undo()
         let leaving_spaces = []
 
         game.attack.did_advance = true
@@ -4434,6 +4433,7 @@ states.attacker_advance = {
         }
         capture_trench(s, game.attack.attacker)
 
+        // TODO: I think this is wrong—instead of lifting the siege it should prevent advancing out of the space if it would end the siege
         // If advancing out of a besieged space and pieces left behind are insufficient to maintain the siege, lift the siege
         for (let left_space of leaving_spaces) {
             if (is_besieged(left_space) && !can_besiege(left_space, get_pieces_in_space(left_space))) {
@@ -4492,9 +4492,12 @@ function get_possible_advance_spaces(pieces) {
     // • if the Race to the Sea Event has been played.
     // • if the Central Powers War Status is 4 or higher.
     if (game.attack.attacker === CP && !game.events.race_to_the_sea && game.cp.ws < 4) {
-        set_delete(spaces, AMIENS)
-        set_delete(spaces, CALAIS)
-        set_delete(spaces, OSTEND)
+        if (game.attack.space !== AMIENS)
+            set_delete(spaces, AMIENS)
+        if (game.attack.space !== CALAIS)
+            set_delete(spaces, CALAIS)
+        if (game.attack.space !== OSTEND)
+            set_delete(spaces, OSTEND)
     }
 
     return spaces
