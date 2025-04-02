@@ -2675,7 +2675,7 @@ function can_end_move(s) {
     if (game.activated.attack.includes(s))
         return false
 
-    if (!game.events.race_to_the_sea && (s === AMIENS || s === CALAIS || s === OSTEND) && game.cp.ws < 4) {
+    if (game.active === CP && !game.events.race_to_the_sea && (s === AMIENS || s === CALAIS || s === OSTEND) && game.cp.ws < 4) {
         return false
     }
 
@@ -2780,12 +2780,10 @@ function goto_attack() {
     log(`Attackers:`)
     attack_sources.forEach((source) => {
         let attackers_in_space = game.attack.pieces.filter((p) => game.location[p] === source)
-        logi(`${attackers_in_space.map((p) => piece_name(p)).join(', ')} (${space_name(source)})`)
+        logi(`${piece_list(attackers_in_space)} (${space_name(source)})`)
     })
     log(`Defenders:`)
-    for_each_piece_in_space(game.attack.space, (p) => {
-        logi(`${piece_name(p)}`)
-    })
+    logi(`${piece_list(get_pieces_in_space(game.attack.space))} (${space_name(game.attack.space)})`)
 
     const mo = game.active === AP ? game.ap.mo : game.cp.mo
     if (mo !== NONE && satisfies_mo(mo, game.attack.pieces, get_defenders_pieces(), game.attack.space)) {
@@ -4263,11 +4261,13 @@ states.defender_retreat = {
 states.choose_retreat_path = {
     inactive: 'Defender Retreating',
     prompt() {
+
         if (game.attack.retreat_path.length === game.attack.retreat_length || game.attack.retreating_pieces.length === 0) {
-            view.prompt = `Retreat unit - Done`
+            view.prompt = `Retreat ${piece_list(game.attack.retreating_pieces)} (Done)`
             gen_action_done()
         } else {
-            view.prompt = `Retreat unit`
+            const remaining_retreat_length = game.attack.retreat_length - game.attack.retreat_path.length
+            view.prompt = `Retreat ${piece_list(game.attack.retreating_pieces)} (${remaining_retreat_length} ${remaining_retreat_length === 1 ? 'space' : 'spaces'} remaining)`
 
             let options = get_retreat_options()
             options.forEach((s) => {
@@ -4397,18 +4397,19 @@ states.attacker_advance = {
     inactive: 'Attacker Advancing',
     prompt() {
         const spaces = get_possible_advance_spaces(game.attack.advancing_pieces)
+        const remaining_length = game.attack.retreat_length - game.attack.advance_length
         if (game.attack.advance_length === 0) {
-            view.prompt = `Select units to advance or select a space to begin advancing`
+            view.prompt = `Select units to advance or select a space to begin advancing (${remaining_length} ${remaining_length === 1 ? 'space' : 'spaces'} remaining)`
             game.attack.to_advance.forEach((p) => {
                 gen_action_piece(p)
             })
             if (game.attack.advancing_pieces.length === 0)
                 gen_action_pass()
         } else if (game.attack.advance_length === 1 && spaces.length > 0) {
-            view.prompt = `Advance units`
+            view.prompt = `Advance ${piece_list(game.attack.advancing_pieces)} (${remaining_length} ${remaining_length === 1 ? 'space' : 'spaces'} remaining)`
             gen_action_done()
         } else {
-            view.prompt = `Advance units - Done`
+            view.prompt = `Advance ${piece_list(game.attack.advancing_pieces)} (Done)`
             gen_action_done()
         }
         spaces.forEach(gen_action_space)
@@ -5342,6 +5343,10 @@ function piece_name(piece, show_as_reduced) {
     else {
         return `${data.pieces[piece].name}`
     }
+}
+
+function piece_list(pieces) {
+    return pieces.map((p) => piece_name(p)).join(', ')
 }
 
 function space_name(space) {
