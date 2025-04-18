@@ -334,13 +334,6 @@ exports.resign = function (state, current) {
     return game
 }
 
-exports.is_checkpoint = function (a, b) {
-    let x = b.log[b.log.length-2]
-    if (x === ".h2 cp") return true
-    if (x === ".h2 ap") return true
-    return false
-}
-
 exports.query = function (state, current, q) {
     if (q === 'cp_supply') {
         game = state
