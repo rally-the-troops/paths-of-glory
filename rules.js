@@ -5672,7 +5672,7 @@ events.guns_of_august = {
         return (game.turn === 1 && game.cp.actions.length === 0)
     },
     play() {
-        push_undo()
+        clear_undo()
 
         set_add(game.forts.destroyed, LIEGE)
 
