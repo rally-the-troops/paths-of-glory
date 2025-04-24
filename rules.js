@@ -2131,7 +2131,7 @@ function goto_end_action() {
     }
 
     if (game.active === AP && game.events.high_seas_fleet > 0) {
-        log(`${faction_name(AP)} did not play ${card_name(GRAND_FLEET)} this action round, ${card_name(HIGH_SEAS_FLEET)} adds 1 VP`)
+        log(`${faction_name(AP)} did not play ${card_name(GRAND_FLEET)} this action round, ${card_name(HIGH_SEAS_FLEET)} +1 VP`)
         game.vp++
         delete game.events.high_seas_fleet
     }
@@ -2463,12 +2463,13 @@ function set_control(s, faction) {
         const is_russian = data.spaces[s].nation === RUSSIA
         if (faction === AP) {
             game.vp--
+            logi(`-1 VP for ${faction_name(faction)} taking ${space_name(s)}`)
             if (is_russian) game.cp.ru_vp--
         } else {
+            logi(`+1 VP for ${faction_name(faction)} taking ${space_name(s)}`)
             game.vp++
             if (is_russian) game.cp.ru_vp++
         }
-        log(`${faction_name(faction)} take ${space_name(s)} (1 VP)`)
     }
 
     if (s === game.mef_beachhead && !game.mef_beachhead_captured && faction === CP) {
@@ -4800,7 +4801,7 @@ function goto_war_status_phase() {
     // If blockade event active and it's a winter turn, -1 VP
     if (game.events.blockade >= 1 && game.turn % 4 === 0) {
         game.vp -= 1
-        log_h2("Blockade event in effect during winter turn, -1 VP")
+        log_h2(`${card_name(BLOCKADE)} in effect, -1 VP`)
     }
     // If CP failed to conduct their mandated offensive, -1 VP
     if (game.cp.mo !== NONE) {
@@ -5808,6 +5809,7 @@ events.reichstag_truce = {
     play() {
         push_undo()
         game.vp += 1
+        logi(`+1 VP for ${card_name(REICHSTAG_TRUCE)}`)
         start_action_round()
     }
 }
@@ -6114,14 +6116,14 @@ states.war_in_africa = {
     piece(p) {
         push_undo()
         const space = game.location[p]
-        log(`Permanently removed ${piece_name(p)} (${space_name(space)})`)
+        logi(`Permanently removed ${piece_name(p)} (${space_name(space)})`)
         game.location[p] = 0
         game.removed.push(p)
         game.war_in_africa_removed = p
         update_siege(space)
     },
     pass() {
-        log(`War in Africa event adds 1 VP`)
+        logi(`-1 VP for ${card_name(WAR_IN_AFRICA)}`)
         game.vp++
         game.active = CP
         delete game.war_in_africa_removed
@@ -6382,10 +6384,10 @@ events.fall_of_the_tsar = {
         game.tsar_fell_cp_russian_vp = game.cp.ru_vp
         if (!nation_at_war(ROMANIA)) {
             game.vp += 3
-            log(`Fall of the Tsar event adds 3 VP (Romania not at war)`)
+            logi(`${card_name(FALL_OF_THE_TSAR)} +3 VP (Romania not at war)`)
         } else {
             game.vp++
-            log(`Fall of the Tsar event adds 1 VP`)
+            logi(`+1 VP for ${card_name(FALL_OF_THE_TSAR)}`)
         }
 
         game.ops = data.cards[FALL_OF_THE_TSAR].ops
@@ -6492,6 +6494,7 @@ events.polish_restoration = {
     play() {
         game.events.polish_restoration = game.turn
         game.vp--
+        logi(`-1 VP for ${card_name(POLISH_RESTORATION)}`)
         const polish_corps = find_n_unused_pieces(GERMANY, 'PLc', 3)
         for (let p of polish_corps) {
             game.location[p] = CP_RESERVE_BOX
@@ -6759,6 +6762,7 @@ events.rape_of_belgium = {
     },
     play() {
         push_undo()
+        logi(`-1 VP for ${card_name(RAPE_OF_BELGIUM)}`)
         game.vp -= 1
         goto_end_action()
     }
@@ -6879,6 +6883,7 @@ events.lusitania = {
     play() {
         push_undo()
         game.vp -= 1
+        logi(`-1 VP for ${card_name(LUSITANIA)}`)
         game.events.lusitania = game.turn
         goto_end_action()
     }
@@ -7132,6 +7137,7 @@ events.fourteen_points = {
         // allowed at all in the Historical scenario (5.7.2), so there's no way to implement that currently.
         game.events.fourteen_points = game.turn
         game.vp--
+        logi(`-1 VP for ${card_name(FOURTEEN_POINTS)}`)
         goto_end_action()
     }
 }
@@ -7287,8 +7293,8 @@ events.convoy = {
     play() {
         push_undo()
         game.events.convoy = game.turn
-        log(`${card_name(CONVOY)} subtracts 1 VP`)
         game.vp--
+        logi(`-1 VP for ${card_name(CONVOY)}`)
         goto_end_action()
     }
 }
@@ -7302,7 +7308,7 @@ events.zimmermann_telegram = {
         push_undo()
         game.events.zimmermann_telegram = game.turn
         game.vp--
-        log(`Zimmermann Telegram event subtracts 1 VP`)
+        logi(`-1 VP for ${card_name(ZIMMERMANN_TELEGRAM)}`)
         game.ops = data.cards[ZIMMERMANN_TELEGRAM].ops
         game.state = 'activate_spaces'
     }
