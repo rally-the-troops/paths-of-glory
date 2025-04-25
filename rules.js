@@ -2778,6 +2778,9 @@ function goto_attack() {
     })
     log(`Defenders:`)
     logi(`${piece_list(get_pieces_in_space(game.attack.space))} (${space_name(game.attack.space)})`)
+    if (has_undestroyed_fort(game.attack.space, other_faction(game.attack.attacker))) {
+        logi(`Fort (${space_name(game.attack.space)})`)
+    }
 
     const mo = game.active === AP ? game.ap.mo : game.cp.mo
     if (mo !== NONE && satisfies_mo(mo, game.attack.pieces, get_defenders_pieces(), game.attack.space)) {
