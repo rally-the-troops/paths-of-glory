@@ -5193,7 +5193,7 @@ states.choose_replacement_army = {
             game.reduced.push(game.who)
         game.location[game.who] = s
         spend_rps(get_rp_type(game.who), is_unit_reduced(game.who) ? 1 : 2)
-        log(`Returned ${piece_name(game.who)} to ${space_name(s)} at ${is_unit_reduced(game.who) ? 'reduced' : 'full'} strength`)
+        log(`Rebuilt ${piece_name(game.who)} at ${space_name(s)}`)
         game.who = 0
         game.state = 'replacement_phase'
     },
@@ -5757,7 +5757,7 @@ states.landwehr = {
     piece(p) {
         push_undo()
         array_remove_item(game.reduced, p)
-        log(`Returned ${piece_name(p)} in ${space_name(game.location[p])} to full strength`)
+        log(`Flipped ${piece_name(p)} at ${space_name(game.location[p])} to full strength`)
         game.landwehr_replacements--
     },
     pass() {
