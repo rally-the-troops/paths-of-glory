@@ -202,6 +202,7 @@ const LIEGE = 33
 const KOBLENZ = 41
 const ESSEN = 43
 const TARANTO = 66
+const BERLIN = 79
 const BRESLAU = 94
 const LODZ = 102
 const CETINJE = 111
@@ -5733,10 +5734,10 @@ events.cp_severe_weather = {
 // CP #5
 events.landwehr = {
     can_play() {
-        return true
+        return (is_space_supplied(CP, BERLIN) && is_controlled_by(BERLIN, CP))
     },
     play() {
-        game.landwehr_replacements = 2
+        game.landwehr_pieces = []
         game.state = 'landwehr'
         push_undo()
     }
@@ -5745,29 +5746,42 @@ events.landwehr = {
 states.landwehr = {
     inactive: 'Choose units for the Landwehr event',
     prompt() {
-        view.prompt = `Choose a reduced unit to strengthen (${game.landwehr_replacements} remaining)`
-        if (game.landwehr_replacements > 0) {
-            for (let p = 1; p < data.pieces.length; ++p) {
-                if (data.pieces[p].nation === GERMANY && is_unit_reduced(p) && is_unit_supplied(p)) {
-                    gen_action_piece(p)
+        let spent_rp = game.landwehr_pieces.reduce((acc, p) => { return acc + (data.pieces[p].type === CORPS ? 0.5 : 1)}, 0)
+        if (spent_rp >= 2) {
+            view.prompt = `Landwehr - Done`
+            gen_action_done()
+        } else {
+            const has_half_rp = spent_rp !== Math.floor(spent_rp)
+            const remaining_rp = Math.floor(2 - spent_rp)
+            if (remaining_rp === 0) {
+                view.prompt = `Landwehr - Choose a reduced corps to flip`
+                for (let p = 1; p < data.pieces.length; ++p) {
+                    if (data.pieces[p].nation === GERMANY && data.pieces[p].type === CORPS && is_unit_reduced(p) && is_unit_supplied(p)) {
+                        gen_action_piece(p)
+                    }
+                }
+            } else {
+                view.prompt = `Landwehr - Choose a reduced unit to flip (${remaining_rp} RP${has_half_rp ? ' plus 1 corps': ''})`
+                for (let p = 1; p < data.pieces.length; ++p) {
+                    if (data.pieces[p].nation === GERMANY && is_unit_reduced(p) && is_unit_supplied(p)) {
+                        gen_action_piece(p)
+                    }
                 }
             }
             gen_action_pass()
-        } else {
-            gen_action_done()
         }
     },
     piece(p) {
         push_undo()
         array_remove_item(game.reduced, p)
-        log(`Flipped ${piece_name(p)} at ${space_name(game.location[p])} to full strength`)
-        game.landwehr_replacements--
+        log(`Flipped ${piece_name(p)} (${space_name(game.location[p])}) to full strength`)
+        game.landwehr_pieces.push(p)
     },
     pass() {
         this.done()
     },
     done() {
-        delete game.landwehr_replacements
+        delete game.landwehr_pieces
         goto_end_action()
     }
 }
