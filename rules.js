@@ -4426,18 +4426,23 @@ states.attacker_advance = {
             game.location[p] = s
         })
         game.attack.advance_length++
-        if (!has_undestroyed_fort(s, other_faction(game.active))) {
+        if (has_undestroyed_fort(s, other_faction(game.active))) {
+            if (can_besiege(s, get_pieces_in_space(s))) {
+                set_add(game.forts.besieged, s)
+                update_supply()
+            }
+        } else {
             set_control(s, game.attack.attacker)
         }
         capture_trench(s, game.attack.attacker)
 
         // TODO: I think this is wrong—instead of lifting the siege it should prevent advancing out of the space if it would end the siege
         // If advancing out of a besieged space and pieces left behind are insufficient to maintain the siege, lift the siege
-        for (let left_space of leaving_spaces) {
-            if (is_besieged(left_space) && !can_besiege(left_space, get_pieces_in_space(left_space))) {
-                set_delete(game.forts.besieged, left_space)
-            }
-        }
+        // for (let left_space of leaving_spaces) {
+        //     if (is_besieged(left_space) && !can_besiege(left_space, get_pieces_in_space(left_space))) {
+        //         set_delete(game.forts.besieged, left_space)
+        //     }
+        // }
     },
     pass() {
         end_attack_activation()
@@ -4471,7 +4476,13 @@ function get_possible_advance_spaces(pieces) {
             return []
     }
 
-    let terrain= data.spaces[game.attack.space]
+    if (is_besieged(location_of_advancing_units)) {
+        if (!can_besiege(location_of_advancing_units, get_pieces_in_space(location_of_advancing_units).filter(p => !pieces.includes(p)))) {
+            return [] // If leaving a besieged space and the remaining pieces are insufficient to maintain the siege, do not allow the advance
+        }
+    }
+
+    let terrain = data.spaces[game.attack.space]
     let terrain_allows_advance = terrain !== MOUNTAIN && terrain !== SWAMP && terrain !== FOREST && terrain !== DESERT
 
     // If the terrain prevents a second advance
