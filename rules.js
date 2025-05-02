@@ -5042,43 +5042,90 @@ function set_rps_of_type(type, value) {
     game.rp[type] = value
 }
 
-states.replacement_phase = {
-    inactive: 'Choose replacements',
-    prompt() {
-        if (has_rps(game.active)) {
-            view.prompt = 'Choose a unit to receive replacements, or choose an eliminated unit to return to play'
+function summarize_rps(faction) {
+    let rp_string = (num, type) => {
+        if (num === Math.floor(num)) {
+            return `${num} ${type}`
         } else {
-            view.prompt = 'Choose a unit to receive replacements, or choose an eliminated unit to return to play - Done'
+            return `${Math.floor(num)} ${type} +1 corps`
         }
+    }
 
-        let units = get_replaceable_units()
-        units.forEach((p) => {
-            gen_action_piece(p)
-        })
-        gen_action_done()
+    let summary = []
+    if (faction === AP) {
+        if (game.rp.fr > 0) summary.push(`${rp_string(game.rp.fr, 'FR')}`)
+        if (game.rp.br > 0) summary.push(`${rp_string(game.rp.br, 'BR')}`)
+        if (game.rp.ru > 0) summary.push(`${rp_string(game.rp.ru, 'RU')}`)
+        if (game.rp.allied > 0) summary.push(`${rp_string(game.rp.allied, 'Allied')}`)
+        if (game.rp.it > 0) summary.push(`${rp_string(game.rp.it, 'IT')}`)
+    } else if (faction === CP) {
+        if (game.rp.ge > 0) summary.push(`${rp_string(game.rp.ge, 'GE')}`)
+        if (game.rp.ah > 0) summary.push(`${rp_string(game.rp.ah, 'AH')}`)
+        if (game.rp.bu > 0) summary.push(`${rp_string(game.rp.bu, 'BU')}`)
+        if (game.rp.tu > 0) summary.push(`${rp_string(game.rp.tu, 'TU')}`)
+    }
+    return summary.join(', ')
+}
+
+states.replacement_phase = {
+    inactive: 'Choosing replacements',
+    prompt() {
+        if (game.army_to_rebuild) {
+            view.prompt = `Choosing where to rebuild ${piece_name(game.army_to_rebuild)}`
+            get_army_replacement_spaces(game.army_to_rebuild).forEach(gen_action_space)
+        } else {
+            const replaceable_units = get_replaceable_units()
+            if (has_rps(game.active) && replaceable_units.length > 0) {
+                view.prompt = `Replacement phase - Spend RPs to rebuild or flip units (${summarize_rps(game.active)})`
+            } else {
+                view.prompt = 'Spend RPs to rebuild or flip units - Done'
+            }
+
+            replaceable_units.forEach(gen_action_piece)
+            gen_action_done()
+        }
     },
     piece(p) {
         push_undo()
         const piece_data = data.pieces[p]
-        game.who = p
         if (piece_data.type === ARMY) {
             if (is_unit_eliminated(p)) {
-                game.state = 'choose_replacement_army'
+                game.army_to_rebuild = p
             } else {
-                log(`Flipped ${piece_name(p)} in ${space_name(game.location[p])} to full strength`)
                 array_remove_item(game.reduced, p)
+                log(`Flipped ${piece_name(p)} in ${space_name(game.location[p])} to full strength`)
                 spend_rps(get_rp_type(p), 1)
                 game.who = 0
             }
         } else {
-            game.state = 'choose_second_replacement_corps'
+            if (is_unit_eliminated(p)) {
+                if (!is_unit_reduced(p))
+                    game.reduced.push(p)
+                game.location[p] = game.active === AP ? AP_RESERVE_BOX : CP_RESERVE_BOX
+                log(`Rebuilt ${piece_name(p)}`)
+                spend_rps(get_rp_type(p), 0.5)
+            } else {
+                array_remove_item(game.reduced, p)
+                log(`Flipped ${piece_name(p)} in ${space_name(game.location[p])} to full strength`)
+                spend_rps(get_rp_type(p), 0.5)
+            }
         }
+    },
+    space(s) {
+        push_undo()
+        if (!is_unit_reduced(game.army_to_rebuild))
+            game.reduced.push(game.army_to_rebuild)
+        game.location[game.army_to_rebuild] = s
+        spend_rps(get_rp_type(game.army_to_rebuild), 1)
+        log(`Rebuilt ${piece_name(game.army_to_rebuild)} at ${space_name(s)}`)
+        delete game.army_to_rebuild
     },
     done() {
         remove_rps(game.active)
         if (game.active === AP) {
             game.active = CP
         }
+        delete game.army_to_rebuild
         goto_replacement_phase()
     }
 }
@@ -5094,10 +5141,11 @@ function get_replaceable_units() {
             continue
 
         const rp_type = get_rp_type(i)
-        if (get_rps_of_type(rp_type) === 0)
+        const rps_available = get_rps_of_type(rp_type)
+        if (rps_available === 0)
             continue
 
-        if (game.location[i] === 0 || game.location === AP_RESERVE_BOX || game.location === CP_RESERVE_BOX)
+        if (game.location[i] === 0)
             continue
 
         if (all_capitals_occupied(piece_data.nation))
@@ -5106,7 +5154,16 @@ function get_replaceable_units() {
         if (is_controlled_by(WARSAW, AP) && piece_data.name === 'PLc')
             continue
 
-        if (is_unit_eliminated(i) || (is_unit_reduced(i) && is_unit_supplied(i))) {
+        if (piece_data.type === ARMY) {
+            if (get_army_replacement_spaces(i).length === 0)
+                continue
+            if (rps_available < 1)
+                continue
+        }
+
+        if (is_unit_eliminated(i)) {
+            units.push(i)
+        } else if (is_unit_reduced(i) && (is_unit_supplied(i) || game.location[i] === AP_RESERVE_BOX || game.location[i] === CP_RESERVE_BOX)) {
             units.push(i)
         }
     }
@@ -5122,102 +5179,6 @@ function spend_rps(type, amount) {
     if (type === undefined)
         return
     set_rps_of_type(type, get_rps_of_type(type) - amount)
-}
-
-states.choose_second_replacement_corps = {
-    inactive: 'Choose second replacement corps',
-    prompt() {
-        view.prompt = 'Choose a second corps or send the selected corps to the reserve box'
-        let units = get_replaceable_units()
-        const elim_box = game.active === AP ? AP_ELIMINATED_BOX : CP_ELIMINATED_BOX
-        const rp_type = get_rp_type(game.who)
-        units.forEach((p) => {
-            if (data.pieces[p].type === CORPS &&
-                get_rp_type(p) === rp_type) {
-                gen_action_piece(p)
-            }
-        })
-        if (is_unit_eliminated(game.who)) {
-            if (game.who === BRITISH_ANA_CORPS)
-                gen_action_space(ARABIA_SPACE)
-            else
-                gen_action_space(game.active === AP ? AP_RESERVE_BOX : CP_RESERVE_BOX)
-        }
-
-    },
-    piece(p) {
-        push_undo()
-        // For each selected corps (game.who and p), if they were eliminated send them to the reserves and make sure
-        // they are now reduced, if they were on the map, flip them to full strength
-        let pieces = [game.who, p]
-        pieces.forEach((corps) => {
-            if (is_unit_eliminated(corps)) {
-                if (!is_unit_reduced(corps))
-                    game.reduced.push(corps)
-                const space = corps === BRITISH_ANA_CORPS ? ARABIA_SPACE : game.active === AP ? AP_RESERVE_BOX : CP_RESERVE_BOX
-                game.location[corps] = space
-                log(`Flipped ${piece_name(corps)} to ${space_name(space)} at reduced strength`)
-            } else {
-                array_remove_item(game.reduced, corps)
-                log(`Flipped ${piece_name(corps)} in ${space_name(game.location[corps])} to full strength`)
-            }
-        })
-        spend_rps(get_rp_type(game.who), 1)
-        game.who = 0
-        game.state = 'replacement_phase'
-    },
-    space(s) {
-        // Selected a space, so the single corps is flipped to full strength and sent there
-        push_undo()
-        if (is_unit_reduced(game.who))
-            array_remove_item(game.reduced, game.who)
-        game.location[game.who] = s
-        spend_rps(get_rp_type(game.who), 1)
-        log(`Flipped ${piece_name(game.who)} to ${space_name(s)} at full strength`)
-        game.who = 0
-        game.state = 'replacement_phase'
-    }
-}
-
-states.choose_replacement_army = {
-    inactive: 'Choose replacement army',
-    prompt() {
-        view.prompt = 'Send to the map or select the unit again to flip between full and reduced strength'
-        const rp_type = get_rp_type(game.who)
-        const full_replacement_allowed = get_rps_of_type(rp_type) >= 2
-        if (is_unit_reduced(game.who) && full_replacement_allowed)
-            gen_action_piece(game.who)
-        const replacement_spaces = get_army_replacement_spaces(game.who)
-        replacement_spaces.forEach(gen_action_space)
-        if (replacement_spaces.length === 0) {
-            view.prompt = `No valid spaces to send ${piece_name(game.who)}`
-            gen_action_pass()
-        }
-    },
-    piece(p) {
-        if (is_unit_reduced(p)) {
-            array_remove_item(game.reduced, p)
-        } else {
-            game.reduced.push(p)
-            spend_rps(get_rp_type(p), 1)
-        }
-    },
-    space(s) {
-        push_undo()
-        if (get_rps_of_type(get_rp_type(game.who)) < 2 && !is_unit_reduced(game.who))
-            game.reduced.push(game.who)
-        game.location[game.who] = s
-        spend_rps(get_rp_type(game.who), is_unit_reduced(game.who) ? 1 : 2)
-        log(`Rebuilt ${piece_name(game.who)} at ${space_name(s)}`)
-        game.who = 0
-        game.state = 'replacement_phase'
-    },
-    pass() {
-        push_undo()
-        log(`No valid spaces to return ${piece_name(game.who)}`)
-        game.who = 0
-        game.state = 'replacement_phase'
-    }
 }
 
 function get_army_replacement_spaces(p) {
