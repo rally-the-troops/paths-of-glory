@@ -174,47 +174,48 @@ aside { min-width: 220px; }
     }
 }
 
-/* CARD LIST DIALOGS */
+/* DIALOGS */
 
-.card_list_dialog {
+.dialog {
     position: fixed;
     width: 300px;
     background-color: floralwhite;
     border: 1px solid black;
     box-shadow: 0px 5px 10px 0px rgba(0,0,0,0.5);
 }
-.card_list_header {
+.dialog_header {
     cursor: move;
     border-bottom: 1px solid black;
     background-color: tan;
     padding: 5px 10px;
 }
-.card_list_x {
+.dialog_x {
     cursor: pointer;
     float: right;
     padding: 0px 2px;
     margin: 5px 5px;
 }
-.card_list_x:hover {
+.dialog_x:hover {
     background-color: black;
     color: white;
 }
-.card_list_body {
+.dialog_body {
     padding: 5px 10px;
     background-color: floralwhite;
     overflow-y: auto;
     max-height: 500px;
 }
-.card_list_body div {
+.dialog_body div {
     text-indent: -30px;
     margin-left: 30px;
 }
 
 #removed { top: 120px; left: 50px; z-index: 498; }
 #discard { top: 145px; left: 75px; z-index: 499; }
+#violations { top: 55px; right: 240px; z-index: 599; }
 
 @media (max-width: 400px) {
-    .card_list_dialog {
+    .dialog {
         position: static;
         grid-column: 1;
         grid-row: 2;
@@ -222,7 +223,7 @@ aside { min-width: 220px; }
         box-shadow: none;
         border: none;
     }
-    .card_list_body {
+    .dialog_body {
         max-height: none;
     }
 }

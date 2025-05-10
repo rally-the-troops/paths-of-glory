@@ -425,6 +425,8 @@ exports.view = function(state, current) {
         oos_pieces: game.supply ? game.supply.oos_pieces : [],
 
         ne_limits: game.ne_restrictions,
+
+        violations: check_rule_violations(),
     }
 
     if (current === AP) {
@@ -987,7 +989,7 @@ function set_nation_at_war(nation) {
     update_supply()
 }
 
-// === Mandated Offensives ===
+// === MANDATED OFFENSIVES ===
 
 const AP_MO_TABLE = {
     1: FRANCE,
@@ -1158,6 +1160,8 @@ function satisfies_mo(mo, attackers, defenders, space) {
     return true
 }
 
+// === PIECE UTILITIES ===
+
 function is_unit_reduced(p) {
     return game.reduced.includes(p)
 }
@@ -1186,6 +1190,21 @@ function send_to_eliminated_box(p) {
     } else {
         game.location[p] = CP_ELIMINATED_BOX
     }
+}
+
+// === GAME UTILITIES ===
+
+// Checks for game state that violates the game rules. In some cases, the game should allow players to get into a state
+// that violates the rules temporarily, for example overstacking a space. When in this state, the rule violations are
+// returned to the client so the spaces can be highlighted.
+// Returns an array of objects with the following properties:
+// space: The space that is in violation, or 0 if the violation is not space-specific
+// piece: The piece that is in violation, or 0 if the violation is not piece-specific
+// rule: The rule that is violated
+function check_rule_violations() {
+    let violations = []
+    // TODO: Implement actual checks
+    return violations
 }
 
 function get_active_player() {
@@ -1223,7 +1242,7 @@ function can_play_neutral_entry() {
     return true
 }
 
-// === Trenches ===
+// === TRENCHES ===
 
 function set_trench_level(s, level, faction) {
     if (faction === undefined)
@@ -1761,6 +1780,8 @@ function goto_play_rps(card) {
     goto_end_action()
 }
 
+// === REINFORCEMENTS ===
+
 function goto_play_reinf(card) {
     push_undo()
     const card_data = data.cards[card]
@@ -1952,10 +1973,6 @@ function roll_peace_terms(faction_offering, combined_war_status) {
     }
 }
 
-function is_neareast_space(s) {
-    return data.spaces[s].map === 'neareast'
-}
-
 states.activate_spaces = {
     inactive: "Activate Spaces",
     prompt() {
@@ -2034,6 +2051,8 @@ states.activate_spaces = {
     }
 }
 
+// === ACTION ROUNDS ===
+
 function start_action_round() {
     game.ops = 0
     game.eligible_attackers = []
@@ -2045,6 +2064,8 @@ function start_action_round() {
             game.eligible_attackers.push(p)
         }
     })
+    // Create phase undo checkpoint
+    save_checkpoint()
     goto_next_activation()
 }
 
@@ -2074,6 +2095,11 @@ function start_attack_activation() {
 function end_move_activation() {
     array_remove_item(game.activated.move, game.move.initial)
     game.move = null
+    if (game.activated.move.length === 0) {
+        game.state = 'confirm_moves'
+    } else {
+        start_move_activation()
+    }
 }
 
 function end_attack_activation() {
@@ -2194,6 +2220,8 @@ function update_russian_capitulation() {
     }
 }
 
+// === MOVE STATES ===
+
 states.choose_move_space = {
     inactive: 'Choosing a space to move',
     prompt() {
@@ -2239,7 +2267,6 @@ states.choose_move_space = {
         push_undo()
         game.activated.move.length = 0
         end_move_activation()
-        goto_next_activation()
     }
 }
 
@@ -2354,7 +2381,6 @@ states.choose_pieces_to_move = {
     done() {
         push_undo()
         end_move_activation()
-        goto_next_activation()
     }
 }
 
@@ -2697,7 +2723,6 @@ function end_move_stack() {
         game.state = 'choose_pieces_to_move'
     } else {
         end_move_activation()
-        goto_next_activation()
     }
 }
 
@@ -2713,6 +2738,27 @@ function piece_can_join_attack_without_breaking_siege(piece) {
 
     return pieces_remaining.length === 0 || can_besiege(game.location[piece], pieces_remaining)
 }
+
+states.confirm_moves = {
+    inactive: 'Confirming moves',
+    prompt() {
+        // TODO: Check for illegal states, like overstacked units
+        view.prompt = `Confirm moves`
+
+        if (game.checkpoint)
+            gen_action('reset_phase')
+        gen_action_done()
+    },
+    reset_phase() {
+        restore_checkpoint()
+    },
+    done() {
+        clear_checkpoint()
+        goto_next_activation()
+    }
+}
+
+// === ATTACK STATES ===
 
 states.choose_attackers = {
     inactive: 'Choosing units and space to attack',
@@ -4155,6 +4201,8 @@ function determine_combat_winner() {
     }
 }
 
+// === RETREATS AND ADVANCES ===
+
 function defender_can_cancel_retreat() {
     const terrain = data.spaces[game.attack.space].terrain
     if (terrain === MOUNTAIN || terrain === SWAMP || terrain === DESERT || terrain === FOREST || get_trench_level_for_attack(game.attack.space, other_faction(game.attack.attacker)) > 0) {
@@ -4522,6 +4570,8 @@ function can_advance_into(space, units) {
 
     return true
 }
+
+// === FORTS AND SIEGES ===
 
 function has_undestroyed_fort(space, faction) {
     let space_data = data.spaces[space]
@@ -5277,6 +5327,8 @@ function other_faction(faction) {
     return faction === CP ? AP : CP
 }
 
+// === ACTIONS ===
+
 function gen_action_next() {
     gen_action('next')
 }
@@ -5305,6 +5357,8 @@ function gen_action_card(c) {
     gen_action('card', c)
 }
 
+// === NAMES ===
+
 function card_name(card) {
     return `#${card} ${cards[card].name} [${cards[card].ops}/${cards[card].sr}]`
 }
@@ -5325,6 +5379,8 @@ function piece_list(pieces) {
 function space_name(space) {
     return `${data.spaces[space].name}`
 }
+
+// === MAP UTILITIES ===
 
 function get_connected_spaces_for_pieces(s, pieces) {
     if (pieces.length > 0 && pieces.every((p) => data.pieces[p].nation === data.pieces[pieces[0]].nation)) {
@@ -5351,6 +5407,10 @@ function is_port(s, faction) {
     if (faction === AP && s === game.mef_beachhead && !game.mef_beachhead_captured)
         return true
     return (faction === AP && data.spaces[s].apport) || (faction === CP && data.spaces[s].cpport)
+}
+
+function is_neareast_space(s) {
+    return data.spaces[s].map === 'neareast'
 }
 
 states.place_new_neutral_units = {
@@ -7701,6 +7761,36 @@ function pop_undo() {
     save_log.length = game.log
     game.log = save_log
     game.undo = save_undo
+}
+
+function save_checkpoint() {
+    let copy = {}
+    for (let k in game) {
+        let v = game[k]
+        if (k === "log")
+            v = v.length
+        else if (k === "undo")
+            continue
+        else if (typeof v === "object" && v !== null)
+            v = object_copy(v)
+        copy[k] = v
+    }
+    game.checkpoint = copy
+}
+
+function restore_checkpoint() {
+    if (!game.checkpoint)
+        return
+    let save_log = game.log
+    game = game.checkpoint
+    save_log.length = game.log
+    game.log = save_log
+    game.undo = []
+}
+
+function clear_checkpoint() {
+    if (game.checkpoint)
+        delete game.checkpoint
 }
 
 function log(msg) {

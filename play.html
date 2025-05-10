@@ -31,16 +31,22 @@
 	<li data-action="deactivate"> Deactivate
 </menu>
 
-<div id="removed" class="card_list_dialog hide">
-	<div id="removed_x" class="card_list_x" onclick="hide_card_list('removed')">&#x274c;</div>
-	<div id="removed_header" class="card_list_header">Removed</div>
-	<div id="removed_body" class="card_list_body"></div>
+<div id="removed" class="dialog hide">
+	<div id="removed_x" class="dialog_x" onclick="hide_dialog('removed')">&#x274c;</div>
+	<div id="removed_header" class="dialog_header">Removed</div>
+	<div id="removed_body" class="dialog_body"></div>
 </div>
 
-<div id="discard" class="card_list_dialog hide">
-	<div id="discard_x" class="card_list_x" onclick="hide_card_list('discard')">&#x274c;</div>
-	<div id="discard_header" class="card_list_header">Discard</div>
-	<div id="discard_body" class="card_list_body"></div>
+<div id="discard" class="dialog hide">
+	<div id="discard_x" class="dialog_x" onclick="hide_dialog('discard')">&#x274c;</div>
+	<div id="discard_header" class="dialog_header">Discard</div>
+	<div id="discard_body" class="dialog_body"></div>
+</div>
+
+<div id="violations" class="dialog hide">
+	<div id="violations_x" class="dialog_x" onclick="hide_dialog('violations')">&#x274c;</div>
+	<div id="violations_header" class="dialog_header">Rules Violations</div>
+	<div id="violations_body" class="dialog_body"></div>
 </div>
 
 <header>
