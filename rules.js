@@ -1210,6 +1210,11 @@ function check_rule_violations() {
     get_all_overstacked_spaces().forEach((s) => {
         violations.push({ space: s, piece: 0, rule: "Overstacked" })
     })
+
+    // TODO: Check for intact fort spaces with insufficient enemy pieces to begin a siege
+
+    // TODO: Check for GE armies in Trent, Villach, or Trieste before AP reaches Total War
+
     return violations
 }
 

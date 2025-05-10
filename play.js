@@ -1814,5 +1814,5 @@ function on_update() {
 
 drag_element_with_mouse("#removed", "#removed_header")
 drag_element_with_mouse("#discard", "#discard_header")
-drag_element_with_mouse("#violations", "#violations_header")
+//drag_element_with_mouse("#violations", "#violations_header")
 
