@@ -196,6 +196,15 @@ function hide_dialog(id) {
     document.getElementById(id).classList.add("hide")
 }
 
+function toggle_dialog_collapse(id) {
+    let dialog_body = document.getElementById(id + "_body")
+    if (dialog_body.className.includes("hide")) {
+        dialog_body.classList.remove("hide")
+    } else {
+        dialog_body.classList.add("hide")
+    }
+}
+
 function on_reply(q, params) {
     if (q === 'cp_supply')
         show_cp_supply(params)
@@ -1805,4 +1814,5 @@ function on_update() {
 
 drag_element_with_mouse("#removed", "#removed_header")
 drag_element_with_mouse("#discard", "#discard_header")
+drag_element_with_mouse("#violations", "#violations_header")
 
