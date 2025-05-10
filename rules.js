@@ -244,6 +244,10 @@ function is_mef_space(s) {
     return (s >= MEF1 && s <= MEF3) || s === MEF4
 }
 
+function is_off_map_space(s) {
+    return s === AP_RESERVE_BOX || s === CP_RESERVE_BOX || s === AP_ELIMINATED_BOX || s === CP_ELIMINATED_BOX
+}
+
 // Terrain
 const MOUNTAIN = "mountain"
 const SWAMP = "swamp"
@@ -1203,7 +1207,9 @@ function send_to_eliminated_box(p) {
 // rule: The rule that is violated
 function check_rule_violations() {
     let violations = []
-    // TODO: Implement actual checks
+    get_all_overstacked_spaces().forEach((s) => {
+        violations.push({ space: s, piece: 0, rule: "Overstacked" })
+    })
     return violations
 }
 
@@ -2692,6 +2698,22 @@ function would_overstack(s, pieces, faction) {
     return (matches > STACKING_LIMIT)
 }
 
+function get_all_overstacked_spaces() {
+    let stacks = data.spaces.map((s) => 0)
+    for (let p = 1; p < data.pieces.length; ++p) {
+        stacks[game.location[p]]++
+    }
+    let overstacked = []
+    for (let s = 1; s < data.spaces.length; ++s) {
+        if (is_off_map_space(s))
+            continue
+        if (stacks[s] > STACKING_LIMIT) {
+            overstacked.push(s)
+        }
+    }
+    return overstacked
+}
+
 function can_end_move(s) {
     if (game.activated.attack.includes(s))
         return false
@@ -2742,12 +2764,17 @@ function piece_can_join_attack_without_breaking_siege(piece) {
 states.confirm_moves = {
     inactive: 'Confirming moves',
     prompt() {
-        // TODO: Check for illegal states, like overstacked units
-        view.prompt = `Confirm moves`
+        const violations = check_rule_violations()
 
         if (game.checkpoint)
             gen_action('reset_phase')
-        gen_action_done()
+
+        if (violations.length === 0) {
+            view.prompt = `Confirm moves`
+            gen_action_done()
+        } else {
+            view.prompt = `Correct rules violations before continuing`
+        }
     },
     reset_phase() {
         restore_checkpoint()

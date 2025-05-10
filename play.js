@@ -1612,6 +1612,8 @@ function update_violations() {
     } else {
         hide_dialog('violations')
     }
+
+    // TODO: Highlight pieces and spaces that are in violation of the rules
 }
 
 function toggle_marker(id, show) {
