@@ -1455,7 +1455,11 @@ states.choose_sr_unit = {
                 gen_action_piece(p)
             }
         })
-        gen_action_done()
+
+        const rule_violations = check_rule_violations()
+        if (rule_violations.length === 0) {
+            gen_action_done()
+        }
     },
     piece(p) {
         if (game.sr.unit === 0) {
@@ -1640,15 +1644,10 @@ function get_sr_destinations(unit) {
         set_delete(destinations, CP_RESERVE_BOX)
     }
 
-    // Remove fully-stacked spaces and block NE spaces from consideration
+    // Block NE spaces from consideration
     const is_neareast_start = is_neareast_space(start)
     const all_destinations = [...destinations]
     for (let d of all_destinations) {
-        if (is_fully_stacked(d, game.active)) {
-            set_delete(destinations, d)
-            continue
-        }
-
         if (is_neareast_space(d) !== is_neareast_start) {
             // No more than one CP Corps may SR to or from the Near East map per turn. Exception: Turkish Corps do not count against this limit.
             if (game.ne_restrictions.cp_sr && data.pieces[unit].faction === CP && nation !== TURKEY) {
@@ -2486,10 +2485,7 @@ states.move_stack = {
             gen_action_space(s)
         })
 
-        if (!is_overstacked(game.move.current, game.active)) {
-            game.move.pieces.forEach((p) => { gen_action_piece(p) })
-        }
-
+        game.move.pieces.forEach((p) => { gen_action_piece(p) })
 
         if (can_end_move(game.move.current))
             gen_action('end_move')
@@ -2596,9 +2592,6 @@ function contains_only_pieces_of_nation(s, nation) {
 function can_move_to(s, moving_pieces) {
     let contains_enemy = contains_piece_of_faction(s, other_faction(game.active))
     if (contains_enemy)
-        return false
-
-    if (would_overstack(s, moving_pieces, game.active))
         return false
 
     if (!is_controlled_by(s, game.active) && has_undestroyed_fort(s, other_faction(game.active)) && !is_besieged(s) && !can_besiege(s, moving_pieces)) {
@@ -2746,9 +2739,6 @@ function can_end_move(s) {
     if (game.active === CP && !game.events.race_to_the_sea && (s === AMIENS || s === CALAIS || s === OSTEND) && game.cp.ws < 4) {
         return false
     }
-
-    if (is_overstacked(s, game.active))
-        return false
 
     return true
 }
