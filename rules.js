@@ -201,8 +201,11 @@ const ANTWERP = 32
 const LIEGE = 33
 const KOBLENZ = 41
 const ESSEN = 43
+const TRENT = 57
 const TARANTO = 66
 const BERLIN = 79
+const VILLACH = 87
+const TRIESTE = 88
 const BRESLAU = 94
 const LODZ = 102
 const CETINJE = 111
@@ -1213,7 +1216,17 @@ function check_rule_violations() {
 
     // TODO: Check for intact fort spaces with insufficient enemy pieces to begin a siege
 
-    // TODO: Check for GE armies in Trent, Villach, or Trieste before AP reaches Total War
+    // Check for GE armies in Trent, Villach, or Trieste before AP reaches Total War
+    if (game.ap.commitment !== COMMITMENT_TOTAL) {
+        [TRENT, VILLACH, TRIESTE].forEach((s) => {
+            let pieces = get_pieces_in_space(s)
+            for (let p of pieces) {
+                if (data.pieces[p].nation === GERMANY && data.pieces[p].type === ARMY) {
+                    violations.push({ space: s, piece: p, rule: `(5.7.4) ${piece_name(p)} in ${space_name(s)} before Allies are at Total War` })
+                }
+            }
+        })
+    }
 
     return violations
 }
@@ -1669,6 +1682,13 @@ function get_sr_destinations(unit) {
                 }
             }
         }
+    }
+
+    // 5.7.4 - If the Allies are not at Total War, no German Armies may SR to Trent, Villach, or Trieste
+    if (game.ap.commitment !== COMMITMENT_TOTAL && data.pieces[unit].nation === GERMANY && data.pieces[unit].type === ARMY) {
+        set_delete(destinations, TRENT)
+        set_delete(destinations, VILLACH)
+        set_delete(destinations, TRIESTE)
     }
 
     set_delete(destinations, start)
