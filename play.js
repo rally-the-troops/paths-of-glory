@@ -166,27 +166,43 @@ function sub_space_name(match, p1, offset, string) {
     return `<span class="spacetip" onmouseenter="on_focus_space_tip(${s})" onmouseleave="on_blur_space_tip(${s})" onclick="on_click_space_tip(${s})">${n}</span>`
 }
 
-
 function show_card_list(id, list) {
+    show_dialog(id, (body) => {
+        if (list.length === 0) {
+            body.innerHTML = "<div>None</div>"
+        }
+        for (let c of list) {
+            let p = document.createElement("div")
+            p.className = "tip"
+            p.onmouseenter = () => on_focus_card_tip(c)
+            p.onmouseleave = on_blur_card_tip
+            p.textContent = `#${c} ${cards[c].name}`
+            body.appendChild(p)
+        }
+    })
+}
+
+function show_dialog(id, dialog_generator) {
     document.getElementById(id).classList.remove("hide")
     let body = document.getElementById(id + "_body")
     while (body.firstChild)
         body.removeChild(body.firstChild)
-    if (list.length === 0) {
-        body.innerHTML = "<div>None</div>"
-    }
-    for (let c of list) {
-        let p = document.createElement("div")
-        p.className = "tip"
-        p.onmouseenter = () => on_focus_card_tip(c)
-        p.onmouseleave = on_blur_card_tip
-        p.textContent = `#${c} ${cards[c].name} [${cards[c].ops}/${cards[c].sr}]`
-        body.appendChild(p)
+    if (dialog_generator) {
+        dialog_generator(body)
     }
 }
 
-function hide_card_list(id) {
+function hide_dialog(id) {
     document.getElementById(id).classList.add("hide")
+}
+
+function toggle_dialog_collapse(id) {
+    let dialog_body = document.getElementById(id + "_body")
+    if (dialog_body.className.includes("hide")) {
+        dialog_body.classList.remove("hide")
+    } else {
+        dialog_body.classList.add("hide")
+    }
 }
 
 function on_reply(q, params) {
@@ -225,6 +241,7 @@ let ui = {
         tu: document.getElementById("neutral_tu"),
     },
     space_list: [],
+    violations: document.getElementById("violations"),
 }
 
 const marker_info = {
@@ -1319,6 +1336,12 @@ function update_space_highlight(s) {
         space.element.classList.add("selected")
     else
         space.element.classList.remove("selected")
+
+    if (view.violations.find(v => v.space === s) !== undefined) {
+        space.element.classList.add("warning")
+    } else {
+        space.element.classList.remove("warning")
+    }
 }
 
 function should_highlight_space(s) {
@@ -1585,6 +1608,29 @@ function update_action_round_tracks() {
     }
 }
 
+function update_violations() {
+    if (view.violations.length > 0) {
+        show_dialog('violations', (body) => {
+            for (let v of view.violations) {
+                let p = document.createElement("div")
+                p.className = "violation"
+                if (v.space !== 0) {
+                    p.textContent = `${spaces[v.space].name}: ${v.rule}`
+                } else if (v.piece !== 0) {
+                    p.textContent = `${pieces[v.piece].name}: ${v.rule}`
+                } else {
+                    p.textContent = `${v.rule}`
+                }
+                body.appendChild(p)
+            }
+        })
+    } else {
+        hide_dialog('violations')
+    }
+
+    // TODO: Highlight pieces and spaces that are in violation of the rules
+}
+
 function toggle_marker(id, show) {
     let element = document.getElementById(id)
     if (show)
@@ -1741,6 +1787,8 @@ function update_map() {
     update_ne_limits()
     update_neutral_markers()
 
+    update_violations()
+
     document.getElementById("cp_hand").textContent = view.cp.hand
     document.getElementById("ap_hand").textContent = view.ap.hand
     document.getElementById("ap_deck_size").textContent = view.ap.deck
@@ -1756,6 +1804,7 @@ function update_map() {
     action_button("flank", "Flank")
     action_button("move", "Begin Move")
     action_button("end_move", "End Move")
+    action_button("reset_phase", "Reset Phase")
     action_button("finish_attacks", "End Attack Phase")
     action_button("done", "Done")
     action_button("attack", "Attack")
@@ -1771,4 +1820,5 @@ function on_update() {
 
 drag_element_with_mouse("#removed", "#removed_header")
 drag_element_with_mouse("#discard", "#discard_header")
+//drag_element_with_mouse("#violations", "#violations_header")
 
