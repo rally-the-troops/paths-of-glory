@@ -1214,7 +1214,15 @@ function check_rule_violations() {
         violations.push({ space: s, piece: 0, rule: "Overstacked" })
     })
 
-    // TODO: Check for intact fort spaces with insufficient enemy pieces to begin a siege
+    // Check for intact fort spaces with insufficient enemy pieces to begin a siege
+    for (let s = 0; s < data.spaces.length; ++s) {
+        if ((has_undestroyed_fort(s, AP) || has_undestroyed_fort(s, CP)) && !is_besieged(s)) {
+            const enemy_pieces = get_pieces_in_space(s).filter(p => data.pieces[p].faction !== data.spaces[s].faction)
+            if (enemy_pieces.length > 0 && !can_besiege(s, enemy_pieces)) {
+                violations.push({ space: s, piece: 0, rule: "Insufficient strength to begin a siege" })
+            }
+        }
+    }
 
     // Check for GE armies in Trent, Villach, or Trieste before AP reaches Total War
     if (game.ap.commitment !== COMMITMENT_TOTAL) {
@@ -2594,9 +2602,10 @@ function can_move_to(s, moving_pieces) {
     if (contains_enemy)
         return false
 
-    if (!is_controlled_by(s, game.active) && has_undestroyed_fort(s, other_faction(game.active)) && !is_besieged(s) && !can_besiege(s, moving_pieces)) {
-        return false
-    }
+    // TEMP
+    //if (!is_controlled_by(s, game.active) && has_undestroyed_fort(s, other_faction(game.active)) && !is_besieged(s) && !can_besiege(s, moving_pieces)) {
+    //    return false
+    //}
 
     // No units may enter a MEF space unless the MEF Beachhead marker is in the space.
     if (is_mef_space(s) && game.mef_beachhead !== s) {
@@ -2745,7 +2754,8 @@ function can_end_move(s) {
 
 function end_move_stack() {
     if (!is_controlled_by(game.move.current, game.active) && has_undestroyed_fort(game.move.current, other_faction(game.active))) {
-        set_add(game.forts.besieged, game.move.current)
+        if (can_besiege(game.move.current, get_pieces_in_space(game.move.current)))
+            set_add(game.forts.besieged, game.move.current)
         update_supply()
     }
 
