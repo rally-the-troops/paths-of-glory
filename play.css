@@ -350,6 +350,10 @@ body.shift .highlight {
     border-color: blue;
 }
 
+#spaces div.warning {
+    border-color: orangered;
+}
+
 body.ap header.your_turn { background-color: hsl(5, 65%, 70%); }
 body.cp header.your_turn { background-color: hsl(200, 40%, 70%); }
 

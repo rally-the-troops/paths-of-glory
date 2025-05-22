@@ -1336,6 +1336,12 @@ function update_space_highlight(s) {
         space.element.classList.add("selected")
     else
         space.element.classList.remove("selected")
+
+    if (view.violations.find(v => v.space === s) !== undefined) {
+        space.element.classList.add("warning")
+    } else {
+        space.element.classList.remove("warning")
+    }
 }
 
 function should_highlight_space(s) {
