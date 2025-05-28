@@ -1452,6 +1452,7 @@ function goto_play_sr(card) {
     log(`${card_name(card)} - Strategic Redeployment`)
     play_card(card)
     game.state = 'choose_sr_unit'
+    save_checkpoint()
 }
 
 states.choose_sr_unit = {
@@ -1467,6 +1468,8 @@ states.choose_sr_unit = {
         const rule_violations = check_rule_violations()
         if (rule_violations.length === 0) {
             gen_action_done()
+        } else {
+            gen_action('reset_phase')
         }
     },
     piece(p) {
@@ -1481,6 +1484,9 @@ states.choose_sr_unit = {
     done() {
         end_sr()
         goto_end_action()
+    },
+    reset_phase() {
+        restore_checkpoint()
     }
 }
 
@@ -2205,6 +2211,7 @@ function goto_end_action() {
     update_russian_capitulation()
 
     if (game.ap.actions.length < 6 || game.cp.actions.length < 6) {
+        clear_undo()
         game.active = other_faction(game.active)
         game.state = 'action_phase'
         log_h3(`${faction_name(game.active)} Action ${game[game.active].actions.length+1}`)
@@ -2900,6 +2907,7 @@ function goto_attack() {
 
 function goto_attack_step_great_retreat() {
     if (game.turn === game.events.great_retreat && undefined !== get_defenders_pieces().find((p) => data.pieces[p].nation === RUSSIA)) {
+        clear_undo()
         game.active = other_faction(game.active)
         game.state = 'great_retreat_option'
     } else {
@@ -2947,6 +2955,7 @@ function goto_attack_step_flank() {
 function goto_attack_step_withdrawal() {
     if (defender_can_withdraw()) {
         // if defender can withdraw, go to 'choose_withdrawal'
+        clear_undo()
         game.active = other_faction(game.active)
         game.state = 'choose_withdrawal'
     } else {
@@ -2973,6 +2982,7 @@ function goto_attack_step_combat_cards() {
          if (game.attack.combat_cards.length > 0 || could_have_usable_combat_card(game.attack.attacker, true))
              game.state = 'attacker_combat_cards'
          else if (could_have_usable_combat_card(other_faction(game.attack.attacker))) {
+             clear_undo()
              game.active = other_faction(game.attack.attacker)
              game.state = 'defender_combat_cards'
          } else
@@ -3363,6 +3373,7 @@ states.choose_withdrawal = {
         this.pass()
     },
     pass() {
+        clear_undo()
         game.active = other_faction(game.active)
         goto_attack_step_kerensky_offensive()
     }
@@ -3415,6 +3426,7 @@ states.attacker_combat_cards = {
         }
     },
     done() {
+        clear_undo()
         game.active = other_faction(game.attack.attacker)
         if (game.attack.combat_cards.length > 0 || could_have_usable_combat_card(game.active))
             game.state = 'defender_combat_cards'
@@ -3930,6 +3942,7 @@ function replace_attacker_unit(unit, location, replacement) {
 }
 
 function goto_defender_losses() {
+    clear_undo()
     game.active = other_faction(game.attack.attacker)
     if (game.attack.defender_losses > 0 && get_defenders_pieces().find((p) => set_has(game.retreated, p)) !== undefined)
         game.state = 'eliminate_retreated_units'
@@ -4223,6 +4236,7 @@ function determine_combat_winner() {
     }
 
     if ((game.attack.defender_losses > game.attack.attacker_losses && attacker_has_full_strength_unit && defender_pieces.length > 0) || was_withdrawal_active) {
+        clear_undo()
         game.active = other_faction(game.attack.attacker)
         game.attack.to_retreat = defender_pieces
         game.attack.retreating_pieces = []
@@ -4238,8 +4252,8 @@ function determine_combat_winner() {
         } else {
             goto_defender_retreat()
         }
-        push_undo()
     } else if (attacker_has_full_strength_unit && defender_pieces.length === 0 && game.location[game.attack.pieces[0]] !== game.attack.space) { // If the attacker is already in the attack space, it means they just attacked a besieged fort
+        clear_undo()
         game.active = game.attack.attacker
         game.attack.to_retreat = []
         game.attack.retreating_pieces = []
@@ -4351,6 +4365,7 @@ states.defender_retreat = {
         game.state = 'choose_retreat_path'
     },
     done() {
+        clear_undo()
         game.active = other_faction(game.active)
         goto_attacker_advance()
     }
@@ -4411,6 +4426,7 @@ states.choose_retreat_path = {
         if (game.attack.to_retreat.length > 0) {
             goto_defender_retreat()
         } else {
+            clear_undo()
             game.active = other_faction(game.active)
             goto_attacker_advance()
         }
@@ -4485,7 +4501,6 @@ function goto_attacker_advance() {
         game.attack.advancing_pieces = []
         game.attack.advance_length = 0
         game.state = 'attacker_advance'
-        push_undo()
     } else {
         end_attack_activation()
         goto_next_activation()
@@ -4844,6 +4859,7 @@ states.attrition_phase = {
         }
         if (game.attrition[game.active].spaces.length === 0 && game.attrition[game.active].pieces.length === 0) {
             if (game.attrition[other_faction(game.active)].spaces.length > 0 || game.attrition[other_faction(game.active)].pieces.length > 0) {
+                clear_undo()
                 game.active = other_faction(game.active)
             } else {
                 goto_siege_phase()
@@ -4856,6 +4872,7 @@ states.attrition_phase = {
         set_control(s, other_faction(game.active))
         if (game.attrition[game.active].spaces.length === 0 && game.attrition[game.active].pieces.length === 0) {
             if (game.attrition[other_faction(game.active)].spaces.length > 0 || game.attrition[other_faction(game.active)].pieces.length > 0) {
+                clear_undo()
                 game.active = other_faction(game.active)
             } else {
                 goto_siege_phase()
@@ -4904,6 +4921,7 @@ states.siege_phase = {
         if (game.sieges_to_roll.length === 0) {
             goto_war_status_phase()
         } else if (game.sieges_to_roll.find((s) => data.spaces[s].faction === game.active) !== undefined) {
+            clear_undo()
             game.active = other_faction(game.active)
         }
     }
@@ -5084,6 +5102,7 @@ function apply_replacement_phase_events() {
 }
 
 function goto_replacement_phase() {
+    clear_undo()
     if (has_rps(AP)) {
         log_h1(`${faction_name(AP)} Replacement Phase`)
         game.active = AP
@@ -7799,6 +7818,8 @@ function push_undo() {
             continue
         else if (k === "log")
             v = v.length
+        else if (k === "supply")
+            continue
         else if (typeof v === "object" && v !== null)
             v = object_copy(v)
         copy[k] = v
