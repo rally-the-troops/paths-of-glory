@@ -1452,7 +1452,7 @@ function goto_play_sr(card) {
     log(`${card_name(card)} - Strategic Redeployment`)
     play_card(card)
     game.state = 'choose_sr_unit'
-    save_checkpoint()
+    save_checkpoint("sr")
 }
 
 states.choose_sr_unit = {
@@ -1486,7 +1486,7 @@ states.choose_sr_unit = {
         goto_end_action()
     },
     reset_phase() {
-        restore_checkpoint()
+        restore_checkpoint("sr")
     }
 }
 
@@ -2108,8 +2108,7 @@ function start_action_round() {
             game.eligible_attackers.push(p)
         }
     })
-    // Create phase undo checkpoint
-    save_checkpoint()
+    save_checkpoint("action_round")
     goto_next_activation()
 }
 
@@ -2798,7 +2797,7 @@ states.confirm_moves = {
     prompt() {
         const violations = check_rule_violations()
 
-        if (game.checkpoint)
+        if (has_checkpoint("action_round"))
             gen_action('reset_phase')
 
         if (violations.length === 0) {
@@ -2809,10 +2808,9 @@ states.confirm_moves = {
         }
     },
     reset_phase() {
-        restore_checkpoint()
+        restore_checkpoint("action_round")
     },
     done() {
-        clear_checkpoint()
         goto_next_activation()
     }
 }
@@ -5778,8 +5776,6 @@ events.guns_of_august = {
         return (game.turn === 1 && game.cp.actions.length === 0)
     },
     play() {
-        clear_undo()
-
         set_add(game.forts.destroyed, LIEGE)
 
         game.location[GE_1_ARMY] = LIEGE
@@ -5790,6 +5786,7 @@ events.guns_of_august = {
         game.events.guns_of_august = game.turn
 
         start_action_round()
+        clear_undo()
     }
 }
 
@@ -5925,10 +5922,10 @@ events.reichstag_truce = {
         return false
     },
     play() {
-        push_undo()
         game.vp += 1
         logi(`+1 VP for ${card_name(REICHSTAG_TRUCE)}`)
         start_action_round()
+        clear_undo()
     }
 }
 
@@ -7834,34 +7831,30 @@ function pop_undo() {
     game.undo = save_undo
 }
 
-function save_checkpoint() {
-    let copy = {}
-    for (let k in game) {
-        let v = game[k]
-        if (k === "log")
-            v = v.length
-        else if (k === "undo")
-            continue
-        else if (typeof v === "object" && v !== null)
-            v = object_copy(v)
-        copy[k] = v
-    }
-    game.checkpoint = copy
+function save_checkpoint(name) {
+    name = name || "checkpoint"
+    push_undo()
+    game.undo[game.undo.length-1].checkpoint = name
 }
 
-function restore_checkpoint() {
-    if (!game.checkpoint)
-        return
+function restore_checkpoint(name) {
     let save_log = game.log
-    game = game.checkpoint
+    let save_undo = game.undo
+    name = name || "checkpoint"
+    let checkpoint_index = save_undo.findIndex((u) => u.checkpoint === name)
+    if (checkpoint_index < 0 )
+        return
+    let checkpoint = save_undo[checkpoint_index]
+    save_undo.length = checkpoint_index
+    game = checkpoint
     save_log.length = game.log
     game.log = save_log
-    game.undo = []
+    game.undo = save_undo
 }
 
-function clear_checkpoint() {
-    if (game.checkpoint)
-        delete game.checkpoint
+function has_checkpoint(name) {
+    name = name || "checkpoint"
+    return game.undo.some((u) => u.checkpoint === name)
 }
 
 function log(msg) {
