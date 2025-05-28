@@ -4902,20 +4902,18 @@ states.siege_phase = {
     },
     space(s) {
         array_remove_item(game.sieges_to_roll, s)
-        log(`Siege of ${space_name(s)}`)
-        logi(`Fort strength: ${data.spaces[s].fort}`)
         let roll = roll_die(6)
         const drm = game.turn <= 2 ? -2 : 0
         const fort_str = data.spaces[s].fort
-        logi(`Roll: ${fmt_roll(roll, drm)}`)
+        log(`Siege at ${space_name(s)} (${data.spaces[s].fort} CF): ${fmt_roll(roll, drm)}`)
         if (roll + drm > fort_str) {
-            logi(`Success`)
+            logi(`Fort destroyed`)
             array_remove_item(game.forts.besieged, s)
             set_add(game.forts.destroyed, s)
             set_control(s, game.active)
             capture_trench(s, game.active)
         } else {
-            logi(`Failure`)
+            logi(`Fort holds`)
         }
 
         if (game.sieges_to_roll.length === 0) {
