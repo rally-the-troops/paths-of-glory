@@ -2030,7 +2030,7 @@ states.activate_spaces = {
 
         const used_ne_activation = game.activated.attack.find((s) => is_neareast_space(s) && !is_mef_space(s) && s !== game.location[BRITISH_NE_ARMY]) !== undefined
         spaces.forEach((s) => {
-            if (set_has(game.activated.move, s) || set_has(game.activated.attack, s)) {
+            if (set_has(game.activated.move, s) || set_has(game.activated.attack, s) && !globalThis.RTT_FUZZER) {
                 gen_action('deactivate', s)
             } else {
                 if (is_space_supplied(game.active, s)) {
