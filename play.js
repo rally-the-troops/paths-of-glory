@@ -801,6 +801,10 @@ function build_space(id) {
     ui.space_list[id] = elt
 }
 
+const OTHER = "other"
+const ap_eliminated_box_order = [FRANCE, BRITAIN, RUSSIA, OTHER]
+const cp_eliminated_box_order = [GERMANY, AUSTRIA_HUNGARY, TURKEY, OTHER]
+
 function build_eliminated_box(id) {
     let space = spaces[id]
 
@@ -810,8 +814,16 @@ function build_eliminated_box(id) {
     let x = space.x - w / 2 - 4
     let y = space.y - h / 2 - 4 // 4 px border space
 
-    space.stack = []
-    space.stack.name = spaces[id].name
+    space.stacks = {}
+    if (id === AP_ELIMINATED_BOX) {
+        for (let group of ap_eliminated_box_order) {
+            space.stacks[group] = { armies: [], corps: [] }
+        }
+    } else {
+        for (let group of cp_eliminated_box_order) {
+            space.stacks[group] = { armies: [], corps: [] }
+        }
+    }
 
     let elt = space.element = document.createElement("div")
     elt.space = id
@@ -1274,7 +1286,6 @@ function update_reserve_boxes() {
     for_each_piece_in_space(AP_RESERVE_BOX, insert_piece_in_stack)
     for_each_piece_in_space(CP_RESERVE_BOX, insert_piece_in_stack)
 
-
     const stride = 60
     const ap_x = ap_space.x - stride * 2.5
     const ap_y = ap_space.y - 30
@@ -1303,12 +1314,30 @@ function update_reserve_boxes() {
     update_space_highlight(CP_RESERVE_BOX)
 }
 
+function get_eliminated_box_group(p) {
+    switch (pieces[p].nation) {
+        case BRITAIN: return BRITAIN
+        case FRANCE: return FRANCE
+        case RUSSIA: return RUSSIA
+        case GERMANY: return GERMANY
+        case AUSTRIA_HUNGARY: return AUSTRIA_HUNGARY
+        case TURKEY: return TURKEY
+        default: return OTHER
+    }
+}
+
 function update_eliminated_boxes() {
     let ap_space = spaces[AP_ELIMINATED_BOX]
     let cp_space = spaces[CP_ELIMINATED_BOX]
 
-    ap_space.stack.length = 0
-    cp_space.stack.length = 0
+    for (let group of ap_eliminated_box_order) {
+        ap_space.stacks[group].armies.length = 0
+        ap_space.stacks[group].corps.length = 0
+    }
+    for (let group of cp_eliminated_box_order) {
+        cp_space.stacks[group].armies.length = 0
+        cp_space.stacks[group].corps.length = 0
+    }
 
     let insert_piece_in_stack = function (p) {
         let is_corps = pieces[p].type === CORPS
@@ -1320,16 +1349,35 @@ function update_eliminated_boxes() {
             pe.classList.remove("reduced")
 
         const space = pieces[p].faction === CP ? cp_space : ap_space
-        if (is_corps)
-            unshift_stack(space.stack, p, pe)
-        else
-            push_stack(space.stack, p, pe)
+        let stack = is_corps ? space.stacks[get_eliminated_box_group(p)].corps : space.stacks[get_eliminated_box_group(p)].armies
+        unshift_stack(stack, p, pe)
     }
     for_each_piece_in_space(AP_ELIMINATED_BOX, insert_piece_in_stack)
     for_each_piece_in_space(CP_ELIMINATED_BOX, insert_piece_in_stack)
 
-    layout_stack(ap_space.stack, ap_space.x, ap_space.y, 1)
-    layout_stack(cp_space.stack, cp_space.x, cp_space.y, 1)
+    const stride = 50
+    const ap_x = ap_space.x - stride * 2
+    const ap_y = ap_space.y - 45
+    for (let i = 0; i < ap_eliminated_box_order.length; ++i) {
+        let group = ap_eliminated_box_order[i]
+        if (ap_space.stacks[group].armies.length > 0) {
+            layout_stack(ap_space.stacks[group].armies, ap_x+i*stride, ap_y, 1)
+        }
+        if (ap_space.stacks[group].corps.length > 0) {
+            layout_stack(ap_space.stacks[group].corps, ap_x+i*stride, ap_y+60, 1)
+        }
+    }
+    const cp_x = cp_space.x - stride * 2
+    const cp_y = cp_space.y - 45
+    for (let i = 0; i < cp_eliminated_box_order.length; ++i) {
+        let group = cp_eliminated_box_order[i]
+        if (cp_space.stacks[group].armies.length > 0) {
+            layout_stack(cp_space.stacks[group].armies, cp_x+i*stride, cp_y, 1)
+        }
+        if (cp_space.stacks[group].corps.length > 0) {
+            layout_stack(cp_space.stacks[group].corps, cp_x+i*stride, cp_y+60, 1)
+        }
+    }
 }
 
 function update_space_highlight(s) {
