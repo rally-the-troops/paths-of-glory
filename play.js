@@ -828,6 +828,9 @@ function build_eliminated_box(id) {
     ui.space_list[id] = elt
 }
 
+const ap_reserve_box_order = [ITALY, BRITAIN, FRANCE, RUSSIA, MINOR]
+const cp_reserve_box_order = [GERMANY, AUSTRIA_HUNGARY, TURKEY, MINOR]
+
 function build_reserve_box(id) {
     let space = spaces[id]
 
@@ -839,16 +842,13 @@ function build_reserve_box(id) {
 
     space.stacks = {}
     if (id === AP_RESERVE_BOX) {
-        space.stacks[ITALY] = []
-        space.stacks[BRITAIN] = []
-        space.stacks[FRANCE] = []
-        space.stacks[RUSSIA] = []
-        space.stacks[MINOR] = []
+        for (let nation of ap_reserve_box_order) {
+            space.stacks[nation] = { full: [], reduced: [] }
+        }
     } else {
-        space.stacks[GERMANY] = []
-        space.stacks[AUSTRIA_HUNGARY] = []
-        space.stacks[TURKEY] = []
-        space.stacks[MINOR] = []
+        for (let nation of cp_reserve_box_order) {
+            space.stacks[nation] = { full: [], reduced: [] }
+        }
     }
 
     let elt = space.element = document.createElement("div")
@@ -1242,13 +1242,15 @@ function get_reserve_box_stack(nation) {
 function update_reserve_boxes() {
     let ap_space = spaces[AP_RESERVE_BOX]
     let cp_space = spaces[CP_RESERVE_BOX]
-    const ap_order = [ITALY, FRANCE, BRITAIN, RUSSIA, MINOR]
-    const cp_order = [GERMANY, AUSTRIA_HUNGARY, TURKEY, MINOR]
 
-    for (let nation of ap_order)
-        ap_space.stacks[nation].length = 0
-    for (let nation of cp_order)
-        cp_space.stacks[nation].length = 0
+    for (let nation of ap_reserve_box_order) {
+        ap_space.stacks[nation].full.length = 0
+        ap_space.stacks[nation].reduced.length = 0
+    }
+    for (let nation of cp_reserve_box_order) {
+        cp_space.stacks[nation].full.length = 0
+        cp_space.stacks[nation].reduced.length = 0
+    }
 
     let insert_piece_in_stack = function (p) {
         let is_corps = pieces[p].type === CORPS
@@ -1262,7 +1264,8 @@ function update_reserve_boxes() {
 
         const nation = pieces[p].nation
         const space = pieces[p].faction === CP ? cp_space : ap_space
-        let stack = space.stacks[get_reserve_box_stack(nation)]
+        const nation_stack = get_reserve_box_stack(nation)
+        let stack = view.reduced.includes(p) ? space.stacks[nation_stack].reduced : space.stacks[nation_stack].full
         if (is_corps)
             unshift_stack(stack, p, pe)
         else
@@ -1274,21 +1277,25 @@ function update_reserve_boxes() {
 
     const stride = 60
     const ap_x = ap_space.x - stride * 2.5
-    const ap_y = ap_space.y
-    for (let i = 0; i < ap_order.length; ++i) {
-        let nation = ap_order[i]
-        let stack = ap_space.stacks[nation]
-        if (stack.length > 0) {
-            layout_stack(stack, ap_x+i*stride, ap_y, 1)
+    const ap_y = ap_space.y - 30
+    for (let i = 0; i < ap_reserve_box_order.length; ++i) {
+        let nation = ap_reserve_box_order[i]
+        if (ap_space.stacks[nation].full.length > 0) {
+            layout_stack(ap_space.stacks[nation].full, ap_x+i*stride, ap_y, 1)
+        }
+        if (ap_space.stacks[nation].reduced.length > 0) {
+            layout_stack(ap_space.stacks[nation].reduced, ap_x+i*stride, ap_y+45, 1)
         }
     }
     const cp_x = cp_space.x - stride * 2
-    const cp_y = cp_space.y
-    for (let i = 0; i < cp_order.length; ++i) {
-        let nation = cp_order[i]
-        let stack = cp_space.stacks[nation]
-        if (stack.length > 0) {
-            layout_stack(stack, cp_x+i*stride, cp_y, 1)
+    const cp_y = cp_space.y - 30
+    for (let i = 0; i < cp_reserve_box_order.length; ++i) {
+        let nation = cp_reserve_box_order[i]
+        if (cp_space.stacks[nation].full.length > 0) {
+            layout_stack(cp_space.stacks[nation].full, cp_x+i*stride, cp_y, 1)
+        }
+        if (cp_space.stacks[nation].reduced.length > 0) {
+            layout_stack(cp_space.stacks[nation].reduced, cp_x+i*stride, cp_y+45, 1)
         }
     }
 
