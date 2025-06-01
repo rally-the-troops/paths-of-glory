@@ -1564,43 +1564,65 @@ function update_ne_limits() {
 }
 
 function update_neutral_markers() {
-    if (view.war.it)
-        ui.neutral.it.classList.add("hide")
-    else
-        ui.neutral.it.classList.remove("hide")
-
-    if (view.war.bu)
-        ui.neutral.bu.classList.add("hide")
-    else
-        ui.neutral.bu.classList.remove("hide")
-
-    if (view.war.tu)
-        ui.neutral.tu.classList.add("hide")
-    else
-        ui.neutral.tu.classList.remove("hide")
-
-    if (view.war.ro)
-        ui.neutral.ro.classList.add("hide")
-    else
-        ui.neutral.ro.classList.remove("hide")
-
-    if (view.war.gr)
-        ui.neutral.gr.classList.add("hide")
-    else
-        ui.neutral.gr.classList.remove("hide")
+    for (let nation of ["it", "bu", "tu", "ro", "gr"]) {
+        if (view.war[nation]) {
+            ui.neutral[nation].classList.add("hide")
+        } else {
+            ui.neutral[nation].classList.remove("hide")
+        }
+    }
 }
 
 const ACTION_REINF = "reinf"
 
-function update_action_round_marker(faction, round, action) {
-    let marker = build_action_marker(faction, round)
-    marker.classList.add(action.type)
-    if (action.type === ACTION_REINF) {
-        marker.classList.add(cards[action.card].reinfnation)
+let action_stacks = {
+    "ap": {
+        "entry": { left: 701, top: 1414, stack: [] },
+        "reinf_fr": { left: 701, top: 1461, stack: [] },
+        "reinf_br": { left: 743, top: 1461, stack: [] },
+        "reinf_ru": { left: 785, top: 1461, stack: [] },
+        "reinf_it": { left: 828, top: 1461, stack: [] },
+        "reinf_us": { left: 870, top: 1461, stack: [] },
+        "sr": { left: 701, top: 1507, stack: [] },
+        "rp": { left: 743, top: 1507, stack: [] },
+        "op": { left: 701, top: 1554, stack: [] },
+        "evt": { left: 743, top: 1554, stack: [] },
+        "oneop": { left: 785, top: 1554, stack: [] },
+        "peace": { left: 828, top: 1554, stack: [] }
+    },
+    "cp": {
+        "entry": { left: 794, top: 67, stack: [] },
+        "reinf_ge": { left: 794, top: 114, stack: [] },
+        "reinf_ah": { left: 837, top: 114, stack: [] },
+        "reinf_tu": { left: 879, top: 114, stack: [] },
+        "sr": { left: 794, top: 160, stack: [] },
+        "rp": { left: 837, top: 160, stack: [] },
+        "op": { left: 794, top: 208, stack: [] },
+        "evt": { left: 837, top: 208, stack: [] },
+        "oneop": { left: 879, top: 208, stack: [] },
+        "peace": { left: 921, top: 208, stack: [] }
     }
 }
 
+function update_action_round_marker(faction, round, action) {
+    let action_type = action.type
+    if (action_type === ACTION_REINF) {
+        action_type = `reinf_${cards[action.card].reinfnation}`
+    }
+    let stack_info = action_stacks[faction][action_type]
+    let marker = build_action_marker(faction, round)
+    marker.classList.add(action.type)
+    unshift_stack(stack_info.stack, 0, marker)
+}
+
 function update_action_round_tracks() {
+    for (let faction of [AP, CP]) {
+        for (let action_type in action_stacks[faction]) {
+            let stack_info = action_stacks[faction][action_type]
+            stack_info.stack.length = 0
+        }
+    }
+
     for (let i = 0; i < 6; ++i) {
         if (i < view.ap.actions.length) {
             update_action_round_marker(AP, i+1, view.ap.actions[i])
@@ -1611,6 +1633,15 @@ function update_action_round_tracks() {
             update_action_round_marker(CP, i+1, view.cp.actions[i])
         } else {
             destroy_action_marker(CP, i+1)
+        }
+    }
+
+    for (let faction of [AP, CP]) {
+        for (let action_type in action_stacks[faction]) {
+            let stack_info = action_stacks[faction][action_type]
+            if (stack_info.stack.length > 0) {
+                layout_stack(stack_info.stack, stack_info.left, stack_info.top, 1)
+            }
         }
     }
 }
