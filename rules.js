@@ -5427,15 +5427,18 @@ function gen_action_card(c) {
 // === NAMES ===
 
 function card_name(card) {
-    return `#${card} ${cards[card].name} [${cards[card].ops}/${cards[card].sr}]`
+    //return `#${card} ${cards[card].name} [${cards[card].ops}/${cards[card].sr}]`
+    return `c${card}`
 }
 
 function piece_name(piece, show_as_reduced) {
     if (show_as_reduced || is_unit_reduced(piece)) {
-        return `(${data.pieces[piece].name})`
+        //return `(${data.pieces[piece].name})`
+        return `p${piece}`
     }
     else {
-        return `${data.pieces[piece].name}`
+        //return `${data.pieces[piece].name}`
+        return `P${piece}`
     }
 }
 
@@ -5444,7 +5447,8 @@ function piece_list(pieces) {
 }
 
 function space_name(space) {
-    return `${data.spaces[space].name}`
+    //return `${data.spaces[space].name}`
+    return `s${space}`
 }
 
 // === MAP UTILITIES ===

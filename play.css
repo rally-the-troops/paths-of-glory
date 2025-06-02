@@ -42,6 +42,7 @@ aside { min-width: 220px; }
 #log .tip { color: blue; }
 #log .tip:hover { text-decoration: underline; }
 #log .spacetip:hover { text-decoration: underline; cursor: pointer; }
+#log .piecetip:hover { text-decoration: underline; cursor: pointer; }
 #log div.i { padding-left: 32px; text-indent: -12px; }
 #log div.ii { padding-left: 44px; text-indent: -12px; }
 
@@ -354,6 +355,10 @@ body.shift .highlight {
     border-color: orangered;
 }
 
+#spaces div.tip {
+    border-color: yellow;
+}
+
 body.ap header.your_turn { background-color: hsl(5, 65%, 70%); }
 body.cp header.your_turn { background-color: hsl(200, 40%, 70%); }
 
@@ -478,6 +483,10 @@ body.flat .unit.selected {
     border-color: var(--selected-color) !important;
 }
 
+body.flat .unit.tip {
+    border-color: yellow;
+}
+
 /* BEVEL STYLE ( top right bottom left ) */
 
 body.bevel .unit,
@@ -485,6 +494,10 @@ body.bevel .marker,
 body.bevel .event {
     border-width: 2px;
     border-style: solid;
+}
+
+body.bevel .unit.tip {
+    border-color: yellow;
 }
 
 /* TRACKS */

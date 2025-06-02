@@ -125,7 +125,7 @@ function hide_supply() {
 }
 
 function print(x) {
-    console.log(JSON.stringify(x, (k,v)=>k==='log'?undefined:v))
+    console.log(JSON.stringify(x, (k, v) => k === 'log' ? undefined : v))
 }
 
 function faction_card_number(card_number) {
@@ -153,6 +153,30 @@ function on_blur_last_card() {
     document.getElementById("tooltip").classList = "card"
 }
 
+function on_focus_piece_tip(p) {
+    pieces[p].element.classList.add("tip")
+}
+
+function on_blur_piece_tip(p) {
+    pieces[p].element.classList.remove("tip")
+}
+
+function on_click_piece_tip(p) {
+    pieces[p].element.scrollIntoView({ block:"center", inline:"center", behavior:"smooth" })
+}
+
+function on_focus_space_tip(s) {
+    ui.space_list[s].classList.add("tip")
+}
+
+function on_blur_space_tip(s) {
+    ui.space_list[s].classList.remove("tip")
+}
+
+function on_click_space_tip(s) {
+    scroll_into_view(ui.space_list[s])
+}
+
 function on_log_line(text, cn) {
     let p = document.createElement("div")
     if (cn) p.className = cn
@@ -164,6 +188,36 @@ function sub_space_name(match, p1, offset, string) {
     let s = p1 | 0
     let n = spaces[s].name
     return `<span class="spacetip" onmouseenter="on_focus_space_tip(${s})" onmouseleave="on_blur_space_tip(${s})" onclick="on_click_space_tip(${s})">${n}</span>`
+}
+
+function sub_card_name(match, p1, offset, string) {
+    let c = p1 | 0
+    let card = cards[c]
+    if (card) {
+        return `<span class="tip" onmouseenter="on_focus_card_tip(${c})" onmouseleave="on_blur_card_tip()"">${card.name}</span>`
+    } else {
+        return `Unknown Card`
+    }
+}
+
+function sub_piece_name(match, p1, offset, string) {
+    let p = p1 | 0
+    let piece = pieces[p]
+    if (piece) {
+        return `<span class="piecetip" onmouseenter="on_focus_piece_tip(${p})" onmouseleave="on_blur_piece_tip(${p})" onclick="on_click_piece_tip(${p})">${piece.name}</span>`
+    } else {
+        return `Unknown Piece`
+    }
+}
+
+function sub_piece_name_reduced(match, p1, offset, string) {
+    let p = p1 | 0
+    let piece = pieces[p]
+    if (piece) {
+        return `(${piece.name})</span>`
+    } else {
+        return `Unknown Piece`
+    }
 }
 
 function show_card_list(id, list) {
@@ -245,88 +299,101 @@ let ui = {
 }
 
 const marker_info = {
-    move: { name: "Move", counter: "marker small move", size: 36 },
-    attack: { name: "Attack", counter: "marker small attack", size: 36 },
+    move: {name: "Move", counter: "marker small move", size: 36},
+    attack: {name: "Attack", counter: "marker small attack", size: 36},
     control: {
-        ap: { name: "AP Control", type: "ap_control", counter: "marker small ap_control", size: 36 },
-        cp: { name: "CP Control", type: "cp_control", counter: "marker small cp_control", size: 36 }
+        ap: {name: "AP Control", type: "ap_control", counter: "marker small ap_control", size: 36},
+        cp: {name: "CP Control", type: "cp_control", counter: "marker small cp_control", size: 36}
     },
     trench: {
         ap: {
-            1: { name: "AP Trench Level 1", type: "ap_trench_1", counter: "marker small ap_trench_1", size: 36 },
-            2: { name: "AP Trench Level 2", type: "ap_trench_2", counter: "marker small ap_trench_2", size: 36 }
+            1: {name: "AP Trench Level 1", type: "ap_trench_1", counter: "marker small ap_trench_1", size: 36},
+            2: {name: "AP Trench Level 2", type: "ap_trench_2", counter: "marker small ap_trench_2", size: 36}
         },
         cp: {
-            1: { name: "CP Trench Level 1", type: "cp_trench_1", counter: "marker small cp_trench_1", size: 36 },
-            2: { name: "CP Trench Level 2", type: "cp_trench_2", counter: "marker small cp_trench_2", size: 36 }
+            1: {name: "CP Trench Level 1", type: "cp_trench_1", counter: "marker small cp_trench_1", size: 36},
+            2: {name: "CP Trench Level 2", type: "cp_trench_2", counter: "marker small cp_trench_2", size: 36}
         }
     },
     oos: {
-        ap: { name: "AP OOS", type: "ap_oos", counter: "marker ap_oos", size: 45 },
-        cp: { name: "CP OOS", type: "cp_oos", counter: "marker cp_oos", size: 45 }
+        ap: {name: "AP OOS", type: "ap_oos", counter: "marker ap_oos", size: 45},
+        cp: {name: "CP OOS", type: "cp_oos", counter: "marker cp_oos", size: 45}
     },
-    vp: { name: "VP", type: "vp", counter: "marker vps ", size: 45 },
+    vp: {name: "VP", type: "vp", counter: "marker vps ", size: 45},
 
     // War status markers
-    ap_war_status: { name: "AP War Status", type: "ap_war_status", counter: "marker ap_war_status ", size: 45 },
-    cp_war_status: { name: "CP War Status", type: "cp_war_status", counter: "marker cp_war_status ", size: 45 },
-    combined_war_status: { name: "Combined War Status", type: "combined_war_status", counter: "marker combined_war_status ", size: 45 },
+    ap_war_status: {name: "AP War Status", type: "ap_war_status", counter: "marker ap_war_status ", size: 45},
+    cp_war_status: {name: "CP War Status", type: "cp_war_status", counter: "marker cp_war_status ", size: 45},
+    combined_war_status: {
+        name: "Combined War Status",
+        type: "combined_war_status",
+        counter: "marker combined_war_status ",
+        size: 45
+    },
 
     // Replacement points markers
-    ge_rp: { name: "German Replacements", type: "ge_rp", counter: "marker ge_rp ", size: 45 },
-    ah_rp: { name: "Austria-Hungary Replacements", type: "ah_rp", counter: "marker ah_rp ", size: 45 },
-    fr_rp: { name: "French Replacements", type: "fr_rp", counter: "marker fr_rp ", size: 45 },
-    br_rp: { name: "British Replacements", type: "br_rp", counter: "marker br_rp ", size: 45 },
-    ru_rp: { name: "Russian Replacements", type: "ru_rp", counter: "marker ru_rp ", size: 45 },
-    allied_rp: { name: "Allied Replacements", type: "allied_rp", counter: "marker allied_rp ", size: 45 },
-    bu_rp: { name: "Bulgarian Replacements", type: "bu_rp", counter: "marker bu_rp ", size: 45 },
-    tu_rp: { name: "Turkish Replacements", type: "tu_rp", counter: "marker tu_rp ", size: 45 },
-    it_rp: { name: "Italian Replacements", type: "it_rp", counter: "marker it_rp ", size: 45 },
-    us_rp: { name: "United States Replacements", type: "us_rp", counter: "marker us_rp ", size: 45 },
+    ge_rp: {name: "German Replacements", type: "ge_rp", counter: "marker ge_rp ", size: 45},
+    ah_rp: {name: "Austria-Hungary Replacements", type: "ah_rp", counter: "marker ah_rp ", size: 45},
+    fr_rp: {name: "French Replacements", type: "fr_rp", counter: "marker fr_rp ", size: 45},
+    br_rp: {name: "British Replacements", type: "br_rp", counter: "marker br_rp ", size: 45},
+    ru_rp: {name: "Russian Replacements", type: "ru_rp", counter: "marker ru_rp ", size: 45},
+    allied_rp: {name: "Allied Replacements", type: "allied_rp", counter: "marker allied_rp ", size: 45},
+    bu_rp: {name: "Bulgarian Replacements", type: "bu_rp", counter: "marker bu_rp ", size: 45},
+    tu_rp: {name: "Turkish Replacements", type: "tu_rp", counter: "marker tu_rp ", size: 45},
+    it_rp: {name: "Italian Replacements", type: "it_rp", counter: "marker it_rp ", size: 45},
+    us_rp: {name: "United States Replacements", type: "us_rp", counter: "marker us_rp ", size: 45},
 
-    current_cp_russian_vp: { name: "CP Russian VP", type: "current_cp_russian_vp", counter: "marker small current_cp_russian_vp ", size: 36 },
-    tsar_fell_cp_russian_vp: { name: "Tsar Fell CP Russian VP", type: "tsar_fell_cp_russian_vp", counter: "marker small tsar_fell_cp_russian_vp ", size: 36 },
-    action: { name: "Action", counter: "marker small action ", size: 36 },
-    fort_destroyed: { name: "Destroyed Fort", counter: "marker fort_destroyed ", size: 45 },
-    fort_besieged: { name: "Besieged Fort", counter: "marker fort_besieged ", size: 45 },
-    turn: { name: "Turn", counter: "marker small game_turn ", size: 36 },
-    ap_missed_mo: { name: "AP Missed Mandatory Offensive", counter: "marker ap_missed_mo ", size: 45 },
-    cp_missed_mo: { name: "CP Missed Mandatory Offensive", counter: "marker cp_missed_mo ", size: 45 },
-    failed_entrench: { name: "Failed Entrench", counter: "marker small trench_attempt ", size: 36 },
-    mef_beachhead: { name: "MEF Beachhead", counter: "marker mef_beachhead ", size: 45 },
+    current_cp_russian_vp: {
+        name: "CP Russian VP",
+        type: "current_cp_russian_vp",
+        counter: "marker small current_cp_russian_vp ",
+        size: 36
+    },
+    tsar_fell_cp_russian_vp: {
+        name: "Tsar Fell CP Russian VP",
+        type: "tsar_fell_cp_russian_vp",
+        counter: "marker small tsar_fell_cp_russian_vp ",
+        size: 36
+    },
+    action: {name: "Action", counter: "marker small action ", size: 36},
+    fort_destroyed: {name: "Destroyed Fort", counter: "marker fort_destroyed ", size: 45},
+    fort_besieged: {name: "Besieged Fort", counter: "marker fort_besieged ", size: 45},
+    turn: {name: "Turn", counter: "marker small game_turn ", size: 36},
+    ap_missed_mo: {name: "AP Missed Mandatory Offensive", counter: "marker ap_missed_mo ", size: 45},
+    cp_missed_mo: {name: "CP Missed Mandatory Offensive", counter: "marker cp_missed_mo ", size: 45},
+    failed_entrench: {name: "Failed Entrench", counter: "marker small trench_attempt ", size: 36},
+    mef_beachhead: {name: "MEF Beachhead", counter: "marker mef_beachhead ", size: 45},
 
     // Event markers
-    blockade: { name: "Blockade", counter: "marker blockade_vps ", size: 45 },
-    influenza: { name: "Influenza", counter: "marker influenza ", size: 45 },
-    prince_max: { name: "Prince Max", counter: "marker prince_max ", size: 45 },
-    us_points: { name: "US Points", counter: "marker us_points ", size: 45 },
-    lusitania: { name: "Lusitania", counter: "marker lusitania ", size: 45 },
-    sinai_pipeline: { name: "Sinai Pipeline", counter: "marker sinai_pipeline ", size: 45 },
-    stavka_timidity: { name: "Stavka Timidity", counter: "marker stavka_timidity ", size: 45 },
-    salonika: { name: "Salonika", counter: "marker salonika ", size: 45 },
-    falkenhayn: { name: "Falkenhayn", counter: "marker falkenhayn ", size: 45 },
-    h_l_take_command: { name: "H-L Take Command", counter: "marker h_l_take_command ", size: 45 },
-    zeppelin_raids: { name: "Zeppelin Raids", counter: "marker zeppelin_raids ", size: 45 },
-    peace_offensive: { name: "Peace Offensive", counter: "marker peace_offensive ", size: 45 },
-    hoffmann: { name: "Hoffmann", counter: "marker hoffmann ", size: 45 },
-    guns_of_august: { name: "Guns of August", counter: "marker guns_of_august ", size: 45 },
-    landships: { name: "Landships", counter: "marker landships ", size: 45 },
-    race_to_the_sea: { name: "Race to the Sea", counter: "marker race_to_the_sea ", size: 45 },
-    michael: { name: "Michael", counter: "marker michael ", size: 45 },
-    entrench: { name: "Entrench", counter: "marker entrench ", size: 45 },
-    _11th_army: { name: "11th Army", counter: "marker _11th_army ", size: 45 },
-    independent_air_force: { name: "Independent Air Force", counter: "marker independent_air_force ", size: 45 },
-    blucher: { name: "Blucher", counter: "marker blucher ", size: 45 },
-    moltke: { name: "Moltke", counter: "marker moltke ", size: 45 },
-    oberost: { name: "Oberost", counter: "marker oberost ", size: 45 },
-    great_retreat: { name: "Great Retreat", counter: "marker great_retreat ", size: 45 },
+    blockade: {name: "Blockade", counter: "marker blockade_vps ", size: 45},
+    influenza: {name: "Influenza", counter: "marker influenza ", size: 45},
+    prince_max: {name: "Prince Max", counter: "marker prince_max ", size: 45},
+    us_points: {name: "US Points", counter: "marker us_points ", size: 45},
+    lusitania: {name: "Lusitania", counter: "marker lusitania ", size: 45},
+    sinai_pipeline: {name: "Sinai Pipeline", counter: "marker sinai_pipeline ", size: 45},
+    stavka_timidity: {name: "Stavka Timidity", counter: "marker stavka_timidity ", size: 45},
+    salonika: {name: "Salonika", counter: "marker salonika ", size: 45},
+    falkenhayn: {name: "Falkenhayn", counter: "marker falkenhayn ", size: 45},
+    h_l_take_command: {name: "H-L Take Command", counter: "marker h_l_take_command ", size: 45},
+    zeppelin_raids: {name: "Zeppelin Raids", counter: "marker zeppelin_raids ", size: 45},
+    peace_offensive: {name: "Peace Offensive", counter: "marker peace_offensive ", size: 45},
+    hoffmann: {name: "Hoffmann", counter: "marker hoffmann ", size: 45},
+    guns_of_august: {name: "Guns of August", counter: "marker guns_of_august ", size: 45},
+    landships: {name: "Landships", counter: "marker landships ", size: 45},
+    race_to_the_sea: {name: "Race to the Sea", counter: "marker race_to_the_sea ", size: 45},
+    michael: {name: "Michael", counter: "marker michael ", size: 45},
+    entrench: {name: "Entrench", counter: "marker entrench ", size: 45},
+    _11th_army: {name: "11th Army", counter: "marker _11th_army ", size: 45},
+    independent_air_force: {name: "Independent Air Force", counter: "marker independent_air_force ", size: 45},
+    blucher: {name: "Blucher", counter: "marker blucher ", size: 45},
+    moltke: {name: "Moltke", counter: "marker moltke ", size: 45},
+    oberost: {name: "Oberost", counter: "marker oberost ", size: 45},
+    great_retreat: {name: "Great Retreat", counter: "marker great_retreat ", size: 45},
 }
 
 let markers = {
-    ap: {
-    },
-    cp: {
-    },
+    ap: {},
+    cp: {},
     move: [],
     attack: [],
     control: {
@@ -346,8 +413,8 @@ let markers = {
         besieged: []
     },
     trench: {
-        ap: { 1: [], 2: [] },
-        cp: { 1: [], 2: [] }
+        ap: {1: [], 2: []},
+        cp: {1: [], 2: []}
     },
     oos: {
         ap: [],
@@ -665,7 +732,7 @@ function build_activation_marker(space_id, activation_type) {
     return build_marker(
         markers[activation_type],
         e => e.space_id === space_id,
-        { space_id: space_id },
+        {space_id: space_id},
         marker_info[activation_type]
     )
 }
@@ -678,7 +745,7 @@ function build_control_marker(space_id, faction) {
     return build_marker(
         markers.control[faction],
         e => e.space_id === space_id,
-        { space_id: space_id },
+        {space_id: space_id},
         marker_info.control[faction]
     )
 }
@@ -691,7 +758,7 @@ function build_trench_marker(space_id, level, faction) {
     return build_marker(
         markers.trench[faction][level],
         e => e.space_id === space_id,
-        { space_id: space_id },
+        {space_id: space_id},
         marker_info.trench[faction][level],
         true
     )
@@ -706,7 +773,7 @@ function build_oos_marker(space_id, faction) {
     return build_marker(
         markers.oos[faction],
         e => e.space_id === space_id,
-        { space_id: space_id },
+        {space_id: space_id},
         marker_info.oos[faction]
     )
 }
@@ -716,7 +783,7 @@ function destroy_oos_marker(space_id, faction) {
 }
 
 function build_fort_destroyed_marker(space_id) {
-    return build_marker(markers.forts.destroyed, e => e.space_id === space_id, { space_id: space_id }, marker_info.fort_destroyed, true)
+    return build_marker(markers.forts.destroyed, e => e.space_id === space_id, {space_id: space_id}, marker_info.fort_destroyed, true)
 }
 
 function destroy_fort_destroyed_marker(space_id) {
@@ -724,7 +791,7 @@ function destroy_fort_destroyed_marker(space_id) {
 }
 
 function build_fort_besieged_marker(space_id) {
-    return build_marker(markers.forts.besieged, e => e.space_id === space_id, { space_id: space_id }, marker_info.fort_besieged, true)
+    return build_marker(markers.forts.besieged, e => e.space_id === space_id, {space_id: space_id}, marker_info.fort_besieged, true)
 }
 
 function destroy_fort_besieged_marker(space_id) {
@@ -732,7 +799,7 @@ function destroy_fort_besieged_marker(space_id) {
 }
 
 function build_general_records_marker(type) {
-    return build_marker(markers.general_records, e => e.type === type, { type: type }, marker_info[type])
+    return build_marker(markers.general_records, e => e.type === type, {type: type}, marker_info[type])
 }
 
 function destroy_general_records_marker(type) {
@@ -740,7 +807,7 @@ function destroy_general_records_marker(type) {
 }
 
 function build_turn_track_marker(type) {
-    return build_marker(markers.turn_track, e => e.type === type, { type: type }, marker_info[type])
+    return build_marker(markers.turn_track, e => e.type === type, {type: type}, marker_info[type])
 }
 
 function destroy_turn_track_marker(type) {
@@ -748,7 +815,7 @@ function destroy_turn_track_marker(type) {
 }
 
 function build_missed_mo_marker(faction, turn) {
-    return build_marker(markers.missed_mo[faction], e => e.turn === turn, { turn: turn }, marker_info[faction + "_missed_mo"])
+    return build_marker(markers.missed_mo[faction], e => e.turn === turn, {turn: turn}, marker_info[faction + "_missed_mo"])
 }
 
 function destroy_missed_mo_marker(faction, turn) {
@@ -756,7 +823,7 @@ function destroy_missed_mo_marker(faction, turn) {
 }
 
 function build_failed_entrench_marker(piece_id) {
-    return build_marker(markers.failed_entrench, e => e.piece_id === piece_id, { piece_id: piece_id }, marker_info.failed_entrench)
+    return build_marker(markers.failed_entrench, e => e.piece_id === piece_id, {piece_id: piece_id}, marker_info.failed_entrench)
 }
 
 function destroy_failed_entrench_marker(piece_id) {
@@ -764,7 +831,10 @@ function destroy_failed_entrench_marker(piece_id) {
 }
 
 function build_action_marker(faction, round) {
-    let elt = build_marker(markers.actions, e => e.faction === faction && e.round === round, { faction: faction, round: round }, marker_info.action)
+    let elt = build_marker(markers.actions, e => e.faction === faction && e.round === round, {
+        faction: faction,
+        round: round
+    }, marker_info.action)
     elt.classList.add(faction)
     elt.classList.add(`round${round}`)
     return elt
@@ -817,11 +887,11 @@ function build_eliminated_box(id) {
     space.stacks = {}
     if (id === AP_ELIMINATED_BOX) {
         for (let group of ap_eliminated_box_order) {
-            space.stacks[group] = { armies: [], corps: [] }
+            space.stacks[group] = {armies: [], corps: []}
         }
     } else {
         for (let group of cp_eliminated_box_order) {
-            space.stacks[group] = { armies: [], corps: [] }
+            space.stacks[group] = {armies: [], corps: []}
         }
     }
 
@@ -855,11 +925,11 @@ function build_reserve_box(id) {
     space.stacks = {}
     if (id === AP_RESERVE_BOX) {
         for (let nation of ap_reserve_box_order) {
-            space.stacks[nation] = { full: [], reduced: [] }
+            space.stacks[nation] = {full: [], reduced: []}
         }
     } else {
         for (let nation of cp_reserve_box_order) {
-            space.stacks[nation] = { full: [], reduced: [] }
+            space.stacks[nation] = {full: [], reduced: []}
         }
     }
 
@@ -952,15 +1022,15 @@ const style_dims = {
     flat: {
         width: 47,
         gap: 2,
-        thresh: [ 24, 16, 10,  8,  6,  0 ],
-        offset: [  1,  2,  3,  4,  5,  6 ],
+        thresh: [24, 16, 10, 8, 6, 0],
+        offset: [1, 2, 3, 4, 5, 6],
         focus_margin: 5,
     },
     bevel: {
         width: 49,
         gap: 4,
-        thresh: [ 24, 16, 10,  8,  6,  0 ],
-        offset: [  1,  2,  3,  4,  5,  6 ],
+        thresh: [24, 16, 10, 8, 6, 0],
+        offset: [1, 2, 3, 4, 5, 6],
         focus_margin: 6,
     },
 }
@@ -989,36 +1059,36 @@ function layout_stack(stack, x, y, dx) {
     if (stack === focus) {
         let w, h
         if (layout === 0) {
-            h = (dim.width + dim.gap) * (n-1)
-            w = (dim.width + dim.gap) * (m-1)
+            h = (dim.width + dim.gap) * (n - 1)
+            w = (dim.width + dim.gap) * (m - 1)
         }
         if (layout === 1) {
-            h = (dim.width + dim.gap) * (m-1)
-            w = (dim.width + dim.gap) * (n-1)
+            h = (dim.width + dim.gap) * (m - 1)
+            w = (dim.width + dim.gap) * (n - 1)
         }
         if (y - h < MINY)
             y = h + MINY
-        focus_box.style.top = (y-h-dim.focus_margin) + "px"
+        focus_box.style.top = (y - h - dim.focus_margin) + "px"
         if (dx > 0) {
             if (x + w > MAXX - dim.width)
                 x = MAXX - dim.width - w
-            focus_box.style.left = (x-dim.focus_margin) + "px"
+            focus_box.style.left = (x - dim.focus_margin) + "px"
         } else {
             if (x - w < MINX)
                 x = w + MINX
-            focus_box.style.left = (x-w-dim.focus_margin) + "px"
+            focus_box.style.left = (x - w - dim.focus_margin) + "px"
         }
-        focus_box.style.width = (w+dim.width + 2*dim.focus_margin) + "px"
-        focus_box.style.height = (h+dim.width + 2*dim.focus_margin) + "px"
+        focus_box.style.width = (w + dim.width + 2 * dim.focus_margin) + "px"
+        focus_box.style.height = (h + dim.width + 2 * dim.focus_margin) + "px"
     }
 
     let start_x = x
     let start_y = y
 
-    for (let i = stack.length-1; i >= 0; --i, ++z) {
+    for (let i = stack.length - 1; i >= 0; --i, ++z) {
         let ii = stack.length - i
         let [p, elt] = stack[i]
-        let next_p = i > 0 ? stack[i-1][0] : 0
+        let next_p = i > 0 ? stack[i - 1][0] : 0
 
         if (layout === 2 && stack === focus) {
             if (y < MINY) y = MINY
@@ -1029,8 +1099,8 @@ function layout_stack(stack, x, y, dx) {
         let ex = x
         let ey = y
         if (p <= 0) {
-            ex += Math.floor((45-elt.my_size) / 2)
-            ey += Math.floor((45-elt.my_size) / 2)
+            ex += Math.floor((45 - elt.my_size) / 2)
+            ey += Math.floor((45 - elt.my_size) / 2)
         }
 
         //console.log("ex: " + ex + " ey: " + ey);
@@ -1041,7 +1111,7 @@ function layout_stack(stack, x, y, dx) {
         if (p > 0)
             pieces[p].z = z
 
-        if (stack === focus ||  is_small_stack(stack)) {
+        if (stack === focus || is_small_stack(stack)) {
             switch (layout) {
                 case 2: // Diagonal
                     if (y <= MINY + 25) {
@@ -1116,8 +1186,8 @@ function update_space(s) {
     let stack = space.stack
     stack.length = 0
 
-    let sx = space.x + Math.round(space.w/2) - 45
-    let sy = space.y + Math.round(space.h/2) - 45
+    let sx = space.x + Math.round(space.w / 2) - 45
+    let sy = space.y + Math.round(space.h / 2) - 45
 
     let ap_oos = false
     let cp_oos = false
@@ -1167,7 +1237,7 @@ function update_space(s) {
     })
 
     if (view.mef_beachhead === s) {
-        push_stack(stack, 0, build_marker(markers.mef_beachhead, e => e.space_id === s, { space_id: s }, marker_info.mef_beachhead))
+        push_stack(stack, 0, build_marker(markers.mef_beachhead, e => e.space_id === s, {space_id: s}, marker_info.mef_beachhead))
     } else {
         destroy_marker(markers.mef_beachhead, e => e.space_id === s)
     }
@@ -1240,14 +1310,22 @@ function update_space(s) {
 
 function get_reserve_box_stack(nation) {
     switch (nation) {
-        case ITALY: return ITALY
-        case BRITAIN: return BRITAIN
-        case FRANCE: return FRANCE
-        case RUSSIA: return RUSSIA
-        case GERMANY: return GERMANY
-        case AUSTRIA_HUNGARY: return AUSTRIA_HUNGARY
-        case TURKEY: return TURKEY
-        default: return MINOR
+        case ITALY:
+            return ITALY
+        case BRITAIN:
+            return BRITAIN
+        case FRANCE:
+            return FRANCE
+        case RUSSIA:
+            return RUSSIA
+        case GERMANY:
+            return GERMANY
+        case AUSTRIA_HUNGARY:
+            return AUSTRIA_HUNGARY
+        case TURKEY:
+            return TURKEY
+        default:
+            return MINOR
     }
 }
 
@@ -1292,10 +1370,10 @@ function update_reserve_boxes() {
     for (let i = 0; i < ap_reserve_box_order.length; ++i) {
         let nation = ap_reserve_box_order[i]
         if (ap_space.stacks[nation].full.length > 0) {
-            layout_stack(ap_space.stacks[nation].full, ap_x+i*stride, ap_y, 1)
+            layout_stack(ap_space.stacks[nation].full, ap_x + i * stride, ap_y, 1)
         }
         if (ap_space.stacks[nation].reduced.length > 0) {
-            layout_stack(ap_space.stacks[nation].reduced, ap_x+i*stride, ap_y+45, 1)
+            layout_stack(ap_space.stacks[nation].reduced, ap_x + i * stride, ap_y + 45, 1)
         }
     }
     const cp_x = cp_space.x - stride * 2
@@ -1303,10 +1381,10 @@ function update_reserve_boxes() {
     for (let i = 0; i < cp_reserve_box_order.length; ++i) {
         let nation = cp_reserve_box_order[i]
         if (cp_space.stacks[nation].full.length > 0) {
-            layout_stack(cp_space.stacks[nation].full, cp_x+i*stride, cp_y, 1)
+            layout_stack(cp_space.stacks[nation].full, cp_x + i * stride, cp_y, 1)
         }
         if (cp_space.stacks[nation].reduced.length > 0) {
-            layout_stack(cp_space.stacks[nation].reduced, cp_x+i*stride, cp_y+45, 1)
+            layout_stack(cp_space.stacks[nation].reduced, cp_x + i * stride, cp_y + 45, 1)
         }
     }
 
@@ -1316,13 +1394,20 @@ function update_reserve_boxes() {
 
 function get_eliminated_box_group(p) {
     switch (pieces[p].nation) {
-        case BRITAIN: return BRITAIN
-        case FRANCE: return FRANCE
-        case RUSSIA: return RUSSIA
-        case GERMANY: return GERMANY
-        case AUSTRIA_HUNGARY: return AUSTRIA_HUNGARY
-        case TURKEY: return TURKEY
-        default: return OTHER
+        case BRITAIN:
+            return BRITAIN
+        case FRANCE:
+            return FRANCE
+        case RUSSIA:
+            return RUSSIA
+        case GERMANY:
+            return GERMANY
+        case AUSTRIA_HUNGARY:
+            return AUSTRIA_HUNGARY
+        case TURKEY:
+            return TURKEY
+        default:
+            return OTHER
     }
 }
 
@@ -1361,10 +1446,10 @@ function update_eliminated_boxes() {
     for (let i = 0; i < ap_eliminated_box_order.length; ++i) {
         let group = ap_eliminated_box_order[i]
         if (ap_space.stacks[group].armies.length > 0) {
-            layout_stack(ap_space.stacks[group].armies, ap_x+i*stride, ap_y, 1)
+            layout_stack(ap_space.stacks[group].armies, ap_x + i * stride, ap_y, 1)
         }
         if (ap_space.stacks[group].corps.length > 0) {
-            layout_stack(ap_space.stacks[group].corps, ap_x+i*stride, ap_y+60, 1)
+            layout_stack(ap_space.stacks[group].corps, ap_x + i * stride, ap_y + 60, 1)
         }
     }
     const cp_x = cp_space.x - stride * 2
@@ -1372,10 +1457,10 @@ function update_eliminated_boxes() {
     for (let i = 0; i < cp_eliminated_box_order.length; ++i) {
         let group = cp_eliminated_box_order[i]
         if (cp_space.stacks[group].armies.length > 0) {
-            layout_stack(cp_space.stacks[group].armies, cp_x+i*stride, cp_y, 1)
+            layout_stack(cp_space.stacks[group].armies, cp_x + i * stride, cp_y, 1)
         }
         if (cp_space.stacks[group].corps.length > 0) {
-            layout_stack(cp_space.stacks[group].corps, cp_x+i*stride, cp_y+60, 1)
+            layout_stack(cp_space.stacks[group].corps, cp_x + i * stride, cp_y + 60, 1)
         }
     }
 }
@@ -1471,12 +1556,12 @@ function update_piece(id) {
 let turn_track_stacks = new Array(20)
 for (let i = 0; i < 20; ++i) {
     turn_track_stacks[i] = []
-    turn_track_stacks[i].name = `Turn Track ${i+1}`
+    turn_track_stacks[i].name = `Turn Track ${i + 1}`
 }
 
 function turn_track_pos(value) {
-    let row = Math.floor((value-1) / 5)
-    let col = (value-1) % 5
+    let row = Math.floor((value - 1) / 5)
+    let col = (value - 1) % 5
     let x = 71 + col * 59
     let y = 106 + row * 92
     return [x, y]
@@ -1487,7 +1572,7 @@ function update_turn_track_marker(type, value, remove = false) {
         destroy_turn_track_marker(type)
     } else {
         let marker = build_turn_track_marker(type)
-        push_stack(turn_track_stacks[value-1], 0, marker)
+        push_stack(turn_track_stacks[value - 1], 0, marker)
     }
 }
 
@@ -1497,11 +1582,11 @@ function update_turn_track() {
     update_turn_track_marker("turn", view.turn)
 
     view.ap.missed_mo.forEach((missed_mo) => {
-        push_stack(turn_track_stacks[missed_mo-1], 0, build_missed_mo_marker(AP, missed_mo))
+        push_stack(turn_track_stacks[missed_mo - 1], 0, build_missed_mo_marker(AP, missed_mo))
     })
 
     view.cp.missed_mo.forEach((missed_mo) => {
-        push_stack(turn_track_stacks[missed_mo-1], 0, build_missed_mo_marker(CP, missed_mo))
+        push_stack(turn_track_stacks[missed_mo - 1], 0, build_missed_mo_marker(CP, missed_mo))
     })
 
     const event_markers = [
@@ -1522,7 +1607,7 @@ function update_turn_track() {
 
     turn_track_stacks.forEach((stack, ix) => {
         if (stack.length > 0) {
-            let [x, y] = turn_track_pos(ix+1)
+            let [x, y] = turn_track_pos(ix + 1)
             layout_stack(stack, x, y, 1)
         }
     })
@@ -1625,30 +1710,30 @@ const ACTION_REINF = "reinf"
 
 let action_stacks = {
     "ap": {
-        "entry": { left: 701, top: 1414, stack: [] },
-        "reinf_fr": { left: 701, top: 1461, stack: [] },
-        "reinf_br": { left: 743, top: 1461, stack: [] },
-        "reinf_ru": { left: 785, top: 1461, stack: [] },
-        "reinf_it": { left: 828, top: 1461, stack: [] },
-        "reinf_us": { left: 870, top: 1461, stack: [] },
-        "sr": { left: 701, top: 1507, stack: [] },
-        "rp": { left: 743, top: 1507, stack: [] },
-        "op": { left: 701, top: 1554, stack: [] },
-        "evt": { left: 743, top: 1554, stack: [] },
-        "oneop": { left: 785, top: 1554, stack: [] },
-        "peace": { left: 828, top: 1554, stack: [] }
+        "entry": {left: 701, top: 1414, stack: []},
+        "reinf_fr": {left: 701, top: 1461, stack: []},
+        "reinf_br": {left: 743, top: 1461, stack: []},
+        "reinf_ru": {left: 785, top: 1461, stack: []},
+        "reinf_it": {left: 828, top: 1461, stack: []},
+        "reinf_us": {left: 870, top: 1461, stack: []},
+        "sr": {left: 701, top: 1507, stack: []},
+        "rp": {left: 743, top: 1507, stack: []},
+        "op": {left: 701, top: 1554, stack: []},
+        "evt": {left: 743, top: 1554, stack: []},
+        "oneop": {left: 785, top: 1554, stack: []},
+        "peace": {left: 828, top: 1554, stack: []}
     },
     "cp": {
-        "entry": { left: 794, top: 67, stack: [] },
-        "reinf_ge": { left: 794, top: 114, stack: [] },
-        "reinf_ah": { left: 837, top: 114, stack: [] },
-        "reinf_tu": { left: 879, top: 114, stack: [] },
-        "sr": { left: 794, top: 160, stack: [] },
-        "rp": { left: 837, top: 160, stack: [] },
-        "op": { left: 794, top: 208, stack: [] },
-        "evt": { left: 837, top: 208, stack: [] },
-        "oneop": { left: 879, top: 208, stack: [] },
-        "peace": { left: 921, top: 208, stack: [] }
+        "entry": {left: 794, top: 67, stack: []},
+        "reinf_ge": {left: 794, top: 114, stack: []},
+        "reinf_ah": {left: 837, top: 114, stack: []},
+        "reinf_tu": {left: 879, top: 114, stack: []},
+        "sr": {left: 794, top: 160, stack: []},
+        "rp": {left: 837, top: 160, stack: []},
+        "op": {left: 794, top: 208, stack: []},
+        "evt": {left: 837, top: 208, stack: []},
+        "oneop": {left: 879, top: 208, stack: []},
+        "peace": {left: 921, top: 208, stack: []}
     }
 }
 
@@ -1673,14 +1758,14 @@ function update_action_round_tracks() {
 
     for (let i = 0; i < 6; ++i) {
         if (i < view.ap.actions.length) {
-            update_action_round_marker(AP, i+1, view.ap.actions[i])
+            update_action_round_marker(AP, i + 1, view.ap.actions[i])
         } else {
-            destroy_action_marker(AP, i+1)
+            destroy_action_marker(AP, i + 1)
         }
         if (i < view.cp.actions.length) {
-            update_action_round_marker(CP, i+1, view.cp.actions[i])
+            update_action_round_marker(CP, i + 1, view.cp.actions[i])
         } else {
-            destroy_action_marker(CP, i+1)
+            destroy_action_marker(CP, i + 1)
         }
     }
 
@@ -1731,63 +1816,63 @@ function on_click_space_tip(s) {
 
 
 const ICONS_SVG = {
-	B0: '<span class="black d0"></span>',
-	B1: '<span class="black d1"></span>',
-	B2: '<span class="black d2"></span>',
-	B3: '<span class="black d3"></span>',
-	B4: '<span class="black d4"></span>',
-	B5: '<span class="black d5"></span>',
-	B6: '<span class="black d6"></span>',
-	W0: '<span class="white d0"></span>',
-	W1: '<span class="white d1"></span>',
-	W2: '<span class="white d2"></span>',
-	W3: '<span class="white d3"></span>',
-	W4: '<span class="white d4"></span>',
-	W5: '<span class="white d5"></span>',
-	W6: '<span class="white d6"></span>',
+    B0: '<span class="black d0"></span>',
+    B1: '<span class="black d1"></span>',
+    B2: '<span class="black d2"></span>',
+    B3: '<span class="black d3"></span>',
+    B4: '<span class="black d4"></span>',
+    B5: '<span class="black d5"></span>',
+    B6: '<span class="black d6"></span>',
+    W0: '<span class="white d0"></span>',
+    W1: '<span class="white d1"></span>',
+    W2: '<span class="white d2"></span>',
+    W3: '<span class="white d3"></span>',
+    W4: '<span class="white d4"></span>',
+    W5: '<span class="white d5"></span>',
+    W6: '<span class="white d6"></span>',
 }
 
 const ICONS_TXT = {
-	B0: "\u25cf",
-	B1: "\u2776",
-	B2: "\u2777",
-	B3: "\u2778",
-	B4: "\u2779",
-	B5: "\u277A",
-	B6: "\u277B",
-	W0: "\u25cb",
-	W1: "\u2460",
-	W2: "\u2461",
-	W3: "\u2462",
-	W4: "\u2463",
-	W5: "\u2464",
-	W6: "\u2465",
+    B0: "\u25cf",
+    B1: "\u2776",
+    B2: "\u2777",
+    B3: "\u2778",
+    B4: "\u2779",
+    B5: "\u277A",
+    B6: "\u277B",
+    W0: "\u25cb",
+    W1: "\u2460",
+    W2: "\u2461",
+    W3: "\u2462",
+    W4: "\u2463",
+    W5: "\u2464",
+    W6: "\u2465",
 }
 
 function sub_icon(match) {
-	return ICONS_SVG[match]
+    return ICONS_SVG[match]
 }
 
 function on_log(text) {
     let p = document.createElement("div")
 
     if (text.match(/^>>/)) {
-		text = text.substring(2)
-		p.className = "ii"
-	}
+        text = text.substring(2)
+        p.className = "ii"
+    }
 
-	if (text.match(/^>/)) {
-		text = text.substring(1)
-		p.className = "i"
-	}
+    if (text.match(/^>/)) {
+        text = text.substring(1)
+        p.className = "i"
+    }
 
     text = text.replace(/&/g, "&amp;")
     text = text.replace(/</g, "&lt;")
     text = text.replace(/>/g, "&gt;")
-    text = text.replace(/#(\d+)[^\]]*\]/g,
-        '<span class="tip" onmouseenter="on_focus_card_tip($1)" onmouseleave="on_blur_card_tip()">$&</span>')
-    text = text.replace(/%(\d+)/g, sub_space_name)
-
+    text = text.replace(/s(\d+)/g, sub_space_name)
+    text = text.replace(/p(\d+)/g, sub_piece_name_reduced)
+    text = text.replace(/P(\d+)/g, sub_piece_name)
+    text = text.replace(/c(\d+)/g, sub_card_name)
     text = text.replace(/\b[BW]\d\b/g, sub_icon)
 
     if (text.match(/^\.h1/)) {
@@ -1805,17 +1890,15 @@ function on_log(text) {
     }
 
     if (text.match(/^\.h3cp/)) {
-		text = text.substring(6)
-		p.className = "h3 cp"
-	} else if (text.match(/^\.h3ap/)) {
-		text = text.substring(6)
-		p.className = "h3 ap"
-	} else if (text.match(/^\.h3/)) {
-		text = text.substring(4)
-		p.className = "h3"
+        text = text.substring(6)
+        p.className = "h3 cp"
+    } else if (text.match(/^\.h3ap/)) {
+        text = text.substring(6)
+        p.className = "h3 ap"
+    } else if (text.match(/^\.h3/)) {
+        text = text.substring(4)
+        p.className = "h3"
     }
-
-
 
     if (text.indexOf("\n") < 0) {
         p.innerHTML = text
@@ -1828,8 +1911,14 @@ function on_log(text) {
     return p
 }
 
-
-
+function on_prompt(text) {
+    text = text.replace(/s(\d+)/g, sub_space_name)
+    text = text.replace(/p(\d+)/g, sub_piece_name_reduced)
+    text = text.replace(/P(\d+)/g, sub_piece_name)
+    text = text.replace(/c(\d+)/g, sub_card_name)
+    text = text.replace(/\b[BW]\d\b/g, sub_icon)
+    return text
+}
 
 function update_map() {
     if (!view)
