@@ -214,7 +214,7 @@ function sub_piece_name_reduced(match, p1, offset, string) {
     let p = p1 | 0
     let piece = pieces[p]
     if (piece) {
-        return `(${piece.name})</span>`
+        return `<span class="piecetip" onmouseenter="on_focus_piece_tip(${p})" onmouseleave="on_blur_piece_tip(${p})" onclick="on_click_piece_tip(${p})">(${piece.name})</span>`
     } else {
         return `Unknown Piece`
     }
