@@ -345,11 +345,14 @@ exports.resign = function (state, current) {
 exports.query = function (state, current, q) {
     if (q === 'cp_supply') {
         game = state
-        return query_supply()
+        return { spaces: query_supply([ESSEN, BRESLAU, SOFIA, CONSTANTINOPLE]) }
     }
     if (q === 'ap_supply')  {
         game = state
-        return query_supply()
+        return {
+            western: query_supply([LONDON]),
+            eastern: query_supply([PETROGRAD, MOSCOW, CAUCASUS, KHARKOV, BELGRADE])
+        }
     }
     if (q === 'discard') {
         let discard = []
@@ -429,7 +432,7 @@ exports.view = function(state, current) {
         mef_beachhead: game.mef_beachhead_captured ? null : game.mef_beachhead,
         tsar_fell_cp_russian_vp: game.tsar_fell_cp_russian_vp,
 
-        oos_pieces: game.supply ? game.supply.oos_pieces : [],
+        oos_pieces: game.oos_pieces,
 
         ne_limits: game.ne_restrictions,
 
@@ -4847,6 +4850,7 @@ states.attrition_phase = {
         game.attrition[game.active].spaces.forEach((s) => { gen_action_space(s) })
     },
     piece(p) {
+        let loc = game.location[p]
         array_remove_item(game.attrition[game.active].pieces, p)
         log(`Removed ${piece_name(p)} from ${space_name(game.location[p])} due to attrition`)
         if (data.pieces[p].type === ARMY) {
@@ -4855,6 +4859,9 @@ states.attrition_phase = {
         } else {
             send_to_eliminated_box(p)
         }
+
+        update_siege(loc)
+
         if (game.attrition[game.active].spaces.length === 0 && game.attrition[game.active].pieces.length === 0) {
             if (game.attrition[other_faction(game.active)].spaces.length > 0 || game.attrition[other_faction(game.active)].pieces.length > 0) {
                 clear_undo()
@@ -5521,7 +5528,43 @@ states.place_new_neutral_units = {
 
 // === SUPPLY ===
 
-function generate_supply_cache(faction, cache, sources, use_ports, nation) {
+const SUPPLY_MASK = {
+    NonItalianPath: 1 << 0,
+    NonMEFPath: 1 << 1,
+    Essen: 1 << 2,
+    Breslau: 1 << 3,
+    Sofia: 1 << 4,
+    Constantinople: 1 << 5,
+    Petrograd: 1 << 6,
+    Moscow: 1 << 7,
+    Kharkov: 1 << 8,
+    Caucasus: 1 << 9,
+    Belgrade: 1 << 10,
+    London: 1 << 11,
+    Salonika: 1 << 12,
+    Basra: 1 << 13,
+    London_Italian: 1 << 14, // Special case for Italian supply
+}
+
+function get_supply_mask(source) {
+    switch (source) {
+        case ESSEN: return SUPPLY_MASK.Essen;
+        case BRESLAU: return SUPPLY_MASK.Breslau;
+        case SOFIA: return SUPPLY_MASK.Sofia;
+        case CONSTANTINOPLE: return SUPPLY_MASK.Constantinople;
+        case PETROGRAD: return SUPPLY_MASK.Petrograd;
+        case MOSCOW: return SUPPLY_MASK.Moscow;
+        case KHARKOV: return SUPPLY_MASK.Kharkov;
+        case CAUCASUS: return SUPPLY_MASK.Caucasus;
+        case BELGRADE: return SUPPLY_MASK.Belgrade;
+        case LONDON: return SUPPLY_MASK.London;
+        case SALONIKA_SPACE: return SUPPLY_MASK.Salonika;
+        case BASRA: return SUPPLY_MASK.Basra;
+    }
+    return 0; // Default case, should not happen
+}
+
+function fill_supply_cache(faction, cache, sources, use_ports, nation, override_mask) {
     let blocked_spaces = []
     let friendly_ports = []
 
@@ -5561,19 +5604,20 @@ function generate_supply_cache(faction, cache, sources, use_ports, nation) {
 
     // For each supply source, populate the set of supplied spaces
     sources.forEach((source) => {
+        let mask = override_mask || get_supply_mask(source)
         let frontier = [source]
         while (frontier.length > 0) {
             let current = frontier.pop()
             if (!set_has(blocked_spaces, current)) {
-                set_add(cache.sources[current], source)
+                cache[current] |= mask
                 get_connected_spaces(current, nation).forEach((conn) => {
-                    if (!set_has(cache.sources[conn], source)) {
+                    if (!(cache[conn] & mask)) {
                         set_add(frontier, conn)
                     }
                 })
                 if (set_has(friendly_ports, current)) {
                     friendly_ports.forEach((port) => {
-                        if (!set_has(cache.sources[port], source)) {
+                        if (!(cache[port] & mask)) {
                             set_add(frontier, port)
                         }
                     })
@@ -5591,7 +5635,7 @@ function generate_supply_cache(faction, cache, sources, use_ports, nation) {
             if (!set_has(visited, current)) {
                 set_add(visited, current)
                 if (!is_italian_space(current) && !set_has(blocked_spaces, current)) {
-                    cache.non_italian_path[current] = true
+                    cache[current] |= SUPPLY_MASK.NonItalianPath
                     get_connected_spaces(current, nation).forEach((conn) => {
                         set_add(frontier, conn)
                     })
@@ -5614,7 +5658,7 @@ function generate_supply_cache(faction, cache, sources, use_ports, nation) {
             if (!set_has(visited, current)) {
                 set_add(visited, current)
                 if (!is_mef_space(current) && !set_has(blocked_spaces, current)) {
-                    cache.non_mef_path[current] = true
+                    cache[current] |= SUPPLY_MASK.NonMEFPath
                     get_connected_spaces(current, nation).forEach((conn) => {
                         set_add(frontier, conn)
                     })
@@ -5640,26 +5684,21 @@ function update_supply() {
     if (nation_at_war(TURKEY))
         cp_sources.push(CONSTANTINOPLE)
 
-    game.supply = {
-        cp: search_supply(CP, cp_sources, true),
-        eastern: search_supply(AP, [PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE], false, RUSSIA),
-        western: search_supply(AP, [LONDON], true),
-        italian: search_supply(AP, [LONDON], true, ITALY),
-        salonika: search_supply(AP, [SALONIKA_SPACE], false),
-        basra: search_supply(AP, [BASRA], false, BRITAIN)
-    }
+    game.supply_cache = data.spaces.map((s) => 0)
 
-    game.supply.oos_pieces = get_oos_pieces()
-}
+    // Supply for CP, western, and eastern units is saved in the same cache, kept distinct by the separate supply sources
+    fill_supply_cache(CP, game.supply_cache, cp_sources, true)
+    fill_supply_cache(AP, game.supply_cache, [PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE], false, RUSSIA)
+    fill_supply_cache(AP, game.supply_cache, [LONDON], true)
 
-function search_supply(faction, sources, use_ports, nation) {
-    let cache = {
-        sources: data.spaces.map((s) => []),
-        non_italian_path: data.spaces.map((s) => false),
-        non_mef_path: data.spaces.map((s) => false)
-    }
-    generate_supply_cache(faction, cache, sources, use_ports, nation)
-    return cache
+    // Special mask applied when searching spaces using Italian connections
+    fill_supply_cache(AP, game.supply_cache, [LONDON], true, ITALY, SUPPLY_MASK.London_Italian)
+
+    // These are also special cases, but don't need a separate mask because they use separate sources
+    fill_supply_cache(AP, game.supply_cache, [SALONIKA_SPACE], false)
+    fill_supply_cache(AP, game.supply_cache, [BASRA], false, BRITAIN)
+
+    game.oos_pieces = get_oos_pieces()
 }
 
 function is_unit_supplied(p) {
@@ -5680,59 +5719,76 @@ function is_unit_supplied(p) {
     if (nation === GREECE && !nation_at_war(GREECE) && game.events.salonika > 0) // Limited Greek entry
         return true
 
-    if (!game.supply) update_supply()
-    const cache = get_supply_cache_for_piece(p)
+    if (!game.supply_cache) update_supply()
 
     if (nation === SERBIA) {
         if (data.spaces[location].nation === SERBIA)
             return true // Serbian units are always in supply in Serbia
-        else if (is_controlled_by(SALONIKA_SPACE, AP) && game.supply.salonika.sources[location].length > 0)
+        else if (is_controlled_by(SALONIKA_SPACE, AP) && check_supply_cache(game.supply_cache.salonika, location, [SALONIKA_SPACE]))
             return true // Serbian units can trace supply to Salonika if it is friendly controlled
     }
 
-    return cache.sources[location].length > 0
+    if (nation === ITALY)
+        return game.supply_cache[location] & SUPPLY_MASK.London_Italian
+
+    return check_supply_cache(game.supply_cache, location, get_supply_sources_for_piece(p))
 }
 
-function get_supply_cache_for_piece(p) {
-    let faction = data.pieces[p].faction
-    let nation = data.pieces[p].nation
-    let cache = (faction === CP) ? game.supply.cp : game.supply.western
-    if (nation === ITALY)
-        cache = game.supply.italian
-    else if (nation === RUSSIA || nation === SERBIA || nation === ROMANIA) {
-        cache = game.supply.eastern
+function check_supply_cache(cache, location, sources) {
+    if (sources) {
+        sources = [ESSEN, BRESLAU, SOFIA, CONSTANTINOPLE, PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE, LONDON]
     }
-    return cache
+    let source_mask = 0
+    for (let source of sources) {
+        source_mask |= get_supply_mask(source)
+    }
+
+    return !!(cache[location] & source_mask)
+}
+
+function get_supply_sources_for_piece(p) {
+    let nation = data.pieces[p].nation
+    switch (nation) {
+        case RUSSIA:
+        case ROMANIA:
+        case SERBIA:
+            return [PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE]
+    }
+
+    if (data.pieces[p].faction === AP) {
+        return [LONDON]
+    }
+
+    return [ESSEN, BRESLAU, SOFIA, CONSTANTINOPLE]
 }
 
 function is_unit_supplied_through_italy(p) {
-    if (!game.supply) update_supply()
+    if (!game.supply_cache) update_supply()
 
     if (!is_unit_supplied(p))
         return false
 
-    const cache = get_supply_cache_for_piece(p)
-    return !cache.non_italian_path[game.location[p]]
+    return !(game.supply_cache[game.location[p]] & SUPPLY_MASK.NonItalianPath)
 }
 
 function can_unit_trace_supply_to_basra(p) {
-    if (!game.supply) update_supply()
-    return game.supply.basra.sources[game.location[p]].length > 0
+    if (!game.supply_cache) update_supply()
+    return check_supply_cache(game.supply_cache, game.location[p], [BASRA])
 }
 
 function is_space_supplied_through_mef(s) {
-    if (!game.supply) update_supply()
+    if (!game.supply_cache) update_supply()
 
     if (!is_space_supplied(AP, s))
         return false
 
-    return !game.supply.western.non_mef_path[s]
+    return !(game.supply_cache[s] & SUPPLY_MASK.NonMEFPath)
 }
 
 function is_space_supplied(faction, s) {
-    if (!game.supply) update_supply()
+    if (!game.supply_cache) update_supply()
     if (faction === CP) {
-        return game.supply.cp.sources[s].length > 0
+        return check_supply_cache(game.supply_cache, s, [ESSEN, BRESLAU, SOFIA, CONSTANTINOPLE])
     } else {
         if (s === CETINJE) // Montenegro is always in supply
             return true
@@ -5749,16 +5805,21 @@ function is_space_supplied(faction, s) {
             }
         }
 
-        return game.supply.eastern.sources[s].length > 0
-            || game.supply.western.sources[s].length > 0
-            || game.supply.italian.sources[s].length > 0
-            || is_controlled_by(SALONIKA_SPACE, AP) && game.supply.salonika.sources[s].length > 0
+        return (check_supply_cache(game.supply_cache, s, [LONDON, PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE])
+            || (is_controlled_by(SALONIKA_SPACE, AP) && check_supply_cache(game.supply_cache.salonika, s, [SALONIKA_SPACE])))
     }
 }
 
-function query_supply() {
-    if (!game.supply) update_supply()
-    return game.supply
+function query_supply(sources) {
+    if (!game.supply_cache) update_supply()
+    let mask = 0
+    for (let source of sources)
+        mask |= get_supply_mask(source)
+    let spaces = data.spaces.map((s) => 0)
+    for (let i = 1; i < spaces.length; ++i) {
+        spaces[i] = (game.supply_cache[i] & mask) ? 1 : 0
+    }
+    return spaces
 }
 
 function get_oos_pieces() {
