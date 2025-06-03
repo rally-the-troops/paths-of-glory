@@ -4499,6 +4499,7 @@ function get_retreat_options(pieces, from, length_retreated) {
 
 function goto_attacker_advance() {
     if (game.attack.to_advance.length > 0) {
+        clear_undo()
         game.attack.advancing_pieces = []
         game.attack.advance_length = 0
         game.state = 'attacker_advance'
