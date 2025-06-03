@@ -5569,7 +5569,21 @@ function get_supply_mask(source) {
     return 0; // Default case, should not happen
 }
 
-function fill_supply_cache(faction, cache, sources, use_ports, nation, override_mask) {
+// Fill the supply cache for a given faction based on the sources provided.
+// Options can include:
+// - use_ports: whether to consider ports as connections
+// - national_connections: a specific nation to use for limited connections
+// - override_mask: a mask to override the default supply mask for the source
+// - set_nonitalian_path: whether to set the NonItalianPath mask for spaces reachable without passing through Italy
+// - set_nonmef_path: whether to set the NonMEFPath mask for spaces reachable without passing through the MEF
+function fill_supply_cache(faction, cache, sources, options) {
+    options = options || {}
+    const use_ports = options.use_ports || false
+    const national_connections = options.national_connections || undefined
+    const override_mask = options.override_mask || undefined
+    const set_nonitalian_path = options.set_nonitalian_path || false
+    const set_nonmef_path = options.set_nonmef_path || false
+
     let blocked_spaces = []
     let friendly_ports = []
 
@@ -5615,7 +5629,7 @@ function fill_supply_cache(faction, cache, sources, use_ports, nation, override_
             let current = frontier.pop()
             if (!set_has(blocked_spaces, current)) {
                 cache[current] |= mask
-                get_connected_spaces(current, nation).forEach((conn) => {
+                get_connected_spaces(current, national_connections).forEach((conn) => {
                     if (!(cache[conn] & mask)) {
                         set_add(frontier, conn)
                     }
@@ -5631,51 +5645,55 @@ function fill_supply_cache(faction, cache, sources, use_ports, nation, override_
         }
     })
 
-    // Now mark the set of spaces that can be reached without passing through Italy
-    sources.forEach((source) => {
-        let frontier = [source]
-        let visited = []
-        while (frontier.length > 0) {
-            let current = frontier.pop()
-            if (!set_has(visited, current)) {
-                set_add(visited, current)
-                if (!is_italian_space(current) && !set_has(blocked_spaces, current)) {
-                    cache[current] |= SUPPLY_MASK.NonItalianPath
-                    get_connected_spaces(current, nation).forEach((conn) => {
-                        set_add(frontier, conn)
-                    })
-                    if (set_has(friendly_ports, current)) {
-                        friendly_ports.forEach((port) => {
-                            set_add(frontier, port)
+    if (set_nonitalian_path) {
+        // Now mark the set of spaces that can be reached without passing through Italy
+        sources.forEach((source) => {
+            let frontier = [source]
+            let visited = []
+            while (frontier.length > 0) {
+                let current = frontier.pop()
+                if (!set_has(visited, current)) {
+                    set_add(visited, current)
+                    if (!is_italian_space(current) && !set_has(blocked_spaces, current)) {
+                        cache[current] |= SUPPLY_MASK.NonItalianPath
+                        get_connected_spaces(current, national_connections).forEach((conn) => {
+                            set_add(frontier, conn)
                         })
+                        if (set_has(friendly_ports, current)) {
+                            friendly_ports.forEach((port) => {
+                                set_add(frontier, port)
+                            })
+                        }
                     }
                 }
             }
-        }
-    })
+        })
+    }
 
-    // Mark the set of spaces that can be reached without passing through the MEF
-    sources.forEach((source) => {
-        let frontier = [source]
-        let visited = []
-        while (frontier.length > 0) {
-            let current = frontier.pop()
-            if (!set_has(visited, current)) {
-                set_add(visited, current)
-                if (!is_mef_space(current) && !set_has(blocked_spaces, current)) {
-                    cache[current] |= SUPPLY_MASK.NonMEFPath
-                    get_connected_spaces(current, nation).forEach((conn) => {
-                        set_add(frontier, conn)
-                    })
-                    if (set_has(friendly_ports, current)) {
-                        friendly_ports.forEach((port) => {
-                            set_add(frontier, port)
+    if (set_nonmef_path) {
+        // Mark the set of spaces that can be reached without passing through the MEF
+        sources.forEach((source) => {
+            let frontier = [source]
+            let visited = []
+            while (frontier.length > 0) {
+                let current = frontier.pop()
+                if (!set_has(visited, current)) {
+                    set_add(visited, current)
+                    if (!is_mef_space(current) && !set_has(blocked_spaces, current)) {
+                        cache[current] |= SUPPLY_MASK.NonMEFPath
+                        get_connected_spaces(current, national_connections).forEach((conn) => {
+                            set_add(frontier, conn)
                         })
+                        if (set_has(friendly_ports, current)) {
+                            friendly_ports.forEach((port) => {
+                                set_add(frontier, port)
+                            })
+                        }
                     }
                 }
             }
-        }
-    })
+        })
+    }
 }
 
 function is_italian_space(s) {
@@ -5692,16 +5710,16 @@ function update_supply() {
     game.supply_cache = data.spaces.map((s) => 0)
 
     // Supply for CP, western, and eastern units is saved in the same cache, kept distinct by the separate supply sources
-    fill_supply_cache(CP, game.supply_cache, cp_sources, true)
-    fill_supply_cache(AP, game.supply_cache, [PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE], false, RUSSIA)
-    fill_supply_cache(AP, game.supply_cache, [LONDON], true)
+    fill_supply_cache(CP, game.supply_cache, cp_sources, { use_ports:true })
+    fill_supply_cache(AP, game.supply_cache, [PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE], { national_connections: RUSSIA })
+    fill_supply_cache(AP, game.supply_cache, [LONDON], { use_ports: true, set_nonitalian_path: true, set_nonmef_path: true })
 
     // Special mask applied when searching spaces using Italian connections
-    fill_supply_cache(AP, game.supply_cache, [LONDON], true, ITALY, SUPPLY_MASK.London_Italian)
+    fill_supply_cache(AP, game.supply_cache, [LONDON], { use_ports: true, national_connections: ITALY, override_mask: SUPPLY_MASK.London_Italian })
 
     // These are also special cases, but don't need a separate mask because they use separate sources
-    fill_supply_cache(AP, game.supply_cache, [SALONIKA_SPACE], false)
-    fill_supply_cache(AP, game.supply_cache, [BASRA], false, BRITAIN)
+    fill_supply_cache(AP, game.supply_cache, [SALONIKA_SPACE])
+    fill_supply_cache(AP, game.supply_cache, [BASRA], { national_connections: BRITAIN })
 
     game.oos_pieces = get_oos_pieces()
 }
