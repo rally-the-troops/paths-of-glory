@@ -4513,6 +4513,9 @@ states.attacker_advance = {
     prompt() {
         const spaces = get_possible_advance_spaces(game.attack.advancing_pieces)
         const remaining_length = game.attack.retreat_length - game.attack.advance_length
+        if (globalThis.RTT_FUZZER) {
+            gen_action_pass()
+        }
         if (game.attack.advance_length === 0) {
             view.prompt = `Select units to advance or select a space to begin advancing (${remaining_length} ${remaining_length === 1 ? 'space' : 'spaces'} remaining)`
             game.attack.to_advance.forEach((p) => {
@@ -4530,6 +4533,7 @@ states.attacker_advance = {
         spaces.forEach(gen_action_space)
     },
     piece(p) {
+        push_undo()
         game.attack.advancing_pieces.push(p)
         array_remove_item(game.attack.to_advance, p)
     },
