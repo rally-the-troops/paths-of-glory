@@ -363,6 +363,11 @@ body.shift .highlight {
     border-color: orangered;
 }
 
+#spaces div.attract {
+    outline-style: solid;
+    animation: attractAnimation 1s linear;
+}
+
 #spaces div.tip {
     border-color: yellow;
 }
@@ -425,6 +430,10 @@ body.cp header.your_turn { background-color: hsl(200, 40%, 70%); }
     height:36px;
 }
 
+.unit.attract {
+    outline-style: solid;
+    animation: attractAnimation 1s linear;
+}
 
 .unit.army_ix_1 { background-position: 0px 0px; }
 .unit.army_ix_2 { background-position: -45px 0px; }
@@ -664,3 +673,24 @@ body.bevel .unit.highlight{box-shadow:0 0 0 1px #707070,0 0 0 4px var(--highligh
 
 /* selected */
 body.bevel .unit.selected{box-shadow:0 0 0 3px var(--selected-color)}
+
+/* Animations */
+@keyframes attractAnimation {
+    0% {
+        outline-width: 2px;
+        outline-offset: 0;
+        outline-color: rgba(255, 47, 0, 1);
+    }
+
+    80% {
+        outline-width: 8px;
+        outline-offset: 4px;
+        outline-color: rgba(255, 47, 0, 0.3);
+    }
+
+    100% {
+        outline-width: 8px;
+        outline-offset: 4px;
+        outline-color: rgba(73, 0, 0, 0);
+    }
+}

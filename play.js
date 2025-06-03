@@ -161,6 +161,7 @@ function on_blur_piece_tip(p) {
 
 function on_click_piece_tip(p) {
     pieces[p].element.scrollIntoView({ block:"center", inline:"center", behavior:"smooth" })
+    attract(pieces[p].element)
 }
 
 function on_focus_space_tip(s) {
@@ -173,6 +174,12 @@ function on_blur_space_tip(s) {
 
 function on_click_space_tip(s) {
     scroll_into_view(ui.space_list[s])
+    attract(ui.space_list[s])
+}
+
+function attract(elt) {
+    elt.classList.add("attract")
+    window.setTimeout(() => elt.classList.remove("attract"), 1000)
 }
 
 function on_log_line(text, cn) {
@@ -1806,11 +1813,6 @@ function toggle_marker(id, show) {
     else
         element.classList.remove("show")
 }
-
-function on_click_space_tip(s) {
-    scroll_into_view(ui.space_list[s])
-}
-
 
 const ICONS_SVG = {
     B0: '<span class="black d0"></span>',
