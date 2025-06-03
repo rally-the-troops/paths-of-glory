@@ -1783,21 +1783,20 @@ function update_violations() {
             for (let v of view.violations) {
                 let p = document.createElement("div")
                 p.className = "violation"
-                if (v.space !== 0) {
-                    p.textContent = `${spaces[v.space].name}: ${v.rule}`
-                } else if (v.piece !== 0) {
-                    p.textContent = `${pieces[v.piece].name}: ${v.rule}`
-                } else {
-                    p.textContent = `${v.rule}`
-                }
+
+                let prefix = v.space !== 0 ? `s${v.space}: ` : v.piece !== 0 ? `P${v.piece}: ` : ''
+                let text = `${prefix}${v.rule}`
+                text = text.replace(/s(\d+)/g, sub_space_name)
+                text = text.replace(/p(\d+)/g, sub_piece_name_reduced)
+                text = text.replace(/P(\d+)/g, sub_piece_name)
+                text = text.replace(/c(\d+)/g, sub_card_name)
+                p.innerHTML = text
                 body.appendChild(p)
             }
         })
     } else {
         hide_dialog('violations')
     }
-
-    // TODO: Highlight pieces and spaces that are in violation of the rules
 }
 
 function toggle_marker(id, show) {

@@ -41,7 +41,9 @@ aside { min-width: 220px; }
 
 #log .tip { color: blue; }
 #log .tip:hover { text-decoration: underline; }
+#log .spacetip { color: blue; }
 #log .spacetip:hover { text-decoration: underline; cursor: pointer; }
+#log .piecetip { color: blue; }
 #log .piecetip:hover { text-decoration: underline; cursor: pointer; }
 #log div.i { padding-left: 32px; text-indent: -12px; }
 #log div.ii { padding-left: 44px; text-indent: -12px; }
@@ -214,6 +216,12 @@ aside { min-width: 220px; }
 #removed { top: 120px; left: 50px; z-index: 498; }
 #discard { top: 145px; left: 75px; z-index: 499; }
 #violations { top: 55px; right: 240px; z-index: 599; }
+#violations .tip { color: blue }
+#violations .tip:hover { text-decoration: underline; cursor: pointer; }
+#violations .spacetip { color: blue }
+#violations .spacetip:hover { text-decoration: underline; cursor: pointer; }
+#violations .piecetip { color: blue }
+#violations .piecetip:hover { text-decoration: underline; cursor: pointer; }
 
 @media (max-width: 400px) {
     .dialog {
