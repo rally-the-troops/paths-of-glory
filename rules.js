@@ -5728,7 +5728,7 @@ function is_unit_supplied(p) {
     if (nation === SERBIA) {
         if (data.spaces[location].nation === SERBIA)
             return true // Serbian units are always in supply in Serbia
-        else if (is_controlled_by(SALONIKA_SPACE, AP) && check_supply_cache(game.supply_cache.salonika, location, [SALONIKA_SPACE]))
+        else if (is_controlled_by(SALONIKA_SPACE, AP) && check_supply_cache(game.supply_cache, location, [SALONIKA_SPACE]))
             return true // Serbian units can trace supply to Salonika if it is friendly controlled
     }
 
@@ -5810,7 +5810,7 @@ function is_space_supplied(faction, s) {
         }
 
         return (check_supply_cache(game.supply_cache, s, [LONDON, PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE])
-            || (is_controlled_by(SALONIKA_SPACE, AP) && check_supply_cache(game.supply_cache.salonika, s, [SALONIKA_SPACE])))
+            || (is_controlled_by(SALONIKA_SPACE, AP) && check_supply_cache(game.supply_cache, s, [SALONIKA_SPACE])))
     }
 }
 
