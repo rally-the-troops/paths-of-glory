@@ -2835,12 +2835,7 @@ states.choose_attackers = {
         get_attackable_spaces(game.attack.pieces).forEach((s) => {
             gen_action_space(s)
         })
-        if (game.attack.pieces.length > 0 && game.attack.space !== 0) {
-            view.prompt = `Begin attack at ${space_name(game.attack.space)}?`
-            gen_action('attack')
-        } else {
-            gen_action_pass()
-        }
+        gen_action_pass()
     },
     piece(p) {
         push_undo()
@@ -2854,11 +2849,20 @@ states.choose_attackers = {
         game.attack.space = s
         game.attacked.push(s)
         game.where = s
+        game.state = 'confirm_attack'
     },
     pass() {
         game.eligible_attackers = []
         end_attack_activation()
         goto_next_activation()
+    }
+}
+
+states.confirm_attack = {
+    inactive: 'Confirming attack',
+    prompt() {
+        view.prompt = `Begin attack at ${space_name(game.attack.space)}?`
+        gen_action('attack')
     },
     attack() {
         game.where = 0
