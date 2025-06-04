@@ -741,9 +741,9 @@ function setup_initial_decks() {
 }
 
 function goto_start_turn() {
-
-    game.state = 'action_phase'
+    game.state = 'confirm_mo'
     game.active = CP
+
     log_br()
     log_h1(`Turn ${game.turn} - ${turn_season_and_year(game.turn)}`)
     log_br()
@@ -1185,6 +1185,17 @@ function satisfies_mo(mo, attackers, defenders, space) {
     }
 
     return true
+}
+
+states.confirm_mo = {
+    inactive: "Reviewing Mandated Offensive Roll",
+    prompt() {
+        view.prompt = `Turn ${game.turn}: Rolled Mandated Offensive - ${nation_name(game[game.active].mo)}`
+        gen_action_next()
+    },
+    next() {
+        game.state = 'action_phase'
+    }
 }
 
 // === PIECE UTILITIES ===
@@ -2242,7 +2253,11 @@ function goto_end_action() {
     if (game.ap.actions.length < 6 || game.cp.actions.length < 6) {
         clear_undo()
         game.active = other_faction(game.active)
-        game.state = 'action_phase'
+        if (game.ap.actions.length === 0) {
+            game.state = 'confirm_mo'
+        } else {
+            game.state = 'action_phase'
+        }
         log_h3(`${faction_name(game.active)} Action ${game[game.active].actions.length+1}`)
     } else {
         goto_attrition_phase()
@@ -4588,13 +4603,9 @@ states.attacker_advance = {
         }
         capture_trench(s, game.attack.attacker)
 
-        // TODO: I think this is wrong—instead of lifting the siege it should prevent advancing out of the space if it would end the siege
-        // If advancing out of a besieged space and pieces left behind are insufficient to maintain the siege, lift the siege
-        // for (let left_space of leaving_spaces) {
-        //     if (is_besieged(left_space) && !can_besiege(left_space, get_pieces_in_space(left_space))) {
-        //         set_delete(game.forts.besieged, left_space)
-        //     }
-        // }
+
+        // TODO: Double-check the rules to see if it's even allowed to advance out of a space and leave an insufficient besieging force
+        leaving_spaces.forEach(update_siege) // Update any forts in the spaces left by the advancing pieces
     },
     pass() {
         end_attack_activation()
