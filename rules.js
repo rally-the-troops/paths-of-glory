@@ -297,6 +297,7 @@ function nation_name(nation) {
         case US: return "US"
         case NONE: return "None"
         case AH_IT: return "Austria-Hungary (Italy)"
+        case 'allied': return "Allied"
         case 'sn': return ""
         default: return nation
     }
@@ -1843,11 +1844,11 @@ function goto_play_rps(card) {
     log('Total RPs:')
     if (game.active === AP) {
         ['fr', 'br', 'ru', 'it', 'us', 'allied'].forEach((type) => {
-            logi(`${type.toUpperCase()}: ${game.rp[type]}`)
+            logi(`${nation_name(type)}: ${game.rp[type]}`)
         })
     } else {
         ['ge', 'ah', 'bu', 'tu'].forEach((type) => {
-            logi(`${type.toUpperCase()}: ${game.rp[type]}`)
+            logi(`${nation_name(type)}: ${game.rp[type]}`)
         })
     }
     goto_end_action()
@@ -4936,9 +4937,10 @@ function goto_siege_phase() {
 states.siege_phase = {
     inactive: 'Roll sieges',
     prompt() {
-        view.prompt = 'Roll sieges'
         const other  = other_faction(game.active)
-        game.sieges_to_roll.filter((s) => data.spaces[s].faction === other).forEach((s) => { gen_action_space(s) })
+        let siege_spaces = game.sieges_to_roll.filter((s) => data.spaces[s].faction === other)
+        siege_spaces.forEach(gen_action_space)
+        view.prompt = `Roll sieges - ${space_list(siege_spaces)}`
     },
     space(s) {
         array_remove_item(game.sieges_to_roll, s)
@@ -4974,18 +4976,18 @@ function goto_war_status_phase() {
     // If blockade event active and it's a winter turn, -1 VP
     if (game.events.blockade >= 1 && game.turn % 4 === 0) {
         game.vp -= 1
-        log_h2(`${card_name(BLOCKADE)} in effect, -1 VP`)
+        log_h2(`-1 VP - ${card_name(BLOCKADE)} in effect`)
     }
     // If CP failed to conduct their mandated offensive, -1 VP
     if (game.cp.mo !== NONE) {
         game.vp -= 1
         game.cp.missed_mo.push(game.turn)
-        log_h2(`${faction_name(CP)} failed to conduct their mandated offensive, -1 VP`)
+        log_h2(`-1 VP - ${faction_name(CP)} failed to conduct their mandated offensive (${nation_name(game.cp.mo)})`)
     }
     // If Italy is still neutral but AP at Total War, +1 VP
     if (!nation_at_war(ITALY) && game.ap.commitment === COMMITMENT_TOTAL) {
         game.vp += 1
-        log_h2(`${nation_name(ITALY)} is still neutral but ${faction_name(AP)} at Total War, +1 VP`)
+        log_h2(`+1 VP - ${nation_name(ITALY)} is still neutral but ${faction_name(AP)} at Total War`)
     }
 
     const french_mutiny_active = game.events.french_mutiny > 0 && game.ap.mo === FRANCE
@@ -4993,13 +4995,13 @@ function goto_war_status_phase() {
     if (game.ap.mo !== NONE && !french_mutiny_active) {
         game.vp += 1
         game.ap.missed_mo.push(game.turn)
-        log_h2(`${faction_name(AP)} failed to conduct their mandated offensive, +1 VP`)
+        log_h2(`+1 VP - ${faction_name(AP)} failed to conduct their mandated offensive (${nation_name(game.ap.mo)})`)
     }
 
     // If French unit attacked without US support after French Mutiny, when FR MO, +1 VP
     if (french_mutiny_active && game.french_attacked_without_us_support) {
         game.vp += 1
-        log_h2(`French unit attacked without US support after French Mutiny, +1 VP`)
+        log_h2(`+1 VP - French unit attacked without US support after French Mutiny`)
     }
     delete game.french_attacked_without_us_support
 
@@ -5469,17 +5471,14 @@ function gen_action_card(c) {
 // === NAMES ===
 
 function card_name(card) {
-    //return `#${card} ${cards[card].name} [${cards[card].ops}/${cards[card].sr}]`
     return `c${card}`
 }
 
 function piece_name(piece, show_as_reduced) {
     if (show_as_reduced || is_unit_reduced(piece)) {
-        //return `(${data.pieces[piece].name})`
         return `p${piece}`
     }
     else {
-        //return `${data.pieces[piece].name}`
         return `P${piece}`
     }
 }
@@ -5489,8 +5488,11 @@ function piece_list(pieces) {
 }
 
 function space_name(space) {
-    //return `${data.spaces[space].name}`
     return `s${space}`
+}
+
+function space_list(spaces) {
+    return spaces.map((s) => space_name(s)).join(', ')
 }
 
 // === MAP UTILITIES ===
