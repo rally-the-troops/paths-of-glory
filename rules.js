@@ -354,11 +354,11 @@ exports.query = function (state, current, q) {
             eastern: query_supply([PETROGRAD, MOSCOW, CAUCASUS, KHARKOV, BELGRADE])
         }
     }
-    if (q === 'discard') {
-        let discard = []
-        discard.push(...state.ap.discard)
-        discard.push(...state.cp.discard)
-        return discard
+    if (q === 'ap_cards') {
+        return query_cards(state, AP)
+    }
+    if (q === 'cp_cards') {
+        return query_cards(state, CP)
     }
     if (q === 'removed') {
         let removed = []
@@ -367,6 +367,22 @@ exports.query = function (state, current, q) {
         return removed
     }
     return null
+}
+
+function query_cards(state, faction) {
+    let cards = {
+        discard: [],
+        deck: [],
+        removed: []
+    }
+    cards.discard.push(...state[faction].discard)
+    cards.deck.push(...state[faction].deck)
+    cards.deck.push(...state[faction].hand)
+    cards.removed.push(...state[faction].removed)
+    cards.discard.sort((a, b) => a - b)
+    cards.deck.sort((a, b) => a - b)
+    cards.removed.sort((a, b) => a - b)
+    return cards
 }
 
 function inactive_prompt(name, who, where) {

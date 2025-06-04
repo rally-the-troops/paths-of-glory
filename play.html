@@ -31,16 +31,10 @@
 	<li data-action="deactivate"> Deactivate
 </menu>
 
-<div id="removed" class="dialog hide">
-	<div id="removed_x" class="dialog_x" onclick="hide_dialog('removed')">&#x274c;</div>
-	<div id="removed_header" class="dialog_header">Removed</div>
-	<div id="removed_body" class="dialog_body"></div>
-</div>
-
-<div id="discard" class="dialog hide">
-	<div id="discard_x" class="dialog_x" onclick="hide_dialog('discard')">&#x274c;</div>
-	<div id="discard_header" class="dialog_header">Discard</div>
-	<div id="discard_body" class="dialog_body"></div>
+<div id="card_dialog" class="dialog hide">
+	<div id="card_dialog_x" class="dialog_x" onclick="hide_dialog('card_dialog')">&#x274c;</div>
+	<div id="card_dialog_header" class="dialog_header">Cards</div>
+	<div id="card_dialog_body" class="dialog_body"></div>
 </div>
 
 <div id="violations" class="dialog hide">
@@ -75,10 +69,10 @@
 		<details id="info_menu">
 			<summary><img src="/images/wooden-sign.svg"></summary>
 			<menu>
-				<li onclick="send_query('cp_supply')"> CP Supply lines
-				<li onclick="send_query('ap_supply')"> AP Supply lines
-				<li onclick="send_query('removed')"> Removed
-				<li onclick="send_query('discard')"> Discard
+				<li onclick="send_query('cp_supply')"> Show CP Supply lines
+				<li onclick="send_query('ap_supply')"> Show AP Supply lines
+				<li onclick="send_query('cp_cards')"> Inspect CP Cards
+				<li onclick="send_query('ap_cards')"> Inspect AP Cards
 			</menu>
 		</details>
 		<button id="piece_button" onclick="toggle_counters()"><img src="/images/earth-america.svg"></button>
@@ -97,11 +91,15 @@
 			<div class="role_stat" id="cp_hand"></div>
 			<div class="role_user">-</div>
 		</div>
-		<div id="turn_info"><div id="last_card" class="card show card_back"></div><div id="ap_deck_size">AP</div></div><div id="cp_deck_size">CP</div></div>
+		<div id="turn_info">
+			<div id="ap_deck_size" onclick="send_query('ap_cards')"></div>
+			<div id="cp_deck_size" onclick="send_query('cp_cards')"></div>
+		</div>
 	</div>
 	<div id="log"></div>
 </aside>
 
+<!--<div id="last_card" class="card show card_back"></div>-->
 <div id="tooltip" class="hide"></div>
 
 <main data-max-zoom="2" onclick="hide_popup_menu()">

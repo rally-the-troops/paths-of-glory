@@ -54,29 +54,17 @@ aside { min-width: 220px; }
 }
 
 #turn_info {
-    position: relative;
+    white-space: normal;
 }
 
-#turn_info:hover #ap_deck_size {
-    visibility: visible;
+#ap_deck_size:hover {
+    cursor: pointer;
+    text-decoration: underline;
 }
 
-#turn_info:hover #cp_deck_size {
-    visibility: visible;
-}
-
-#ap_deck_size {
-    visibility: hidden;
-    position: absolute;
-    right: 5px;
-    bottom: 3px;
-}
-
-#cp_deck_size {
-    visibility: hidden;
-    position: absolute;
-    right: 5px;
-    bottom: 3px;
+#cp_deck_size:hover {
+    cursor: pointer;
+    text-decoration: underline;
 }
 
 
@@ -142,18 +130,6 @@ aside { min-width: 220px; }
 .hand .card { display: none; margin: 15px 0; }
 .hand .card.show { display: block; }
 
-#turn_info {
-    border-bottom: 1px solid black;
-    padding: 15px 0;
-}
-
-#turn_info .card {
-    width: 120px;
-    height: 168px;
-    border-radius: 8px;
-    margin: 0 auto;
-}
-
 #tooltip {
     display: none;
     pointer-events: none;
@@ -195,8 +171,7 @@ aside { min-width: 220px; }
 .dialog_x {
     cursor: pointer;
     float: right;
-    padding: 0px 2px;
-    margin: 5px 5px;
+    padding: 2px 2px;
 }
 .dialog_x:hover {
     background-color: black;
@@ -213,8 +188,20 @@ aside { min-width: 220px; }
     margin-left: 30px;
 }
 
-#removed { top: 120px; left: 50px; z-index: 498; }
-#discard { top: 145px; left: 75px; z-index: 499; }
+#card_dialog { top: 145px; left: 75px; z-index: 499; }
+#card_dialog div.header {
+    font-weight: bold;
+    margin-top: 5px;
+    background-color: wheat;
+    border-bottom: 1px solid black;
+    border-top: 1px solid black;
+    margin-left: 0;
+    padding: 5px;
+    text-indent: 0;
+}
+#card_dialog .tip { color: blue; }
+#card_dialog .tip:hover { text-decoration: underline; cursor: pointer; }
+
 #violations { top: 55px; right: 240px; z-index: 599; }
 #violations .tip { color: blue }
 #violations .tip:hover { text-decoration: underline; cursor: pointer; }

@@ -122,10 +122,6 @@ function hide_supply() {
     }
 }
 
-function print(x) {
-    console.log(JSON.stringify(x, (k, v) => k === 'log' ? undefined : v))
-}
-
 function faction_card_number(card_number) {
     let faction = card_number > HIGHEST_AP_CARD ? "cp" : "ap";
     let faction_card_number = card_number > HIGHEST_AP_CARD ? card_number - HIGHEST_AP_CARD : card_number;
@@ -137,17 +133,6 @@ function on_focus_card_tip(card_number) {
 }
 
 function on_blur_card_tip() {
-    document.getElementById("tooltip").classList = "card"
-}
-
-function on_focus_last_card() {
-    //console.log("focus", view.last_card)
-    if (typeof view.last_card === 'number') {
-        document.getElementById("tooltip").className = `card show card_${faction_card_number(view.last_card)}`
-    }
-}
-
-function on_blur_last_card() {
     document.getElementById("tooltip").classList = "card"
 }
 
@@ -225,19 +210,29 @@ function sub_piece_name_reduced(match, p1, offset, string) {
     }
 }
 
-function show_card_list(id, list) {
+function show_card_list(id, card_lists) {
     show_dialog(id, (body) => {
-        if (list.length === 0) {
-            body.innerHTML = "<div>None</div>"
+        let append_header = (text) => {
+            let header = document.createElement("div")
+            header.className = "header"
+            header.textContent = text
+            body.appendChild(header)
         }
-        for (let c of list) {
+        let append_card = (c) => {
             let p = document.createElement("div")
             p.className = "tip"
             p.onmouseenter = () => on_focus_card_tip(c)
             p.onmouseleave = on_blur_card_tip
-            p.textContent = `#${c} ${cards[c].name}`
+            p.textContent = `${cards[c].name}`
             body.appendChild(p)
         }
+
+        append_header(`Discarded Cards (${card_lists.discard.length})`)
+        card_lists.discard.forEach(append_card)
+        append_header(`Removed from Play (${card_lists.removed.length})`)
+        card_lists.removed.forEach(append_card)
+        append_header(`In Hand or Deck (${card_lists.deck.length})`)
+        card_lists.deck.forEach(append_card)
     })
 }
 
@@ -269,10 +264,10 @@ function on_reply(q, params) {
         show_cp_supply(params)
     if (q === 'ap_supply')
         show_ap_supply(params)
-    if (q === 'discard')
-        show_card_list("discard", params)
-    if (q === 'removed')
-        show_card_list("removed", params)
+    if (q === 'ap_cards')
+        show_card_list("card_dialog", params)
+    if (q === 'cp_cards')
+        show_card_list("card_dialog", params)
 }
 
 let ui = {
@@ -612,16 +607,6 @@ function on_blur_card(evt) {
 // CARD MENU
 
 let card_action_menu = Array.from(document.getElementById("popup").querySelectorAll("li[data-action]")).map(e => e.dataset.action)
-
-function is_popup_menu_action(menu_id, target_id) {
-    let menu = document.getElementById(menu_id)
-    for (let item of menu.querySelectorAll("li")) {
-        let action = item.dataset.action
-        if (action)
-            return true
-    }
-    return false
-}
 
 function show_popup_menu(evt, menu_id, target_id, title) {
     let menu = document.getElementById(menu_id)
@@ -999,8 +984,8 @@ for (let s = 1; s < spaces.length; ++s) {
 for (let p = 0; p < pieces.length; ++p)
     build_unit(p)
 
-document.getElementById("last_card").addEventListener("mouseenter", on_focus_last_card)
-document.getElementById("last_card").addEventListener("mouseleave", on_blur_last_card)
+//document.getElementById("last_card").addEventListener("mouseenter", on_focus_last_card)
+//document.getElementById("last_card").addEventListener("mouseleave", on_blur_last_card)
 
 // UPDATE UI
 
@@ -1943,7 +1928,7 @@ function update_map() {
     else
         focus_box.className = "show"
 
-    ui.last_card.className = "card show card_" + faction_card_number(view.last_card)
+    //ui.last_card.className = "card show card_" + faction_card_number(view.last_card)
 
     // Update tracks
     update_general_records_track()
@@ -1963,10 +1948,10 @@ function update_map() {
 
     update_violations()
 
-    document.getElementById("cp_hand").textContent = view.cp.hand
-    document.getElementById("ap_hand").textContent = view.ap.hand
-    document.getElementById("ap_deck_size").textContent = view.ap.deck
-    document.getElementById("cp_deck_size").textContent = view.cp.deck
+    document.getElementById("cp_hand").textContent = `${view.cp.hand} cards`
+    document.getElementById("ap_hand").textContent = `${view.ap.hand} cards`
+    document.getElementById("ap_deck_size").textContent = `Allied Powers deck: ${view.ap.deck} cards`
+    document.getElementById("cp_deck_size").textContent = `Central Powers deck: ${view.cp.deck} cards`
 
     action_button("offer_peace", "Offer Peace")
     action_button("single_op", "Automatic Operation (1 Op)")
@@ -1992,7 +1977,5 @@ function on_update() {
 
 // INITIALIZE CLIENT
 
-drag_element_with_mouse("#removed", "#removed_header")
-drag_element_with_mouse("#discard", "#discard_header")
-//drag_element_with_mouse("#violations", "#violations_header")
+drag_element_with_mouse("#card_dialog", "#card_dialog_header")
 
