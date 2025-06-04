@@ -1451,7 +1451,7 @@ function goto_play_ops(card) {
         game.ops = 1
     } else {
         record_action(ACTION_OP, card)
-        log(`${card_name(card)} - Operations`)
+        log(`${card_name(card)} - Operations (${data.cards[card].ops})`)
         play_card(card)
         game.ops = data.cards[card].ops
     }
@@ -1468,7 +1468,7 @@ function goto_play_sr(card) {
         done: []
     }
 
-    log(`${card_name(card)} - Strategic Redeployment`)
+    log(`${card_name(card)} - Strategic Redeployment (${card_data.sr})`)
     play_card(card)
     game.state = 'choose_sr_unit'
     save_checkpoint("sr")
@@ -1838,8 +1838,18 @@ function goto_play_rps(card) {
         game.rp.us += 1
     }
 
-    log(`Played ${card_name(card)} for Replacements`)
+    log(`${card_name(card)} - Replacement Points`)
     play_card(card)
+    log('Total RPs:')
+    if (game.active === AP) {
+        ['fr', 'br', 'ru', 'it', 'us', 'allied'].forEach((type) => {
+            logi(`${type.toUpperCase()}: ${game.rp[type]}`)
+        })
+    } else {
+        ['ge', 'ah', 'bu', 'tu'].forEach((type) => {
+            logi(`${type.toUpperCase()}: ${game.rp[type]}`)
+        })
+    }
     goto_end_action()
 }
 
@@ -1851,7 +1861,7 @@ function goto_play_reinf(card) {
     record_action(ACTION_REINF, card)
     game.reinf_this_turn[card_data.reinfnation] = 1
 
-    log(`Played ${card_name(card)} for the reinforcement event`)
+    log(`${card_name(card)} - Reinforcement Event`)
     let active_player = get_active_player()
     array_remove_item(active_player.hand, card)
     game.last_card = card
