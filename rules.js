@@ -5740,7 +5740,7 @@ function update_supply() {
     game.supply_cache = data.spaces.map((s) => 0)
 
     // Supply for CP, western, and eastern units is saved in the same cache, kept distinct by the separate supply sources
-    fill_supply_cache(CP, game.supply_cache, cp_sources, { use_ports:true })
+    fill_supply_cache(CP, game.supply_cache, cp_sources, { use_ports:true, national_connections: TURKEY }) // Not all CP supply can follow Turkish connections, but this only applied to Medina, so it's easier to add a special check for non-Turkish units in Medina
     fill_supply_cache(AP, game.supply_cache, [PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE], { national_connections: RUSSIA })
     fill_supply_cache(AP, game.supply_cache, [LONDON], { use_ports: true, set_nonitalian_path: true, set_nonmef_path: true })
 
@@ -5773,6 +5773,10 @@ function is_unit_supplied(p) {
         return true
 
     if (!game.supply_cache) update_supply()
+
+    // CP can only trace supply to Medina over a Turkish connection, so non-Turkish CP units in Medina are OOS
+    if (location === MEDINA && data.pieces[p].faction === CP && nation !== TURKEY)
+        return false
 
     if (nation === SERBIA) {
         if (data.spaces[location].nation === SERBIA)
