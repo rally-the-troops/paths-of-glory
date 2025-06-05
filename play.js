@@ -1950,7 +1950,7 @@ function update_map() {
 
     document.getElementById("cp_hand").textContent = `${view.cp.hand} cards`
     document.getElementById("ap_hand").textContent = `${view.ap.hand} cards`
-    document.getElementById("ap_deck_size").textContent = `Allied deck: ${view.ap.deck} cards`
+    document.getElementById("ap_deck_size").textContent = `Allied Powers deck: ${view.ap.deck} cards`
     document.getElementById("cp_deck_size").textContent = `Central Powers deck: ${view.cp.deck} cards`
 
     action_button("offer_peace", "Offer Peace")
