@@ -7,10 +7,10 @@ header { background-color: gainsboro; }
 #log .h2 { background-color: lightgray; }
 #log .h3 { background-color: gainsboro; }
 
-body.ap header.your_turn { background-color: hsl(5, 65%, 70%); }
-body.cp header.your_turn { background-color: hsl(200, 40%, 70%); }
-#role_ap { background-color: hsl(5, 60%, 80%); }
-#role_cp { background-color: hsl(200, 35%, 80%); }
+body.Allied_Powers header.your_turn { background-color: hsl(5, 65%, 70%); }
+body.Central_Powers header.your_turn { background-color: hsl(200, 40%, 70%); }
+#role_Allied_Powers { background-color: hsl(5, 60%, 80%); }
+#role_Central_Powers { background-color: hsl(200, 35%, 80%); }
 #log .ap { background-color: hsl(5, 60%, 85%); }
 #log .cp { background-color: hsl(200, 35%, 85%); }
 
@@ -358,8 +358,8 @@ body.shift .highlight {
     border-color: yellow;
 }
 
-body.ap header.your_turn { background-color: hsl(5, 65%, 70%); }
-body.cp header.your_turn { background-color: hsl(200, 40%, 70%); }
+body.Allied_Powers header.your_turn { background-color: hsl(5, 65%, 70%); }
+body.Central_Powers header.your_turn { background-color: hsl(200, 40%, 70%); }
 
 #spaces div.western_supply {
     border-color: hsl(5, 65%, 90%);
