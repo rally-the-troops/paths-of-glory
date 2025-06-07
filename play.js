@@ -1739,7 +1739,7 @@ function update_ne_limits() {
 
 function update_neutral_markers() {
     for (let nation of ["it", "bu", "tu", "ro", "gr"]) {
-        if (view.war[nation]) {
+        if (view.war[nation] || (view.events.salonika > 0 && nation === "gr")) {
             ui.neutral[nation].classList.add("hide")
         } else {
             ui.neutral[nation].classList.remove("hide")
