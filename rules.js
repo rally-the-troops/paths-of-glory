@@ -6284,7 +6284,8 @@ events.place_of_execution = {
     },
     play() {
         game.events.place_of_execution = game.turn
-        goto_end_action()
+        if (!game.attack)
+            goto_end_action()
     }
 }
 
