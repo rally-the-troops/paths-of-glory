@@ -202,6 +202,28 @@ aside { min-width: 220px; }
 #card_dialog .tip { color: blue; }
 #card_dialog .tip:hover { text-decoration: underline; cursor: pointer; }
 
+#score { top: 145px; left: 75px; z-index: 499; }
+#score div.header {
+    font-weight: bold;
+    margin-top: 5px;
+    background-color: wheat;
+    border-bottom: 1px solid black;
+    border-top: 1px solid black;
+    margin-left: 0;
+    padding: 5px;
+    text-indent: 0;
+}
+
+#score .tip { color: blue }
+#score .tip:hover { text-decoration: underline; cursor: pointer; }
+#score .spacetip { color: blue }
+#score .spacetip:hover { text-decoration: underline; cursor: pointer; }
+#score .piecetip { color: blue }
+#score .piecetip:hover { text-decoration: underline; cursor: pointer; }
+
+#card_dialog .tip { color: blue; }
+#card_dialog .tip:hover { text-decoration: underline; cursor: pointer; }
+
 #violations { top: 55px; right: 240px; z-index: 599; }
 #violations .tip { color: blue }
 #violations .tip:hover { text-decoration: underline; cursor: pointer; }

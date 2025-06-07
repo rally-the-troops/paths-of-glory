@@ -270,6 +270,57 @@ function on_reply(q, params) {
         show_card_list("card_dialog", params)
 }
 
+function show_score_summary() {
+    show_dialog("score", (body) => {
+        let append_header = (text) => {
+            let header = document.createElement("div")
+            header.className = "header"
+            header.textContent = text
+            body.appendChild(header)
+        }
+        let append_score = (label, value) => {
+            let p = document.createElement("div")
+            p.className = "score_row"
+            p.innerHTML = `${label}: ${value > 0 ? '+' : ''}${value}`
+            body.appendChild(p)
+        }
+
+        // Captured spaces
+        let ap_captured = []
+        let cp_captured = []
+        for (let s = 1; s < view.control.length; s++) {
+            if (view.control[s] === 1 && spaces[s].faction === AP && spaces[s].vp > 0)
+                cp_captured.push(s)
+            if (view.control[s] === 0 && spaces[s].faction === CP && spaces[s].vp > 0)
+                ap_captured.push(s)
+        }
+        append_header(`CP Captured (+${cp_captured.length})`)
+        cp_captured.forEach((s) => { append_score(sub_space_name('', s), spaces[s].vp) })
+        append_header(`AP Captured (-${ap_captured.length})`)
+        ap_captured.forEach((s) => { append_score(sub_space_name('', s), -spaces[s].vp) })
+
+        // Missed MOs
+        append_header(`CP Missed MOs (-${view.cp.missed_mo.length})`)
+        view.cp.missed_mo.forEach((turn) => { append_score(`Turn ${turn}`, -1) })
+        append_header(`AP Missed MOs (+${view.ap.missed_mo.length})`)
+        view.cp.missed_mo.forEach((turn) => { append_score(`Turn ${turn}`, 1) })
+
+        // Score events
+        const score_events = view.score_events || []
+        const event_total = score_events.reduce((total, score_event) => { return total + score_event.vp }, 0)
+        append_header(`Score Events (${event_total>0?'+':''}${event_total})`)
+        score_events.forEach((score_event) => {
+            append_score(`Turn ${score_event.t}: ${score_event.c > 0 ? sub_card_name('', score_event.c) : ''}`, score_event.vp)
+        })
+
+        // Bid
+        // TODO
+
+        // Historical Scenario VPs that would score if the scenario ended by armistice or at turn 20
+        // TODO
+    })
+}
+
 let ui = {
     map: document.getElementById("map"),
     status: document.getElementById("status"),
@@ -1978,4 +2029,5 @@ function on_update() {
 // INITIALIZE CLIENT
 
 drag_element_with_mouse("#card_dialog", "#card_dialog_header")
+drag_element_with_mouse("#score", "#score_header")
 

@@ -42,6 +42,12 @@
 	<div id="violations_body" class="dialog_body"></div>
 </div>
 
+<div id="score" class="dialog hide">
+	<div id="score_x" class="dialog_x" onclick="hide_dialog('score')">&#x274c;</div>
+	<div id="score_header" class="dialog_header">Score Summary</div>
+	<div id="score_body" class="dialog_body"></div>
+</div>
+
 <header>
 	<div id="toolbar">
 		<details>
@@ -69,6 +75,7 @@
 		<details id="info_menu">
 			<summary><img src="/images/wooden-sign.svg"></summary>
 			<menu>
+				<li onclick="show_score_summary()"> Score Summary
 				<li onclick="send_query('cp_supply')"> Show CP Supply lines
 				<li onclick="send_query('ap_supply')"> Show AP Supply lines
 				<li onclick="send_query('cp_cards')"> Inspect CP Cards

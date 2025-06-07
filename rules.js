@@ -456,6 +456,8 @@ exports.view = function(state, current) {
         ne_limits: game.ne_restrictions,
 
         violations: check_rule_violations(),
+
+        score_events: game.score_events,
     }
 
     if (current === AP_ROLE) {
@@ -716,7 +718,21 @@ function create_empty_game_state(seed, scenario, options) {
             ru_sr: false, // No more than one Russian Corps (never an Army) may SR to or from the Near East map per turn.
             ru_non_sr: false, // Only one Russian Corps per turn may move in either direction between the “Caucasus” space and the Near East. One Russian corps may attack/retreat between the Caucasus space and the Near East per turn; this counts as the “one move” allowed.
         },
+
+        // Track events that updated the score to display a summary in the client
+        // Each score event should contain t, the turn it was played, vp, the VP change, and c, a card id (optional)
+        score_events: [],
     }
+}
+
+function record_score_event(vp, card) {
+    if (!game.score_events)
+        game.score_events = []
+    game.score_events.push({
+        t: game.turn,
+        vp: vp,
+        c: card || 0
+    })
 }
 
 function is_optional_card(c) {
@@ -2222,6 +2238,7 @@ function end_attack_activation() {
     if (game.attack.used_peace_offensive && !game.attack.did_advance) {
         log(`${faction_name(active_faction())} failed to advance after using ${card_name(PEACE_OFFENSIVE)}, -1 VP`)
         game.vp--
+        record_score_event(-1, PEACE_OFFENSIVE)
     }
 
     if (game.eligible_attackers.length === 0)
@@ -2276,6 +2293,7 @@ function goto_end_action() {
     if (active_faction() === AP && game.events.high_seas_fleet > 0) {
         log(`${faction_name(AP)} did not play ${card_name(GRAND_FLEET)} this action round, ${card_name(HIGH_SEAS_FLEET)} +1 VP`)
         game.vp++
+        record_score_event(1, HIGH_SEAS_FLEET)
         delete game.events.high_seas_fleet
     }
 
@@ -4392,6 +4410,7 @@ states.cancel_retreat = {
             reduce_piece(p)
         }
 
+        switch_active_faction()
         end_attack_activation()
         goto_next_activation()
     },
@@ -5018,6 +5037,7 @@ function goto_war_status_phase() {
     // If blockade event active and it's a winter turn, -1 VP
     if (game.events.blockade >= 1 && game.turn % 4 === 0) {
         game.vp -= 1
+        record_score_event(-1, BLOCKADE)
         log_h2(`-1 VP - ${card_name(BLOCKADE)} in effect`)
     }
     // If CP failed to conduct their mandated offensive, -1 VP
@@ -5029,6 +5049,7 @@ function goto_war_status_phase() {
     // If Italy is still neutral but AP at Total War, +1 VP
     if (!nation_at_war(ITALY) && game.ap.commitment === COMMITMENT_TOTAL) {
         game.vp += 1
+        record_score_event(1, ITALY_ENTRY)
         log_h2(`+1 VP - ${nation_name(ITALY)} is still neutral but ${faction_name(AP)} at Total War`)
     }
 
@@ -5043,6 +5064,7 @@ function goto_war_status_phase() {
     // If French unit attacked without US support after French Mutiny, when FR MO, +1 VP
     if (french_mutiny_active && game.french_attacked_without_us_support) {
         game.vp += 1
+        record_score_event(1, FRENCH_MUTINY)
         log_h2(`+1 VP - French unit attacked without US support after French Mutiny`)
     }
     delete game.french_attacked_without_us_support
@@ -6089,6 +6111,7 @@ events.reichstag_truce = {
     },
     play() {
         game.vp += 1
+        record_score_event(1, REICHSTAG_TRUCE)
         logi(`+1 VP for ${card_name(REICHSTAG_TRUCE)}`)
         start_action_round()
         clear_undo()
@@ -6404,8 +6427,9 @@ states.war_in_africa = {
         update_siege(space)
     },
     pass() {
-        logi(`-1 VP for ${card_name(WAR_IN_AFRICA)}`)
+        logi(`+1 VP for ${card_name(WAR_IN_AFRICA)}`)
         game.vp++
+        record_score_event(1, WAR_IN_AFRICA)
         set_active_faction(CP)
         delete game.war_in_africa_removed
         goto_end_action()
@@ -6665,9 +6689,11 @@ events.fall_of_the_tsar = {
         game.tsar_fell_cp_russian_vp = game.cp.ru_vp
         if (!nation_at_war(ROMANIA)) {
             game.vp += 3
+            record_score_event(3, FALL_OF_THE_TSAR)
             logi(`${card_name(FALL_OF_THE_TSAR)} +3 VP (Romania not at war)`)
         } else {
             game.vp++
+            record_score_event(1, FALL_OF_THE_TSAR)
             logi(`+1 VP for ${card_name(FALL_OF_THE_TSAR)}`)
         }
 
@@ -6775,6 +6801,7 @@ events.polish_restoration = {
     play() {
         game.events.polish_restoration = game.turn
         game.vp--
+        record_score_event(-1, POLISH_RESTORATION)
         logi(`-1 VP for ${card_name(POLISH_RESTORATION)}`)
         const polish_corps = find_n_unused_pieces(GERMANY, 'PLc', 3)
         for (let p of polish_corps) {
@@ -7045,6 +7072,7 @@ events.rape_of_belgium = {
         push_undo()
         logi(`-1 VP for ${card_name(RAPE_OF_BELGIUM)}`)
         game.vp -= 1
+        record_score_event(-1, RAPE_OF_BELGIUM)
         goto_end_action()
     }
 }
@@ -7164,6 +7192,7 @@ events.lusitania = {
     play() {
         push_undo()
         game.vp -= 1
+        record_score_event(-1, LUSITANIA)
         logi(`-1 VP for ${card_name(LUSITANIA)}`)
         game.events.lusitania = game.turn
         goto_end_action()
@@ -7418,6 +7447,7 @@ events.fourteen_points = {
         // allowed at all in the Historical scenario (5.7.2), so there's no way to implement that currently.
         game.events.fourteen_points = game.turn
         game.vp--
+        record_score_event(-1, FOURTEEN_POINTS)
         logi(`-1 VP for ${card_name(FOURTEEN_POINTS)}`)
         goto_end_action()
     }
@@ -7575,6 +7605,7 @@ events.convoy = {
         push_undo()
         game.events.convoy = game.turn
         game.vp--
+        record_score_event(-1, CONVOY)
         logi(`-1 VP for ${card_name(CONVOY)}`)
         goto_end_action()
     }
@@ -7589,6 +7620,7 @@ events.zimmermann_telegram = {
         push_undo()
         game.events.zimmermann_telegram = game.turn
         game.vp--
+        record_score_event(-1, ZIMMERMANN_TELEGRAM)
         logi(`-1 VP for ${card_name(ZIMMERMANN_TELEGRAM)}`)
         game.ops = data.cards[ZIMMERMANN_TELEGRAM].ops
         game.state = 'activate_spaces'
