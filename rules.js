@@ -4411,6 +4411,7 @@ states.cancel_retreat = {
         }
 
         switch_active_faction()
+        clear_undo()
         end_attack_activation()
         goto_next_activation()
     },
