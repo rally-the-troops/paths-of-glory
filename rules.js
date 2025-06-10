@@ -571,6 +571,32 @@ exports.setup = function (seed, scenario, options) {
     setup_reserve_corps(AUSTRIA_HUNGARY, 4)
     setup_reserve_corps(GERMANY, 8)
 
+    // Set up all the neutral pieces
+    setup_piece('tu', 'TUc', 'Constantinople')
+    setup_piece('tu', 'TUc', 'Balikesir')
+    setup_piece('tu', 'TUc', 'Gallipoli')
+    setup_piece('tu', 'TUc', 'Ankara')
+    setup_piece('tu', 'TUc', 'Erzerum')
+    setup_piece('tu', 'TUc', 'Rize')
+    setup_piece('tu', 'TUc', 'Van')
+    setup_piece('tu', 'TUc', 'Adana')
+    setup_piece('tu', 'TUc', 'Mosul')
+    setup_piece('tu', 'TUc', 'Damascus')
+    setup_piece('tu', 'TUc', 'Gaza')
+    setup_piece('tu', 'TUc', 'Medina')
+    setup_piece('tu', 'TUc', 'Baghdad')
+    setup_piece('it', 'ITc', 'Rome')
+    setup_piece('it', 'ITc', 'Turin')
+    setup_piece('it', 'ITc', 'Taranto')
+    setup_piece('it', 'IT 1', 'Verona', true)
+    setup_piece('it', 'IT 2', 'Udine', true)
+    setup_piece('it', 'IT 3', 'Maggiore', true)
+    setup_piece('it', 'IT 4', 'Asiago', true)
+    setup_piece(BULGARIA, 'BUc', 'Sofia')
+    setup_piece(BULGARIA, 'BUc', 'Sofia')
+    setup_piece(ROMANIA, 'ROc', 'Bucharest')
+    setup_piece(ROMANIA, 'ROc', 'Bucharest')
+
     set_trench_level(find_space('Strasbourg'), 1, CP)
     set_trench_level(find_space('Mulhouse'), 1, CP)
     set_trench_level(find_space('Metz'), 1, CP)
@@ -981,43 +1007,19 @@ function set_nation_at_war(nation) {
 
     if (nation === TURKEY) {
         log_h3("Turkey enters the war")
-        setup_piece('tu', 'TUc', 'Constantinople')
-        setup_piece('tu', 'TUc', 'Balikesir')
-        setup_piece('tu', 'TUc', 'Gallipoli')
-        setup_piece('tu', 'TUc', 'Ankara')
-        setup_piece('tu', 'TUc', 'Erzerum')
-        setup_piece('tu', 'TUc', 'Rize')
-        setup_piece('tu', 'TUc', 'Van')
-        setup_piece('tu', 'TUc', 'Adana')
-        setup_piece('tu', 'TUc', 'Mosul')
-        setup_piece('tu', 'TUc', 'Damascus')
-        setup_piece('tu', 'TUc', 'Gaza')
-        setup_piece('tu', 'TUc', 'Medina')
-        setup_piece('tu', 'TUc', 'Baghdad')
     }
 
     if (nation === ITALY) {
         log_h3("Italy enters the war")
-        setup_piece('it', 'ITc', 'Rome')
-        setup_piece('it', 'ITc', 'Turin')
-        setup_piece('it', 'ITc', 'Taranto')
-        setup_piece('it', 'IT 1', 'Verona', true)
-        setup_piece('it', 'IT 2', 'Udine', true)
-        setup_piece('it', 'IT 3', 'Maggiore', true)
-        setup_piece('it', 'IT 4', 'Asiago', true)
     }
 
     if (nation === BULGARIA) {
         log_h3("Bulgaria enters the war")
-        setup_piece(BULGARIA, 'BUc', 'Sofia')
-        setup_piece(BULGARIA, 'BUc', 'Sofia')
         // Other 4 Bulgarian pieces are setup by player choice
     }
 
     if (nation === ROMANIA) {
         log_h3("Romania enters the war")
-        setup_piece(ROMANIA, 'ROc', 'Bucharest')
-        setup_piece(ROMANIA, 'ROc', 'Bucharest')
         // Other 4 Romanian pieces are setup by player choice
     }
 
@@ -6006,6 +6008,8 @@ function get_oos_pieces() {
     let oos_pieces = []
     const moving_pieces = game.move ? game.move.pieces : []
     for (let p = 1; p < data.pieces.length; ++p) {
+        if (!nation_at_war(data.pieces[p].nation))
+            continue
         if (game.location[p] !== 0 && game.location[p] < AP_RESERVE_BOX && !is_unit_supplied(p) && !moving_pieces.includes(p)) {
             oos_pieces.push(p)
         }

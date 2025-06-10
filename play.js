@@ -28,6 +28,9 @@ const GERMANY = 'ge'
 const AUSTRIA_HUNGARY = 'ah'
 const TURKEY = 'tu'
 const MINOR = 'minor'
+const BULGARIA = 'bu'
+const ROMANIA = 'ro'
+const GREECE = 'gr'
 
 function check_menu(id, x) {
     document.getElementById(id).className = x ? "menu_item checked" : "menu_item unchecked"
@@ -1255,6 +1258,10 @@ function update_space(s) {
             pe.classList.add("reduced")
         else
             pe.classList.remove("reduced")
+        if (is_neutral(p))
+            pe.classList.add("neutral")
+        else
+            pe.classList.remove("neutral")
 
         if (is_corps) {
             if (is_reduced) reduced_corps.push(p)
@@ -1353,6 +1360,19 @@ function update_space(s) {
 
     layout_stack(stack, sx, sy, 1)
     update_space_highlight(s)
+}
+
+function is_neutral(p) {
+    switch (pieces[p].nation) {
+        case ITALY:
+        case BULGARIA:
+        case GREECE:
+        case ROMANIA:
+        case TURKEY:
+            return !view.war[pieces[p].nation]
+        default:
+            return false
+    }
 }
 
 function get_reserve_box_stack(nation) {

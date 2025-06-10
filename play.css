@@ -443,6 +443,11 @@ body.Central_Powers header.your_turn { background-color: hsl(200, 40%, 70%); }
     animation: attractAnimation 1s linear;
 }
 
+.unit.neutral {
+    filter: saturate(0.15);
+    opacity: 70%;
+}
+
 .unit.army_ix_1 { background-position: 0px 0px; }
 .unit.army_ix_2 { background-position: -45px 0px; }
 .unit.army_ix_3 { background-position: -90px 0px; }
@@ -637,7 +642,7 @@ body.bevel .unit.tip {
 }
 #ne_limit_markers .marker.ne_limit { display: block; position: relative; }
 
-.marker.neutral { position: absolute; width: 100px; height: 80px; border-style: none; }
+.marker.neutral { position: absolute; width: 100px; height: 80px; border-style: none; z-index: 200; }
 .marker.neutral.it { left: 720px; top: 1020px; }
 .marker.neutral.bu { left: 1500px; top: 1150px; }
 .marker.neutral.gr { left: 1350px; top: 1370px; }
