@@ -306,7 +306,7 @@ function show_score_summary() {
         append_header(`CP Missed MOs (-${view.cp.missed_mo.length})`)
         view.cp.missed_mo.forEach((turn) => { append_score(`Turn ${turn}`, -1) })
         append_header(`AP Missed MOs (+${view.ap.missed_mo.length})`)
-        view.cp.missed_mo.forEach((turn) => { append_score(`Turn ${turn}`, 1) })
+        view.ap.missed_mo.forEach((turn) => { append_score(`Turn ${turn}`, 1) })
 
         // Score events
         const score_events = view.score_events || []
