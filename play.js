@@ -2016,6 +2016,7 @@ function update_map() {
     action_button("pass", "Pass")
     action_button("next", "Next")
     action_button("pick_up_all", "Pick Up All")
+    action_button("select_all", "Select All")
     action_button("entrench", "Entrench")
     action_button("flank", "Flank")
     action_button("move", "Begin Move")

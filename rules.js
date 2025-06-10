@@ -2928,6 +2928,16 @@ states.choose_attackers = {
         get_attackable_spaces(game.attack.pieces).forEach((s) => {
             gen_action_space(s)
         })
+
+        // If no attackers selected and all eligible pieces can attack the same space, add a select all button
+        // Don't show this if any attackers are attacking out of a besieged space because then the calculation of whether
+        // they can join the attack might depend on which other pieces have already joined from the besieged space, so
+        // the participants must be chosen one at a time.
+        const attacking_from_siege = game.eligible_attackers.find((p) => is_besieged(game.location[p])) !== undefined
+        if (!attacking_from_siege && game.attack.pieces.length === 0 && get_attackable_spaces(game.eligible_attackers).length > 0) {
+            gen_action('select_all')
+        }
+
         gen_action_pass()
     },
     piece(p) {
@@ -2943,6 +2953,12 @@ states.choose_attackers = {
         game.attacked.push(s)
         game.where = s
         game.state = 'confirm_attack'
+    },
+    select_all() {
+        push_undo()
+        game.eligible_attackers.forEach((p) => {
+            game.attack.pieces.push(p)
+        })
     },
     pass() {
         game.eligible_attackers = []
@@ -4551,6 +4567,9 @@ function get_retreat_options(pieces, from, length_retreated) {
             return
 
         if (length_retreated === 1 && !is_controlled_by(conn, active_faction()))
+            return
+
+        if (contains_piece_of_faction(conn, inactive_faction()))
             return
 
         if (is_controlled_by(conn, active_faction()))
