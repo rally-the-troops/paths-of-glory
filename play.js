@@ -317,7 +317,13 @@ function show_score_summary() {
         // TODO
 
         // Historical Scenario VPs that would score if the scenario ended by armistice or at turn 20
-        // TODO
+        append_header(`Historical Scenario End Game VPs`)
+        if (!view.events.reinforcements || !view.events.reinforcements.includes(43))
+            append_score(`${sub_card_name('', 43)} not played`, 1)
+        if (!view.events.reinforcements || !view.events.reinforcements.includes(47))
+            append_score(`${sub_card_name('', 47)} not played`, 1)
+        if (!view.events.fall_of_the_tsar > 0)
+            append_score(`${sub_card_name('', 117)} not played`, -2)
     })
 }
 

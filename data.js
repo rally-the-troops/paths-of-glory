@@ -734,7 +734,9 @@ const cards = [
         "rpit": 1,
         "rpru": 3,
         "name": "USA Reinforcements",
-        "effect": "May only be played after \"Over There\". 2nd Army, 1 corps."
+        "effect": "May only be played after \"Over There\". 2nd Army, 1 corps.",
+        "reinfnation": "us",
+        "reinf": "US 2|USc"
     },
     {
         "num": 48,

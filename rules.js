@@ -1935,6 +1935,10 @@ function goto_play_reinf(card) {
         update_us_entry()
     }
 
+    if (!game.events.reinforcements)
+        game.events.reinforcements = []
+    game.events.reinforcements.push(card)
+
     let piece_nation = card_data.reinfnation
     if (card === LIBYAN_REVOLT)
         piece_nation = 'sn' // This card counts as Turkish reinforcements but places the 'sn' piece
@@ -5122,6 +5126,21 @@ function goto_war_status_phase() {
 }
 
 function get_game_result_by_vp() {
+    if (game.scenario === HISTORICAL) {
+        // In the historical scenario, certain unplayed cards affect the final VP tally, per 5.7.4
+        [USA_REINFORCEMENTS_2, USA_REINFORCEMENTS_3].forEach((c) => {
+            if (!game.events.reinforcements || !game.events.reinforcements.includes(c)) {
+                game.vp++ // Each unplayed US army reinforcement card adds 1 VP
+                log(`+1 VP - Unplayed US army reinforcement card - ${card_name(i)}`)
+            }
+        })
+
+        if (!game.events.fall_of_the_tsar > 0) {
+            game.vp -= 2 // If the Fall of the Tsar event was not played, subtract 2 VP
+            log(`-2 VP - ${card_name(FALL_OF_THE_TSAR)} was not played`)
+        }
+    }
+
     let cp_threshold = game.events.treaty_of_brest_litovsk > 0 ? 11 : 13
     let ap_threshold = 9
     if (game.vp >= cp_threshold) {
