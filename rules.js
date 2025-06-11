@@ -1945,10 +1945,17 @@ function goto_play_reinf(card) {
         piece_nation = 'ana' // This card counts as British reinforcements but places the 'ana' piece
 
     game.reinforcements = []
-    card_data.reinf.split('|').forEach((name) => {
-        let p = find_unused_piece(piece_nation, name)
-        game.reinforcements.push(p)
+    let reinf_names = card_data.reinf.split('|')
+    let quantities = {}
+    reinf_names.forEach(name => {
+        if (!quantities[name])
+            quantities[name] = 0
+        quantities[name]++
     })
+    for (let name in quantities) {
+        let pieces = find_n_unused_pieces(piece_nation, name, quantities[name])
+        game.reinforcements.push(...pieces)
+    }
     game.state = 'place_reinforcements'
 }
 
