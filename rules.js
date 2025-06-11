@@ -5211,7 +5211,7 @@ states.game_over = {
 function apply_replacement_phase_events() {
     if (game.turn === game.events.zeppelin_raids) {
         game.rp.br = Math.max(game.rp.br - 4, 0)
-        log(`Zeppelin Raids event subtracts 4 British RP`)
+        log(`${card_name(ZEPPELIN_RAIDS)} subtracts 4 British RP`)
     }
 
     // 5.7.3 The CP receives 1 German RP each turn during Total War (i.e., after it has drawn TW cards) if it controls
@@ -5234,12 +5234,12 @@ function apply_replacement_phase_events() {
 
     if (game.events.walter_rathenau > 0 && !game.events.independent_air_force) {
         game.rp.ge++
-        log("Walter Rathenau event adds 1 German RP")
+        log(`${card_name(WALTER_RATHENAU)} adds 1 German RP`)
     }
 
     if (game.rp.br >= 1 && game.events.uboats_unleashed > 0 && !game.events.convoy) {
         game.rp.br--
-        log("U-Boats Unleashed event subtracts 1 British RP")
+        log(`${card_name(U_BOATS_UNLEASHED)} subtracts 1 British RP`)
     }
 }
 
