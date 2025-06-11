@@ -3831,7 +3831,7 @@ states.apply_defender_losses = {
     prompt() {
         let loss_options = []
         if (game.attack.defender_losses - game.attack.defender_losses_taken > 0) {
-            const fort_strength = has_undestroyed_fort(game.attack.space, active_faction) ? data.spaces[game.attack.space].fort : 0
+            const fort_strength = has_undestroyed_fort(game.attack.space, active_faction()) ? data.spaces[game.attack.space].fort : 0
             loss_options = get_loss_options(true, game.attack.defender_losses - game.attack.defender_losses_taken, get_defenders_pieces(), fort_strength)
         }
         if (loss_options.length > 0) {
