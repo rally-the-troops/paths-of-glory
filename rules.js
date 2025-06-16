@@ -2517,6 +2517,7 @@ states.choose_pieces_to_move = {
         } else {
             game.move.pieces.push(p)
         }
+        update_siege(game.location[p])
     },
     space(s) {
         push_undo()
@@ -3204,7 +3205,6 @@ function get_attackable_spaces(attackers) {
     if (attackers.length === 0)
         return []
 
-    let all_attackers_in_same_space = true
     let eligible_spaces = []
     for (let i = 0; i < attackers.length; ++i) {
         let attacker = attackers[i]
@@ -3758,6 +3758,8 @@ function resolve_defenders_fire() {
     game.attack.defender_table = CORPS
 
     for_each_piece_in_space(game.attack.space, (p) => {
+        if (data.pieces[p].faction !== defender)
+            return // Only count pieces of the defender
         if (!set_has(game.retreated, p))
             defender_cf += get_piece_cf(p)
         if (data.pieces[p].type === ARMY)
@@ -3802,6 +3804,8 @@ states.eliminate_retreated_units = {
     prompt() {
         let has_pieces_to_eliminate = false
         for_each_piece_in_space(game.attack.space, (p) => {
+            if (data.pieces[p].faction !== other_faction(game.attack.attacker))
+                return
             if (set_has(game.retreated, p)) {
                 gen_action_piece(p)
                 has_pieces_to_eliminate = true
@@ -4397,6 +4401,8 @@ function defender_can_cancel_retreat() {
     if (terrain === MOUNTAIN || terrain === SWAMP || terrain === DESERT || terrain === FOREST || get_trench_level_for_attack(game.attack.space, other_faction(game.attack.attacker)) > 0) {
         let step_count = 0
         for_each_piece_in_space(game.attack.space, (p) => {
+            if (data.pieces[p].faction !== other_faction(game.attack.attacker))
+                return // Only count pieces of the defender
             if (is_unit_reduced(p)) {
                 step_count++
             } else {
@@ -4413,7 +4419,8 @@ states.cancel_retreat = {
     prompt() {
         view.prompt = `Cancel retreat by taking an extra step loss or pass to begin retreat`
         for_each_piece_in_space(game.attack.space, (p) => {
-            gen_action_piece(p)
+            if (data.pieces[p].faction === other_faction(game.attack.attacker))
+                gen_action_piece(p)
         })
         gen_action_pass()
     },
