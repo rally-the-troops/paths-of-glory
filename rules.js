@@ -3875,6 +3875,8 @@ states.apply_defender_losses = {
         game.attack.defender_losses_taken += data.spaces[s].fort
         set_add(game.forts.destroyed, s)
         log(`Destroyed fort in ${space_name(s)}`)
+        if (is_besieged(s))
+            set_delete(game.forts.besieged, s)
     },
     done() {
         push_undo()
