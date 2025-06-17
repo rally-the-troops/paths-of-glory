@@ -1246,8 +1246,8 @@ function update_space(s) {
     let stack = space.stack
     stack.length = 0
 
-    let sx = space.x + Math.round(space.w / 2) - 45
-    let sy = space.y + Math.round(space.h / 2) - 45
+    let sx = space.x - Math.round(space.w / 2)
+    let sy = space.y - Math.round(space.h / 2)
 
     let ap_oos = false
     let cp_oos = false
