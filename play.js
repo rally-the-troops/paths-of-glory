@@ -417,6 +417,7 @@ const marker_info = {
     },
     action: {name: "Action", counter: "marker small action ", size: 36},
     fort_destroyed: {name: "Destroyed Fort", counter: "marker fort_destroyed ", size: 45},
+    fort_destroyed_mini: {name: "Destroyed Fort Mini", counter: "marker mini fort_destroyed ", size: 18},
     fort_besieged: {name: "Besieged Fort", counter: "marker fort_besieged ", size: 45},
     turn: {name: "Turn", counter: "marker small game_turn ", size: 36},
     ap_missed_mo: {name: "AP Missed Mandatory Offensive", counter: "marker ap_missed_mo ", size: 45},
@@ -470,6 +471,7 @@ let markers = {
     actions: [],
     forts: {
         destroyed: [],
+        destroyed_mini: [],
         besieged: []
     },
     trench: {
@@ -838,6 +840,14 @@ function build_fort_destroyed_marker(space_id) {
 
 function destroy_fort_destroyed_marker(space_id) {
     destroy_marker(markers.forts.destroyed, e => e.space_id === space_id)
+}
+
+function build_fort_destroyed_mini_marker(space_id) {
+    return build_marker(markers.forts.destroyed_mini, e => e.space_id === space_id, {space_id: space_id}, marker_info.fort_destroyed_mini, true)
+}
+
+function destroy_fort_destroyed_mini_marker(space_id) {
+    destroy_marker(markers.forts.destroyed_mini, e => e.space_id === space_id)
 }
 
 function build_fort_besieged_marker(space_id) {
@@ -1312,8 +1322,12 @@ function update_space(s) {
 
     if (view.forts.destroyed.includes(s)) {
         push_stack(stack, 0, build_fort_destroyed_marker(s))
+        let mini = build_fort_destroyed_mini_marker(s)
+        mini.style.left = `${spaces[s].x - 9}px`
+        mini.style.top = `${spaces[s].y + 30}px`
     } else {
         destroy_fort_destroyed_marker(s)
+        destroy_fort_destroyed_mini_marker(s)
     }
 
     if (view.forts.besieged.includes(s)) {

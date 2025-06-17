@@ -31,6 +31,7 @@
 .marker.current_cp_russian_vp { background-image: url(pieces/current_cp_russian_vp.webp); background-size: 36px 36px; }
 .marker.fort_besieged { background-image: url(pieces/fort_besieged.webp); background-size: 45px 45px; }
 .marker.fort_destroyed { background-image: url(pieces/fort_destroyed.webp); background-size: 45px 45px; }
+.marker.mini.fort_destroyed { background-image: url(pieces/fort_destroyed.webp); background-size: 18px 18px; }
 .marker.fr_rp { background-image: url(pieces/fr_rp.webp); background-size: 45px 45px; }
 .marker.french_mutiny { background-image: url(pieces/french_mutiny.webp); background-size: 45px 45px; }
 .marker.game_turn { background-image: url(pieces/game_turn.webp); background-size: 36px 36px; }

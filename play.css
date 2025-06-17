@@ -668,6 +668,7 @@ body.bevel .unit.tip {
 
 .marker{width:45px;height:45px;}
 .marker.small{width:36px;height:36px}
+.marker.mini{width:18px;height:18px}
 
 .event{width:54px;height:54px;background-size:cover;display:none}
 .event.show{display:block}
