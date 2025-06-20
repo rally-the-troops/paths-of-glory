@@ -1265,7 +1265,7 @@ function check_rule_violations() {
     })
 
     // Check for intact fort spaces with insufficient enemy pieces to begin a siege
-    for (let s = 0; s < data.spaces.length; ++s) {
+    for (let s = 1; s < data.spaces.length; ++s) {
         if ((has_undestroyed_fort(s, AP) || has_undestroyed_fort(s, CP)) && !is_besieged(s)) {
             const enemy_pieces = get_pieces_in_space(s).filter(p => data.pieces[p].faction !== data.spaces[s].faction)
             if (enemy_pieces.length > 0 && !can_besiege(s, enemy_pieces)) {
@@ -4556,7 +4556,9 @@ states.choose_retreat_path = {
     },
     done() {
         game.attack.retreating_pieces.forEach((p) => { set_add(game.retreated, p) })
-        game.attack.retreat_paths.push(game.attack.retreat_path)
+        if (game.attack.retreat_path.length > 0) {
+            game.attack.retreat_paths.push(game.attack.retreat_path)
+        }
         game.attack.retreat_path = []
         game.attack.retreating_pieces.length = 0
         if (game.attack.to_retreat.length > 0) {
@@ -4775,7 +4777,8 @@ function can_advance_into(space, units) {
     if (contains_piece_of_faction(space, other_faction(game.attack.attacker)))
         return false
 
-    return true
+    const nation = data.spaces[space].nation
+    return nation_at_war(nation)
 }
 
 // === FORTS AND SIEGES ===
