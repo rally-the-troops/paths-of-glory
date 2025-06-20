@@ -3274,6 +3274,8 @@ function get_attackable_spaces(attackers) {
         eligible_spaces = eligible_spaces.filter((s) => !(get_trench_level(s, CP) > 0 && contains_only_pieces_of_nation(s, GERMANY)))
     }
 
+    eligible_spaces = eligible_spaces.filter((s) => nation_at_war(data.spaces[s].nation))
+
     return eligible_spaces
 }
 
