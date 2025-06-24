@@ -3741,8 +3741,9 @@ function resolve_attackers_fire() {
         }
     }
 
-    let roll = roll_die(6) + game.attack.attacker_drm
-    let clamped_roll = roll > 6 ? 6 : roll < 1 ? 1 : roll
+    let base_roll = roll_die(6)
+    let modified_roll = base_roll + game.attack.attacker_drm
+    let clamped_roll = modified_roll > 6 ? 6 : modified_roll < 1 ? 1 : modified_roll
     game.attack.defender_losses = get_fire_result(game.attack.attacker_table, attacker_cf, attacker_shifts, clamped_roll)
     game.attack.defender_losses_taken = 0
     game.attack.defender_loss_pieces = []
@@ -3750,7 +3751,7 @@ function resolve_attackers_fire() {
 
     clear_undo()
 
-    logi(`Roll: ${fmt_roll(roll, game.attack.attacker_drm, game.attack.attacker)}`)
+    logi(`Roll: ${fmt_roll(base_roll, game.attack.attacker_drm, game.attack.attacker)}`)
     logi(`Defender losses: ${game.attack.defender_losses}`)
 }
 
@@ -3790,14 +3791,15 @@ function resolve_defenders_fire() {
         logi(`Trenches: shift 1R`)
     }
 
-    let roll = roll_die(6) + game.attack.defender_drm
-    let clamped_roll = roll > 6 ? 6 : roll < 1 ? 1 : roll
+    let base_roll = roll_die(6)
+    let modified_roll = base_roll + game.attack.defender_drm
+    let clamped_roll = modified_roll > 6 ? 6 : modified_roll < 1 ? 1 : modified_roll
     game.attack.attacker_losses = get_fire_result(game.attack.defender_table, defender_cf, defender_shifts, clamped_roll)
     game.attack.attacker_losses_taken = 0
 
     clear_undo()
 
-    logi(`Roll: ${fmt_roll(roll, game.attack.defender_drm, other_faction(game.attack.attacker))}`)
+    logi(`Roll: ${fmt_roll(base_roll, game.attack.defender_drm, other_faction(game.attack.attacker))}`)
     logi(`Attacker losses: ${game.attack.attacker_losses}`)
 }
 
