@@ -860,7 +860,7 @@ function reshuffle_discard(deck) {
         log(`${faction_name(AP)} deck reshuffled`)
     } else if (deck === game.cp.deck) {
         player = game.cp
-        log("${faction_name(CP)} deck reshuffled")
+        log(`${faction_name(CP)} deck reshuffled`)
     }
 
     game.last_card = 0
