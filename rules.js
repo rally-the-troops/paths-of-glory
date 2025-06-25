@@ -793,7 +793,7 @@ function goto_start_turn() {
     log_br()
     roll_mandated_offensives()
     log_br()
-    log_h2(`${faction_name(active_faction())} Action ${game[active_faction()].actions.length+1}`) // FIXME
+    log_h2(`${faction_name(active_faction())} Action ${game[active_faction()].actions.length+1}`)
 
     update_russian_capitulation()
 }
@@ -1396,7 +1396,10 @@ states.action_phase = {
             view.prompt = `Turn ${game.turn} Action ${player_actions.length+1}: Play Guns of August`
             gen_card_menu(GUNS_OF_AUGUST, true)
         } else {
-            view.prompt = `Turn ${game.turn} Action ${player_actions.length + 1}: Play a card or choose an action`
+            if (player_actions.length === 5 && game[active_faction()].mo !== NONE)
+                view.prompt = `Turn ${game.turn} Action ${player_actions.length + 1}: Play a card or choose an action (Warning: final action round to complete ${nation_name(game[active_faction()].mo)} mandated offensive)`
+            else
+                view.prompt = `Turn ${game.turn} Action ${player_actions.length + 1}: Play a card or choose an action`
             for(let card of player_hand) {
                 gen_card_menu(card)
             }
