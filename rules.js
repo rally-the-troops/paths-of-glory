@@ -6832,7 +6832,7 @@ events.h_l_take_command = {
 // CP #55
 events.lloyd_george = {
     can_play() {
-        return true
+        return !(game.events.michael > 0 || game.events.blucher > 0 || game.events.peace_offensive > 0)
     },
     play() {
         game.events.lloyd_george = game.turn
