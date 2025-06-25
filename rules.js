@@ -4991,9 +4991,13 @@ function goto_attrition_phase() {
 states.attrition_phase = {
     inactive: 'Remove OOS pieces and flip OOS spaces',
     prompt() {
-        view.prompt = 'Remove OOS pieces and flip OOS spaces'
-        game.attrition[active_faction()].pieces.forEach((p) => { gen_action_piece(p) })
-        game.attrition[active_faction()].spaces.forEach((s) => { gen_action_space(s) })
+        let pieces = game.attrition[active_faction()].pieces
+        let spaces = game.attrition[active_faction()].spaces
+        const pieces_str = pieces.length <= 3 && pieces.length > 0 ? ` (${piece_list(pieces)})` : ""
+        const spaces_str = spaces.length <= 3 && spaces.length > 0 ? ` (${space_list(spaces)})` : ""
+        view.prompt = `Remove OOS pieces${pieces_str} and flip OOS spaces${spaces_str}`
+        pieces.forEach((p) => { gen_action_piece(p) })
+        spaces.forEach((s) => { gen_action_space(s) })
     },
     piece(p) {
         let loc = game.location[p]
