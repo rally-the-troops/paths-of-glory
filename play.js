@@ -1380,10 +1380,11 @@ function is_neutral(p) {
     switch (pieces[p].nation) {
         case ITALY:
         case BULGARIA:
-        case GREECE:
         case ROMANIA:
         case TURKEY:
             return !view.war[pieces[p].nation]
+        case GREECE:
+            return !(view.war[GREECE] || view.events.salonika > 0)
         default:
             return false
     }
