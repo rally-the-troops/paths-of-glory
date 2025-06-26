@@ -82,6 +82,8 @@ set_mouse_focus(window.localStorage[params.title_id + "/mouse_focus"] | 0)
 let focus = null
 let focus_box = document.getElementById("focus")
 
+const SINAI = spaces.find(s => s.name === "Sinai").id
+
 // SUPPLY LINE DISPLAY
 
 let showing_supply = false
@@ -431,7 +433,7 @@ const marker_info = {
     prince_max: {name: "Prince Max", counter: "marker prince_max ", size: 45},
     us_points: {name: "US Points", counter: "marker us_points ", size: 45},
     lusitania: {name: "Lusitania", counter: "marker lusitania ", size: 45},
-    sinai_pipeline: {name: "Sinai Pipeline", counter: "marker sinai_pipeline ", size: 45},
+    sinai_pipeline: {name: "Sinai Pipeline", counter: "marker small sinai_pipeline ", size: 36},
     stavka_timidity: {name: "Stavka Timidity", counter: "marker stavka_timidity ", size: 45},
     salonika: {name: "Salonika", counter: "marker salonika ", size: 45},
     falkenhayn: {name: "Falkenhayn", counter: "marker falkenhayn ", size: 45},
@@ -482,7 +484,8 @@ let markers = {
         ap: [],
         cp: []
     },
-    mef_beachhead: []
+    mef_beachhead: [],
+    sinai: []
 }
 
 function toggle_counters() {
@@ -1320,6 +1323,12 @@ function update_space(s) {
             destroy_control_marker(s, AP)
     }
 
+    if (s === SINAI && view.events.sinai_pipeline > 0) {
+        push_stack(stack, 0, build_marker(markers.sinai, e => e.space_id === s, {space_id: s}, marker_info.sinai_pipeline))
+    } else {
+        destroy_marker(markers.sinai, e => e.space_id === s)
+    }
+
     if (view.forts.destroyed.includes(s)) {
         push_stack(stack, 0, build_fort_destroyed_marker(s))
         let mini = build_fort_destroyed_mini_marker(s)
@@ -1672,13 +1681,12 @@ function update_turn_track() {
     })
 
     const event_markers = [
-        "blockade", "influenza", "prince_max", "us_points", "lusitania",
-        "sinai_pipeline", "stavka_timidity", "salonika", "falkenhayn",
-        "h_l_take_command", "zeppelin_raids", "peace_offensive", "hoffmann",
-        "guns_of_august", "landships", "race_to_the_sea", "michael",
-        "entrench", "_11th_army", "independent_air_force", "blucher",
-        "moltke", "oberost", "great_retreat"
+        "blockade", "influenza", "prince_max", "us_points", "lusitania", "stavka_timidity",
+        "peace_offensive", "_11th_army", "independent_air_force", "blucher"
     ]
+    // These events don't have marker art available in this version of the game: "guns_of_august", "falkenhayn",
+    // "salonika", "h_l_take_command", "zeppelin_raids", "hoffmann", "race_to_the_sea", "moltke", "oberost",
+    // "great_retreat", "landships", "entrench", "michael"
     event_markers.forEach((marker) => {
         if (view.events[marker] > 0) {
             update_turn_track_marker(marker, view.events[marker])
