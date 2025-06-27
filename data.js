@@ -7929,7 +7929,8 @@ const spaces = [
         "w": 38,
         "h": 38,
         "nation": "eg",
-        "faction": "ap"
+        "faction": "ap",
+        "vp": 1
     },
     {
         "id": 279,
@@ -7941,7 +7942,8 @@ const spaces = [
         "h": 38,
         "nation": "eg",
         "faction": "ap",
-        "apport": true
+        "apport": true,
+        "vp": 1,
     },
     {
         "id": 280,
@@ -7953,7 +7955,8 @@ const spaces = [
         "h": 38,
         "nation": "eg",
         "faction": "ap",
-        "apport": true
+        "apport": true,
+        "vp": 1
     },
     {
         "id": 281,
