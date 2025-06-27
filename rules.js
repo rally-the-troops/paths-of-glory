@@ -5984,6 +5984,10 @@ function is_space_supplied_through_mef(s) {
 function is_space_supplied(faction, s) {
     if (!game.supply_cache) update_supply()
     if (faction === CP) {
+        if (game.location[TURKISH_SN_CORPS] === s && data.spaces[s].map === 'neareast') {
+            return true // Turkish SN Corps in Neareast space is always in supply
+        }
+
         return check_supply_cache(game.supply_cache, s, [ESSEN, BRESLAU, SOFIA, CONSTANTINOPLE])
     } else {
         if (s === CETINJE) // Montenegro is always in supply
