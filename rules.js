@@ -5396,7 +5396,10 @@ states.replacement_phase = {
             if (is_unit_eliminated(p)) {
                 if (!is_unit_reduced(p))
                     game.reduced.push(p)
-                game.location[p] = active_faction() === AP ? AP_RESERVE_BOX : CP_RESERVE_BOX
+                if (p === BRITISH_ANA_CORPS)
+                    game.location[p] = ARABIA_SPACE
+                else
+                    game.location[p] = active_faction() === AP ? AP_RESERVE_BOX : CP_RESERVE_BOX
                 log(`Rebuilt ${piece_name(p)}`)
                 spend_rps(get_rp_type(p), 0.5)
             } else {
@@ -5896,13 +5899,13 @@ function is_unit_supplied(p) {
     if (location === 0)
         return true
 
-    if (p === BRITISH_ANA_CORPS && data.spaces[location].map === "neareast")
+    if (p === BRITISH_ANA_CORPS && data.spaces[location].map && data.spaces[location].map === "neareast")
         return true
 
     if (nation === MONTENEGRO)
         return true
 
-    if (nation === "sn" && data.spaces[location].map === "neareast")
+    if (nation === "sn" && data.spaces[location].map && data.spaces[location].map === "neareast")
         return true
 
     if (nation === GREECE && !nation_at_war(GREECE) && game.events.salonika > 0) // Limited Greek entry
