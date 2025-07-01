@@ -7362,6 +7362,7 @@ states.great_retreat = {
         game.who = 0
     },
     done() {
+        clear_undo()
         // If the Great Retreat ends and there is still something left to attack, continue the next attack step
         if (has_undestroyed_fort(game.attack.space, AP) || get_defenders_pieces().length > 0) {
             goto_attack_step_brusilov_offensive()
