@@ -3578,7 +3578,7 @@ states.defender_combat_cards = {
         game.combat_cards.forEach((c) => {
             let just_played = game.attack.new_combat_cards.includes(c)
             let evt = events[data.cards[c].event]
-            if (!just_played && data.cards[c].faction === active_faction && evt && evt.can_apply())
+            if (!just_played && data.cards[c].faction === active_faction() && evt && evt.can_apply())
                 gen_action_card(c)
         })
 
@@ -3590,10 +3590,10 @@ states.defender_combat_cards = {
             push_undo()
             if (game.attack.combat_cards.includes(c)) {
                 array_remove_item(game.attack.combat_cards, c)
-                log(`${faction_name(active_faction)} chooses not to use ${card_name(c)}`)
+                log(`${faction_name(active_faction())} chooses not to use ${card_name(c)}`)
             } else {
                 game.attack.combat_cards.push(c)
-                log(`${faction_name(active_faction)} chooses to use ${card_name(c)}`)
+                log(`${faction_name(active_faction())} chooses to use ${card_name(c)}`)
             }
         } else {
             // Card was not played yet, so add it to the played combat cards and make it active for this attack
@@ -3602,7 +3602,7 @@ states.defender_combat_cards = {
             game.combat_cards.push(c)
             game.attack.combat_cards.push(c)
             game.attack.new_combat_cards.push(c)
-            log(`${faction_name(active_faction)} plays ${card_name(c)}`)
+            log(`${faction_name(active_faction())} plays ${card_name(c)}`)
             let evt = events[data.cards[c].event]
             if (evt && evt.play)
                 evt.play()
@@ -3959,7 +3959,7 @@ states.withdrawal_negate_step_loss = {
             // If the piece was replaced, move the replacement back to the reserve box
             if (game.attack.defender_replacements[p]) {
                 let replacement = game.attack.defender_replacements[p]
-                game.location[replacement] = active_faction === CP ? CP_RESERVE_BOX : AP_RESERVE_BOX
+                game.location[replacement] = active_faction() === CP ? CP_RESERVE_BOX : AP_RESERVE_BOX
             }
 
             game.location[p] = game.attack.space
