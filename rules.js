@@ -5181,7 +5181,7 @@ function get_game_result_by_vp() {
         [USA_REINFORCEMENTS_2, USA_REINFORCEMENTS_3].forEach((c) => {
             if (!game.events.reinforcements || !game.events.reinforcements.includes(c)) {
                 game.vp++ // Each unplayed US army reinforcement card adds 1 VP
-                log(`+1 VP - Unplayed US army reinforcement card - ${card_name(i)}`)
+                log(`+1 VP - Unplayed US army reinforcement card - ${card_name(c)}`)
             }
         })
 
