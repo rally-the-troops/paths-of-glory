@@ -1500,7 +1500,7 @@ const cards = [
         "ops": 5,
         "sr": 5,
         "remove": true,
-        "ws": 1,
+        "ws": 2,
         "rpah": 3,
         "rpge": 4,
         "rptu": 2,
