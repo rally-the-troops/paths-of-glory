@@ -4320,10 +4320,10 @@ function determine_combat_winner() {
     let to_discard = []
     if (game.attack.defender_losses >= game.attack.attacker_losses) {
         const defender = other_faction(game.attack.attacker)
-        to_discard.concat(game.attack.combat_cards.filter((c) => data.cards[c].faction === defender))
+        to_discard = to_discard.concat(game.attack.combat_cards.filter((c) => data.cards[c].faction === defender))
     }
     if (game.attack.attacker_losses >= game.attack.defender_losses)
-        to_discard.concat(game.attack.combat_cards.filter((c) => data.cards[c].faction === game.attack.attacker))
+        to_discard = to_discard.concat(game.attack.combat_cards.filter((c) => data.cards[c].faction === game.attack.attacker))
     // Some combat cards are discarded or removed, even when the card's owner wins the combat
     game.attack.combat_cards.forEach((c) => {
         // Any * cards that are removed after use
