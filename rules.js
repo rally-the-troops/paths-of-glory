@@ -3248,7 +3248,7 @@ function get_attackable_spaces(attackers) {
 
     const russian_attacker = attackers.find((p) => data.pieces[p].nation === RUSSIA) !== undefined
     const german_attacker = attackers.find((p) => data.pieces[p].nation === GERMANY) !== undefined
-    eligible_spaces.filter((s) => {
+    eligible_spaces = eligible_spaces.filter((s) => {
         //  15.1.12 Russian units may not attack, enter, or besiege a German fort space during the August 1914 turn.
         if (game.turn === 1 && russian_attacker && data.spaces[s].nation === GERMANY && has_undestroyed_fort(s, CP)) {
             return false
