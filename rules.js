@@ -6511,19 +6511,30 @@ events.war_in_africa = {
 states.war_in_africa = {
     inactive: `War in Africa: ${faction_name(AP)} choose to remove a British Corps or lose 1 VP`,
     prompt() {
-        if (game.war_in_africa_removed === 0) {
+        if (game.war_in_africa_removed === undefined) {
+            view.prompt = 'War in Africa - Done'
+            gen_action_done()
+        } else if (game.war_in_africa_removed === 0) {
             view.prompt = 'War in Africa event: Remove a British Corps or pass to lose 1 VP'
+            let full_strength_piece = false
+            let pieces = []
             for (let p = 1; p < data.pieces.length; ++p) {
                 if (data.pieces[p].nation === BRITAIN &&
                     data.pieces[p].type === CORPS &&
                     game.location[p] !== 0 &&
                     !is_minor_british_nation(p) &&
-                    p !== BEF_CORPS)
-                    gen_action_piece(p)
+                    p !== BEF_CORPS) {
+                    if (!is_unit_reduced(p))
+                        full_strength_piece = true
+                    pieces.push(p)
+                }
             }
+            if (full_strength_piece)
+                pieces = pieces.filter(p => !is_unit_reduced(p))
+            pieces.forEach(gen_action_piece)
             gen_action_pass()
         } else {
-            view.prompt = 'War in Africa event: Done'
+            view.prompt = 'War in Africa - Done'
             gen_action_done()
         }
     },
@@ -6537,12 +6548,11 @@ states.war_in_africa = {
         update_siege(space)
     },
     pass() {
+        push_undo()
         logi(`+1 VP for ${card_name(WAR_IN_AFRICA)}`)
         game.vp++
         record_score_event(1, WAR_IN_AFRICA)
-        set_active_faction(CP)
         delete game.war_in_africa_removed
-        goto_end_action()
     },
     done() {
         delete game.war_in_africa_removed
