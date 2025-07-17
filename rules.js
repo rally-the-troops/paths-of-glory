@@ -3265,6 +3265,8 @@ function get_attackable_spaces(attackers) {
         if (!check_russian_ne_restriction(attackers, s)) {
             return false
         }
+
+        return true
     })
 
     // Lloyd George prevents attacks against German defenders with level 2 trenches while active
