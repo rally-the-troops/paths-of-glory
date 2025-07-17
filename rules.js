@@ -6137,12 +6137,14 @@ states.landwehr = {
             view.prompt = `Landwehr - Done`
             gen_action_done()
         } else {
+            let has_eligible_piece = false
             const has_half_rp = spent_rp !== Math.floor(spent_rp)
             const remaining_rp = Math.floor(2 - spent_rp)
             if (remaining_rp === 0) {
                 view.prompt = `Landwehr - Choose a reduced corps to flip`
                 for (let p = 1; p < data.pieces.length; ++p) {
                     if (data.pieces[p].nation === GERMANY && data.pieces[p].type === CORPS && is_unit_reduced(p) && is_unit_supplied(p)) {
+                        has_eligible_piece = true
                         gen_action_piece(p)
                     }
                 }
@@ -6150,11 +6152,18 @@ states.landwehr = {
                 view.prompt = `Landwehr - Choose a reduced unit to flip (${remaining_rp} RP${has_half_rp ? ' plus 1 corps': ''})`
                 for (let p = 1; p < data.pieces.length; ++p) {
                     if (data.pieces[p].nation === GERMANY && is_unit_reduced(p) && is_unit_supplied(p)) {
+                        has_eligible_piece = true
                         gen_action_piece(p)
                     }
                 }
             }
-            gen_action_pass()
+
+            if (!has_eligible_piece) {
+                view.prompt = `Landwehr - Done`
+                gen_action_done()
+            } else {
+                gen_action_pass()
+            }
         }
     },
     piece(p) {
@@ -7749,29 +7758,37 @@ events.paris_taxis = {
         return true
     },
     play() {
-        push_undo()
         game.state = 'paris_taxis'
     }
 }
 
 states.paris_taxis = {
-    inactive: 'Choose a units for the Paris Taxis event',
+    inactive: 'Choose armies for the Paris Taxis event',
     prompt() {
-        view.prompt = 'Choose a reduced Army to strengthen'
+        view.prompt = 'Paris Taxis - Choose a reduced army to strengthen'
+        let has_eligible_army = false
         const spaces = [PARIS, AMIENS, ROUEN, CHATEAU_THIERRY, ORLEANS, MELUN]
         for (let p = 1; p < data.pieces.length; ++p) {
             if (data.pieces[p].nation === FRANCE && data.pieces[p].type === ARMY && is_unit_reduced(p) && spaces.includes(game.location[p])) {
+                has_eligible_army = true
                 gen_action_piece(p)
             }
         }
-        gen_action_pass()
+        if (!has_eligible_army) {
+            view.prompt = 'Paris Taxis - Done'
+            gen_action_done()
+        } else {
+            gen_action_pass()
+        }
     },
     piece(p) {
         array_remove_item(game.reduced, p)
         log(`Flipped ${piece_name(p)} in ${space_name(game.location[p])} to full strength`)
-        goto_end_action()
     },
     pass() {
+        goto_end_action()
+    },
+    done() {
         goto_end_action()
     }
 }
