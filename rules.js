@@ -694,6 +694,7 @@ function create_empty_game_state(seed, scenario, options) {
             destroyed: [], // Spaces with destroyed forts
             besieged: [] // Spaces with besieged forts
         },
+        broken_sieges: [], // Spaces where a siege was broken by combat losses. These spaces are ignored for warnings until a piece moves into or out of them. (15.2.4)
 
         // Allied Powers' state
         ap: {
@@ -1266,7 +1267,7 @@ function check_rule_violations() {
 
     // Check for intact fort spaces with insufficient enemy pieces to begin a siege
     for (let s = 1; s < data.spaces.length; ++s) {
-        if ((has_undestroyed_fort(s, AP) || has_undestroyed_fort(s, CP)) && !is_besieged(s)) {
+        if ((has_undestroyed_fort(s, AP) || has_undestroyed_fort(s, CP)) && !is_besieged(s) && game.broken_sieges && !set_has(game.broken_sieges, s)) {
             const enemy_pieces = get_pieces_in_space(s).filter(p => data.pieces[p].faction !== data.spaces[s].faction)
             if (enemy_pieces.length > 0 && !can_besiege(s, enemy_pieces)) {
                 violations.push({ space: s, piece: 0, rule: "Insufficient strength to begin a siege" })
@@ -2585,6 +2586,10 @@ function move_stack_to_space(s) {
         }
     }
 
+    if (set_has(game.broken_sieges, game.move.current)) {
+        set_delete(game.broken_sieges, game.move.current)
+    }
+
     update_russian_ne_restriction_flag(game.move.pieces, game.move.current, s)
 
     game.move.pieces.forEach((p) => {
@@ -2592,6 +2597,10 @@ function move_stack_to_space(s) {
     })
     game.move.spaces_moved++
     game.move.current = s
+
+    if (set_has(game.broken_sieges, s)) {
+        set_delete(game.broken_sieges, s)
+    }
 
     if (!has_undestroyed_fort(s, other_faction(active_faction()))) {
         set_control(s, active_faction())
@@ -3892,6 +3901,11 @@ states.apply_defender_losses = {
     done() {
         push_undo()
         update_siege(game.attack.space)
+        if (has_undestroyed_fort(game.attack.space, game.attack.attacker) && !is_besieged(game.attack.space)) {
+            // Fort is no longer besieged due to losses, but the remaining pieces are allowed to continue occupying the space
+            // until the player moves them out or moves another piece in, so we have to remember this space is a "broken siege". (15.2.4)
+            set_add(game.broken_sieges, game.attack.space)
+        }
 
         const flank_attack_active = game.attack.is_flank || (game.attack.combat_cards.includes(VON_HUTIER) && events.von_hutier.can_play())
         if (!flank_attack_active && is_withdrawal_active() && game.attack.defender_loss_pieces.length > 0) {
@@ -4547,6 +4561,8 @@ states.choose_retreat_path = {
 
         game.attack.retreat_path.push(s)
         game.attack.retreating_pieces.forEach((p) => {
+            if (set_has(game.broken_sieges, game.location[p]))
+                set_delete(game.broken_sieges, game.location[p])
             game.location[p] = s
         })
     },
@@ -5780,9 +5796,18 @@ function fill_supply_cache(faction, cache, sources, options) {
         }
     }
 
-    // Block enemy controlled spaces, unless besieging an enemy fort in the space
+    // Block enemy controlled spaces, unless occupying an enemy fort in the space
+    let occupied_forts = []
+    for (let p = 1; p < data.pieces.length; ++p) {
+        if (data.pieces[p].faction === faction) {
+            const occupied_location = game.location[p]
+            if (has_undestroyed_fort(occupied_location, other_faction(faction))) {
+                set_add(occupied_forts, occupied_location)
+            }
+        }
+    }
     for (let s = 1; s < data.spaces.length; ++s) {
-        if (!is_controlled_by(s, faction) && !is_besieged(s)) {
+        if (!is_controlled_by(s, faction) && !set_has(occupied_forts, s)) {
             set_add(blocked_spaces, s)
         } else if (use_ports) {
             // If this type of supply can use ports, build a set of friendly port spaces
