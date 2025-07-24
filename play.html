@@ -76,10 +76,18 @@
 			<summary><img src="/images/wooden-sign.svg"></summary>
 			<menu>
 				<li onclick="show_score_summary()"> Score Summary
-				<li onclick="send_query('cp_supply')"> Show CP Supply lines
-				<li onclick="send_query('ap_supply')"> Show AP Supply lines
 				<li onclick="send_query('cp_cards')"> Inspect CP Cards
 				<li onclick="send_query('ap_cards')"> Inspect AP Cards
+			</menu>
+		</details>
+		<details id="supply_menu">
+			<summary><img src="/images/wooden-sign.svg"></summary>
+			<menu>
+				<li onclick="flag_supply_threats()"> Flag Supply Threats
+				<li onclick="propose_rollback()"> Propose Rollback
+				<li class="separator">
+				<li onclick="send_query('cp_supply')"> Show CP Supply
+				<li onclick="send_query('ap_supply')"> Show AP Supply
 			</menu>
 		</details>
 		<button id="piece_button" onclick="toggle_counters()"><img src="/images/earth-america.svg"></button>
@@ -146,5 +154,22 @@
 </main>
 
 <footer id="status"></footer>
+
+<dialog id="propose_rollback_dialog" class="dialog">
+	<h3>Propose Rollback</h3>
+	<p>If your opponent agrees to your rollback proposal, the game will reset to a previous action round.</p>
+	<form id="propose_rollback_form">
+		<label for="rollback_checkpoint">Rollback to:</label>
+		<select name="checkpoint" id="rollback_checkpoint" onchange="update_rollback_dialog()">
+		</select>
+	</form>
+	<div id="propose_rollback_details">
+		Some details about what will be rolled back go here.
+	</div>
+	<div style="text-align:right">
+		<button onclick="propose_rollback_cancel(event)">Cancel</button>
+		<button onclick="propose_rollback_submit(event)">Submit</button>
+	</div>
+</dialog>
 
 </body>

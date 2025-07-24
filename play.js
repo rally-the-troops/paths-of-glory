@@ -264,6 +264,35 @@ function toggle_dialog_collapse(id) {
     }
 }
 
+function propose_rollback() {
+    // TODO: Populate the options in the form based on the available checkpoints
+    let form = window.propose_rollback_form
+    form.checkpoint.innerHTML = ""
+    form.checkpoint.add(new Option("Checkpoint 1", "1"))
+    form.checkpoint.add(new Option("Checkpoint 2", "2"))
+    update_rollback_dialog()
+    window.propose_rollback_dialog.showModal()
+}
+
+function update_rollback_dialog() {
+    let form = window.propose_rollback_form
+    let details = window.propose_rollback_details
+    details.innerHTML = ""
+    // TODO: populate with real details from the view
+    details.innerHTML += `${form.checkpoint.value}`
+}
+
+function propose_rollback_cancel(evt) {
+    evt.preventDefault()
+    window.propose_rollback_dialog.close()
+}
+
+function propose_rollback_submit(evt) {
+    evt.preventDefault()
+    console.log(`Proposing rollback to ${window.propose_rollback_form.checkpoint.value}`) // TODO: send rollback proposal
+    window.propose_rollback_dialog.close()
+}
+
 function on_reply(q, params) {
     if (q === 'cp_supply')
         show_cp_supply(params)
