@@ -4426,7 +4426,11 @@ function determine_combat_winner() {
 
 function defender_can_cancel_retreat() {
     const terrain = data.spaces[game.attack.space].terrain
-    if (terrain === MOUNTAIN || terrain === SWAMP || terrain === DESERT || terrain === FOREST || get_trench_level_for_attack(game.attack.space, other_faction(game.attack.attacker)) > 0) {
+    if (terrain === MOUNTAIN || 
+        terrain === SWAMP || 
+        terrain === DESERT || 
+        terrain === FOREST || 
+        (get_trench_level_for_attack(game.attack.space, other_faction(game.attack.attacker)) > 0 && !game.attack.trenches_canceled)) {
         let step_count = 0
         for_each_piece_in_space(game.attack.space, (p) => {
             if (data.pieces[p].faction !== other_faction(game.attack.attacker))
