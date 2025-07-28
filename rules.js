@@ -4435,7 +4435,7 @@ function defender_can_cancel_retreat() {
         for_each_piece_in_space(game.attack.space, (p) => {
             if (data.pieces[p].faction !== other_faction(game.attack.attacker))
                 return // Only count pieces of the defender
-            if (is_unit_reduced(p)) {
+            if (is_unit_reduced(p) && data.pieces[p].type === CORPS) {
                 step_count++
             } else {
                 step_count += 2
