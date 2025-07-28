@@ -15,7 +15,7 @@ body.Central_Powers header.your_turn { background-color: hsl(200, 40%, 70%); }
 #log .cp { background-color: hsl(200, 35%, 85%); }
 
 :root {
-    --highlight-color: yellow;
+    --highlight-color: lime;
     --selected-color: blue;
 }
 aside { min-width: 220px; }
@@ -475,11 +475,11 @@ body.Central_Powers header.your_turn { background-color: hsl(200, 40%, 70%); }
 .unit.army_ix_8.reduced { background-position: -315px -45px; }
 .unit.army_ix_9.reduced { background-position: -360px -45px; }
 .unit.army_ix_10.reduced { background-position: -405px -45px; }
-.unit.army_ix_11.reduced { background-position: -495px -45px; }
-.unit.army_ix_12.reduced { background-position: -540px -45px; }
-.unit.army_ix_13.reduced { background-position: -585px -45px; }
-.unit.army_ix_14.reduced { background-position: -630px -45px; }
-.unit.army_ix_15.reduced { background-position: -675px -45px; }
+.unit.army_ix_11.reduced { background-position: -450px -45px; }
+.unit.army_ix_12.reduced { background-position: -495px -45px; }
+.unit.army_ix_13.reduced { background-position: -540px -45px; }
+.unit.army_ix_14.reduced { background-position: -585px -45px; }
+.unit.army_ix_15.reduced { background-position: -630px -45px; }
 
 .unit.corps_ix_1 { background-position: 0px 0px; }
 .unit.corps_ix_2 { background-position: -36px 0px; }
