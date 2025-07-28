@@ -475,7 +475,7 @@ exports.view = function(state, current) {
     else
         view.rollback = game.rollback.map((r) => {
             return {
-                name: `Turn ${r.state.turn} ${r.state.active} Action ${r.state[short_faction(r.state.active)].actions.length-1}`,
+                name: `Turn ${r.state.turn} ${r.state.active} Action ${r.state[short_faction(r.state.active)].actions.length}`,
                 events: r.events
             }
         })
@@ -3507,7 +3507,7 @@ function roll_flank_attack() {
             logi('Failed')
             game.attack.failed_flank = true
         }
-        log_event_for_rollback(`Flank roll at ${space_name(game.attack.space)}`)
+        //log_event_for_rollback(`Flank roll at ${space_name(game.attack.space)}`) // Don't log this because it is always paired with a combat roll
         clear_undo()
     }
 

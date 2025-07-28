@@ -265,11 +265,11 @@ function toggle_dialog_collapse(id) {
 }
 
 function propose_rollback() {
-    // TODO: Populate the options in the form based on the available checkpoints
     let form = window.propose_rollback_form
     form.checkpoint.innerHTML = ""
-    form.checkpoint.add(new Option("Checkpoint 1", "1"))
-    form.checkpoint.add(new Option("Checkpoint 2", "2"))
+    view.rollback.forEach((rollback, i) => {
+        form.checkpoint.add(new Option(rollback.name, i))
+    })
     update_rollback_dialog()
     window.propose_rollback_dialog.showModal()
 }
@@ -277,9 +277,12 @@ function propose_rollback() {
 function update_rollback_dialog() {
     let form = window.propose_rollback_form
     let details = window.propose_rollback_details
-    details.innerHTML = ""
-    // TODO: populate with real details from the view
-    details.innerHTML += `${form.checkpoint.value}`
+    details.innerHTML = `<div class="rollback_header">Rollback will undo:</div>`
+    for (let i = form.checkpoint.value; i < view.rollback.length; i++) {
+        view.rollback[i].events.forEach((event) => {
+            details.innerHTML += `<div class="rollback_event">${on_prompt(event)}</div>`
+        })
+    }
 }
 
 function propose_rollback_cancel(evt) {

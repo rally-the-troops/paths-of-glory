@@ -232,6 +232,15 @@ aside { min-width: 220px; }
 #violations .piecetip { color: blue }
 #violations .piecetip:hover { text-decoration: underline; cursor: pointer; }
 
+.rollback_header {
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+.rollback_event {
+    margin-left: 20px;
+}
+
 @media (max-width: 400px) {
     .dialog {
         position: static;
