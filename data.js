@@ -695,7 +695,6 @@ const cards = [
         "ops": 3,
         "sr": 4,
         "remove": true,
-        "cc": true,
         "rpbr": 1,
         "rpfr": 1,
         "rpit": 1,
