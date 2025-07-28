@@ -3388,6 +3388,7 @@ states.negate_trench = {
         array_remove_item(game[active_faction()].hand, c)
         game.combat_cards.push(c)
         game.attack.combat_cards.push(c)
+        game.attack.new_combat_cards.push(c)
         log(`${faction_name(active_faction())} plays ${card_name(c)}`)
     },
     next() {
