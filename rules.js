@@ -1089,7 +1089,7 @@ function roll_mandated_offensives() {
     }
 
     let cp_roll = roll_die(6)
-    if (game.events.hoffman > 0) {
+    if (game.events.hoffmann > 0) {
         cp_roll++;
     }
     let cp_index = cp_roll > 6 ? 6 : cp_roll;
@@ -1118,7 +1118,7 @@ function roll_mandated_offensives() {
     }
 
     log(`Mandated offensives:`)
-    log(`CP: B${cp_roll} -> ${nation_name(cp_mo)}`)
+    log(`CP: B${cp_index} -> ${nation_name(cp_mo)}`)
     log(`AP: W${ap_roll} -> ${nation_name(ap_mo)}`)
 
     game.ap.mo = ap_mo
