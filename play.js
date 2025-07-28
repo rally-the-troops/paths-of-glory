@@ -1722,7 +1722,7 @@ function general_records_pos(value) {
 }
 
 function update_general_record(type, value, remove = false) {
-    value = Math.floor(value)
+    value = Math.floor(Math.min(value, 40))
     if (remove) {
         destroy_general_records_marker(type)
     } else {
