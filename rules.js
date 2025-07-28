@@ -5995,8 +5995,8 @@ function is_unit_supplied_through_italy(p) {
 }
 
 function can_unit_trace_supply_to_basra(p) {
-    if (!game.supply_cache) update_supply()
-    return check_supply_cache(game.supply_cache, game.location[p], [BASRA])
+    let destinations = get_sr_destinations(p)
+    return set_has(destinations, BASRA)
 }
 
 function is_space_supplied_through_mef(s) {
