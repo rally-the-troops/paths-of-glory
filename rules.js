@@ -6480,13 +6480,10 @@ events.alpenkorps = {
 
         if (game.attack.attacker === CP &&
             undefined !== game.attack.pieces.find(p => data.pieces[p].nation === GERMANY &&
-            data.spaces[game.location[p]].terrain === MOUNTAIN)) {
+            (data.spaces[game.location[p]].terrain === MOUNTAIN) ||  
+            data.spaces[game.attack.space].terrain === MOUNTAIN)) {
             return true
         }
-
-        return (game.attack.attacker === AP &&
-                data.spaces[game.attack.space].terrain === MOUNTAIN &&
-                undefined !== get_defenders_pieces().find(p => data.pieces[p].nation === GERMANY))
     },
     can_apply() {
         return this.can_play()
