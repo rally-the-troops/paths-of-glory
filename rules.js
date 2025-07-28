@@ -8,6 +8,8 @@ let game, view
 let states = {}
 let events = {}
 
+const MAX_ROLLBACK_POINTS = 6
+
 const AP = "ap"
 const CP = "cp"
 
@@ -1120,6 +1122,7 @@ function roll_mandated_offensives() {
     log(`Mandated offensives:`)
     log(`CP: B${cp_index} -> ${nation_name(cp_mo)}`)
     log(`AP: W${ap_roll} -> ${nation_name(ap_mo)}`)
+    log_event_for_rollback("Rolled Mandated Offensives")
 
     game.ap.mo = ap_mo
     game.cp.mo = cp_mo
@@ -2118,6 +2121,7 @@ function roll_peace_terms(faction_offering, combined_war_status) {
     } else {
         logi(`No effect`)
     }
+    log_event_for_rollback("Rolled peace terms")
 }
 
 states.activate_spaces = {
@@ -2211,6 +2215,7 @@ function start_action_round() {
             game.eligible_attackers.push(p)
         }
     })
+    save_rollback_point()
     save_checkpoint("action_round")
     goto_next_activation()
 }
@@ -2289,6 +2294,7 @@ function goto_end_action() {
             const roll = roll_die(6)
             const drm = failed_previously.includes(p) ? -1 : 0
             log(`Entrench attempt in ${space_name(game.location[p])}`)
+            log_event_for_rollback(`Entrench roll in ${space_name(game.location[p])}`)
             const success = roll+drm <= get_piece_lf(p)
             if (success) {
                 logi(`${fmt_roll(roll, drm)} -> Success`)
@@ -3487,6 +3493,7 @@ function roll_flank_attack() {
             logi('Failed')
             game.attack.failed_flank = true
         }
+        log_event_for_rollback(`Flank roll at ${space_name(game.attack.space)}`)
         clear_undo()
     }
 
@@ -3811,6 +3818,8 @@ function resolve_defenders_fire() {
     let clamped_roll = modified_roll > 6 ? 6 : modified_roll < 1 ? 1 : modified_roll
     game.attack.attacker_losses = get_fire_result(game.attack.defender_table, defender_cf, defender_shifts, clamped_roll)
     game.attack.attacker_losses_taken = 0
+
+    log_event_for_rollback(`Combat at ${space_name(game.attack.space)}`)
 
     clear_undo()
 
@@ -5096,6 +5105,7 @@ states.siege_phase = {
         } else {
             logi(`Fort holds`)
         }
+        log_event_for_rollback(`Siege roll at ${space_name(s)}`)
 
         if (game.sieges_to_roll.length === 0) {
             goto_war_status_phase()
@@ -8175,6 +8185,8 @@ function push_undo() {
         let v = game[k]
         if (k === "undo")
             continue
+        else if (k === "rollback")
+            continue
         else if (k === "log")
             v = v.length
         else if (k === "supply")
@@ -8189,10 +8201,12 @@ function push_undo() {
 function pop_undo() {
     let save_log = game.log
     let save_undo = game.undo
+    let save_rollback = game.rollback
     game = save_undo.pop()
     save_log.length = game.log
     game.log = save_log
     game.undo = save_undo
+    game.rollback = save_rollback // This is safe because rollback checkpoints are only generated at the start of an action round, so it should be impossible to undo past a rollback point
 }
 
 function save_checkpoint(name) {
@@ -8219,6 +8233,48 @@ function restore_checkpoint(name) {
 function has_checkpoint(name) {
     name = name || "checkpoint"
     return game.undo.some((u) => u.checkpoint === name)
+}
+
+function save_rollback_point() {
+    if (!game.rollback)
+        game.rollback = []
+    let copy = {}
+    for (let k in game) {
+        let v = game[k]
+        if (k === "undo")
+            continue
+        if (k === "rollback")
+            continue
+        else if (k === "log")
+            v = v.length
+        else if (k === "supply")
+            continue
+        else if (typeof v === "object" && v !== null)
+            v = object_copy(v)
+        copy[k] = v
+    }
+    game.rollback.push({ state: copy, events: [] })
+    if (game.rollback.length > MAX_ROLLBACK_POINTS)
+        game.rollback.shift()
+}
+
+function restore_rollback(index) {
+    if (!game.rollback || game.rollback.length <= index || index < 0)
+        return
+
+    let save_log = game.log
+    game = game.rollback[index].state
+    save_log.length = game.log
+    game.log = save_log
+    game.undo = [] // Rollback always wipes out the undo stack
+
+    // TODO: restoring a rollback should update the random seed
+}
+
+function log_event_for_rollback(description) {
+    if (!game.rollback || game.rollback.length === 0)
+        return
+    game.rollback[game.rollback.length-1].events.push(description)
 }
 
 function log(msg) {
