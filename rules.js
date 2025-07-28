@@ -459,7 +459,7 @@ exports.view = function(state, current) {
 
         violations: check_rule_violations(),
 
-        score_events: game.score_events,
+        score_events: game.score_events
     }
 
     if (current === AP_ROLE) {
@@ -469,6 +469,16 @@ exports.view = function(state, current) {
     } else {
         view.hand = []
     }
+
+    if (!game.rollback)
+        view.rollback = []
+    else
+        view.rollback = game.rollback.map((r) => {
+            return {
+                name: `Turn ${r.state.turn} ${r.state.active} Action ${r.state[short_faction(r.state.active)].actions.length-1}`,
+                events: r.events
+            }
+        })
 
     if (!states[game.state]) {
         view.prompt = "Invalid game state: " + game.state
@@ -1294,7 +1304,11 @@ function check_rule_violations() {
 }
 
 function active_faction() {
-    switch (game.active) {
+    return short_faction(game.active)
+}
+
+function short_faction(faction) {
+    switch (faction) {
         case AP_ROLE: return AP
         case CP_ROLE: return CP
         default: return game.active
