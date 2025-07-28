@@ -6687,8 +6687,16 @@ events.von_below = {
             if (data.pieces[d].nation !== ITALY)
                 return false
         }
-        return true
+        let german_in_attack = false
+        for (let a of game.attack.pieces) {
+            if (data.pieces[a].nation === GERMANY) {
+                german_in_attack = true
+                break
+            }
+        }
+        return german_in_attack
     },
+
     can_apply() {
         return this.can_play() && !game.attack.trenches_canceled
     },
