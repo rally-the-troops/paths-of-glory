@@ -327,6 +327,8 @@ exports.action = function (state, current, action, arg) {
     } else {
         if (action === "undo" && game.undo && game.undo.length > 0)
             pop_undo()
+        else if (action === "propose_rollback")
+            goto_propose_rollback(game.active)
         else
             throw new Error("Invalid action: " + action)
     }
@@ -503,6 +505,13 @@ exports.view = function(state, current) {
                 view.actions.undo = 0
         }
     }
+
+    // Rollback action
+    if (!globalThis.RTT_FUZZER &&
+        game.rollback_proposal === undefined &&
+        game.rollback &&
+        game.rollback.length > 0)
+        view.actions.propose_rollback = 1
 
     return view
 }

@@ -264,7 +264,14 @@ function toggle_dialog_collapse(id) {
     }
 }
 
+function can_propose_rollback() {
+    return view.actions && 'propose_rollback' in view.actions && view.actions.propose_rollback > 0
+}
+
 function propose_rollback() {
+    if (!can_propose_rollback())
+        return
+
     let form = window.propose_rollback_form
     form.checkpoint.innerHTML = ""
     view.rollback.forEach((rollback, i) => {
@@ -278,10 +285,15 @@ function update_rollback_dialog() {
     let form = window.propose_rollback_form
     let details = window.propose_rollback_details
     details.innerHTML = `<div class="rollback_header">Rollback will undo:</div>`
+    let has_rollback_events = false
     for (let i = form.checkpoint.value; i < view.rollback.length; i++) {
         view.rollback[i].events.forEach((event) => {
+            has_rollback_events = true
             details.innerHTML += `<div class="rollback_event">${on_prompt(event)}</div>`
         })
+    }
+    if (!has_rollback_events) {
+        details.innerHTML += `<div class="rollback_event">No die rolls will be undone</div>`
     }
 }
 
@@ -2084,6 +2096,13 @@ function update_map() {
     document.getElementById("ap_hand").textContent = `${view.ap.hand} cards`
     document.getElementById("ap_deck_size").textContent = `Allied Powers deck: ${view.ap.deck} cards`
     document.getElementById("cp_deck_size").textContent = `Central Powers deck: ${view.cp.deck} cards`
+
+    let menu = document.getElementById("propose_rollback_menu")
+    if (can_propose_rollback()) {
+        menu.classList.remove('disabled')
+    } else {
+        menu.classList.add('disabled')
+    }
 
     action_button("offer_peace", "Offer Peace")
     action_button("single_op", "Automatic Operation (1 Op)")
