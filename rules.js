@@ -520,7 +520,8 @@ exports.view = function(state, current) {
             view.actions.propose_rollback = view.rollback.map((r, i) => i)
 
         // Flag supply warnings
-        view.actions.flag_supply_warnings = 1
+        if (!globalThis.RTT_FUZZER)
+            view.actions.flag_supply_warnings = 1
     }
 
     return view
