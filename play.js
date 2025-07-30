@@ -264,6 +264,17 @@ function toggle_dialog_collapse(id) {
     }
 }
 
+function can_flag_supply_warnings() {
+    return view.actions && 'flag_supply_warnings' in view.actions
+}
+
+function flag_supply_warnings() {
+    if (!can_flag_supply_warnings())
+        return
+
+    send_action("flag_supply_warnings")
+}
+
 function can_propose_rollback() {
     return view.actions && 'propose_rollback' in view.actions
 }
@@ -1672,6 +1683,13 @@ function update_space_highlight(s) {
     } else {
         space.element.classList.remove("warning")
     }
+
+    // TODO: Decide how to actually display these warnings
+    if (view.supply_warnings && view.supply_warnings.includes(s)) {
+        space.element.classList.add("warning")
+    } else {
+        space.element.classList.remove("warning")
+    }
 }
 
 function should_highlight_space(s) {
@@ -2164,11 +2182,18 @@ function update_map() {
     document.getElementById("ap_deck_size").textContent = `Allied Powers deck: ${view.ap.deck} cards`
     document.getElementById("cp_deck_size").textContent = `Central Powers deck: ${view.cp.deck} cards`
 
-    let menu = document.getElementById("propose_rollback_menu")
+    let rollback_menu = document.getElementById("propose_rollback_menu")
     if (can_propose_rollback()) {
-        menu.classList.remove('disabled')
+        rollback_menu.classList.remove('disabled')
     } else {
-        menu.classList.add('disabled')
+        rollback_menu.classList.add('disabled')
+    }
+
+    let flag_supply_warning_menu = document.getElementById("flag_supply_warning_menu")
+    if (can_flag_supply_warnings()) {
+        flag_supply_warning_menu.classList.remove('disabled')
+    } else {
+        flag_supply_warning_menu.classList.add('disabled')
     }
 
     if (view.rollback_proposal && view.actions && 'accept' in view.actions && 'reject' in view.actions) {

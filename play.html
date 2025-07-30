@@ -76,6 +76,7 @@
 			<summary><img src="/images/wooden-sign.svg"></summary>
 			<menu>
 				<li onclick="show_score_summary()"> Score Summary
+				<li class="separator">
 				<li onclick="send_query('cp_cards')"> Inspect CP Cards
 				<li onclick="send_query('ap_cards')"> Inspect AP Cards
 			</menu>
@@ -83,7 +84,7 @@
 		<details id="supply_menu">
 			<summary><img src="/images/oil-drum.svg"></summary>
 			<menu>
-				<li onclick="flag_supply_threats()"> Flag Supply Threats
+				<li onclick="flag_supply_warnings()" id="flag_supply_warning_menu"> Flag Supply Warnings
 				<li onclick="propose_rollback()" id="propose_rollback_menu"> Propose Rollback
 				<li class="separator">
 				<li onclick="send_query('cp_supply')"> Show CP Supply

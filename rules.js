@@ -329,6 +329,8 @@ exports.action = function (state, current, action, arg) {
             pop_undo()
         else if (action === "propose_rollback")
             goto_propose_rollback(arg)
+        else if (action === "flag_supply_warnings")
+            goto_flag_supply_warnings()
         else
             throw new Error("Invalid action: " + action)
     }
@@ -461,7 +463,9 @@ exports.view = function(state, current) {
 
         violations: check_rule_violations(),
 
-        score_events: game.score_events
+        score_events: game.score_events,
+
+        supply_warnings: game.supply_warnings
     }
 
     if (current === AP_ROLE) {
@@ -514,6 +518,9 @@ exports.view = function(state, current) {
             game.rollback &&
             game.rollback.length > 0)
             view.actions.propose_rollback = view.rollback.map((r, i) => i)
+
+        // Flag supply warnings
+        view.actions.flag_supply_warnings = 1
     }
 
     return view
@@ -1239,7 +1246,7 @@ states.confirm_mo = {
         gen_action_next()
     },
     next() {
-        goto_action_phase()
+        goto_review_supply_warnings()
     }
 }
 
@@ -2356,7 +2363,7 @@ function goto_end_action() {
         if (game.ap.actions.length === 0) {
             game.state = 'confirm_mo'
         } else {
-            goto_action_phase()
+            goto_review_supply_warnings()
         }
         log_h3(`${faction_name(active_faction())} Action ${game[active_faction()].actions.length+1}`)
     } else {
@@ -8265,6 +8272,8 @@ function has_checkpoint(name) {
     return game.undo.some((u) => u.checkpoint === name)
 }
 
+// ROLLBACK
+
 function save_rollback_point() {
     if (!game.rollback)
         game.rollback = []
@@ -8338,6 +8347,63 @@ function log_event_for_rollback(description) {
         return
     game.rollback[game.rollback.length-1].events.push(description)
 }
+
+// SUPPLY WARNINGS
+
+function goto_flag_supply_warnings() {
+    game.save_state = game.state
+    game.state = 'flag_supply_warnings'
+}
+
+states.flag_supply_warnings = {
+    inactive: 'Flagging supply warnings',
+    prompt() {
+        view.prompt = 'Flag spaces where supply lines are threatened'
+        for (let s = 1; s < AP_RESERVE_BOX; ++s) {
+            gen_action_space(s)
+        }
+        gen_action_done()
+    },
+    space(s) {
+        if (game.supply_warnings === undefined)
+            game.supply_warnings = []
+        set_toggle(game.supply_warnings, s)
+    },
+    done() {
+        game.state = game.save_state
+        delete game.save_state
+    }
+}
+
+function has_supply_warnings() {
+    return game.supply_warnings && game.supply_warnings.length > 0
+}
+
+function goto_review_supply_warnings() {
+    if (has_supply_warnings()) {
+        log("Supply warnings flagged:")
+        game.supply_warnings.forEach((s) => { logi(`${space_name(s)}`) })
+        game.state = 'review_supply_warnings'
+    } else {
+        goto_action_phase()
+    }
+}
+
+states.review_supply_warnings = {
+    inactive: 'Reviewing supply warnings',
+    prompt() {
+        view.prompt = 'Review supply warnings'
+        if (game.supply_warnings && game.supply_warnings.length < 4)
+            view.prompt += ` (${space_list(game.supply_warnings)})`
+        gen_action_done()
+    },
+    done() {
+        delete game.supply_warnings
+        goto_action_phase()
+    }
+}
+
+// LOG HELPERS
 
 function log(msg) {
     game.log.push(msg)
