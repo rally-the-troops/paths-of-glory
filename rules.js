@@ -482,6 +482,9 @@ exports.view = function(state, current) {
             }
         })
 
+    if (game.rollback_proposal)
+        view.rollback_proposal = { index: game.rollback_proposal.index }
+
     if (!states[game.state]) {
         view.prompt = "Invalid game state: " + game.state
         return view

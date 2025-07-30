@@ -157,19 +157,30 @@
 
 <dialog id="propose_rollback_dialog" class="dialog">
 	<h3>Propose Rollback</h3>
-	<p>In order to correct for missed supply warnings, it may be necessary to roll the game state back to a previous action round.</p>
-	<p>If your opponent agrees to your rollback proposal, the game will be reset to the chosen point.</p>
+	<p>To correct for missed supply warnings, it may be necessary to roll the game back to an earlier action round.</p>
+	<p>If your opponent agrees to the rollback proposal, the game will be reset to the chosen point.</p>
+	<p>This action cannot be undone.</p>
 	<form id="propose_rollback_form">
-		<label for="rollback_checkpoint">Rollback to:</label>
+		<label for="rollback_checkpoint">Roll back to:</label>
 		<select name="checkpoint" id="rollback_checkpoint" onchange="update_rollback_dialog()">
 		</select>
 	</form>
-	<div id="propose_rollback_details">
-		Some details about what will be rolled back go here.
-	</div>
-	<div style="text-align:right">
+	<div id="propose_rollback_details"></div>
+	<div class="rollback_buttons">
 		<button onclick="propose_rollback_cancel(event)">Cancel</button>
 		<button onclick="propose_rollback_submit(event)">Submit</button>
+	</div>
+</dialog>
+
+<dialog id="review_rollback_dialog" class="dialog">
+	<h3>Review Rollback Proposal</h3>
+	<p>Your opponent has proposed a rollback to an earlier action round.</p>
+	<p>Review the details below and choose whether to accept or reject the proposal.</p>
+	<div id="review_rollback_details"></div>
+	<div class="rollback_buttons">
+		<button onclick="review_rollback_cancel(event)">Cancel</button>
+		<button onclick="review_rollback_accept(event)">Accept</button>
+		<button onclick="review_rollback_reject(event)">Reject</button>
 	</div>
 </dialog>
 

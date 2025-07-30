@@ -241,6 +241,11 @@ aside { min-width: 220px; }
     margin-left: 20px;
 }
 
+.rollback_buttons {
+    text-align: right;
+    margin-top: 10px;
+}
+
 @media (max-width: 400px) {
     .dialog {
         position: static;

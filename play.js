@@ -293,11 +293,17 @@ function update_rollback_dialog() {
     for (let i = Number(form.checkpoint.value); i < view.rollback.length; i++) {
         view.rollback[i].events.forEach((event) => {
             has_rollback_events = true
-            details.innerHTML += `<div class="rollback_event">${on_prompt(event)}</div>`
+            let detail = document.createElement("div")
+            detail.className = 'rollback_event'
+            detail.innerHTML = on_prompt(event)
+            details.appendChild(detail)
         })
     }
     if (!has_rollback_events) {
-        details.innerHTML += `<div class="rollback_event">No die rolls will be undone</div>`
+        let detail = document.createElement("div")
+        detail.className = 'rollback_event'
+        detail.textContent = 'No die rolls will be undone'
+        details.appendChild(detail)
     }
 }
 
@@ -311,6 +317,50 @@ function propose_rollback_submit(evt) {
     const form = document.getElementById('propose_rollback_form')
     send_action('propose_rollback', Number(form.checkpoint.value))
     document.getElementById('propose_rollback_dialog').close()
+}
+
+function review_rollback() {
+    if (!view.rollback_proposal)
+        return
+
+    let details = document.getElementById('review_rollback_details')
+    details.innerHTML = ""
+    const index = view.rollback_proposal.index
+    const rollback_header = document.createElement("div")
+    rollback_header.className = "rollback_header"
+    rollback_header.textContent = `Rollback to ${view.rollback[index].name} will undo:`
+    details.appendChild(rollback_header)
+    let has_rollback_events = false
+    for (let i = index; i < view.rollback.length; i++) {
+        view.rollback[i].events.forEach((event) => {
+            has_rollback_events = true
+            let detail = document.createElement("div")
+            detail.className = 'rollback_event'
+            detail.innerHTML = on_prompt(event)
+            details.appendChild(detail)
+        })
+    }
+    if (!has_rollback_events) {
+        let detail = document.createElement("div")
+        detail.className = 'rollback_event'
+        detail.textContent = 'No die rolls will be undone'
+        details.appendChild(detail)
+    }
+    document.getElementById('review_rollback_dialog').showModal()
+}
+
+function review_rollback_cancel() {
+    document.getElementById('review_rollback_dialog').close()
+}
+
+function review_rollback_reject() {
+    send_action('reject')
+    document.getElementById('review_rollback_dialog').close()
+}
+
+function review_rollback_accept() {
+    send_action('accept')
+    document.getElementById('review_rollback_dialog').close()
 }
 
 function on_reply(q, params) {
@@ -2053,6 +2103,18 @@ function on_prompt(text) {
     return text
 }
 
+function add_review_rollback_button() {
+    let button = document.getElementById("review_rollback_button")
+    if (!button) {
+        button = document.createElement("button")
+        button.id = "review_rollback_button"
+        button.textContent = "Review Proposal"
+        button.addEventListener("click", () => { review_rollback() })
+        document.getElementById("actions").append(button)
+    }
+    return button
+}
+
 function update_map() {
     if (!view)
         return
@@ -2107,6 +2169,15 @@ function update_map() {
         menu.classList.remove('disabled')
     } else {
         menu.classList.add('disabled')
+    }
+
+    if (view.rollback_proposal && view.actions && 'accept' in view.actions && 'reject' in view.actions) {
+        add_review_rollback_button()
+    } else {
+        let button = document.getElementById("review_rollback_button")
+        if (button) {
+            button.remove()
+        }
     }
 
     action_button("offer_peace", "Offer Peace")
