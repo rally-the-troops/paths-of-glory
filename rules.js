@@ -8303,13 +8303,14 @@ function restore_rollback(index) {
         return
 
     let save_rollback = game.rollback
+    let save_seed = game.seed
     let save_log = game.log
     game = game.rollback[index].state
     save_log.length = game.log
     game.log = save_log
     game.undo = [] // Rollback always wipes out the undo stack
     game.rollback = save_rollback.slice(0, index) // Keep older rollback points
-    // TODO: restoring a rollback should update the random seed
+    game.seed = save_seed
 }
 
 function goto_propose_rollback(rollback_index) {
