@@ -328,7 +328,7 @@ exports.action = function (state, current, action, arg) {
         if (action === "undo" && game.undo && game.undo.length > 0)
             pop_undo()
         else if (action === "propose_rollback")
-            goto_propose_rollback(game.active)
+            goto_propose_rollback(arg)
         else
             throw new Error("Invalid action: " + action)
     }
@@ -477,7 +477,7 @@ exports.view = function(state, current) {
     else
         view.rollback = game.rollback.map((r) => {
             return {
-                name: `Turn ${r.state.turn} ${r.state.active} Action ${r.state[short_faction(r.state.active)].actions.length}`,
+                name: `Turn ${r.state.turn} ${r.state.active} Action ${r.state[short_faction(r.state.active)].actions.length+1}`,
                 events: r.events
             }
         })
@@ -504,14 +504,14 @@ exports.view = function(state, current) {
             else
                 view.actions.undo = 0
         }
-    }
 
-    // Rollback action
-    if (!globalThis.RTT_FUZZER &&
-        game.rollback_proposal === undefined &&
-        game.rollback &&
-        game.rollback.length > 0)
-        view.actions.propose_rollback = 1
+        // Rollback action
+        if (!globalThis.RTT_FUZZER &&
+            game.rollback_proposal === undefined &&
+            game.rollback &&
+            game.rollback.length > 0)
+            view.actions.propose_rollback = view.rollback.map((r, i) => i)
+    }
 
     return view
 }
@@ -1236,7 +1236,7 @@ states.confirm_mo = {
         gen_action_next()
     },
     next() {
-        game.state = 'action_phase'
+        goto_action_phase()
     }
 }
 
@@ -1413,6 +1413,11 @@ function get_trench_level_for_attack(s, faction) {
 }
 
 // === GAME STATES ===
+
+function goto_action_phase() {
+    game.state = 'action_phase'
+    save_rollback_point()
+}
 
 states.action_phase = {
     inactive: "Action Phase",
@@ -2238,7 +2243,6 @@ function start_action_round() {
             game.eligible_attackers.push(p)
         }
     })
-    save_rollback_point()
     save_checkpoint("action_round")
     goto_next_activation()
 }
@@ -2349,7 +2353,7 @@ function goto_end_action() {
         if (game.ap.actions.length === 0) {
             game.state = 'confirm_mo'
         } else {
-            game.state = 'action_phase'
+            goto_action_phase()
         }
         log_h3(`${faction_name(active_faction())} Action ${game[active_faction()].actions.length+1}`)
     } else {
@@ -8285,13 +8289,45 @@ function restore_rollback(index) {
     if (!game.rollback || game.rollback.length <= index || index < 0)
         return
 
+    let save_rollback = game.rollback
     let save_log = game.log
     game = game.rollback[index].state
     save_log.length = game.log
     game.log = save_log
     game.undo = [] // Rollback always wipes out the undo stack
-
+    game.rollback = save_rollback.slice(0, index) // Keep older rollback points
     // TODO: restoring a rollback should update the random seed
+}
+
+function goto_propose_rollback(rollback_index) {
+    if (!game.rollback || game.rollback.length === 0)
+        return
+
+    game.rollback_proposal = { faction: game.active, save_state: game.state, index: rollback_index }
+    switch_active_faction()
+    game.state = "review_rollback_proposal"
+}
+
+states.review_rollback_proposal = {
+    inactive: 'Reviewing rollback proposal',
+    prompt() {
+        const rollback = game.rollback[game.rollback_proposal.index]
+        const turn = rollback.state.turn
+        const faction = short_faction(rollback.state.active)
+        const action = rollback.state[faction].actions.length + 1
+        view.prompt = `${game.rollback_proposal.faction} proposed rolling back to Turn ${turn}, ${faction_name(faction)} Action ${action}`
+        gen_action('accept')
+        gen_action('reject')
+    },
+    accept() {
+        restore_rollback(game.rollback_proposal.index)
+        save_rollback_point()
+    },
+    reject() {
+        game.active = game.rollback_proposal.faction
+        game.state = game.rollback_proposal.save_state
+        delete game.rollback_proposal
+    }
 }
 
 function log_event_for_rollback(description) {

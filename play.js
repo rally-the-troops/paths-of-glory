@@ -265,28 +265,32 @@ function toggle_dialog_collapse(id) {
 }
 
 function can_propose_rollback() {
-    return view.actions && 'propose_rollback' in view.actions && view.actions.propose_rollback > 0
+    return view.actions && 'propose_rollback' in view.actions
 }
 
 function propose_rollback() {
     if (!can_propose_rollback())
         return
 
-    let form = window.propose_rollback_form
+    let form = document.getElementById('propose_rollback_form')
     form.checkpoint.innerHTML = ""
     view.rollback.forEach((rollback, i) => {
         form.checkpoint.add(new Option(rollback.name, i))
     })
     update_rollback_dialog()
-    window.propose_rollback_dialog.showModal()
+    document.getElementById('propose_rollback_dialog').showModal()
 }
 
 function update_rollback_dialog() {
-    let form = window.propose_rollback_form
-    let details = window.propose_rollback_details
-    details.innerHTML = `<div class="rollback_header">Rollback will undo:</div>`
+    let form = document.getElementById('propose_rollback_form')
+    let details = document.getElementById('propose_rollback_details')
+    details.innerHTML = ""
+    const rollback_header = document.createElement("div")
+    rollback_header.className = "rollback_header"
+    rollback_header.textContent = "This rollback will undo:"
+    details.appendChild(rollback_header)
     let has_rollback_events = false
-    for (let i = form.checkpoint.value; i < view.rollback.length; i++) {
+    for (let i = Number(form.checkpoint.value); i < view.rollback.length; i++) {
         view.rollback[i].events.forEach((event) => {
             has_rollback_events = true
             details.innerHTML += `<div class="rollback_event">${on_prompt(event)}</div>`
@@ -299,13 +303,14 @@ function update_rollback_dialog() {
 
 function propose_rollback_cancel(evt) {
     evt.preventDefault()
-    window.propose_rollback_dialog.close()
+    document.getElementById('propose_rollback_dialog').close()
 }
 
 function propose_rollback_submit(evt) {
     evt.preventDefault()
-    console.log(`Proposing rollback to ${window.propose_rollback_form.checkpoint.value}`) // TODO: send rollback proposal
-    window.propose_rollback_dialog.close()
+    const form = document.getElementById('propose_rollback_form')
+    send_action('propose_rollback', Number(form.checkpoint.value))
+    document.getElementById('propose_rollback_dialog').close()
 }
 
 function on_reply(q, params) {
@@ -2119,6 +2124,8 @@ function update_map() {
     action_button("finish_attacks", "End Attack Phase")
     action_button("done", "Done")
     action_button("attack", "Attack")
+    action_button("accept", "Accept")
+    action_button("reject", "Reject")
     action_button("undo", "Undo")
 }
 

@@ -157,7 +157,8 @@
 
 <dialog id="propose_rollback_dialog" class="dialog">
 	<h3>Propose Rollback</h3>
-	<p>If your opponent agrees to your rollback proposal, the game will reset to a previous action round.</p>
+	<p>In order to correct for missed supply warnings, it may be necessary to roll the game state back to a previous action round.</p>
+	<p>If your opponent agrees to your rollback proposal, the game will be reset to the chosen point.</p>
 	<form id="propose_rollback_form">
 		<label for="rollback_checkpoint">Rollback to:</label>
 		<select name="checkpoint" id="rollback_checkpoint" onchange="update_rollback_dialog()">
