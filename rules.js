@@ -8,6 +8,8 @@ let game, view
 let states = {}
 let events = {}
 
+const MAX_ROLLBACK_POINTS = 6
+
 const AP = "ap"
 const CP = "cp"
 
@@ -325,6 +327,10 @@ exports.action = function (state, current, action, arg) {
     } else {
         if (action === "undo" && game.undo && game.undo.length > 0)
             pop_undo()
+        else if (action === "propose_rollback")
+            goto_propose_rollback(arg)
+        else if (action === "flag_supply_warnings")
+            goto_flag_supply_warnings()
         else
             throw new Error("Invalid action: " + action)
     }
@@ -458,6 +464,8 @@ exports.view = function(state, current) {
         violations: check_rule_violations(),
 
         score_events: game.score_events,
+
+        supply_warnings: game.supply_warnings
     }
 
     if (current === AP_ROLE) {
@@ -467,6 +475,19 @@ exports.view = function(state, current) {
     } else {
         view.hand = []
     }
+
+    if (!game.rollback)
+        view.rollback = []
+    else
+        view.rollback = game.rollback.map((r) => {
+            return {
+                name: `Turn ${r.state.turn} ${r.state.active} Action ${r.state[short_faction(r.state.active)].actions.length+1}`,
+                events: r.events
+            }
+        })
+
+    if (game.rollback_proposal)
+        view.rollback_proposal = { index: game.rollback_proposal.index }
 
     if (!states[game.state]) {
         view.prompt = "Invalid game state: " + game.state
@@ -490,6 +511,16 @@ exports.view = function(state, current) {
             else
                 view.actions.undo = 0
         }
+
+        // Rollback action
+        if (!globalThis.RTT_FUZZER &&
+            game.rollback_proposal === undefined &&
+            game.rollback &&
+            game.rollback.length > 0)
+            view.actions.propose_rollback = view.rollback.map((r, i) => i)
+
+        // Flag supply warnings
+        view.actions.flag_supply_warnings = 1
     }
 
     return view
@@ -1120,6 +1151,7 @@ function roll_mandated_offensives() {
     log(`Mandated offensives:`)
     log(`CP: B${cp_index} -> ${nation_name(cp_mo)}`)
     log(`AP: W${ap_roll} -> ${nation_name(ap_mo)}`)
+    log_event_for_rollback("Rolled Mandated Offensives")
 
     game.ap.mo = ap_mo
     game.cp.mo = cp_mo
@@ -1214,7 +1246,7 @@ states.confirm_mo = {
         gen_action_next()
     },
     next() {
-        game.state = 'action_phase'
+        goto_review_supply_warnings()
     }
 }
 
@@ -1291,7 +1323,11 @@ function check_rule_violations() {
 }
 
 function active_faction() {
-    switch (game.active) {
+    return short_faction(game.active)
+}
+
+function short_faction(faction) {
+    switch (faction) {
         case AP_ROLE: return AP
         case CP_ROLE: return CP
         default: return game.active
@@ -1387,6 +1423,11 @@ function get_trench_level_for_attack(s, faction) {
 }
 
 // === GAME STATES ===
+
+function goto_action_phase() {
+    game.state = 'action_phase'
+    save_rollback_point()
+}
 
 states.action_phase = {
     inactive: "Action Phase",
@@ -2118,6 +2159,7 @@ function roll_peace_terms(faction_offering, combined_war_status) {
     } else {
         logi(`No effect`)
     }
+    log_event_for_rollback("Rolled peace terms")
 }
 
 states.activate_spaces = {
@@ -2289,6 +2331,7 @@ function goto_end_action() {
             const roll = roll_die(6)
             const drm = failed_previously.includes(p) ? -1 : 0
             log(`Entrench attempt in ${space_name(game.location[p])}`)
+            log_event_for_rollback(`Entrench roll in ${space_name(game.location[p])}`)
             const success = roll+drm <= get_piece_lf(p)
             if (success) {
                 logi(`${fmt_roll(roll, drm)} -> Success`)
@@ -2320,7 +2363,7 @@ function goto_end_action() {
         if (game.ap.actions.length === 0) {
             game.state = 'confirm_mo'
         } else {
-            game.state = 'action_phase'
+            goto_review_supply_warnings()
         }
         log_h3(`${faction_name(active_faction())} Action ${game[active_faction()].actions.length+1}`)
     } else {
@@ -3487,6 +3530,7 @@ function roll_flank_attack() {
             logi('Failed')
             game.attack.failed_flank = true
         }
+        //log_event_for_rollback(`Flank roll at ${space_name(game.attack.space)}`) // Don't log this because it is always paired with a combat roll
         clear_undo()
     }
 
@@ -3811,6 +3855,8 @@ function resolve_defenders_fire() {
     let clamped_roll = modified_roll > 6 ? 6 : modified_roll < 1 ? 1 : modified_roll
     game.attack.attacker_losses = get_fire_result(game.attack.defender_table, defender_cf, defender_shifts, clamped_roll)
     game.attack.attacker_losses_taken = 0
+
+    log_event_for_rollback(`Combat at ${space_name(game.attack.space)}`)
 
     clear_undo()
 
@@ -5096,6 +5142,7 @@ states.siege_phase = {
         } else {
             logi(`Fort holds`)
         }
+        log_event_for_rollback(`Siege roll at ${space_name(s)}`)
 
         if (game.sieges_to_roll.length === 0) {
             goto_war_status_phase()
@@ -8175,6 +8222,8 @@ function push_undo() {
         let v = game[k]
         if (k === "undo")
             continue
+        else if (k === "rollback")
+            continue
         else if (k === "log")
             v = v.length
         else if (k === "supply")
@@ -8189,10 +8238,12 @@ function push_undo() {
 function pop_undo() {
     let save_log = game.log
     let save_undo = game.undo
+    let save_rollback = game.rollback
     game = save_undo.pop()
     save_log.length = game.log
     game.log = save_log
     game.undo = save_undo
+    game.rollback = save_rollback // This is safe because rollback checkpoints are only generated at the start of an action round, so it should be impossible to undo past a rollback point
 }
 
 function save_checkpoint(name) {
@@ -8220,6 +8271,139 @@ function has_checkpoint(name) {
     name = name || "checkpoint"
     return game.undo.some((u) => u.checkpoint === name)
 }
+
+// ROLLBACK
+
+function save_rollback_point() {
+    if (!game.rollback)
+        game.rollback = []
+    let copy = {}
+    for (let k in game) {
+        let v = game[k]
+        if (k === "undo")
+            continue
+        if (k === "rollback")
+            continue
+        else if (k === "log")
+            v = v.length
+        else if (k === "supply")
+            continue
+        else if (typeof v === "object" && v !== null)
+            v = object_copy(v)
+        copy[k] = v
+    }
+    game.rollback.push({ state: copy, events: [] })
+    if (game.rollback.length > MAX_ROLLBACK_POINTS)
+        game.rollback.shift()
+}
+
+function restore_rollback(index) {
+    if (!game.rollback || game.rollback.length <= index || index < 0)
+        return
+
+    let save_rollback = game.rollback
+    let save_log = game.log
+    game = game.rollback[index].state
+    save_log.length = game.log
+    game.log = save_log
+    game.undo = [] // Rollback always wipes out the undo stack
+    game.rollback = save_rollback.slice(0, index) // Keep older rollback points
+    // TODO: restoring a rollback should update the random seed
+}
+
+function goto_propose_rollback(rollback_index) {
+    if (!game.rollback || game.rollback.length === 0)
+        return
+
+    game.rollback_proposal = { faction: game.active, save_state: game.state, index: rollback_index }
+    switch_active_faction()
+    game.state = "review_rollback_proposal"
+}
+
+states.review_rollback_proposal = {
+    inactive: 'Reviewing rollback proposal',
+    prompt() {
+        const rollback = game.rollback[game.rollback_proposal.index]
+        const turn = rollback.state.turn
+        const faction = short_faction(rollback.state.active)
+        const action = rollback.state[faction].actions.length + 1
+        view.prompt = `${game.rollback_proposal.faction} proposed rolling back to Turn ${turn}, ${faction_name(faction)} Action ${action}`
+        gen_action('accept')
+        gen_action('reject')
+    },
+    accept() {
+        restore_rollback(game.rollback_proposal.index)
+        save_rollback_point()
+    },
+    reject() {
+        game.active = game.rollback_proposal.faction
+        game.state = game.rollback_proposal.save_state
+        delete game.rollback_proposal
+    }
+}
+
+function log_event_for_rollback(description) {
+    if (!game.rollback || game.rollback.length === 0)
+        return
+    game.rollback[game.rollback.length-1].events.push(description)
+}
+
+// SUPPLY WARNINGS
+
+function goto_flag_supply_warnings() {
+    game.save_state = game.state
+    game.state = 'flag_supply_warnings'
+}
+
+states.flag_supply_warnings = {
+    inactive: 'Flagging supply warnings',
+    prompt() {
+        view.prompt = 'Flag spaces where supply lines are threatened'
+        for (let s = 1; s < AP_RESERVE_BOX; ++s) {
+            gen_action_space(s)
+        }
+        gen_action_done()
+    },
+    space(s) {
+        if (game.supply_warnings === undefined)
+            game.supply_warnings = []
+        set_toggle(game.supply_warnings, s)
+    },
+    done() {
+        game.state = game.save_state
+        delete game.save_state
+    }
+}
+
+function has_supply_warnings() {
+    return game.supply_warnings && game.supply_warnings.length > 0
+}
+
+function goto_review_supply_warnings() {
+    if (has_supply_warnings()) {
+        log("Supply warnings flagged:")
+        game.supply_warnings.forEach((s) => { logi(`${space_name(s)}`) })
+        game.state = 'review_supply_warnings'
+    } else {
+        goto_action_phase()
+    }
+}
+
+states.review_supply_warnings = {
+    inactive: 'Reviewing supply warnings',
+    prompt() {
+        view.prompt = 'Review supply warnings'
+        if (game.supply_warnings && game.supply_warnings.length < 4)
+            view.prompt += ` (${space_list(game.supply_warnings)})`
+        gen_action_done()
+    },
+    done() {
+        delete game.supply_warnings
+        goto_action_phase()
+    }
+}
+
+// LOG HELPERS
 
 function log(msg) {
     game.log.push(msg)

@@ -264,6 +264,116 @@ function toggle_dialog_collapse(id) {
     }
 }
 
+function can_flag_supply_warnings() {
+    return view.actions && 'flag_supply_warnings' in view.actions
+}
+
+function flag_supply_warnings() {
+    if (!can_flag_supply_warnings())
+        return
+
+    send_action("flag_supply_warnings")
+}
+
+function can_propose_rollback() {
+    return view.actions && 'propose_rollback' in view.actions
+}
+
+function propose_rollback() {
+    if (!can_propose_rollback())
+        return
+
+    let form = document.getElementById('propose_rollback_form')
+    form.checkpoint.innerHTML = ""
+    view.rollback.forEach((rollback, i) => {
+        form.checkpoint.add(new Option(rollback.name, i))
+    })
+    update_rollback_dialog()
+    document.getElementById('propose_rollback_dialog').showModal()
+}
+
+function update_rollback_dialog() {
+    let form = document.getElementById('propose_rollback_form')
+    let details = document.getElementById('propose_rollback_details')
+    details.innerHTML = ""
+    const rollback_header = document.createElement("div")
+    rollback_header.className = "rollback_header"
+    rollback_header.textContent = "This rollback will undo:"
+    details.appendChild(rollback_header)
+    let has_rollback_events = false
+    for (let i = Number(form.checkpoint.value); i < view.rollback.length; i++) {
+        view.rollback[i].events.forEach((event) => {
+            has_rollback_events = true
+            let detail = document.createElement("div")
+            detail.className = 'rollback_event'
+            detail.innerHTML = on_prompt(event)
+            details.appendChild(detail)
+        })
+    }
+    if (!has_rollback_events) {
+        let detail = document.createElement("div")
+        detail.className = 'rollback_event'
+        detail.textContent = 'No die rolls will be undone'
+        details.appendChild(detail)
+    }
+}
+
+function propose_rollback_cancel(evt) {
+    evt.preventDefault()
+    document.getElementById('propose_rollback_dialog').close()
+}
+
+function propose_rollback_submit(evt) {
+    evt.preventDefault()
+    const form = document.getElementById('propose_rollback_form')
+    send_action('propose_rollback', Number(form.checkpoint.value))
+    document.getElementById('propose_rollback_dialog').close()
+}
+
+function review_rollback() {
+    if (!view.rollback_proposal)
+        return
+
+    let details = document.getElementById('review_rollback_details')
+    details.innerHTML = ""
+    const index = view.rollback_proposal.index
+    const rollback_header = document.createElement("div")
+    rollback_header.className = "rollback_header"
+    rollback_header.textContent = `Rollback to ${view.rollback[index].name} will undo:`
+    details.appendChild(rollback_header)
+    let has_rollback_events = false
+    for (let i = index; i < view.rollback.length; i++) {
+        view.rollback[i].events.forEach((event) => {
+            has_rollback_events = true
+            let detail = document.createElement("div")
+            detail.className = 'rollback_event'
+            detail.innerHTML = on_prompt(event)
+            details.appendChild(detail)
+        })
+    }
+    if (!has_rollback_events) {
+        let detail = document.createElement("div")
+        detail.className = 'rollback_event'
+        detail.textContent = 'No die rolls will be undone'
+        details.appendChild(detail)
+    }
+    document.getElementById('review_rollback_dialog').showModal()
+}
+
+function review_rollback_cancel() {
+    document.getElementById('review_rollback_dialog').close()
+}
+
+function review_rollback_reject() {
+    send_action('reject')
+    document.getElementById('review_rollback_dialog').close()
+}
+
+function review_rollback_accept() {
+    send_action('accept')
+    document.getElementById('review_rollback_dialog').close()
+}
+
 function on_reply(q, params) {
     if (q === 'cp_supply')
         show_cp_supply(params)
@@ -1573,6 +1683,13 @@ function update_space_highlight(s) {
     } else {
         space.element.classList.remove("warning")
     }
+
+    // TODO: Decide how to actually display these warnings
+    if (view.supply_warnings && view.supply_warnings.includes(s)) {
+        space.element.classList.add("warning")
+    } else {
+        space.element.classList.remove("warning")
+    }
 }
 
 function should_highlight_space(s) {
@@ -2004,6 +2121,18 @@ function on_prompt(text) {
     return text
 }
 
+function add_review_rollback_button() {
+    let button = document.getElementById("review_rollback_button")
+    if (!button) {
+        button = document.createElement("button")
+        button.id = "review_rollback_button"
+        button.textContent = "Review Proposal"
+        button.addEventListener("click", () => { review_rollback() })
+        document.getElementById("actions").append(button)
+    }
+    return button
+}
+
 function update_map() {
     if (!view)
         return
@@ -2053,6 +2182,29 @@ function update_map() {
     document.getElementById("ap_deck_size").textContent = `Allied Powers deck: ${view.ap.deck} cards`
     document.getElementById("cp_deck_size").textContent = `Central Powers deck: ${view.cp.deck} cards`
 
+    let rollback_menu = document.getElementById("propose_rollback_menu")
+    if (can_propose_rollback()) {
+        rollback_menu.classList.remove('disabled')
+    } else {
+        rollback_menu.classList.add('disabled')
+    }
+
+    let flag_supply_warning_menu = document.getElementById("flag_supply_warning_menu")
+    if (can_flag_supply_warnings()) {
+        flag_supply_warning_menu.classList.remove('disabled')
+    } else {
+        flag_supply_warning_menu.classList.add('disabled')
+    }
+
+    if (view.rollback_proposal && view.actions && 'accept' in view.actions && 'reject' in view.actions) {
+        add_review_rollback_button()
+    } else {
+        let button = document.getElementById("review_rollback_button")
+        if (button) {
+            button.remove()
+        }
+    }
+
     action_button("offer_peace", "Offer Peace")
     action_button("single_op", "Automatic Operation (1 Op)")
     action_button("use", "Use")
@@ -2068,6 +2220,8 @@ function update_map() {
     action_button("finish_attacks", "End Attack Phase")
     action_button("done", "Done")
     action_button("attack", "Attack")
+    action_button("accept", "Accept")
+    action_button("reject", "Reject")
     action_button("undo", "Undo")
 }
 
