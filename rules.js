@@ -170,7 +170,7 @@ const BRUSILOV_OFFENSIVE = 46
 const USA_REINFORCEMENTS_3 = 47
 const ROYAL_TANK_CORPS = 48
 const SINAI_PIPELINE = 49
-const ALLEBY = 50
+const ALLENBY = 50
 const EVERYONE_INTO_BATTLE = 51
 const CONVOY = 52
 const ARMY_OF_THE_ORIENT = 53
@@ -3174,7 +3174,7 @@ function goto_attack_step_combat_cards() {
 
 function could_apply_combat_card(c) {
     let card_data = data.cards[c]
-    if (!card_data.cc)
+    if (!card_data.cc && card_data.event !== "yanks_and_tanks")
         return false
     let evt = events[card_data.event]
     return !!(evt && evt.can_apply());
