@@ -3428,11 +3428,12 @@ states.negate_trench = {
         gen_action_next()
     },
     card(c) {
-        clear_undo()
+        push_undo()
         array_remove_item(game[active_faction()].hand, c)
         game.combat_cards.push(c)
         game.attack.combat_cards.push(c)
         game.attack.new_combat_cards.push(c)
+        events[data.cards[c].event].play()
         log(`${faction_name(active_faction())} plays ${card_name(c)}`)
     },
     next() {
@@ -7762,7 +7763,7 @@ events.royal_tank_corps = {
             return false
         if (game.attack.attacker !== AP)
             return false
-        if (!game.events.h_l_take_command)
+        if (!game.events.landships)
             return false
         if (undefined === game.attack.pieces.find(p => data.pieces[p].nation === BRITAIN))
             return false
