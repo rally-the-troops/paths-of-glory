@@ -7778,6 +7778,9 @@ events.royal_tank_corps = {
     apply() {
         log(`${card_name(ROYAL_TANK_CORPS)} cancels trenches`)
         game.attack.trenches_canceled = true
+    },
+    play() {
+        game.events.royal_tank_corps = game.turn
     }
 }
 
