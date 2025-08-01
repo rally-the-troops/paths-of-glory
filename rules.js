@@ -6754,6 +6754,9 @@ events.von_below = {
     apply() {
         log(`${card_name(VON_BELOW)} cancels trenches`)
         game.attack.trenches_canceled = true
+    },
+    play() {
+        game.events.von_below = game.turn
     }
 }
 
