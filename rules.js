@@ -1741,7 +1741,7 @@ function get_sr_destinations(unit) {
         }
     } else if (data.pieces[unit].type === CORPS && is_space_supplied_for_reserve_box_sr(game.location[unit], unit)) {
         // Corps can SR to the reserve box
-        if (active_faction() === AP_ROLE) {
+        if (active_faction() === AP) {
             set_add(destinations, AP_RESERVE_BOX)
         } else {
             set_add(destinations, CP_RESERVE_BOX)
