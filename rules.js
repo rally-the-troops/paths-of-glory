@@ -1959,7 +1959,24 @@ function goto_play_rps(card) {
             logi(`${nation_name(type)}: ${game.rp[type]}`)
         })
     }
-    goto_end_action()
+    game.state = 'rps'
+}
+
+states.rps = {
+    inactive: "Replacements",
+    prompt() {
+        if (active_faction() === AP) {
+            view.prompt = `Replacements: ${game.rp.fr} FR, ${game.rp.br} BR, ${game.rp.ru} RU, ${game.rp.it} IT, ${game.rp.us} US, ${game.rp.allied} Allied`
+        }
+        else {
+            view.prompt = `Replacements: ${game.rp.ge} GE, ${game.rp.ah} AH, ${game.rp.bu} BU, ${game.rp.tu} TU`
+        }
+        gen_action_done()
+    },
+    done() {
+        clear_undo()
+        goto_end_action()
+    }
 }
 
 // === REINFORCEMENTS ===
