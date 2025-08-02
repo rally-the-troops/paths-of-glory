@@ -1257,6 +1257,10 @@ function is_unit_reduced(p) {
     return game.reduced.includes(p)
 }
 
+function is_unit_corps(p) {
+    return data.pieces[p].type === CORPS
+}
+
 function get_piece_mf(p) {
     return is_unit_reduced(p) ? data.pieces[p].rmf : data.pieces[p].mf
 }
@@ -1670,10 +1674,10 @@ states.choose_sr_destination = {
     },
     space(s) {
         push_undo()
-        log(`${piece_name(game.sr.unit)} SR from ${space_name(game.location[game.sr.unit])} to ${space_name(s)}`)
         set_ne_restriction_flags_for_sr(game.sr.unit, game.location[game.sr.unit], s)
         set_add(game.sr.done, game.sr.unit)
         game.location[game.sr.unit] = s
+        log(`${piece_name(game.sr.unit)}${log_corps(game.sr.unit)} SR from ${space_name(game.location[game.sr.unit])} to ${space_name(s)}`)
         game.sr.unit = 0
         game.who = 0
         game.state = 'choose_sr_unit'
@@ -2034,7 +2038,7 @@ states.place_reinforcements = {
         if (game.reduced.includes(p)) {
             array_remove_item(game.reduced, p)
         }
-        log(`${piece_name(p)} placed in ${space_name(s)}`)
+        log(`${piece_name(p)}${log_corps(p)} placed in ${space_name(s)}`)
 
         if (neareast_armies.includes(p) && data.spaces[s].map !== 'neareast' && !is_mef_space(s)) {
             log(`${piece_name(p)} is a NE army placed outside the Near East, it will not be able to operate on the Near East map`)
@@ -3992,9 +3996,9 @@ states.choose_defender_replacement = {
 }
 
 function replace_defender_unit(unit, location, replacement) {
-    log(`Replaced ${piece_name(unit, true)} in ${space_name(location)} with ${piece_name(replacement)}`)
     game.location[replacement] = location
     game.attack.defender_replacements[unit] = replacement
+    log(`${piece_name(unit, true)} in ${space_name(location)} breaks to ${piece_name(replacement)}(${log_corps(replacement)})`);
 }
 
 states.withdrawal_negate_step_loss = {
@@ -4214,6 +4218,22 @@ function get_units_in_reserve() {
         reserve.push(p)
     })
     return reserve
+}
+
+function get_reserve_units_by_nation(nation) {
+    let units = get_units_in_reserve().filter(p => data.pieces[p].nation === nation);
+    let full = 0;
+    let reduced = 0;
+
+    for (let unit of units) {
+        if (is_unit_reduced(unit)) {
+            reduced += 1;
+        } else {
+            full += 1;
+        }
+    }
+
+    return [full, reduced];
 }
 
 // Recursively build a tree of possible options for choosing losses
@@ -4550,8 +4570,8 @@ states.choose_retreat_canceling_replacement = {
 }
 
 function replace_retreat_canceling_unit(unit, location, replacement) {
-    log(`Replaced ${piece_name(unit, true)} in ${space_name(location)} with ${piece_name(replacement)}`)
     game.location[replacement] = location
+    log(`${piece_name(unit, true)} in ${space_name(location)} breaks to ${piece_name(replacement)}(${log_corps(replacement)})`);
 }
 
 function goto_defender_retreat() {
@@ -5472,12 +5492,12 @@ states.replacement_phase = {
                     game.location[p] = ARABIA_SPACE
                 else
                     game.location[p] = active_faction() === AP ? AP_RESERVE_BOX : CP_RESERVE_BOX
-                log(`Rebuilt ${piece_name(p)}`)
                 spend_rps(get_rp_type(p), 0.5)
+                log(`Rebuilt ${piece_name(p)}${log_corps(p)} `)
             } else {
                 array_remove_item(game.reduced, p)
-                log(`Flipped ${piece_name(p)} in ${space_name(game.location[p])} to full strength`)
                 spend_rps(get_rp_type(p), 0.5)
+                log(`Flipped ${piece_name(p)}${log_corps(p)} in ${space_name(game.location[p])} to full strength`)
             }
         }
     },
@@ -8452,6 +8472,11 @@ function log_h3(msg, faction) {
     else
         log(".h3 " + msg);
     log_br();
+}
+
+function log_corps(p) {
+    if (is_unit_corps(p))
+        return `(${get_reserve_units_by_nation(data.pieces[p].nation)})`
 }
 
 function die_color(faction) {
