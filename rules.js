@@ -5149,7 +5149,7 @@ states.attrition_phase = {
 
 function goto_siege_phase() {
     if (game.forts.besieged.length > 0) {
-        log_h1("Siege Phase")
+        log_h2("Siege Phase")
         game.state = 'siege_phase'
         const ap_has_sieges = game.forts.besieged.find((s) => data.spaces[s].faction === CP) !== undefined
         set_active_faction(ap_has_sieges ? AP : CP)
