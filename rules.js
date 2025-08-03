@@ -8494,6 +8494,8 @@ function log_h3(msg, faction) {
 function log_corps(p) {
     if (is_unit_corps(p))
         return `(${get_reserve_units_by_nation(data.pieces[p].nation)})`
+    else 
+        return ''
 }
 
 function die_color(faction) {
