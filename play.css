@@ -3,7 +3,7 @@ aside { background-color: darkgray; }
 header { background-color: gainsboro; }
 
 #log { background-color: whitesmoke; }
-#log .h1 { background-color: silver; }
+#log .h1 { background-color: hsl(255, 36%, 83%);}
 #log .h2 { background-color: lightgray; }
 #log .h3 { background-color: gainsboro; }
 

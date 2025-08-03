@@ -5194,7 +5194,7 @@ states.siege_phase = {
 
 function goto_war_status_phase() {
     // E. War Status Phase
-    log_h1("War Status Phase")
+    log_h2("War Status Phase")
 
     // E.1. Check the Victory Point table and make any changes called for under the “During the War Status Phase”
     // section of the table.
@@ -5202,19 +5202,19 @@ function goto_war_status_phase() {
     if (game.events.blockade >= 1 && game.turn % 4 === 0) {
         game.vp -= 1
         record_score_event(-1, BLOCKADE)
-        log_h2(`-1 VP - ${card_name(BLOCKADE)} in effect`)
+        log(`-1 VP - ${card_name(BLOCKADE)} in effect`)
     }
     // If CP failed to conduct their mandated offensive, -1 VP
     if (game.cp.mo !== NONE) {
         game.vp -= 1
         game.cp.missed_mo.push(game.turn)
-        log_h2(`-1 VP - ${faction_name(CP)} failed to conduct their mandated offensive (${nation_name(game.cp.mo)})`)
+        log(`-1 VP - ${faction_name(CP)} failed to conduct their mandated offensive (${nation_name(game.cp.mo)})`)
     }
     // If Italy is still neutral but AP at Total War, +1 VP
     if (!nation_at_war(ITALY) && game.ap.commitment === COMMITMENT_TOTAL) {
         game.vp += 1
         record_score_event(1, ITALY_ENTRY)
-        log_h2(`+1 VP - ${nation_name(ITALY)} is still neutral but ${faction_name(AP)} at Total War`)
+        log(`+1 VP - ${nation_name(ITALY)} is still neutral but ${faction_name(AP)} at Total War`)
     }
 
     const french_mutiny_active = game.events.french_mutiny > 0 && game.ap.mo === FRANCE
@@ -5222,14 +5222,14 @@ function goto_war_status_phase() {
     if (game.ap.mo !== NONE && !french_mutiny_active) {
         game.vp += 1
         game.ap.missed_mo.push(game.turn)
-        log_h2(`+1 VP - ${faction_name(AP)} failed to conduct their mandated offensive (${nation_name(game.ap.mo)})`)
+        log(`+1 VP - ${faction_name(AP)} failed to conduct their mandated offensive (${nation_name(game.ap.mo)})`)
     }
 
     // If French unit attacked without US support after French Mutiny, when FR MO, +1 VP
     if (french_mutiny_active && game.french_attacked_without_us_support) {
         game.vp += 1
         record_score_event(1, FRENCH_MUTINY)
-        log_h2(`+1 VP - French unit attacked without US support after French Mutiny`)
+        log(`+1 VP - French unit attacked without US support after French Mutiny`)
     }
     delete game.french_attacked_without_us_support
 
@@ -5387,7 +5387,7 @@ function apply_replacement_phase_events() {
 function goto_replacement_phase() {
     clear_undo()
     if (has_rps(AP)) {
-        log_h1(`${faction_name(AP)} Replacement Phase`)
+        log_h2(`${faction_name(AP)} Replacement Phase`)
         set_active_faction(AP)
         game.state = 'replacement_phase'
         if (game.rp.ru > 1 && game.events.bolshevik_revolution > 0) {
@@ -5395,7 +5395,7 @@ function goto_replacement_phase() {
             log("Russian RP are set to 1 due to the Bolshevik Revolution")
         }
     } else if (has_rps(CP)) {
-        log_h1(`${faction_name(CP)} Replacement Phase`)
+        log_h2(`${faction_name(CP)} Replacement Phase`)
         set_active_faction(CP)
         game.state = 'replacement_phase'
     } else {
