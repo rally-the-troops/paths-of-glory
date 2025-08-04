@@ -542,7 +542,7 @@ const marker_info = {
     blockade: {name: "Blockade", counter: "marker blockade_vps ", size: 45},
     influenza: {name: "Influenza", counter: "marker influenza ", size: 45},
     prince_max: {name: "Prince Max", counter: "marker prince_max ", size: 45},
-    us_points: {name: "US Points", counter: "marker us_points ", size: 45},
+    fourteen_points: {name: "US Points", counter: "marker us_points ", size: 45},
     lusitania: {name: "Lusitania", counter: "marker lusitania ", size: 45},
     haig: {name: "Haig", counter: "marker haig ", size: 45},
     sud_army : {name: "Sud Army", counter: "marker sud_army ", size: 45},
@@ -560,7 +560,7 @@ const marker_info = {
     michael: {name: "Michael", counter: "marker michael ", size: 45},
     entrench: {name: "Entrench", counter: "marker entrench ", size: 45},
     _11th_army: {name: "11th Army", counter: "marker _11th_army ", size: 45},
-    //independent_air_force: {name: "Independent Air Force", counter: "marker independent_air_force ", size: 45},
+    independent_air_force: {name: "Independent Air Force", counter: "marker independent_air_force ", size: 45},
     blucher: {name: "Blucher", counter: "marker blucher ", size: 45},
     moltke: {name: "Moltke", counter: "marker moltke ", size: 45},
     oberost: {name: "Oberost", counter: "marker oberost ", size: 45},
@@ -1801,13 +1801,13 @@ function update_turn_track() {
     })
 
     const event_markers = [
-        "blockade", "influenza", "prince_max", "us_points", "lusitania", "stavka_timidity",
-        "peace_offensive", "_11th_army", "independent_air_force", "blucher", "sud_army", "haig", 
+        "blockade", "influenza", "prince_max", "fourteen_points", "lusitania", "stavka_timidity",
+        "peace_offensive", "_11th_army", "sud_army", "haig", 
         "sinai_pipeline", "mef_beachhead"
     ]
     // These events don't have marker art available in this version of the game: "guns_of_august", "falkenhayn",
     // "salonika", "h_l_take_command", "zeppelin_raids", "hoffmann", "race_to_the_sea", "moltke", "oberost",
-    // "great_retreat", "landships", "entrench", "michael"
+    // "great_retreat", "landships", "entrench", "michael",  "blucher", "independent_air_force"
     event_markers.forEach((marker) => {
         if (view.events[marker] > 0) {
             update_turn_track_marker(marker, view.events[marker])
