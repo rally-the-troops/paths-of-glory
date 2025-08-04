@@ -543,6 +543,8 @@ const marker_info = {
     prince_max: {name: "Prince Max", counter: "marker prince_max ", size: 45},
     us_points: {name: "US Points", counter: "marker us_points ", size: 45},
     lusitania: {name: "Lusitania", counter: "marker lusitania ", size: 45},
+    haig: {name: "Haig", counter: "marker haig ", size: 45},
+    sud_army : {name: "Sud Army", counter: "marker sud_army ", size: 45},
     sinai_pipeline: {name: "Sinai Pipeline", counter: "marker small sinai_pipeline ", size: 36},
     stavka_timidity: {name: "Stavka Timidity", counter: "marker stavka_timidity ", size: 45},
     salonika: {name: "Salonika", counter: "marker salonika ", size: 45},
@@ -1799,7 +1801,8 @@ function update_turn_track() {
 
     const event_markers = [
         "blockade", "influenza", "prince_max", "us_points", "lusitania", "stavka_timidity",
-        "peace_offensive", "_11th_army", "independent_air_force", "blucher"
+        "peace_offensive", "_11th_army", "independent_air_force", "blucher", "sud_army", "haig", 
+        "sinai_pipeline", "mef_beachhead"
     ]
     // These events don't have marker art available in this version of the game: "guns_of_august", "falkenhayn",
     // "salonika", "h_l_take_command", "zeppelin_raids", "hoffmann", "race_to_the_sea", "moltke", "oberost",
