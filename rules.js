@@ -8,7 +8,7 @@ let game, view
 let states = {}
 let events = {}
 
-const MAX_ROLLBACK_POINTS = 12
+const MAX_ROLLBACK_POINTS = 8
 
 const AP = "ap"
 const CP = "cp"
