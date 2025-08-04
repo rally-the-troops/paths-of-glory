@@ -6091,8 +6091,26 @@ function is_unit_supplied_through_italy(p) {
 }
 
 function can_unit_trace_supply_to_basra(p) {
-    let destinations = get_sr_destinations(p)
-    return set_has(destinations, BASRA)
+    
+    if (!is_unit_supplied(p))
+        return false
+    let destinations = []
+    let start = game.location[p]
+    let overland_destinations = []
+    let frontier = [start]
+    while (frontier.length > 0) {
+        let current = frontier.pop()
+        get_connected_spaces(current, BRITAIN).forEach((n) => {
+            if (!set_has(destinations, n)
+                && is_space_supplied(active_faction(), n)
+                && (is_controlled_by(n, active_faction()) || is_besieged(n))) {
+                set_add(destinations, n)
+                set_add(overland_destinations, n)
+                set_add(frontier, n)
+            }
+        })
+    }
+    return set_has(overland_destinations, BASRA)
 }
 
 function is_space_supplied_through_mef(s) {
