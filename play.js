@@ -505,6 +505,7 @@ const marker_info = {
 
     // Replacement points markers
     ge_rp: {name: "German Replacements", type: "ge_rp", counter: "marker ge_rp ", size: 45},
+    ge_rp_back: {name: "German Replacements Rathenau", type: "ge_rp_back", counter: "marker ge_rp_back ", size: 45},
     ah_rp: {name: "Austria-Hungary Replacements", type: "ah_rp", counter: "marker ah_rp ", size: 45},
     fr_rp: {name: "French Replacements", type: "fr_rp", counter: "marker fr_rp ", size: 45},
     br_rp: {name: "British Replacements", type: "br_rp", counter: "marker br_rp ", size: 45},
@@ -1862,8 +1863,12 @@ function update_general_records_track() {
     update_general_record("current_cp_russian_vp", view.cp.ru_vp)
     update_general_record("tsar_fell_cp_russian_vp", view.tsar_fell_cp_russian_vp, !view.tsar_fell_cp_russian_vp)
 
-    // RPs
-    update_general_record("ge_rp", view.rp.ge, !view.rp.ge)
+    // RPs$
+    if (view.events.walter_rathenau > 0 && !view.events.independent_air_force)
+        update_general_record("ge_rp_back", view.rp.ge, !view.rp.ge)
+    else
+        update_general_record("ge_rp", view.rp.ge, !view.rp.ge)
+    
     update_general_record("ah_rp", view.rp.ah, !view.rp.ah)
     update_general_record("fr_rp", view.rp.fr, !view.rp.fr)
     update_general_record("br_rp", view.rp.br, !view.rp.br) // TODO: Check for uboats event and apply the uboats class
