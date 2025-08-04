@@ -2574,6 +2574,7 @@ states.choose_pieces_to_move = {
 
         if (game.move.pieces.length > 0) {
             get_eligible_spaces_to_move().forEach((s) => {
+                gen_action_pass()
                 gen_action_space(s)
             })
         } else {
@@ -2592,6 +2593,10 @@ states.choose_pieces_to_move = {
         push_undo()
         move_stack_to_space(s)
         game.state = 'move_stack'
+    },
+    pass() {
+        push_undo()
+        end_move_activation()
     },
     move() {
         push_undo()
