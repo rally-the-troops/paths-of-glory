@@ -560,7 +560,7 @@ const marker_info = {
     michael: {name: "Michael", counter: "marker michael ", size: 45},
     entrench: {name: "Entrench", counter: "marker entrench ", size: 45},
     _11th_army: {name: "11th Army", counter: "marker _11th_army ", size: 45},
-    independent_air_force: {name: "Independent Air Force", counter: "marker independent_air_force ", size: 45},
+    //independent_air_force: {name: "Independent Air Force", counter: "marker independent_air_force ", size: 45},
     blucher: {name: "Blucher", counter: "marker blucher ", size: 45},
     moltke: {name: "Moltke", counter: "marker moltke ", size: 45},
     oberost: {name: "Oberost", counter: "marker oberost ", size: 45},
