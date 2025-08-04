@@ -6575,8 +6575,8 @@ events.alpenkorps = {
 
         if (game.attack.attacker === CP &&
             undefined !== game.attack.pieces.find(p => data.pieces[p].nation === GERMANY &&
-            (data.spaces[game.location[p]].terrain === MOUNTAIN) ||  
-            data.spaces[game.attack.space].terrain === MOUNTAIN)) {
+            (data.spaces[game.location[p]].terrain === MOUNTAIN || 
+            data.spaces[game.attack.space].terrain === MOUNTAIN))) {
             return true
         }
     },
