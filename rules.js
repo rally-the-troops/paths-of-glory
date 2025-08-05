@@ -907,6 +907,10 @@ function goto_end_turn() {
 
     game.reinf_this_turn = {}
     clear_ne_restriction_flags()
+    if (game.ap.pass_w === 1)
+		delete game.ap.pass_w
+	if (game.cp.pass_w === 1)
+		delete game.cp.pass_w
 
     // Check for game end
     if (game.turn === 20) {
@@ -3159,7 +3163,7 @@ function goto_attack_step_flank() {
 }
 
 function goto_attack_step_withdrawal() {
-    if (defender_can_withdraw()) {
+    if (defender_can_withdraw() && !game[other_faction(game.active)].pass_w) {
         // if defender can withdraw, go to 'choose_withdrawal'
         clear_undo()
         switch_active_faction()
@@ -3575,6 +3579,7 @@ states.choose_withdrawal = {
             gen_action_card(active_withdrawal_card)
         }
         gen_action_pass()
+        gen_action_pass_w_turn()
     },
     card(c) {
         clear_undo()
@@ -3584,6 +3589,13 @@ states.choose_withdrawal = {
         log(`${faction_name(active_faction())} plays ${card_name(c)}`)
         this.pass()
     },
+    pass_w_turn() {
+		states.choose_withdrawal.pass()
+		if (game.active === AP)
+			game.ap.pass_w = 1
+		else
+			game.cp.pass_w = 1
+	},
     pass() {
         clear_undo()
         switch_active_faction()
@@ -5701,6 +5713,10 @@ function gen_action_done() {
 
 function gen_action_pass() {
     gen_action('pass')
+}
+
+function gen_action_pass_w_turn() {
+    gen_action('pass_w_turn')
 }
 
 function gen_action_space(s) {

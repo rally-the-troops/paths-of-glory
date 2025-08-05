@@ -2216,6 +2216,7 @@ function update_map() {
     action_button("offer_peace", "Offer Peace")
     action_button("single_op", "Automatic Operation (1 Op)")
     action_button("use", "Use")
+    action_button("pass_w_turn", "Pass Turn")
     action_button("pass", "Pass")
     action_button("next", "Next")
     action_button("pick_up_all", "Pick Up All")
