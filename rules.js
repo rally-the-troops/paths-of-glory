@@ -2,6 +2,7 @@
 
 const data = require("./data")
 const {cards} = require("./data")
+const lz4 = require("./lz4")
 
 let game, view
 
@@ -481,7 +482,7 @@ exports.view = function(state, current) {
         view.rollback = []
     else
         view.rollback = game.rollback.map((r) => {
-            let name = r.turn_start ? `Turn ${r.state.turn} Start` : `Turn ${r.state.turn} ${r.state.active} Action ${r.state[short_faction(r.state.active)].actions.length+1}`
+            let name = r.turn_start ? `Turn ${r.turn} Start` : `Turn ${r.turn} ${r.active} Action ${r.action}`
             return {
                 name: name,
                 events: r.events
@@ -8361,6 +8362,30 @@ function has_checkpoint(name) {
 
 // ROLLBACK
 
+const textdec = new TextDecoder()
+
+function base64_encode(binary) {
+    if (Uint8Array.prototype.toBase64)
+        return binary.toBase64()
+    return Buffer.from(binary).toString("base64")
+}
+
+function base64_decode(ascii) {
+    if (Uint8Array.fromBase64)
+        return Uint8Array.fromBase64(ascii)
+    return Buffer.from(ascii, "base64")
+}
+
+function compress_state(state) {
+    if (typeof state !== "string")
+        return base64_encode(lz4.compressBlob(JSON.stringify(state)))
+}
+
+function decompress_state(state_str) {
+    if (typeof state_str === "string")
+        return JSON.parse(textdec.decode(lz4.uncompressBlob(base64_decode(state_str))))
+}
+
 function save_rollback_point() {
     if (!game.rollback)
         game.rollback = []
@@ -8382,7 +8407,14 @@ function save_rollback_point() {
             v = object_copy(v)
         copy[k] = v
     }
-    game.rollback.push({ state: copy, events: [], turn_start: is_turn_start })
+    game.rollback.push({
+        state: compress_state(copy),
+        turn: copy.turn,
+        active: copy.active,
+        action: copy[short_faction(copy.active)].actions.length+1,
+        events: [],
+        turn_start: is_turn_start
+    })
 
     // Limit the number of rollback points, with separate limits for turn starts and action rounds
     if (is_turn_start) {
@@ -8412,7 +8444,7 @@ function restore_rollback(index) {
     let save_rollback = game.rollback
     let save_seed = game.seed
     let save_log = game.log
-    game = game.rollback[index].state
+    game = decompress_state(game.rollback[index].state)
     save_log.length = game.log
     game.log = save_log
     game.undo = [] // Rollback always wipes out the undo stack
@@ -8433,9 +8465,9 @@ states.review_rollback_proposal = {
     inactive: 'Reviewing rollback proposal',
     prompt() {
         const rollback = game.rollback[game.rollback_proposal.index]
-        const turn = rollback.state.turn
-        const faction = short_faction(rollback.state.active)
-        const action = rollback.state[faction].actions.length + 1
+        const turn = rollback.turn
+        const faction = short_faction(rollback.active)
+        const action = rollback.action
         view.prompt = `${game.rollback_proposal.faction} proposed rolling back to Turn ${turn}, ${faction_name(faction)} Action ${action}`
         gen_action('accept')
         gen_action('reject')
