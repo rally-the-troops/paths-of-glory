@@ -911,9 +911,9 @@ function goto_end_turn() {
     game.reinf_this_turn = {}
     clear_ne_restriction_flags()
     if (game.ap.pass_w === 1)
-		delete game.ap.pass_w
-	if (game.cp.pass_w === 1)
-		delete game.cp.pass_w
+        delete game.ap.pass_w
+            if (game.cp.pass_w === 1)
+                delete game.cp.pass_w
 
     // Check for game end
     if (game.turn === 20) {
@@ -3613,12 +3613,12 @@ states.choose_withdrawal = {
         this.pass()
     },
     pass_w_turn() {
-		states.choose_withdrawal.pass()
-		if (game.active === AP)
-			game.ap.pass_w = 1
-		else
-			game.cp.pass_w = 1
-	},
+        states.choose_withdrawal.pass()
+            if (game.active === AP)
+                game.ap.pass_w = 1
+            else
+                game.cp.pass_w = 1
+    },
     pass() {
         clear_undo()
         switch_active_faction()
