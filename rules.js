@@ -8,7 +8,8 @@ let game, view
 let states = {}
 let events = {}
 
-const MAX_ROLLBACK_POINTS = 8
+const MAX_ROLLBACK_TURNS = 2
+const MAX_ROLLBACK_ACTION_ROUNDS = 4
 
 const AP = "ap"
 const CP = "cp"
@@ -480,8 +481,9 @@ exports.view = function(state, current) {
         view.rollback = []
     else
         view.rollback = game.rollback.map((r) => {
+            let name = r.turn_start ? `Turn ${r.state.turn} Start` : `Turn ${r.state.turn} ${r.state.active} Action ${r.state[short_faction(r.state.active)].actions.length+1}`
             return {
-                name: `Turn ${r.state.turn} ${r.state.active} Action ${r.state[short_faction(r.state.active)].actions.length+1}`,
+                name: name,
                 events: r.events
             }
         })
@@ -4001,6 +4003,7 @@ states.apply_defender_losses = {
             // their losses
             game.state = 'withdrawal_negate_step_loss'
         } else if (game.attack.failed_flank) {
+            set_active_faction(game.attack.attacker)
             determine_combat_winner()
         } else if (game.attack.is_flank || (game.attack.combat_cards.includes(VON_HUTIER) && events.von_hutier.can_play())) {
             resolve_defenders_fire()
@@ -8361,6 +8364,9 @@ function has_checkpoint(name) {
 function save_rollback_point() {
     if (!game.rollback)
         game.rollback = []
+
+    const is_turn_start = (game.ap.actions.length  === 0 && game.cp.actions.length === 0)
+
     let copy = {}
     for (let k in game) {
         let v = game[k]
@@ -8376,9 +8382,27 @@ function save_rollback_point() {
             v = object_copy(v)
         copy[k] = v
     }
-    game.rollback.push({ state: copy, events: [] })
-    if (game.rollback.length > MAX_ROLLBACK_POINTS)
-        game.rollback.shift()
+    game.rollback.push({ state: copy, events: [], turn_start: is_turn_start })
+
+    // Limit the number of rollback points, with separate limits for turn starts and action rounds
+    if (is_turn_start) {
+        const count_turns = game.rollback.filter((r) => r.turn_start).length
+        if (count_turns > MAX_ROLLBACK_TURNS) {
+            // Remove the first rollback point that is a turn start
+            const first_turn_start = game.rollback.findIndex((r) => r.turn_start)
+            array_remove(game.rollback, first_turn_start)
+        }
+    } else {
+        const count_action_rounds = game.rollback.filter((r) => !r.turn_start).length
+        if (count_action_rounds > MAX_ROLLBACK_ACTION_ROUNDS) {
+            const first_action_round = game.rollback.findIndex((r) => !r.turn_start)
+            let removed_events = game.rollback[first_action_round].events
+            array_remove(game.rollback, first_action_round)
+            // If the removed action round had events, append them to the previous rollback point so they aren't lost
+            if (first_action_round > 0)
+                game.rollback[first_action_round - 1].events.push(...removed_events)
+        }
+    }
 }
 
 function restore_rollback(index) {
