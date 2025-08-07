@@ -8312,6 +8312,8 @@ function push_undo() {
             continue
         else if (k === "rollback")
             continue
+        else if (k === "rollback_state")
+            continue
         else if (k === "log")
             v = v.length
         else if (k === "supply")
@@ -8327,11 +8329,15 @@ function pop_undo() {
     let save_log = game.log
     let save_undo = game.undo
     let save_rollback = game.rollback
+    let save_rollback_state = game.rollback_state
     game = save_undo.pop()
     save_log.length = game.log
     game.log = save_log
     game.undo = save_undo
-    game.rollback = save_rollback // This is safe because rollback checkpoints are only generated at the start of an action round, so it should be impossible to undo past a rollback point
+
+    // This is safe because rollback checkpoints are only generated at the start of an action round, so it should be impossible to undo past a rollback point
+    game.rollback = save_rollback
+    game.rollback_state = save_rollback_state
 }
 
 function save_checkpoint(name) {
@@ -8387,8 +8393,11 @@ function decompress_state(state_str) {
 }
 
 function save_rollback_point() {
-    if (!game.rollback)
+    // Load the compressed state array or create a new array of states
+    let rollback_state = decompress_state(game.rollback_state) || []
+    if (!game.rollback) {
         game.rollback = []
+    }
 
     const is_turn_start = (game.ap.actions.length  === 0 && game.cp.actions.length === 0)
 
@@ -8397,7 +8406,9 @@ function save_rollback_point() {
         let v = game[k]
         if (k === "undo")
             continue
-        if (k === "rollback")
+        else if (k === "rollback")
+            continue
+        else if (k === "rollback_state")
             continue
         else if (k === "log")
             v = v.length
@@ -8407,14 +8418,16 @@ function save_rollback_point() {
             v = object_copy(v)
         copy[k] = v
     }
+
+    // Push metadata for the rollback point and the state copy
     game.rollback.push({
-        state: compress_state(copy),
         turn: copy.turn,
         active: copy.active,
         action: copy[short_faction(copy.active)].actions.length+1,
         events: [],
         turn_start: is_turn_start
     })
+    rollback_state.push(copy)
 
     // Limit the number of rollback points, with separate limits for turn starts and action rounds
     if (is_turn_start) {
@@ -8423,6 +8436,7 @@ function save_rollback_point() {
             // Remove the first rollback point that is a turn start
             const first_turn_start = game.rollback.findIndex((r) => r.turn_start)
             array_remove(game.rollback, first_turn_start)
+            array_remove(rollback_state, first_turn_start)
         }
     } else {
         const count_action_rounds = game.rollback.filter((r) => !r.turn_start).length
@@ -8430,25 +8444,32 @@ function save_rollback_point() {
             const first_action_round = game.rollback.findIndex((r) => !r.turn_start)
             let removed_events = game.rollback[first_action_round].events
             array_remove(game.rollback, first_action_round)
+            array_remove(rollback_state, first_action_round)
             // If the removed action round had events, append them to the previous rollback point so they aren't lost
             if (first_action_round > 0)
                 game.rollback[first_action_round - 1].events.push(...removed_events)
         }
     }
+
+    // Write the compressed array of rollback states back to the game object
+    game.rollback_state = compress_state(rollback_state)
 }
 
 function restore_rollback(index) {
     if (!game.rollback || game.rollback.length <= index || index < 0)
         return
 
+    let rollback_state = decompress_state(game.rollback_state) || []
+
     let save_rollback = game.rollback
     let save_seed = game.seed
     let save_log = game.log
-    game = decompress_state(game.rollback[index].state)
+    game = rollback_state[index]
     save_log.length = game.log
     game.log = save_log
     game.undo = [] // Rollback always wipes out the undo stack
     game.rollback = save_rollback.slice(0, index) // Keep older rollback points
+    game.rollback_state = compress_state(rollback_state.slice(0, index))
     game.seed = save_seed
 }
 
@@ -8474,7 +8495,6 @@ states.review_rollback_proposal = {
     },
     accept() {
         restore_rollback(game.rollback_proposal.index)
-        save_rollback_point()
     },
     reject() {
         game.active = game.rollback_proposal.faction
