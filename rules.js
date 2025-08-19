@@ -2310,6 +2310,7 @@ function start_attack_activation() {
 }
 
 function end_move_activation() {
+    log_all_pending_moves()
     array_remove_item(game.activated.move, game.move.initial)
     game.move = null
     if (game.activated.move.length === 0) {
