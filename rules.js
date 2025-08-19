@@ -2478,6 +2478,9 @@ states.choose_move_space = {
         push_undo()
         game.move.initial = s
         game.move.current = s
+        game.move_path = [s]
+        game.move.pieces = []
+        
         for_each_piece_in_space(game.move.initial, (p) => {
             if (get_piece_mf(p) > 0 && !game.entrenching.includes(p) && !game.moved.includes(p))
                 game.move.pieces.push(p)
@@ -2568,11 +2571,12 @@ states.place_event_trench = {
     }
 }
 
+
 states.choose_pieces_to_move = {
     inactive: 'Choose units to move',
     prompt() {
         view.prompt = `Move units from ${space_name(game.move.initial)}`
-
+        game.move_path = [game.move.initial]
         for_each_piece_in_space(game.move.initial, (p) => {
             if (get_piece_mf(p) > 0 && !game.entrenching.includes(p) && !game.moved.includes(p)) {
                 gen_action_piece(p)
@@ -2589,16 +2593,25 @@ states.choose_pieces_to_move = {
         }
     },
     piece(p) {
-        if (game.move.pieces.includes(p)) {
+        let here = game.move.initial
+        game.selected = [p]
+        if (!game.move_path) 
+            game.move_path = [here]
+        if (game.move.pieces.includes(p))
             array_remove_item(game.move.pieces, p)
-        } else {
+        else {
             game.move.pieces.push(p)
+            game.move_path = [here]
         }
         update_siege(game.location[p])
     },
     space(s) {
         push_undo()
         move_stack_to_space(s)
+
+        if (!game.move_path) 
+            game.move_path = [game.move.initial]
+        game.move_path.push(s)
         game.state = 'move_stack'
     },
     pass() {
@@ -2702,17 +2715,23 @@ states.move_stack = {
     space(s) {
         push_undo()
         move_stack_to_space(s)
+        if (!game.move_path)
+            game.move_path = [game.move.current || game.move.initial]
+        game.move_path.push(s)
     },
     piece(p) {
         push_undo()
+        log_piece_move(p)
         array_remove_item(game.move.pieces, p)
         game.moved.push(p)
-        if (game.move.pieces.length === 0) {
+        if (game.move.pieces.length === 0)
             end_move_stack()
-        }
     },
     end_move() {
         push_undo()
+        game.move.pieces.forEach(piece => {
+            log_piece_move(piece)
+        })
         end_move_stack()
     }
 }
@@ -8612,6 +8631,45 @@ function log_corps(p) {
     else 
         return ''
 }
+
+function log_piece_move(piece) {
+    // Store to be able to group the logs by same piece + path
+    if (game.move_path && game.move_path.length > 1) {
+        let first_space = space_name(game.move_path[0])
+        let last_space = space_name(game.move_path[game.move_path.length - 1])
+
+        if (!game.pending_moves)
+            game.pending_moves = []
+        
+        game.pending_moves.push({
+            piece: piece,
+            path: first_space + " => " + last_space
+        })
+    }
+}
+
+function log_all_pending_moves() {
+    if (!game.pending_moves || game.pending_moves.length === 0) 
+        return
+    
+    let path_groups = {}
+    
+    game.pending_moves.forEach(move => {
+        if (!path_groups[move.path]) {
+            path_groups[move.path] = []
+        }
+        path_groups[move.path].push(move.piece)
+    })
+    
+    // Log each group
+    Object.keys(path_groups).forEach(path => {
+        let piece_names = path_groups[path].map(piece => piece_name(piece))
+        log(piece_names.join(", ") + " from ")
+        logi(path)
+    })  
+    game.pending_moves = []
+}
+
 
 function die_color(faction) {
     if (faction === AP)
