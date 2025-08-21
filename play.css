@@ -462,11 +462,6 @@ body.Central_Powers header.your_turn { background-color: hsl(200, 40%, 70%); }
     animation: attractAnimation 1s linear;
 }
 
-.unit.neutral {
-    filter: saturate(0.15);
-    opacity: 70%;
-}
-
 .unit.army_ix_1 { background-position: 0px 0px; }
 .unit.army_ix_2 { background-position: -45px 0px; }
 .unit.army_ix_3 { background-position: -90px 0px; }
