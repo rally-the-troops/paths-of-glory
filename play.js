@@ -2042,6 +2042,10 @@ function on_log(text) {
         p.className = "i"
     }
 
+    text = text.replace(/---/g, "\u2014")
+    text = text.replace(/--/g, "\u2013")
+    text = text.replace(/->/g, "\u2192")
+    text = text.replace(/-( ?[\d])/g, "\u2212$1")
     text = text.replace(/&/g, "&amp;")
     text = text.replace(/</g, "&lt;")
     text = text.replace(/>/g, "&gt;")
