@@ -8767,3 +8767,5 @@ exports.assert_state = function(state) {
     assert_trench_level()
     assert_reinforcement_rules()
 }
+
+/* vim:set sw=4 expandtab: */
