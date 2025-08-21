@@ -627,15 +627,16 @@ function for_each_piece_in_space(s, fun) {
 
 function on_click_space(evt) {
     if (evt.button === 0) {
-        if (view.actions && view.actions.space && view.actions.space.includes(evt.target.space)) {
+        let space = evt.target.space
+        if (view.actions && view.actions.space && view.actions.space.includes(space)) {
             event.stopPropagation()
-            send_action('space', evt.target.space)
+            send_action('space', space)
         } else if (view.actions && (view.actions.activate_move || view.actions.activate_attack || view.actions.deactivate)) {
             let options = activation_menu_options.filter((option) => {
-                return view.actions[option] && view.actions[option].includes(evt.target.space)
+                return view.actions[option] && view.actions[option].includes(space)
             })
             if (options.length > 0) {
-                show_popup_menu(evt, "activation_popup", evt.target.space)
+                show_popup_menu(evt, "activation_popup", space, spaces[space].name)
             }
         }
     }
