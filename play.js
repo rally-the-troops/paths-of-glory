@@ -2240,3 +2240,4 @@ function on_update() {
 drag_element_with_mouse("#card_dialog", "#card_dialog_header")
 drag_element_with_mouse("#score", "#score_header")
 
+/* vim:set sw=4 expandtab: */
