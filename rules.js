@@ -825,7 +825,7 @@ function goto_start_turn() {
     game.active = CP_ROLE
 
     log_br()
-    log_h1(`Turn ${game.turn} - ${turn_season_and_year(game.turn)}`)
+    log_h1(`Turn ${game.turn} -- ${turn_season_and_year(game.turn)}`)
     log_br()
     roll_mandated_offensives()
     log_br()
@@ -1539,7 +1539,7 @@ function can_play_rps(card) {
 
 function goto_play_event(card) {
     push_undo()
-    log(`${card_name(card)} - Event`)
+    log(`${card_name(card)} -- Event`)
     let active_player = game[active_faction()]
     array_remove_item(active_player.hand, card)
     game.last_card = card
@@ -1570,7 +1570,7 @@ function goto_play_ops(card) {
         game.ops = 1
     } else {
         record_action(ACTION_OP, card)
-        log(`${card_name(card)} - Operations (${data.cards[card].ops})`)
+        log(`${card_name(card)} -- Operations (${data.cards[card].ops})`)
         play_card(card)
         game.ops = data.cards[card].ops
     }
@@ -1587,7 +1587,7 @@ function goto_play_sr(card) {
         done: []
     }
 
-    log(`${card_name(card)} - Strategic Redeployment (${card_data.sr})`)
+    log(`${card_name(card)} -- Strategic Redeployment (${card_data.sr})`)
     play_card(card)
     game.state = 'choose_sr_unit'
     save_checkpoint("sr")
@@ -1954,7 +1954,7 @@ function goto_play_rps(card) {
         game.rp.us += 1
     }
 
-    log(`${card_name(card)} - Replacement Points`)
+    log(`${card_name(card)} -- Replacement Points`)
     play_card(card)
     log('Total RPs:')
     if (active_faction() === AP) {
@@ -1994,7 +1994,7 @@ function goto_play_reinf(card) {
     record_action(ACTION_REINF, card)
     game.reinf_this_turn[card_data.reinfnation] = 1
 
-    log(`${card_name(card)} - Reinforcement Event`)
+    log(`${card_name(card)} -- Reinforcement Event`)
     let active_player = game[active_faction()]
     array_remove_item(active_player.hand, card)
     game.last_card = card
@@ -5243,19 +5243,19 @@ function goto_war_status_phase() {
     if (game.events.blockade >= 1 && game.turn % 4 === 0) {
         game.vp -= 1
         record_score_event(-1, BLOCKADE)
-        log(`-1 VP - ${card_name(BLOCKADE)} in effect`)
+        log(`-1 VP -- ${card_name(BLOCKADE)} in effect`)
     }
     // If CP failed to conduct their mandated offensive, -1 VP
     if (game.cp.mo !== NONE) {
         game.vp -= 1
         game.cp.missed_mo.push(game.turn)
-        log(`-1 VP - ${faction_name(CP)} failed to conduct their mandated offensive (${nation_name(game.cp.mo)})`)
+        log(`-1 VP -- ${faction_name(CP)} failed to conduct their mandated offensive (${nation_name(game.cp.mo)})`)
     }
     // If Italy is still neutral but AP at Total War, +1 VP
     if (!nation_at_war(ITALY) && game.ap.commitment === COMMITMENT_TOTAL) {
         game.vp += 1
         record_score_event(1, ITALY_ENTRY)
-        log(`+1 VP - ${nation_name(ITALY)} is still neutral but ${faction_name(AP)} at Total War`)
+        log(`+1 VP -- ${nation_name(ITALY)} is still neutral but ${faction_name(AP)} at Total War`)
     }
 
     const french_mutiny_active = game.events.french_mutiny > 0 && game.ap.mo === FRANCE
@@ -5263,14 +5263,14 @@ function goto_war_status_phase() {
     if (game.ap.mo !== NONE && !french_mutiny_active) {
         game.vp += 1
         game.ap.missed_mo.push(game.turn)
-        log(`+1 VP - ${faction_name(AP)} failed to conduct their mandated offensive (${nation_name(game.ap.mo)})`)
+        log(`+1 VP -- ${faction_name(AP)} failed to conduct their mandated offensive (${nation_name(game.ap.mo)})`)
     }
 
     // If French unit attacked without US support after French Mutiny, when FR MO, +1 VP
     if (french_mutiny_active && game.french_attacked_without_us_support) {
         game.vp += 1
         record_score_event(1, FRENCH_MUTINY)
-        log(`+1 VP - French unit attacked without US support after French Mutiny`)
+        log(`+1 VP -- French unit attacked without US support after French Mutiny`)
     }
     delete game.french_attacked_without_us_support
 
@@ -5331,13 +5331,13 @@ function get_game_result_by_vp() {
         [USA_REINFORCEMENTS_2, USA_REINFORCEMENTS_3].forEach((c) => {
             if (!game.events.reinforcements || !game.events.reinforcements.includes(c)) {
                 game.vp++ // Each unplayed US army reinforcement card adds 1 VP
-                log(`+1 VP - Unplayed US army reinforcement card - ${card_name(c)}`)
+                log(`+1 VP -- Unplayed US army reinforcement card - ${card_name(c)}`)
             }
         })
 
         if (!game.events.fall_of_the_tsar > 0) {
             game.vp -= 2 // If the Fall of the Tsar event was not played, subtract 2 VP
-            log(`-2 VP - ${card_name(FALL_OF_THE_TSAR)} was not played`)
+            log(`-2 VP -- ${card_name(FALL_OF_THE_TSAR)} was not played`)
         }
     }
 
@@ -6667,7 +6667,7 @@ events.kemal = {
         return (undefined !== get_defenders_pieces().find(p => data.pieces[p].nation === TURKEY))
     },
     apply() {
-        log(`${card_name(KEMAL)} - defender fires on the Army table`)
+        log(`${card_name(KEMAL)} -- defender fires on the Army table`)
         game.attack.defender_table = ARMY
     }
 }
@@ -8119,7 +8119,7 @@ events.maude = {
         return this.can_play()
     },
     apply() {
-        log(`${card_name(MAUDE)} - attacker fires on the Army table`)
+        log(`${card_name(MAUDE)} -- attacker fires on the Army table`)
         game.attack.attacker_table = ARMY
     }
 }
@@ -8644,7 +8644,7 @@ function log_piece_move(piece) {
         
         game.pending_moves.push({
             piece: piece,
-            path: first_space + " => " + last_space
+            path: first_space + " -> " + last_space
         })
     }
 }
