@@ -1384,10 +1384,6 @@ function update_space(s) {
             pe.classList.add("reduced")
         else
             pe.classList.remove("reduced")
-        if (is_neutral(p))
-            pe.classList.add("neutral")
-        else
-            pe.classList.remove("neutral")
 
         if (is_corps) {
             if (is_reduced) reduced_corps.push(p)
