@@ -1143,17 +1143,6 @@ function build_card(id) {
     elt.addEventListener("click", on_click_card)
     elt.addEventListener("mouseenter", on_focus_card)
     elt.addEventListener("mouseleave", on_blur_card)
-    ui.cards.appendChild(elt)
-
-    if (card.cc) {
-        let cc_elt = card.cc_element = document.createElement("div")
-        cc_elt.card = id
-        cc_elt.className = "card combat_card card_" + faction_card_number(id)
-        cc_elt.addEventListener("click", on_click_card)
-        cc_elt.addEventListener("mouseenter", on_focus_card)
-        cc_elt.addEventListener("mouseleave", on_blur_card)
-        ui.combat_cards.appendChild(cc_elt)
-    }
 }
 
 for (let c = 1; c < cards.length; ++c) {
@@ -1721,15 +1710,15 @@ function update_card(id) {
     else
         card.element.classList.remove('highlight')
     if (view.hand.includes(id))
-        card.element.classList.add("show")
+        card.element.classList.remove("hide")
     else
-        card.element.classList.remove("show")
+        card.element.classList.add("hide")
 
     if (card.cc_element) {
         if (view.combat_cards.includes(id))
-            card.cc_element.classList.add("show")
+            card.cc_element.classList.remove("hide")
         else
-            card.cc_element.classList.remove("show")
+            card.cc_element.classList.add("hide")
 
         if (view.attack && view.attack.combat_cards.includes(id))
             card.cc_element.classList.add("active")
@@ -2143,6 +2132,16 @@ function update_map() {
 
     // Hide Dead and unused pieces
     for_each_piece_in_space(0, p => pieces[p].element.classList.add('offmap'))
+
+    ui.cards.replaceChildren()
+    if (view.hand)
+        for (let i of view.hand)
+            ui.cards.appendChild(cards[i].element)
+
+    ui.combat_cards.replaceChildren()
+    if (view.combat_cards)
+        for (let i of view.combat_cards)
+            ui.combat_cards.appendChild(cards[i].element)
 
     for (let i = 1; i < cards.length; ++i)
         update_card(i)
