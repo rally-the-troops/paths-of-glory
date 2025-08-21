@@ -375,14 +375,17 @@ body.shift .highlight {
 #spaces div.highlight {
     cursor: pointer;
     border-color: yellow;
+    box-shadow: 0 0 3px black, inset 0 0 3px black;
 }
 
 #spaces div.selected {
     border-color: blue;
+    box-shadow: 0 0 3px black, inset 0 0 3px black;
 }
 
 #spaces div.warning {
     border-color: orangered;
+    box-shadow: 0 0 3px black, inset 0 0 3px black;
 }
 
 #spaces div.attract {
@@ -391,7 +394,9 @@ body.shift .highlight {
 }
 
 #spaces div.tip {
-    border-color: yellow;
+    border-color: lime;
+    border-style: dashed;
+    box-shadow: 0 0 3px black, inset 0 0 3px black;
 }
 
 body.Allied_Powers header.your_turn { background-color: hsl(5, 65%, 70%); }
@@ -440,7 +445,7 @@ body.Central_Powers header.your_turn { background-color: hsl(200, 40%, 70%); }
 }
 
 .unit.activated {
-    transform: rotate(20deg);
+    transform: rotate(22.5deg);
 }
 
 .unit.army {
@@ -516,19 +521,22 @@ body.flat .marker,
 body.flat .event {
     border-width: 1px;
     border-style: solid;
+    border-color: black;
 }
 
 body.flat .unit.highlight {
-    box-shadow:0 0 0 3px var(--highlight-color);
+    box-shadow: 0 0 0 3px var(--highlight-color);
+    border-color: #000;
 }
 
 body.flat .unit.selected {
-    box-shadow:0 0 0 3px var(--selected-color);
-    border-color: var(--selected-color) !important;
+    box-shadow: 0 0 0 3px var(--selected-color);
+    border-color: #000;
 }
 
 body.flat .unit.tip {
-    border-color: yellow;
+    box-shadow: 0 0 0 3px yellow;
+    border-color: #000;
 }
 
 /* BEVEL STYLE ( top right bottom left ) */
@@ -538,10 +546,7 @@ body.bevel .marker,
 body.bevel .event {
     border-width: 2px;
     border-style: solid;
-}
-
-body.bevel .unit.tip {
-    border-color: yellow;
+    border-color: lime;
 }
 
 /* TRACKS */
@@ -629,19 +634,19 @@ body.bevel .unit.tip {
 .us_entry.us_entry_3 { left: 220px; }
 
 /* Mandated offensives */
-.ap_mandatory_offensive { left: 1180px; top: 1542px; }
-.ap_mandatory_offensive.fr { left: 1180px; }
-.ap_mandatory_offensive.br { left: 1220px; }
-.ap_mandatory_offensive.it { left: 1260px; }
-.ap_mandatory_offensive.ru { left: 1300px; }
-.ap_mandatory_offensive.none { left: 1340px; }
+.ap.mandatory_offensive { left: 1180px; top: 1542px; }
+.ap.mandatory_offensive.fr { left: 1180px; }
+.ap.mandatory_offensive.br { left: 1220px; }
+.ap.mandatory_offensive.it { left: 1260px; }
+.ap.mandatory_offensive.ru { left: 1300px; }
+.ap.mandatory_offensive.none { left: 1340px; }
 
-.cp_mandatory_offensive { left: 1210px; top: 72px; }
-.cp_mandatory_offensive.ah { left: 1050px; }
-.cp_mandatory_offensive.ah_it { left: 1090px; }
-.cp_mandatory_offensive.tu { left: 1130px; }
-.cp_mandatory_offensive.ge { left: 1170px; }
-.cp_mandatory_offensive.none { left: 1210px; }
+.cp.mandatory_offensive { left: 1210px; top: 72px; }
+.cp.mandatory_offensive.ah { left: 1050px; }
+.cp.mandatory_offensive.ah_it { left: 1090px; }
+.cp.mandatory_offensive.tu { left: 1130px; }
+.cp.mandatory_offensive.ge { left: 1170px; }
+.cp.mandatory_offensive.none { left: 1210px; }
 
 #ne_limit_markers {
     position: relative;
@@ -689,18 +694,13 @@ body.bevel .unit.tip {
 
 /* COLORS */
 
-.unit{background-color:#f0f0f0}
-body.bevel .unit{border-color:#f5f5f5 #d8d8d8 #d8d8d8 #f5f5f5;box-shadow:0 0 0 1px #707070}
-body.flat .unit{border-color:#707070}
-.marker{background-color:#f0f0f0}
-body.bevel .marker{border-color:#f5f5f5 #d8d8d8 #d8d8d8 #f5f5f5;box-shadow:0 0 0 1px #707070}
-body.flat .marker{border-color:#707070}
-
 /* action highlight */
-body.bevel .unit.highlight{box-shadow:0 0 0 1px #707070,0 0 0 4px var(--highlight-color)}
+body.bevel .unit.highlight { box-shadow: 0 0 0 1px #000, 0 0 0 4px var(--highlight-color) !important }
 
 /* selected */
-body.bevel .unit.selected{box-shadow:0 0 0 3px var(--selected-color)}
+body.bevel .unit.selected { box-shadow: 0 0 0 1px #000, 0 0 0 4px var(--selected-color) !important }
+
+body.bevel .unit.tip { box-shadow: 0 0 0 1px #000, 0 0 0 4px yellow !important }
 
 /* Animations */
 @keyframes attractAnimation {

@@ -1,0 +1,92 @@
+body.bevel .marker { background-color: #f0f0f0; border-color: #ffffff #b2b2b2 #b2b2b2 #ffffff; box-shadow: 0 0 0 1px #141414; }
+body.bevel .marker.action.cp { background-color: #f0f0f0; border-color: #ffffff #b2b2b2 #b2b2b2 #ffffff; box-shadow: 0 0 0 1px #141414; }
+body.bevel .marker.action.ap { background-color: #f0f0f0; border-color: #ffffff #b2b2b2 #b2b2b2 #ffffff; box-shadow: 0 0 0 1px #141414; }
+body.bevel .marker.cp { background-color: #57a6c5; border-color: #83d2f2 #297c99 #297c99 #83d2f2; box-shadow: 0 0 0 1px #000b24; }
+body.bevel .marker.ap { background-color: #e6e2d0; border-color: #ffffed #aba897 #aba897 #ffffed; box-shadow: 0 0 0 1px #151206; }
+body.bevel .marker.game_turn { background-color: #fff200; border-color: #ffff3a #c2b400 #c2b400 #ffff3a; box-shadow: 0 0 0 1px #230e00; }
+body.bevel .marker.move { background-color: #fff200; border-color: #ffff3a #c2b400 #c2b400 #ffff3a; box-shadow: 0 0 0 1px #230e00; }
+body.bevel .marker.vp { background-color: #fff200; border-color: #ffff3a #c2b400 #c2b400 #ffff3a; box-shadow: 0 0 0 1px #230e00; }
+body.bevel .marker.russian_capitulation { background-color: #d1b682; border-color: #ffe9b3 #9f8553 #9f8553 #ffe9b3; box-shadow: 0 0 0 1px #1b0700; }
+body.bevel .marker.attack { background-color: #ed1c23; border-color: #ff544c #c00000 #c00000 #ff544c; box-shadow: 0 0 0 1px #3c0000; }
+body.bevel .marker.game_turn.back { background-color: #ed1c23; border-color: #ff544c #c00000 #c00000 #ff544c; box-shadow: 0 0 0 1px #3c0000; }
+body.bevel .marker.fort_destroyed { background-color: #fff327; border-color: #ffff48 #c2b400 #c2b400 #ffff48; box-shadow: 0 0 0 1px #230e00; }
+body.bevel .marker.fort_besieged { background-color: #fff684; border-color: #ffff92 #c1b742 #c1b742 #ffff92; box-shadow: 0 0 0 1px #201200; }
+body.bevel .marker.us_entry { background-color: #91b466; border-color: #bee393 #66873a #66873a #bee393; box-shadow: 0 0 0 1px #001000; }
+body.bevel .marker.us_points { background-color: #91b466; border-color: #bee393 #66873a #66873a #bee393; box-shadow: 0 0 0 1px #001000; }
+body.bevel .marker.cp.control { background-color: #95b0be; border-color: #c4e0ee #698390 #698390 #c4e0ee; box-shadow: 0 0 0 1px #000d17; }
+body.bevel .marker.cp.oos { background-color: #95b0be; border-color: #c4e0ee #698390 #698390 #c4e0ee; box-shadow: 0 0 0 1px #000d17; }
+body.bevel .marker.cp.trench_1 { background-color: #b8d0dc; border-color: #ebffff #849ba6 #849ba6 #ebffff; box-shadow: 0 0 0 1px #01111a; }
+body.bevel .marker.cp.trench_2 { background-color: #b8d0dc; border-color: #ebffff #849ba6 #849ba6 #ebffff; box-shadow: 0 0 0 1px #01111a; }
+body.bevel .unit.corps_gr { background-color: #0090d5; border-color: #46b8ff #006aac #006aac #46b8ff; box-shadow: 0 0 0 1px #000039; }
+body.bevel .unit.corps_ro { background-color: #06a890; border-color: #50d2b9 #007f69 #007f69 #50d2b9; box-shadow: 0 0 0 1px #001207; }
+body.bevel .unit.army_fr { background-color: #63beeb; border-color: #95f0ff #2e8eb9 #2e8eb9 #95f0ff; box-shadow: 0 0 0 1px #000c30; }
+body.bevel .unit.corps_fr { background-color: #63beeb; border-color: #95f0ff #2e8eb9 #2e8eb9 #95f0ff; box-shadow: 0 0 0 1px #000c30; }
+body.bevel .unit.army_us { background-color: #91b466; border-color: #bee393 #66873a #66873a #bee393; box-shadow: 0 0 0 1px #001000; }
+body.bevel .unit.corps_us { background-color: #91b466; border-color: #bee393 #66873a #66873a #bee393; box-shadow: 0 0 0 1px #001000; }
+body.bevel .unit.corps_mn { background-color: #a06c46; border-color: #c58f68 #7c4b25 #7c4b25 #c58f68; box-shadow: 0 0 0 1px #190000; }
+body.bevel .unit.corps_pol { background-color: #a4c9d9; border-color: #d8ffff #7296a5 #7296a5 #d8ffff; box-shadow: 0 0 0 1px #00111d; }
+body.bevel .unit.army_ge { background-color: #a8b8bf; border-color: #d9eaf1 #79888f #79888f #d9eaf1; box-shadow: 0 0 0 1px #030e13; }
+body.bevel .unit.corps_ge { background-color: #a8b8bf; border-color: #d9eaf1 #79888f #79888f #d9eaf1; box-shadow: 0 0 0 1px #030e13; }
+body.bevel .unit.army_sb { background-color: #b08659; border-color: #daae80 #886033 #886033 #daae80; box-shadow: 0 0 0 1px #1a0000; }
+body.bevel .unit.corps_sb { background-color: #b08659; border-color: #daae80 #886033 #886033 #daae80; box-shadow: 0 0 0 1px #1a0000; }
+body.bevel .unit.army_be { background-color: #bae6fb; border-color: #daffff #82acc0 #82acc0 #daffff; box-shadow: 0 0 0 1px #001524; }
+body.bevel .unit.corps_be { background-color: #bae6fb; border-color: #daffff #82acc0 #82acc0 #daffff; box-shadow: 0 0 0 1px #001524; }
+body.bevel .unit.corps_bu { background-color: #c12546; border-color: #e74d64 #9b0029 #9b0029 #e74d64; box-shadow: 0 0 0 1px #2d0000; }
+body.bevel .unit.army_ru { background-color: #d1b682; border-color: #ffe9b3 #9f8553 #9f8553 #ffe9b3; box-shadow: 0 0 0 1px #1b0700; }
+body.bevel .unit.corps_czl { background-color: #d1b682; border-color: #ffe9b3 #9f8553 #9f8553 #ffe9b3; box-shadow: 0 0 0 1px #1b0700; }
+body.bevel .unit.corps_ru { background-color: #d1b682; border-color: #ffe9b3 #9f8553 #9f8553 #ffe9b3; box-shadow: 0 0 0 1px #1b0700; }
+body.bevel .unit.army_br { background-color: #dbd2b1; border-color: #ffffdd #a49b7c #a49b7c #ffffdd; box-shadow: 0 0 0 1px #160f00; }
+body.bevel .unit.corps_br { background-color: #dbd2b1; border-color: #ffffdd #a49b7c #a49b7c #ffffdd; box-shadow: 0 0 0 1px #160f00; }
+body.bevel .unit.army_ah { background-color: #e7e8e8; border-color: #feffff #abacac #abacac #feffff; box-shadow: 0 0 0 1px #121313; }
+body.bevel .unit.corps_ah { background-color: #e7e8e8; border-color: #feffff #abacac #abacac #feffff; box-shadow: 0 0 0 1px #121313; }
+body.bevel .unit.army_tu { background-color: #f3c576; border-color: #fff7a7 #bb8f3f #bb8f3f #fff7a7; box-shadow: 0 0 0 1px #260200; }
+body.bevel .unit.corps_tu { background-color: #f3c576; border-color: #fff7a7 #bb8f3f #bb8f3f #fff7a7; box-shadow: 0 0 0 1px #260200; }
+body.bevel .unit.army_it { background-color: #fff9b8; border-color: #ffffc1 #bfb97b #bfb97b #ffffc1; box-shadow: 0 0 0 1px #1c1400; }
+body.bevel .unit.corps_it { background-color: #fff9b8; border-color: #ffffc1 #bfb97b #bfb97b #ffffc1; box-shadow: 0 0 0 1px #1c1400; }
+body.bevel .marker.neutral { background-color: #9e9e9e; border-color: #cacaca #747474 #747474 #cacaca; box-shadow: 0 0 0 1px #090909; }
+body.flat .marker { background-color: #f0f0f0; }
+body.flat .marker.action.cp { background-color: #f0f0f0; }
+body.flat .marker.action.ap { background-color: #f0f0f0; }
+body.flat .marker.cp { background-color: #57a6c5; }
+body.flat .marker.ap { background-color: #e6e2d0; }
+body.flat .marker.game_turn { background-color: #fff200; }
+body.flat .marker.move { background-color: #fff200; }
+body.flat .marker.vp { background-color: #fff200; }
+body.flat .marker.russian_capitulation { background-color: #d1b682; }
+body.flat .marker.attack { background-color: #ed1c23; }
+body.flat .marker.game_turn.back { background-color: #ed1c23; }
+body.flat .marker.fort_destroyed { background-color: #fff327; }
+body.flat .marker.fort_besieged { background-color: #fff684; }
+body.flat .marker.us_entry { background-color: #91b466; }
+body.flat .marker.us_points { background-color: #91b466; }
+body.flat .marker.cp.control { background-color: #95b0be; }
+body.flat .marker.cp.oos { background-color: #95b0be; }
+body.flat .marker.cp.trench_1 { background-color: #b8d0dc; }
+body.flat .marker.cp.trench_2 { background-color: #b8d0dc; }
+body.flat .unit.corps_gr { background-color: #0090d5; }
+body.flat .unit.corps_ro { background-color: #06a890; }
+body.flat .unit.army_fr { background-color: #63beeb; }
+body.flat .unit.corps_fr { background-color: #63beeb; }
+body.flat .unit.army_us { background-color: #91b466; }
+body.flat .unit.corps_us { background-color: #91b466; }
+body.flat .unit.corps_mn { background-color: #a06c46; }
+body.flat .unit.corps_pol { background-color: #a4c9d9; }
+body.flat .unit.army_ge { background-color: #a8b8bf; }
+body.flat .unit.corps_ge { background-color: #a8b8bf; }
+body.flat .unit.army_sb { background-color: #b08659; }
+body.flat .unit.corps_sb { background-color: #b08659; }
+body.flat .unit.army_be { background-color: #bae6fb; }
+body.flat .unit.corps_be { background-color: #bae6fb; }
+body.flat .unit.corps_bu { background-color: #c12546; }
+body.flat .unit.army_ru { background-color: #d1b682; }
+body.flat .unit.corps_czl { background-color: #d1b682; }
+body.flat .unit.corps_ru { background-color: #d1b682; }
+body.flat .unit.army_br { background-color: #dbd2b1; }
+body.flat .unit.corps_br { background-color: #dbd2b1; }
+body.flat .unit.army_ah { background-color: #e7e8e8; }
+body.flat .unit.corps_ah { background-color: #e7e8e8; }
+body.flat .unit.army_tu { background-color: #f3c576; }
+body.flat .unit.corps_tu { background-color: #f3c576; }
+body.flat .unit.army_it { background-color: #fff9b8; }
+body.flat .unit.corps_it { background-color: #fff9b8; }
+body.flat .marker.neutral { background-color: #9e9e9e; }

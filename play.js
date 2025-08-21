@@ -9,8 +9,8 @@ const CP = "cp"
 const ARMY = "army"
 const CORPS = "corps"
 
-const AP_MO_MARKER = "marker ap_mandatory_offensive "
-const CP_MO_MARKER = "marker cp_mandatory_offensive "
+const AP_MO_MARKER = "marker ap mandatory_offensive "
+const CP_MO_MARKER = "marker cp mandatory_offensive "
 
 const US_ENTRY_MARKER = "marker small us_entry us_entry_"
 const RC_MARKER = "marker small russian_capitulation rc_"
@@ -474,38 +474,38 @@ const marker_info = {
     move: {name: "Move", counter: "marker small move", size: 36},
     attack: {name: "Attack", counter: "marker small attack", size: 36},
     control: {
-        ap: {name: "AP Control", type: "ap_control", counter: "marker small ap_control", size: 36},
-        cp: {name: "CP Control", type: "cp_control", counter: "marker small cp_control", size: 36}
+        ap: {name: "AP Control", type: "ap_control", counter: "marker small ap control", size: 36},
+        cp: {name: "CP Control", type: "cp_control", counter: "marker small cp control", size: 36}
     },
     trench: {
         ap: {
-            1: {name: "AP Trench Level 1", type: "ap_trench_1", counter: "marker small ap_trench_1", size: 36},
-            2: {name: "AP Trench Level 2", type: "ap_trench_2", counter: "marker small ap_trench_2", size: 36}
+            1: {name: "AP Trench Level 1", type: "ap_trench_1", counter: "marker small ap trench_1", size: 36},
+            2: {name: "AP Trench Level 2", type: "ap_trench_2", counter: "marker small ap trench_2", size: 36}
         },
         cp: {
-            1: {name: "CP Trench Level 1", type: "cp_trench_1", counter: "marker small cp_trench_1", size: 36},
-            2: {name: "CP Trench Level 2", type: "cp_trench_2", counter: "marker small cp_trench_2", size: 36}
+            1: {name: "CP Trench Level 1", type: "cp_trench_1", counter: "marker small cp trench_1", size: 36},
+            2: {name: "CP Trench Level 2", type: "cp_trench_2", counter: "marker small cp trench_2", size: 36}
         }
     },
     oos: {
-        ap: {name: "AP OOS", type: "ap_oos", counter: "marker ap_oos", size: 45},
-        cp: {name: "CP OOS", type: "cp_oos", counter: "marker cp_oos", size: 45}
+        ap: {name: "AP OOS", type: "ap_oos", counter: "marker ap oos", size: 45},
+        cp: {name: "CP OOS", type: "cp_oos", counter: "marker cp oos", size: 45}
     },
-    vp: {name: "VP", type: "vp", counter: "marker vps ", size: 45},
+    vp: {name: "VP", type: "vp", counter: "marker vp ", size: 45},
 
     // War status markers
-    ap_war_status: {name: "AP War Status", type: "ap_war_status", counter: "marker ap_war_status ", size: 45},
-    cp_war_status: {name: "CP War Status", type: "cp_war_status", counter: "marker cp_war_status ", size: 45},
+    ap_war_status: {name: "AP War Status", type: "ap_war_status", counter: "marker ap war_status ", size: 45},
+    cp_war_status: {name: "CP War Status", type: "cp_war_status", counter: "marker cp war_status ", size: 45},
     combined_war_status: {
         name: "Combined War Status",
         type: "combined_war_status",
-        counter: "marker combined_war_status ",
+        counter: "marker ap combined_war_status ",
         size: 45
     },
 
     // Replacement points markers
     ge_rp: {name: "German Replacements", type: "ge_rp", counter: "marker ge_rp ", size: 45},
-    ge_rp_back: {name: "German Replacements Rathenau", type: "ge_rp_back", counter: "marker ge_rp_back ", size: 45},
+    ge_rp_back: {name: "German Replacements Rathenau", type: "ge_rp_back", counter: "marker ge_rp back ", size: 45},
     ah_rp: {name: "Austria-Hungary Replacements", type: "ah_rp", counter: "marker ah_rp ", size: 45},
     fr_rp: {name: "French Replacements", type: "fr_rp", counter: "marker fr_rp ", size: 45},
     br_rp: {name: "British Replacements", type: "br_rp", counter: "marker br_rp ", size: 45},
