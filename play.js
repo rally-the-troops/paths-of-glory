@@ -2011,37 +2011,18 @@ function toggle_marker(id, show) {
 }
 
 const ICONS_SVG = {
-    B0: '<span class="black d0"></span>',
-    B1: '<span class="black d1"></span>',
-    B2: '<span class="black d2"></span>',
-    B3: '<span class="black d3"></span>',
-    B4: '<span class="black d4"></span>',
-    B5: '<span class="black d5"></span>',
-    B6: '<span class="black d6"></span>',
-    W0: '<span class="white d0"></span>',
-    W1: '<span class="white d1"></span>',
-    W2: '<span class="white d2"></span>',
-    W3: '<span class="white d3"></span>',
-    W4: '<span class="white d4"></span>',
-    W5: '<span class="white d5"></span>',
-    W6: '<span class="white d6"></span>',
-}
-
-const ICONS_TXT = {
-    B0: "\u25cf",
-    B1: "\u2776",
-    B2: "\u2777",
-    B3: "\u2778",
-    B4: "\u2779",
-    B5: "\u277A",
-    B6: "\u277B",
-    W0: "\u25cb",
-    W1: "\u2460",
-    W2: "\u2461",
-    W3: "\u2462",
-    W4: "\u2463",
-    W5: "\u2464",
-    W6: "\u2465",
+    B1: '<span class="die cp d1"></span>',
+    B2: '<span class="die cp d2"></span>',
+    B3: '<span class="die cp d3"></span>',
+    B4: '<span class="die cp d4"></span>',
+    B5: '<span class="die cp d5"></span>',
+    B6: '<span class="die cp d6"></span>',
+    W1: '<span class="die ap d1"></span>',
+    W2: '<span class="die ap d2"></span>',
+    W3: '<span class="die ap d3"></span>',
+    W4: '<span class="die ap d4"></span>',
+    W5: '<span class="die ap d5"></span>',
+    W6: '<span class="die ap d6"></span>',
 }
 
 function sub_icon(match) {

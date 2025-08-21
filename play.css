@@ -279,7 +279,7 @@ aside { min-width: 220px; }
 
 /* Dices */
 
-#log .white, #log .black {
+#log .die {
 	display: inline-block;
 	vertical-align: -2px;
 	width: 11px;
@@ -289,19 +289,18 @@ aside { min-width: 220px; }
 	background-repeat: no-repeat;
 }
 
-#log .white {
-	background-image: url(pieces/die_white_pips.svg);
-	background-color: blue;
-	border: 1px solid #555;
+#log .die.ap {
+	background-image: url(pieces/die_black_pips.svg);
+	background-color: #e6e2d0;
+	border: 1px solid #444;
 }
 
-#log .black {
-	background-image: url(pieces/die_white_pips.svg);
-	background-color: grey;
-	border: 1px solid #222;
+#log .die.cp {
+	background-image: url(pieces/die_black_pips.svg);
+	background-color: #95b0be;
+	border: 1px solid #444;
 }
 
-.d0 { background-position: -100% 0 }
 .d1 { background-position: 0% 0; }
 .d2 { background-position: 20% 0; }
 .d3 { background-position: 40% 0; }
