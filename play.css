@@ -1,5 +1,5 @@
 main { background-color: dimgray; }
-aside { background-color: darkgray; }
+aside { background-color: silver; }
 header { background-color: gainsboro; }
 
 #log { background-color: whitesmoke; }
@@ -9,16 +9,11 @@ header { background-color: gainsboro; }
 
 body.Allied_Powers header.your_turn { background-color: hsl(5, 65%, 70%); }
 body.Central_Powers header.your_turn { background-color: hsl(200, 40%, 70%); }
+
 #role_Allied_Powers { background-color: hsl(5, 60%, 80%); }
 #role_Central_Powers { background-color: hsl(200, 35%, 80%); }
 #log .ap { background-color: hsl(5, 60%, 85%); }
 #log .cp { background-color: hsl(200, 35%, 85%); }
-
-:root {
-    --highlight-color: lime;
-    --selected-color: cyan;
-}
-aside { min-width: 220px; }
 
 .checked::before { content: "\2714  " }
 .unchecked::before { content: "\2714  "; color:transparent; }
@@ -37,14 +32,6 @@ aside { min-width: 220px; }
 #log .h3.cp { padding-top:2px; padding-bottom:2px; text-align: center; }
 #log .h3.ap { padding-top:2px; padding-bottom:2px; text-align: center; }
 
-#log .b { text-transform: uppercase; }
-
-#log .tip { color: blue; }
-#log .tip:hover { text-decoration: underline; }
-#log .spacetip { color: blue; }
-#log .spacetip:hover { text-decoration: underline; cursor: pointer; }
-#log .piecetip { color: blue; }
-#log .piecetip:hover { text-decoration: underline; cursor: pointer; }
 #log div.i { padding-left: 32px; text-indent: -12px; }
 #log div.ii { padding-left: 44px; text-indent: -12px; }
 
@@ -57,16 +44,14 @@ aside { min-width: 220px; }
     white-space: normal;
 }
 
-#ap_deck_size:hover {
-    cursor: pointer;
-    text-decoration: underline;
-}
+.cardtip, .spacetip, .piecetip { cursor: pointer }
+.cardtip:hover, .spacetip:hover, .piecetip:hover { text-decoration: underline; }
 
-#cp_deck_size:hover {
-    cursor: pointer;
-    text-decoration: underline;
-}
-
+.cardtip { font-variant: small-caps; }
+.cardtip.ap-card { color: brown; }
+.cardtip.cp-card { color: blue; }
+.piecetip.ap-unit { color: brown; }
+.piecetip.cp-unit { color: blue; }
 
 /* CARDS */
 
@@ -120,20 +105,21 @@ aside { min-width: 220px; }
     border: 1px solid #655c4d;
 }
 
-.card.highlight {
-    box-shadow: 0 0 0 2px yellow;
+.card.ap.highlight {
+    box-shadow: 0 0 0 3px pink;
+}
+
+.card.cp.highlight {
+    box-shadow: 0 0 0 3px skyblue;
 }
 
 .card.active {
-    box-shadow: 0 0 0 2px blue;
+    box-shadow: 0 0 0 3px cyan;
 }
 
 .card.enabled {
     cursor: pointer;
 }
-
-.hand .card { display: none; margin: 15px 0; }
-.hand .card.show { display: block; }
 
 #tooltip {
     display: none;
@@ -171,75 +157,37 @@ aside { min-width: 220px; }
     cursor: move;
     border-bottom: 1px solid black;
     background-color: tan;
-    padding: 5px 10px;
+    padding: 2px 8px;
 }
 .dialog_x {
     cursor: pointer;
-    float: right;
-    padding: 2px 2px;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    padding: 2px;
 }
 .dialog_x:hover {
     background-color: black;
     color: white;
 }
 .dialog_body {
-    padding: 5px 10px;
     background-color: floralwhite;
     overflow-y: auto;
+    padding: 4px 8px;
     max-height: 500px;
 }
-.dialog_body div {
-    text-indent: -30px;
-    margin-left: 30px;
-}
+.dialog_body dl { margin: 0; }
+.dialog_body dd { margin-left: 20px; }
 
 #card_dialog { top: 145px; left: 75px; z-index: 499; }
-#card_dialog div.header {
-    font-weight: bold;
-    margin-top: 5px;
-    background-color: wheat;
-    border-bottom: 1px solid black;
-    border-top: 1px solid black;
-    margin-left: 0;
-    padding: 5px;
-    text-indent: 0;
-}
-#card_dialog .tip { color: blue; }
-#card_dialog .tip:hover { text-decoration: underline; cursor: pointer; }
 
 #score { top: 145px; left: 75px; z-index: 499; }
-#score div.header {
-    font-weight: bold;
-    margin-top: 5px;
-    background-color: wheat;
-    border-bottom: 1px solid black;
-    border-top: 1px solid black;
-    margin-left: 0;
-    padding: 5px;
-    text-indent: 0;
-}
-
-#score .tip { color: blue }
-#score .tip:hover { text-decoration: underline; cursor: pointer; }
-#score .spacetip { color: blue }
-#score .spacetip:hover { text-decoration: underline; cursor: pointer; }
-#score .piecetip { color: blue }
-#score .piecetip:hover { text-decoration: underline; cursor: pointer; }
-
-#card_dialog .tip { color: blue; }
-#card_dialog .tip:hover { text-decoration: underline; cursor: pointer; }
 
 #violations { top: 55px; right: 240px; z-index: 599; }
-#violations .tip { color: blue }
-#violations .tip:hover { text-decoration: underline; cursor: pointer; }
-#violations .spacetip { color: blue }
-#violations .spacetip:hover { text-decoration: underline; cursor: pointer; }
-#violations .piecetip { color: blue }
-#violations .piecetip:hover { text-decoration: underline; cursor: pointer; }
 
-.rollback_header {
+.dialog h3 {
     font-weight: bold;
-    margin-top: 5px;
+    margin: 0;
 }
 
 .rollback_event {
@@ -249,6 +197,10 @@ aside { min-width: 220px; }
 .rollback_buttons {
     text-align: right;
     margin-top: 10px;
+}
+
+.rollback_buttons button {
+	margin: 0 4px;
 }
 
 @media (max-width: 400px) {
@@ -329,17 +281,6 @@ aside { min-width: 220px; }
 #map.hide_pieces #pieces { display: none; }
 #map.hide_markers #markers { display: none; }
 
-#events {
-    position: absolute;
-    display: flex;
-    top: 230px;
-    left: 190px;
-}
-
-.event {
-    margin: 3px;
-}
-
 #focus {
     position: absolute;
     background-color: black;
@@ -362,11 +303,7 @@ body.shift .highlight {
 
 /* SPACES */
 
-#spaces {
-    position: absolute;
-}
-
-#spaces div {
+.space {
     position: absolute;
     border-width: 4px;
     border-style: solid;
@@ -375,61 +312,59 @@ body.shift .highlight {
     border-radius: 10px;
 }
 
-#spaces div.highlight {
+.space.highlight {
     cursor: pointer;
-    border-color: lime;
+    border-color: yellow;
     box-shadow: 0 0 3px black, inset 0 0 3px black;
 }
 
-#spaces div.selected {
+.space.selected {
     border-color: cyan;
     box-shadow: 0 0 3px black, inset 0 0 3px black;
 }
 
-#spaces div.warning {
+.space.warning {
     border-color: orangered;
     box-shadow: 0 0 3px black, inset 0 0 3px black;
 }
 
-#spaces div.attract {
+.space.attract {
     outline-style: solid;
     animation: attractAnimation 1s linear;
 }
 
-#spaces div.tip {
-    border-color: yellow;
+.space.tip {
+    border-color: lime;
     border-style: dashed;
     box-shadow: 0 0 3px black, inset 0 0 3px black;
 }
 
-body.Allied_Powers header.your_turn { background-color: hsl(5, 65%, 70%); }
-body.Central_Powers header.your_turn { background-color: hsl(200, 40%, 70%); }
-
-#spaces div.western_supply {
-    border-color: hsl(5, 65%, 90%);
-    background-color: hsla(229, 98%, 68%, 0.5);
+.space.cp_supply {
+	border-color: skyblue;
+	background-color: #ccc8;
+	box-shadow: 0 0 3px black, inset 0 0 3px black;
 }
 
-#spaces div.eastern_supply {
-    border-color: #c69b48;
-    background-color: hsla(229, 98%, 68%, 0.5);
+.space.western_supply {
+	border-color: plum;
+	background-color: #ccc8;
+	box-shadow: 0 0 3px black, inset 0 0 3px black;
 }
 
-#spaces div.western_supply.eastern_supply {
-    border-top-color: hsl(5, 65%, 90%);
-    border-left-color: hsl(5, 65%, 90%);
-    border-bottom-color: #c69b48;
-    border-right-color: #c69b48;
-    background-color: hsla(229, 98%, 68%, 0.5);
+.space.eastern_supply {
+	border-color: orange;
+	background-color: #ccc8;
+	box-shadow: 0 0 3px black, inset 0 0 3px black;
 }
 
-#spaces div.cp_supply {
-    border-color: hsl(200, 40%, 90%);
-    background-color: hsla(229, 98%, 68%, 0.5);
+.space.western_supply.eastern_supply {
+	border-color: plum orange orange plum;
 }
 
-#spaces div.no_supply {
-    border-color: transparent;
+.space.no_supply {
+	border-color: transparent;
+	background-color: none;
+	box-shadow: none;
 }
 
 /* COUNTERS */
@@ -515,37 +450,28 @@ body.Central_Powers header.your_turn { background-color: hsl(200, 40%, 70%); }
 /* FLAT STYLE */
 
 body.flat .unit,
-body.flat .marker,
-body.flat .event {
+body.flat .marker {
     border-width: 1px;
     border-style: solid;
     border-color: black;
 }
 
-body.flat .unit.highlight {
-    box-shadow: 0 0 0 3px var(--highlight-color);
-    border-color: #000;
-}
-
-body.flat .unit.selected {
-    box-shadow: 0 0 0 3px var(--selected-color);
-    border-color: #000;
-}
-
-body.flat .unit.tip {
-    box-shadow: 0 0 0 3px yellow;
-    border-color: #000;
-}
+body.flat .unit.highlight { box-shadow: 0 0 0 3px lime; border-color: #000; }
+body.flat .unit.selected { box-shadow: 0 0 0 3px cyan; border-color: #000; }
+body.flat .unit.tip { box-shadow: 0 0 0 3px yellow; border-color: #000; }
 
 /* BEVEL STYLE ( top right bottom left ) */
 
 body.bevel .unit,
-body.bevel .marker,
-body.bevel .event {
+body.bevel .marker {
     border-width: 2px;
     border-style: solid;
     border-color: white;
 }
+
+body.bevel .unit.highlight { box-shadow: 0 0 0 1px #000, 0 0 0 4px lime !important }
+body.bevel .unit.selected { box-shadow: 0 0 0 1px #000, 0 0 0 4px cyan !important }
+body.bevel .unit.tip { box-shadow: 0 0 0 1px #000, 0 0 0 4px yellow !important }
 
 /* TRACKS */
 /* Turn */
@@ -687,36 +613,26 @@ body.bevel .event {
 .marker.small{width:36px;height:36px}
 .marker.mini{width:18px;height:18px;border-radius:0;border-width:1px!important;}
 
-.event{width:54px;height:54px;background-size:cover;display:none}
-.event.show{display:block}
-
-/* COLORS */
-
-/* action highlight */
-body.bevel .unit.highlight { box-shadow: 0 0 0 1px #000, 0 0 0 4px var(--highlight-color) !important }
-
-/* selected */
-body.bevel .unit.selected { box-shadow: 0 0 0 1px #000, 0 0 0 4px var(--selected-color) !important }
-
-body.bevel .unit.tip { box-shadow: 0 0 0 1px #000, 0 0 0 4px yellow !important }
-
 /* Animations */
 @keyframes attractAnimation {
     0% {
         outline-width: 2px;
         outline-offset: 0;
-        outline-color: rgba(255, 47, 0, 1);
+        outline-color: rgba(255, 255, 0, 1);
+	z-index: 300;
     }
 
     80% {
         outline-width: 8px;
         outline-offset: 4px;
-        outline-color: rgba(255, 47, 0, 0.3);
+        outline-color: rgba(255, 255, 0, 0.3);
+	z-index: 300;
     }
 
     100% {
         outline-width: 8px;
         outline-offset: 4px;
-        outline-color: rgba(73, 0, 0, 0);
+        outline-color: rgba(255, 255, 0, 0);
+	z-index: 300;
     }
 }
