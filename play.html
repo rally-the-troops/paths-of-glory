@@ -5,8 +5,8 @@
 	<meta name="viewport" content="width=device-width, height=device-height, user-scalable=no, interactive-widget=resizes-content, viewport-fit=content, viewport-fit=cover">
 	<meta name="theme-color" content="#444">
 	<meta charset="UTF-8">
-	<title>Paths of Glory</title>
-	<link rel="icon" href="favicon.svg">
+	<title>PATHS OF GLORY</title>
+	<link rel="icon" href="favicon.png">
 	<link rel="stylesheet" href="/fonts/fonts.css">
 	<link rel="stylesheet" href="/common/client.css">
 	<link rel="stylesheet" href="play.css">
@@ -21,10 +21,10 @@
 <menu id="popup">
 	<li class="title">CARD
 	<li class="separator">
-	<li data-action="play_event"> &#x1f3b4; &nbsp; Play Event
-	<li data-action="play_ops"> &#x1f464; &nbsp; Play for Operations
-	<li data-action="play_sr"> &#x1f465; &nbsp; Strategic Redeployment
-	<li data-action="play_rps"> &#x1f528; &nbsp; Replacement Points
+	<li data-action="play_event"> &#x1f3b4;&#xfe0e; &nbsp; Play Event
+	<li data-action="play_ops"> &#x1f500;&#xfe0e; &nbsp; Play for Operations
+	<li data-action="play_sr"> &#x1f682;&#xfe0e; &nbsp; Strategic Redeployment
+	<li data-action="play_rps"> &#x1f3ed;&#xfe0e; &nbsp; Replacement Points
 </menu>
 
 <menu id="activation_popup" class="popup_menu">
@@ -42,7 +42,7 @@
 </div>
 
 <div id="violations" class="dialog hide">
-	<div id="violations_header" class="dialog_header" onclick="toggle_dialog_collapse('violations')">Rules Warnings</div>
+	<div id="violations_header" class="dialog_header" onclick="toggle_dialog_collapse('violations')">Rule Violations</div>
 	<div id="violations_body" class="dialog_body"></div>
 </div>
 
@@ -121,11 +121,7 @@
 <main data-max-zoom="2" onclick="hide_popup_menu()">
 	<div id="mapwrap">
 		<div id="map">
-			<div id="events">
-			</div>
-			<div id="turn_track"></div>
 			<div id="spaces"></div>
-			<div id="general_records"></div>
 			<div id="markers">
 				<div class="marker ap_mandatory_offensive none" id="ap_mandatory_offensive"></div>
 				<div class="marker cp_mandatory_offensive none" id="cp_mandatory_offensive"></div>

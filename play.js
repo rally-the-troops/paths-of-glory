@@ -177,7 +177,7 @@ function sub_card_name(match, p1, offset, string) {
     let c = p1 | 0
     let card = cards[c]
     if (card) {
-        return `<span class="tip" onmouseenter="on_focus_card_tip(${c})" onmouseleave="on_blur_card_tip()"">${card.name}</span>`
+        return `<span class="cardtip ${c <= HIGHEST_AP_CARD ? "ap-card" : "cp-card"}" onmouseenter="on_focus_card_tip(${c})" onmouseleave="on_blur_card_tip()"">${card.name}</span>`
     } else {
         return `Unknown Card`
     }
@@ -187,7 +187,7 @@ function sub_piece_name(match, p1, offset, string) {
     let p = p1 | 0
     let piece = pieces[p]
     if (piece) {
-        return `<span class="piecetip" onmouseenter="on_focus_piece_tip(${p})" onmouseleave="on_blur_piece_tip(${p})" onclick="on_click_piece_tip(${p})">${piece.name}</span>`
+        return `<span class="piecetip ${piece.faction + "-unit"}" onmouseenter="on_focus_piece_tip(${p})" onmouseleave="on_blur_piece_tip(${p})" onclick="on_click_piece_tip(${p})">${piece.name}</span>`
     } else {
         return `Unknown Piece`
     }
@@ -197,7 +197,7 @@ function sub_piece_name_reduced(match, p1, offset, string) {
     let p = p1 | 0
     let piece = pieces[p]
     if (piece) {
-        return `<span class="piecetip" onmouseenter="on_focus_piece_tip(${p})" onmouseleave="on_blur_piece_tip(${p})" onclick="on_click_piece_tip(${p})">(${piece.name})</span>`
+        return `<span class="piecetip ${piece.faction + "-unit"}" onmouseenter="on_focus_piece_tip(${p})" onmouseleave="on_blur_piece_tip(${p})" onclick="on_click_piece_tip(${p})">(${piece.name})</span>`
     } else {
         return `Unknown Piece`
     }
@@ -205,19 +205,20 @@ function sub_piece_name_reduced(match, p1, offset, string) {
 
 function show_card_list(id, card_lists) {
     show_dialog(id, (body) => {
+        let dl = document.createElement("dl")
         let append_header = (text) => {
-            let header = document.createElement("div")
-            header.className = "header"
+            let header = document.createElement("dt")
             header.textContent = text
-            body.appendChild(header)
+            dl.appendChild(header)
         }
         let append_card = (c) => {
-            let p = document.createElement("div")
-            p.className = "tip"
+            let p = document.createElement("dd")
+            p.className = "cardtip"
+            p.className = (c <= HIGHEST_AP_CARD) ? "cardtip ap-card" : "cardtip cp-card"
             p.onmouseenter = () => on_focus_card_tip(c)
             p.onmouseleave = on_blur_card_tip
             p.textContent = `${cards[c].name}`
-            body.appendChild(p)
+            dl.appendChild(p)
         }
 
         append_header(`Discarded Cards (${card_lists.discard.length})`)
@@ -226,14 +227,14 @@ function show_card_list(id, card_lists) {
         card_lists.removed.forEach(append_card)
         append_header(`In Hand or Deck (${card_lists.deck.length})`)
         card_lists.deck.forEach(append_card)
+        body.appendChild(dl)
     })
 }
 
 function show_dialog(id, dialog_generator) {
     document.getElementById(id).classList.remove("hide")
     let body = document.getElementById(id + "_body")
-    while (body.firstChild)
-        body.removeChild(body.firstChild)
+    body.replaceChildren()
     if (dialog_generator) {
         dialog_generator(body)
     }
@@ -375,18 +376,20 @@ function on_reply(q, params) {
 
 function show_score_summary() {
     show_dialog("score", (body) => {
+        let dl = document.createElement("dl")
         let append_header = (text) => {
-            let header = document.createElement("div")
+            let header = document.createElement("dt")
             header.className = "header"
             header.textContent = text
-            body.appendChild(header)
+            dl.appendChild(header)
         }
         let append_score = (label, value) => {
-            let p = document.createElement("div")
+            let p = document.createElement("dd")
             p.className = "score_row"
             p.innerHTML = `${label}: ${value > 0 ? '+' : ''}${value}`
-            body.appendChild(p)
+            dl.appendChild(p)
         }
+        body.appendChild(dl)
 
         // Captured spaces
         let ap_captured = []
@@ -439,8 +442,6 @@ let ui = {
     cards: document.getElementById("cards"),
     combat_cards: document.getElementById("combat_cards"),
     last_card: document.getElementById("last_card"),
-    turn_track: document.getElementById("turn_track"),
-    general_records: document.getElementById("general_records"),
     ne_limits: {
         br_sr: document.getElementsByClassName("br_ne_sr")[0],
         cp_sr: document.getElementsByClassName("cp_ne_sr")[0],
@@ -1020,6 +1021,7 @@ function build_space(id) {
 
     let elt = space.element = document.createElement("div")
     elt.space = id
+    elt.className = "space"
     elt.style.left = x + "px"
     elt.style.top = y + "px"
     elt.style.width = w + "px"
