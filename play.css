@@ -16,7 +16,7 @@ body.Central_Powers header.your_turn { background-color: hsl(200, 40%, 70%); }
 
 :root {
     --highlight-color: lime;
-    --selected-color: blue;
+    --selected-color: cyan;
 }
 aside { min-width: 220px; }
 
@@ -374,12 +374,12 @@ body.shift .highlight {
 
 #spaces div.highlight {
     cursor: pointer;
-    border-color: yellow;
+    border-color: lime;
     box-shadow: 0 0 3px black, inset 0 0 3px black;
 }
 
 #spaces div.selected {
-    border-color: blue;
+    border-color: cyan;
     box-shadow: 0 0 3px black, inset 0 0 3px black;
 }
 
@@ -394,7 +394,7 @@ body.shift .highlight {
 }
 
 #spaces div.tip {
-    border-color: lime;
+    border-color: yellow;
     border-style: dashed;
     box-shadow: 0 0 3px black, inset 0 0 3px black;
 }
@@ -541,7 +541,7 @@ body.bevel .marker,
 body.bevel .event {
     border-width: 2px;
     border-style: solid;
-    border-color: lime;
+    border-color: white;
 }
 
 /* TRACKS */
@@ -682,7 +682,7 @@ body.bevel .event {
 
 .marker{width:45px;height:45px;}
 .marker.small{width:36px;height:36px}
-.marker.mini{width:18px;height:18px}
+.marker.mini{width:18px;height:18px;border-radius:0;border-width:1px!important;}
 
 .event{width:54px;height:54px;background-size:cover;display:none}
 .event.show{display:block}

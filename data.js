@@ -1216,8 +1216,8 @@ const cards = [
         "rpbu": 1,
         "rpge": 3,
         "rptu": 1,
-        "name": "Austria",
-        "effect": "Hungary Reinforcements - 7th Army, 2 corps.",
+        "name": "Austria-Hungary Reinforcements",
+        "effect": "7th Army, 2 corps.",
         "reinfnation": "ah",
         "reinf": "AH 7|AHc|AHc"
     },
@@ -1294,8 +1294,8 @@ const cards = [
         "rpah": 1,
         "rpge": 2,
         "rptu": 1,
-        "name": "Austria",
-        "effect": "Hungary Reinforcements - 10th Army.",
+        "name": "Austria-Hungary Reinforcements",
+        "effect": "10th Army.",
         "reinfnation": "ah",
         "reinf": "AH 10"
     },
@@ -1339,7 +1339,7 @@ const cards = [
         "rpah": 1,
         "rpge": 2,
         "rptu": 1,
-        "name": "Austria - Hungary Reinforcements",
+        "name": "Austria-Hungary Reinforcements",
         "effect": "11th Army.",
         "reinfnation": "ah",
         "reinf": "AH 11"
