@@ -1,5 +1,7 @@
 "use strict"
 
+/* globals spaces pieces cards */
+
 const DEBUG_SPACES = false
 const DEBUG_CONNECTIONS = false
 
@@ -1063,6 +1065,7 @@ function build_eliminated_box(id) {
     }
 
     let elt = space.element = document.createElement("div")
+    elt.className = "space box"
     elt.space = id
     elt.style.left = x + "px"
     elt.style.top = y + "px"
@@ -1101,6 +1104,7 @@ function build_reserve_box(id) {
     }
 
     let elt = space.element = document.createElement("div")
+    elt.className = "space box"
     elt.space = id
     elt.style.left = x + "px"
     elt.style.top = y + "px"

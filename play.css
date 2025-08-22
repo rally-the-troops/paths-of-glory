@@ -578,7 +578,7 @@ body.bevel .unit.tip { box-shadow: 0 0 0 1px #000, 0 0 0 4px yellow !important }
 #ne_limit_markers {
     position: relative;
     left: 1900px;
-    top: 300px;
+    top: 950px;
     width: 240px;
     height: 50px;
     display: flex;
