@@ -1211,8 +1211,8 @@ function layout_stack(stack, start_x, start_y) {
         focus = null
 
     if (stack === focus) {
-        let x = start_x + 22
-        let y = start_y + 22 + (stack[0].my_size + dim.border*2)/2
+        let x = start_x
+        let y = start_y + (stack[0].my_size + dim.border*2)/2
         let minx = x, maxx = x, miny = y, maxy = y
 
         // compute focus box height and move down if it would go past the top
@@ -1240,8 +1240,8 @@ function layout_stack(stack, start_x, start_y) {
         focus_box.style.width = (maxx-minx + dim.padding*2) + "px"
         focus_box.style.height = (maxy-miny + dim.padding*2) + "px"
     } else {
-        let x = start_x + 22 - (stack[0].my_size + dim.border*2)/2
-        let y = start_y + 22 + (stack[0].my_size + dim.border*2)/2
+        let x = start_x - (stack[0].my_size + dim.border*2)/2
+        let y = start_y + (stack[0].my_size + dim.border*2)/2
         for (let elt of stack) {
             let ex = Math.floor(x)
             let ey = Math.floor(y - elt.my_size - dim.border*2)
@@ -1271,9 +1271,6 @@ function update_space(s) {
     let space = spaces[s]
     let stack = space.stack
     stack.length = 0
-
-    let sx = space.x - Math.round(space.w / 2)
-    let sy = space.y - Math.round(space.h / 2)
 
     let ap_oos = false
     let cp_oos = false
@@ -1400,7 +1397,7 @@ function update_space(s) {
         destroy_activation_marker(s, 'attack')
     }
 
-    layout_stack(stack, sx, sy)
+    layout_stack(stack, space.x, space.y)
     update_space_highlight(s)
 }
 
@@ -1476,7 +1473,7 @@ function update_reserve_boxes() {
 
     const stride = 60
     const ap_x = ap_space.x - stride * 2.5
-    const ap_y = ap_space.y - 30
+    const ap_y = ap_space.y
     for (let i = 0; i < ap_reserve_box_order.length; ++i) {
         let nation = ap_reserve_box_order[i]
         if (ap_space.stacks[nation].full.length > 0) {
@@ -1487,7 +1484,7 @@ function update_reserve_boxes() {
         }
     }
     const cp_x = cp_space.x - stride * 2
-    const cp_y = cp_space.y - 30
+    const cp_y = cp_space.y
     for (let i = 0; i < cp_reserve_box_order.length; ++i) {
         let nation = cp_reserve_box_order[i]
         if (cp_space.stacks[nation].full.length > 0) {
@@ -1658,8 +1655,8 @@ for (let i = 0; i < 20; ++i) {
 function turn_track_pos(value) {
     let row = Math.floor((value - 1) / 5)
     let col = (value - 1) % 5
-    let x = 71 + col * 59
-    let y = 106 + row * 92
+    let x = 71 + col * 59 + 22
+    let y = 106 + row * 92 + 22
     return [x, y]
 }
 
@@ -1722,8 +1719,8 @@ function general_records_pos(value) {
         row = 3
         col = 10
     }
-    let x = col * 56 + 62
-    let y = row * 66 + 1350
+    let x = col * 56 + 62 + 22
+    let y = row * 66 + 1350 + 22
     return [x, y]
 }
 
@@ -1873,7 +1870,7 @@ function update_action_round_tracks() {
         for (let action_type in action_stacks[faction]) {
             let stack_info = action_stacks[faction][action_type]
             if (stack_info.stack.length > 0) {
-                layout_stack(stack_info.stack, stack_info.left, stack_info.top)
+                layout_stack(stack_info.stack, stack_info.left + 20, stack_info.top + 20)
             }
         }
     }
