@@ -4056,7 +4056,7 @@ states.choose_defender_replacement = {
 function replace_defender_unit(unit, location, replacement) {
     game.location[replacement] = location
     game.attack.defender_replacements[unit] = replacement
-    log(`${piece_name(unit, true)} in ${space_name(location)} breaks to ${piece_name(replacement)}(${log_corps(replacement)})`);
+    log(`${piece_name(unit, true)} in ${space_name(location)} breaks to ${piece_name(replacement)}${log_corps(replacement)}`);
 }
 
 states.withdrawal_negate_step_loss = {
