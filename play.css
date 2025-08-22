@@ -344,7 +344,6 @@ aside { min-width: 220px; }
     position: absolute;
     background-color: black;
     opacity: 50%;
-    box-shadow: 0 0 5px black;
     z-index: 100;
     border-radius: 5px;
 }
@@ -353,7 +352,7 @@ aside { min-width: 220px; }
 
 .highlight {
     cursor: pointer;
-    z-index: 200;
+    z-index: 100;
 }
 
 body.shift .highlight {

@@ -40,19 +40,8 @@ const HIGHEST_AP_CARD = 65;
 
 // LAYOUT AND STYLE OPTIONS
 
-let layout = 0
 let style = "bevel"
 let mouse_focus = 0
-
-function set_layout(x) {
-    layout = x
-    window.localStorage[params.title_id + "/layout"] = layout
-    check_menu("stack_v", layout === 0)
-    check_menu("stack_h", layout === 1)
-    check_menu("stack_d", layout === 2)
-    if (view)
-        update_map()
-}
 
 function set_style(x) {
     style = x
@@ -75,7 +64,6 @@ function set_mouse_focus(x) {
     check_menu("mouse_focus", mouse_focus === 1)
 }
 
-set_layout(window.localStorage[params.title_id + "/layout"] | 0)
 set_style(window.localStorage[params.title_id + "/style"] || "bevel")
 set_mouse_focus(window.localStorage[params.title_id + "/mouse_focus"] | 0)
 
@@ -742,11 +730,10 @@ function on_click_marker(evt) {
 function on_focus_piece(evt) {
     let id = evt.target.piece
     let piece = pieces[id]
-    // evt.target.style.zIndex = 300
     if (view.reduced.includes(id))
-        ui.status.textContent = piece.rdesc
+        ui.status.textContent = `(${piece.name}) [${piece.rcf}-${piece.rlf}-${piece.rmf}]`
     else
-        ui.status.textContent = piece.desc
+        ui.status.textContent = `${piece.name} [${piece.cf}-${piece.lf}-${piece.mf}]`
     if (mouse_focus)
         focus_stack(evt.target.my_stack)
 }
@@ -754,7 +741,6 @@ function on_focus_piece(evt) {
 function on_blur_piece(evt) {
     let id = evt.target.piece
     let piece = pieces[id]
-    // evt.target.style.zIndex = piece.z
     ui.status.textContent = ""
 }
 
@@ -851,7 +837,7 @@ function is_card_enabled(card) {
 }
 
 function is_action(action, card) {
-    return view.actions && view.actions[action] && view.actions[action].includes(card)
+    return !!(view.actions && view.actions[action] && view.actions[action].includes(card))
 }
 
 function on_click_card(evt) {
@@ -928,8 +914,7 @@ function build_trench_marker(space_id, level, faction) {
         markers.trench[faction][level],
         e => e.space_id === space_id,
         {space_id: space_id},
-        marker_info.trench[faction][level],
-        true
+        marker_info.trench[faction][level]
     )
 }
 
@@ -952,7 +937,7 @@ function destroy_oos_marker(space_id, faction) {
 }
 
 function build_fort_destroyed_marker(space_id) {
-    return build_marker(markers.forts.destroyed, e => e.space_id === space_id, {space_id: space_id}, marker_info.fort_destroyed, true)
+    return build_marker(markers.forts.destroyed, e => e.space_id === space_id, {space_id: space_id}, marker_info.fort_destroyed)
 }
 
 function destroy_fort_destroyed_marker(space_id) {
@@ -968,7 +953,7 @@ function destroy_fort_destroyed_mini_marker(space_id) {
 }
 
 function build_fort_besieged_marker(space_id) {
-    return build_marker(markers.forts.besieged, e => e.space_id === space_id, {space_id: space_id}, marker_info.fort_besieged, true)
+    return build_marker(markers.forts.besieged, e => e.space_id === space_id, {space_id: space_id}, marker_info.fort_besieged)
 }
 
 function destroy_fort_besieged_marker(space_id) {
@@ -1133,6 +1118,10 @@ function build_unit(id) {
     elt.addEventListener("mousedown", on_click_piece)
     elt.addEventListener("mouseenter", on_focus_piece)
     elt.addEventListener("mouseleave", on_blur_piece)
+    if (unit.type === "army")
+        elt.my_size = 45
+    else
+        elt.my_size = 36
     ui.pieces.insertBefore(elt, ui.pieces.firstChild)
 }
 
@@ -1140,7 +1129,7 @@ function build_card(id) {
     let card = cards[id]
     let elt = card.element = document.createElement("div")
     elt.card = id
-    elt.className = "card card_" + faction_card_number(id)
+    elt.className = `card ${id <= HIGHEST_AP_CARD ? "ap" : "cp"} card_${faction_card_number(id)}`
     elt.addEventListener("click", on_click_card)
     elt.addEventListener("mouseenter", on_focus_card)
     elt.addEventListener("mouseleave", on_blur_card)
@@ -1186,164 +1175,86 @@ function is_different_piece(a, b) {
 
 const style_dims = {
     flat: {
-        width: 47,
-        gap: 2,
-        thresh: [24, 16, 10, 8, 6, 0],
-        offset: [1, 2, 3, 4, 5, 6],
-        focus_margin: 5,
+        border: 1,
+        gap: 3,
+        padding: 7,
     },
     bevel: {
-        width: 49,
-        gap: 4,
-        thresh: [24, 16, 10, 8, 6, 0],
-        offset: [1, 2, 3, 4, 5, 6],
-        focus_margin: 6,
+        border: 2,
+        gap: 5,
+        padding: 7,
     },
 }
 
-const MINX = 15
-const MINY = 15
-const MAXX = 2550 - 15
+const MINY = 20
 
-
-function layout_stack(stack, x, y, dx) {
+function layout_stack(stack, start_x, start_y) {
     //console.log(`layout_stack: ${x}, ${y}, ${dx}. ${stack}`)
+
+    if (stack.length === 0)
+        return
 
     let dim = style_dims[style]
     let z = (stack === focus) ? 101 : 1
-
-    let n = stack.length
-    if (n > 32) n = Math.ceil(n / 4)
-    else if (n > 24) n = Math.ceil(n / 3)
-    else if (n > 10) n = Math.ceil(n / 2)
-    let m = Math.ceil(stack.length / n)
 
     // Lose focus if stack is small.
     if (stack === focus && is_small_stack(stack))
         focus = null
 
     if (stack === focus) {
-        let w, h
-        if (layout === 0) {
-            h = (dim.width + dim.gap) * (n - 1)
-            w = (dim.width + dim.gap) * (m - 1)
-        }
-        if (layout === 1) {
-            h = (dim.width + dim.gap) * (m - 1)
-            w = (dim.width + dim.gap) * (n - 1)
-        }
+        let x = start_x + 22
+        let y = start_y + 22 + (stack[0].my_size + dim.border*2)/2
+        let minx = x, maxx = x, miny = y, maxy = y
+
+        // compute focus box height and move down if it would go past the top
+        let h = 0
+        for (let i = 1; i < stack.length; ++i)
+            h += stack[i].my_size + dim.border*2 + dim.gap
         if (y - h < MINY)
-            y = h + MINY
-        focus_box.style.top = (y - h - dim.focus_margin) + "px"
-        if (dx > 0) {
-            if (x + w > MAXX - dim.width)
-                x = MAXX - dim.width - w
-            focus_box.style.left = (x - dim.focus_margin) + "px"
-        } else {
-            if (x - w < MINX)
-                x = w + MINX
-            focus_box.style.left = (x - w - dim.focus_margin) + "px"
-        }
-        focus_box.style.width = (w + dim.width + 2 * dim.focus_margin) + "px"
-        focus_box.style.height = (h + dim.width + 2 * dim.focus_margin) + "px"
-    }
+            y = MINY + h
 
-    let start_x = x
-    let start_y = y
-
-    for (let i = stack.length - 1; i >= 0; --i, ++z) {
-        let ii = stack.length - i
-        let [p, elt] = stack[i]
-        let next_p = i > 0 ? stack[i - 1][0] : 0
-
-        if (layout === 2 && stack === focus) {
-            if (y < MINY) y = MINY
-            if (x < MINX) x = MINX
-            if (x > MAXX - dim.width) x = MAXX - dim.width
+        for (let elt of stack) {
+            let ex = Math.floor(x - elt.my_size/2 - dim.border)
+            let ey = Math.floor(y - elt.my_size - dim.border*2)
+            minx = Math.min(minx, ex)
+            miny = Math.min(miny, ey)
+            maxx = Math.max(maxx, ex + elt.my_size + dim.border * 2)
+            maxy = Math.max(maxy, ey + elt.my_size + dim.border * 2)
+            elt.style.left = ex + "px"
+            elt.style.top = ey + "px"
+            elt.style.zIndex = z++
+            y -= elt.my_size + dim.border * 2 + dim.gap
         }
 
-        let ex = x
-        let ey = y
-        if (p <= 0) {
-            ex += Math.floor((45 - elt.my_size) / 2)
-            ey += Math.floor((45 - elt.my_size) / 2)
-        }
-
-        //console.log("ex: " + ex + " ey: " + ey);
-        elt.style.left = Math.round(ex) + "px"
-        elt.style.top = Math.round(ey) + "px"
-        elt.style.zIndex = z
-
-        if (p > 0)
-            pieces[p].z = z
-
-        if (stack === focus || is_small_stack(stack)) {
-            switch (layout) {
-                case 2: // Diagonal
-                    if (y <= MINY + 25) {
-                        x -= (dim.width + dim.gap)
-                        y = MINY
-                        continue
-                    }
-                    if (x <= MINX + 25) {
-                        y -= (dim.width + dim.gap)
-                        x = MINX
-                        continue
-                    }
-                    if (x >= MAXX - dim.width - 25) {
-                        y -= (dim.width + dim.gap)
-                        x = MAXX - dim.width
-                        continue
-                    }
-                    if (p > 0) {
-                        x += dx * 20
-                        y -= 20
-                    } else {
-                        x += dx * 15
-                        y -= 15
-                    }
-                    break
-
-                case 0: // Vertical
-                    x = start_x + dx * (dim.width + dim.gap) * Math.floor(ii / n)
-                    y = start_y - (dim.width + dim.gap) * (ii % n)
-                    break
-
-                case 1: // Horizontal
-                    x = start_x + dx * (dim.width + dim.gap) * (ii % n)
-                    y = start_y - (dim.width + dim.gap) * Math.floor(ii / n)
-                    break
-            }
-        } else {
-            for (let k = 0; k <= dim.offset.length; ++k) {
-                if (stack.length > dim.thresh[k]) {
-                    x += dx * dim.offset[k]
-                    y -= dim.offset[k]
-                    break
-                }
-            }
+        focus_box.style.left = (minx - dim.padding) + "px"
+        focus_box.style.top = (miny - dim.padding) + "px"
+        focus_box.style.width = (maxx-minx + dim.padding*2) + "px"
+        focus_box.style.height = (maxy-miny + dim.padding*2) + "px"
+    } else {
+        let x = start_x + 22 - (stack[0].my_size + dim.border*2)/2
+        let y = start_y + 22 + (stack[0].my_size + dim.border*2)/2
+        for (let elt of stack) {
+            let ex = Math.floor(x)
+            let ey = Math.floor(y - elt.my_size - dim.border*2)
+            elt.style.left = ex + "px"
+            elt.style.top = ey + "px"
+            elt.style.zIndex = z++
+            x += 6
+            y -= 6
+            if (y < MINY)
+                y = MINY
         }
     }
 }
 
-function push_stack(stk, pc, elt) {
-    stk.push([pc, elt])
+function push_stack(stk, elt) {
+    stk.unshift(elt)
     elt.my_stack = stk
 }
 
-function unshift_stack(stk, pc, elt) {
-    stk.unshift([pc, elt])
+function unshift_stack(stk, elt) {
+    stk.push(elt)
     elt.my_stack = stk
-}
-
-function remove_from_stack(elt) {
-    if (elt.my_stack === undefined)
-        return
-    let ix = elt.my_stack.find((e) => e[1] === elt)
-    if (ix >= 0) {
-        array_remove(elt.my_stack, ix)
-    }
-    elt.my_stack = undefined
 }
 
 function update_space(s) {
@@ -1388,10 +1299,10 @@ function update_space(s) {
     ordered_pieces.forEach(p => {
         let pe = pieces[p].element
 
-        unshift_stack(stack, p, pe)
+        unshift_stack(stack, pe)
 
         if (view.failed_entrench.includes(p)) {
-            unshift_stack(stack, 0, build_failed_entrench_marker(p))
+            unshift_stack(stack, build_failed_entrench_marker(p))
         } else {
             destroy_failed_entrench_marker(p)
         }
@@ -1403,33 +1314,33 @@ function update_space(s) {
     })
 
     if (view.mef_beachhead === s) {
-        push_stack(stack, 0, build_marker(markers.mef_beachhead, e => e.space_id === s, {space_id: s}, marker_info.mef_beachhead))
+        push_stack(stack, build_marker(markers.mef_beachhead, e => e.space_id === s, {space_id: s}, marker_info.mef_beachhead))
     } else {
         destroy_marker(markers.mef_beachhead, e => e.space_id === s)
     }
 
     if (space.faction === AP) {
         if (view.control[s])
-            push_stack(stack, 0, build_control_marker(s, CP))
+            push_stack(stack, build_control_marker(s, CP))
         else
             destroy_control_marker(s, CP)
     }
 
     if (space.faction === CP) {
         if (!view.control[s])
-            push_stack(stack, 0, build_control_marker(s, AP))
+            push_stack(stack, build_control_marker(s, AP))
         else
             destroy_control_marker(s, AP)
     }
 
     if (s === SINAI && view.events.sinai_pipeline > 0) {
-        push_stack(stack, 0, build_marker(markers.sinai, e => e.space_id === s, {space_id: s}, marker_info.sinai_pipeline))
+        push_stack(stack, build_marker(markers.sinai, e => e.space_id === s, {space_id: s}, marker_info.sinai_pipeline))
     } else {
         destroy_marker(markers.sinai, e => e.space_id === s)
     }
 
     if (view.forts.destroyed.includes(s)) {
-        push_stack(stack, 0, build_fort_destroyed_marker(s))
+        push_stack(stack, build_fort_destroyed_marker(s))
         let mini = build_fort_destroyed_mini_marker(s)
         mini.style.left = `${spaces[s].x - 9}px`
         mini.style.top = `${spaces[s].y + 30}px`
@@ -1439,48 +1350,48 @@ function update_space(s) {
     }
 
     if (view.forts.besieged.includes(s)) {
-        push_stack(stack, 0, build_fort_besieged_marker(s))
+        push_stack(stack, build_fort_besieged_marker(s))
     } else {
         destroy_fort_besieged_marker(s)
     }
 
     if (view.ap.trenches[s] !== undefined && view.ap.trenches[s] > 0) {
-        push_stack(stack, 0, build_trench_marker(s, view.ap.trenches[s], AP))
+        push_stack(stack, build_trench_marker(s, view.ap.trenches[s], AP))
     } else {
         destroy_trench_marker(s, AP)
     }
 
     if (view.cp.trenches[s] !== undefined && view.cp.trenches[s] > 0) {
-        push_stack(stack, 0, build_trench_marker(s, view.cp.trenches[s], CP))
+        push_stack(stack, build_trench_marker(s, view.cp.trenches[s], CP))
     } else {
         destroy_trench_marker(s, CP)
     }
 
     if (ap_oos) {
-        unshift_stack(stack, 0, build_oos_marker(s, AP))
+        unshift_stack(stack, build_oos_marker(s, AP))
     } else {
         destroy_oos_marker(s, AP)
     }
 
     if (cp_oos) {
-        unshift_stack(stack, 0, build_oos_marker(s, CP))
+        unshift_stack(stack, build_oos_marker(s, CP))
     } else {
         destroy_oos_marker(s, CP)
     }
 
     if (view.activated.move.includes(s)) {
-        unshift_stack(stack, 0, build_activation_marker(s, 'move'))
+        unshift_stack(stack, build_activation_marker(s, 'move'))
     } else {
         destroy_activation_marker(s, 'move')
     }
 
     if (view.activated.attack.includes(s)) {
-        unshift_stack(stack, 0, build_activation_marker(s, 'attack'))
+        unshift_stack(stack, build_activation_marker(s, 'attack'))
     } else {
         destroy_activation_marker(s, 'attack')
     }
 
-    layout_stack(stack, sx, sy, 1)
+    layout_stack(stack, sx, sy)
     update_space_highlight(s)
 }
 
@@ -1547,9 +1458,9 @@ function update_reserve_boxes() {
         const nation_stack = get_reserve_box_stack(nation)
         let stack = view.reduced.includes(p) ? space.stacks[nation_stack].reduced : space.stacks[nation_stack].full
         if (is_corps)
-            unshift_stack(stack, p, pe)
+            unshift_stack(stack, pe)
         else
-            push_stack(stack, p, pe)
+            push_stack(stack, pe)
     }
     for_each_piece_in_space(AP_RESERVE_BOX, insert_piece_in_stack)
     for_each_piece_in_space(CP_RESERVE_BOX, insert_piece_in_stack)
@@ -1560,10 +1471,10 @@ function update_reserve_boxes() {
     for (let i = 0; i < ap_reserve_box_order.length; ++i) {
         let nation = ap_reserve_box_order[i]
         if (ap_space.stacks[nation].full.length > 0) {
-            layout_stack(ap_space.stacks[nation].full, ap_x + i * stride, ap_y, 1)
+            layout_stack(ap_space.stacks[nation].full, ap_x + i * stride, ap_y)
         }
         if (ap_space.stacks[nation].reduced.length > 0) {
-            layout_stack(ap_space.stacks[nation].reduced, ap_x + i * stride, ap_y + 45, 1)
+            layout_stack(ap_space.stacks[nation].reduced, ap_x + i * stride, ap_y + 45)
         }
     }
     const cp_x = cp_space.x - stride * 2
@@ -1571,10 +1482,10 @@ function update_reserve_boxes() {
     for (let i = 0; i < cp_reserve_box_order.length; ++i) {
         let nation = cp_reserve_box_order[i]
         if (cp_space.stacks[nation].full.length > 0) {
-            layout_stack(cp_space.stacks[nation].full, cp_x + i * stride, cp_y, 1)
+            layout_stack(cp_space.stacks[nation].full, cp_x + i * stride, cp_y)
         }
         if (cp_space.stacks[nation].reduced.length > 0) {
-            layout_stack(cp_space.stacks[nation].reduced, cp_x + i * stride, cp_y + 45, 1)
+            layout_stack(cp_space.stacks[nation].reduced, cp_x + i * stride, cp_y + 45)
         }
     }
 
@@ -1625,7 +1536,7 @@ function update_eliminated_boxes() {
 
         const space = pieces[p].faction === CP ? cp_space : ap_space
         let stack = is_corps ? space.stacks[get_eliminated_box_group(p)].corps : space.stacks[get_eliminated_box_group(p)].armies
-        unshift_stack(stack, p, pe)
+        unshift_stack(stack, pe)
     }
     for_each_piece_in_space(AP_ELIMINATED_BOX, insert_piece_in_stack)
     for_each_piece_in_space(CP_ELIMINATED_BOX, insert_piece_in_stack)
@@ -1636,10 +1547,10 @@ function update_eliminated_boxes() {
     for (let i = 0; i < ap_eliminated_box_order.length; ++i) {
         let group = ap_eliminated_box_order[i]
         if (ap_space.stacks[group].armies.length > 0) {
-            layout_stack(ap_space.stacks[group].armies, ap_x + i * stride, ap_y, 1)
+            layout_stack(ap_space.stacks[group].armies, ap_x + i * stride, ap_y)
         }
         if (ap_space.stacks[group].corps.length > 0) {
-            layout_stack(ap_space.stacks[group].corps, ap_x + i * stride, ap_y + 60, 1)
+            layout_stack(ap_space.stacks[group].corps, ap_x + i * stride, ap_y + 60)
         }
     }
     const cp_x = cp_space.x - stride * 2
@@ -1647,10 +1558,10 @@ function update_eliminated_boxes() {
     for (let i = 0; i < cp_eliminated_box_order.length; ++i) {
         let group = cp_eliminated_box_order[i]
         if (cp_space.stacks[group].armies.length > 0) {
-            layout_stack(cp_space.stacks[group].armies, cp_x + i * stride, cp_y, 1)
+            layout_stack(cp_space.stacks[group].armies, cp_x + i * stride, cp_y)
         }
         if (cp_space.stacks[group].corps.length > 0) {
-            layout_stack(cp_space.stacks[group].corps, cp_x + i * stride, cp_y + 60, 1)
+            layout_stack(cp_space.stacks[group].corps, cp_x + i * stride, cp_y + 60)
         }
     }
 }
@@ -1701,31 +1612,10 @@ function should_highlight_space(s) {
 }
 
 function update_card(id) {
-    let card = cards[id]
-    if (is_card_enabled(id))
-        card.element.classList.add('enabled')
-    else
-        card.element.classList.remove('enabled')
-    if (view.actions && view.actions.card && view.actions.card.includes(id))
-        card.element.classList.add('highlight')
-    else
-        card.element.classList.remove('highlight')
-    if (view.hand.includes(id))
-        card.element.classList.remove("hide")
-    else
-        card.element.classList.add("hide")
-
-    if (card.cc_element) {
-        if (view.combat_cards.includes(id))
-            card.cc_element.classList.remove("hide")
-        else
-            card.cc_element.classList.add("hide")
-
-        if (view.attack && view.attack.combat_cards.includes(id))
-            card.cc_element.classList.add("active")
-        else
-            card.cc_element.classList.remove("active")
-    }
+    let elt = cards[id].element
+    elt.classList.toggle("enabled", is_card_enabled(id))
+    elt.classList.toggle("highlight", is_action("card", id) || is_action("play_event", id))
+    elt.classList.toggle("active", !!(view.attack && view.attack.combat_cards.includes(id)))
 }
 
 function update_piece(id) {
@@ -1769,7 +1659,7 @@ function update_turn_track_marker(type, value, remove = false) {
         destroy_turn_track_marker(type)
     } else {
         let marker = build_turn_track_marker(type)
-        push_stack(turn_track_stacks[value - 1], 0, marker)
+        push_stack(turn_track_stacks[value - 1], marker)
     }
 }
 
@@ -1779,11 +1669,11 @@ function update_turn_track() {
     update_turn_track_marker("turn", view.turn)
 
     view.ap.missed_mo.forEach((missed_mo) => {
-        push_stack(turn_track_stacks[missed_mo - 1], 0, build_missed_mo_marker(AP, missed_mo))
+        push_stack(turn_track_stacks[missed_mo - 1], build_missed_mo_marker(AP, missed_mo))
     })
 
     view.cp.missed_mo.forEach((missed_mo) => {
-        push_stack(turn_track_stacks[missed_mo - 1], 0, build_missed_mo_marker(CP, missed_mo))
+        push_stack(turn_track_stacks[missed_mo - 1], build_missed_mo_marker(CP, missed_mo))
     })
 
     const event_markers = [
@@ -1805,7 +1695,7 @@ function update_turn_track() {
     turn_track_stacks.forEach((stack, ix) => {
         if (stack.length > 0) {
             let [x, y] = turn_track_pos(ix + 1)
-            layout_stack(stack, x, y, 1)
+            layout_stack(stack, x, y)
         }
     })
 }
@@ -1834,7 +1724,7 @@ function update_general_record(type, value, remove = false) {
         destroy_general_records_marker(type)
     } else {
         let marker = build_general_records_marker(type)
-        push_stack(general_records_stacks[value], 0, marker)
+        push_stack(general_records_stacks[value], marker)
     }
 }
 
@@ -1870,7 +1760,7 @@ function update_general_records_track() {
     general_records_stacks.forEach((stack, ix) => {
         if (stack.length > 0) {
             let [x, y] = general_records_pos(ix)
-            layout_stack(stack, x, y, 1)
+            layout_stack(stack, x, y)
         }
     })
 }
@@ -1946,7 +1836,7 @@ function update_action_round_marker(faction, round, action) {
     let stack_info = action_stacks[faction][action_type]
     let marker = build_action_marker(faction, round)
     marker.classList.add(action.type)
-    unshift_stack(stack_info.stack, 0, marker)
+    unshift_stack(stack_info.stack, marker)
 }
 
 function update_action_round_tracks() {
@@ -1974,7 +1864,7 @@ function update_action_round_tracks() {
         for (let action_type in action_stacks[faction]) {
             let stack_info = action_stacks[faction][action_type]
             if (stack_info.stack.length > 0) {
-                layout_stack(stack_info.stack, stack_info.left, stack_info.top, 1)
+                layout_stack(stack_info.stack, stack_info.left, stack_info.top)
             }
         }
     }
@@ -2141,7 +2031,7 @@ function update_map() {
     if (focus && focus.length <= 1)
         focus = null
 
-    if (focus === null || layout > 1)
+    if (focus === null)
         focus_box.className = "hide"
     else
         focus_box.className = "show"
@@ -2225,4 +2115,4 @@ function on_update() {
 drag_element_with_mouse("#card_dialog", "#card_dialog_header")
 drag_element_with_mouse("#score", "#score_header")
 
-/* vim:set sw=4 expandtab: */
+/* vim:set sw=4 sts=4 expandtab: */
