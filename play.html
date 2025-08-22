@@ -35,22 +35,28 @@
 	<li data-action="deactivate"> Deactivate
 </menu>
 
-<div id="card_dialog" class="dialog hide">
-	<div id="card_dialog_x" class="dialog_x" onclick="hide_dialog('card_dialog')">&#x274c;</div>
-	<div id="card_dialog_header" class="dialog_header">Cards</div>
-	<div id="card_dialog_body" class="dialog_body"></div>
-</div>
-
-<div id="violations" class="dialog hide">
-	<div id="violations_header" class="dialog_header" onclick="toggle_dialog_collapse('violations')">Rule Violations</div>
-	<div id="violations_body" class="dialog_body"></div>
-</div>
-
 <div id="score" class="dialog hide">
-	<div id="score_x" class="dialog_x" onclick="hide_dialog('score')">&#x274c;</div>
-	<div id="score_header" class="dialog_header">Score Summary</div>
-	<div id="score_body" class="dialog_body"></div>
+	<div class="dialog_x" onclick="hide_dialog('score')">&#x274c;</div>
+	<div class="dialog_header">Score Summary</div>
+	<div class="dialog_body"></div>
 </div>
+
+<div id="cp_card_dialog" class="dialog hide">
+	<div class="dialog_x" onclick="hide_dialog('cp_card_dialog')">&#x274c;</div>
+	<div class="dialog_header">Central Power Cards</div>
+	<div class="dialog_body"></div>
+</div>
+
+<div id="ap_card_dialog" class="dialog hide">
+	<div class="dialog_x" onclick="hide_dialog('ap_card_dialog')">&#x274c;</div>
+	<div class="dialog_header">Allied Power Cards</div>
+	<div class="dialog_body"></div>
+</div>
+
+<details id="violations" class="dialog hide" open>
+	<summary class="dialog_header">Rule Violations</summary>
+	<div class="dialog_body"></div>
+</details>
 
 <header>
 	<div id="toolbar">

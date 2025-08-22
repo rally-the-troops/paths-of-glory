@@ -233,7 +233,7 @@ function show_card_list(id, card_lists) {
 
 function show_dialog(id, dialog_generator) {
     document.getElementById(id).classList.remove("hide")
-    let body = document.getElementById(id + "_body")
+    let body = document.getElementById(id).querySelector(".dialog_body")
     body.replaceChildren()
     if (dialog_generator) {
         dialog_generator(body)
@@ -245,11 +245,14 @@ function hide_dialog(id) {
 }
 
 function toggle_dialog_collapse(id) {
-    let dialog_body = document.getElementById(id + "_body")
+    let dialog_body = document.getElementById(id).querySelector(".dialog_body")
+    let dialog_x = document.getElementById(id).querySelector(".dialog_x")
     if (dialog_body.className.includes("hide")) {
         dialog_body.classList.remove("hide")
+        dialog_x.textContent = "A"
     } else {
         dialog_body.classList.add("hide")
+        dialog_x.textContent = "V"
     }
 }
 
@@ -369,9 +372,9 @@ function on_reply(q, params) {
     if (q === 'ap_supply')
         show_ap_supply(params)
     if (q === 'ap_cards')
-        show_card_list("card_dialog", params)
+        show_card_list("ap_card_dialog", params)
     if (q === 'cp_cards')
-        show_card_list("card_dialog", params)
+        show_card_list("cp_card_dialog", params)
 }
 
 function show_score_summary() {
@@ -2114,7 +2117,8 @@ function on_update() {
 
 // INITIALIZE CLIENT
 
-drag_element_with_mouse("#card_dialog", "#card_dialog_header")
-drag_element_with_mouse("#score", "#score_header")
+drag_element_with_mouse("#cp_card_dialog", "#cp_card_dialog .dialog_header")
+drag_element_with_mouse("#ap_card_dialog", "#ap_card_dialog .dialog_header")
+drag_element_with_mouse("#score", "#score .dialog_header")
 
 /* vim:set sw=4 sts=4 expandtab: */
