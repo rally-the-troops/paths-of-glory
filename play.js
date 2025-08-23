@@ -464,21 +464,37 @@ let ui = {
     violations: document.getElementById("violations"),
 }
 
+/*
+    list of small markers (36x36):
+        - allied action 1-6
+        - cp action 1-6
+        - attack
+        - move
+        - game turn
+        - current russian vp
+        - tsar fell russian vp
+        - influenza
+        - failed entrench -1
+        - russian capitulation
+        - us entry
+        - us points
+*/
+
 const marker_info = {
     move: {name: "Move", counter: "marker small move", size: 36},
     attack: {name: "Attack", counter: "marker small attack", size: 36},
     control: {
-        ap: {name: "AP Control", type: "ap_control", counter: "marker small ap control", size: 36},
-        cp: {name: "CP Control", type: "cp_control", counter: "marker small cp control", size: 36}
+        ap: {name: "AP Control", type: "ap_control", counter: "marker ap control", size: 45},
+        cp: {name: "CP Control", type: "cp_control", counter: "marker cp control", size: 45}
     },
     trench: {
         ap: {
-            1: {name: "AP Trench Level 1", type: "ap_trench_1", counter: "marker small ap trench_1", size: 36},
-            2: {name: "AP Trench Level 2", type: "ap_trench_2", counter: "marker small ap trench_2", size: 36}
+            1: {name: "AP Trench Level 1", type: "ap_trench_1", counter: "marker ap trench_1", size: 45},
+            2: {name: "AP Trench Level 2", type: "ap_trench_2", counter: "marker ap trench_2", size: 45}
         },
         cp: {
-            1: {name: "CP Trench Level 1", type: "cp_trench_1", counter: "marker small cp trench_1", size: 36},
-            2: {name: "CP Trench Level 2", type: "cp_trench_2", counter: "marker small cp trench_2", size: 36}
+            1: {name: "CP Trench Level 1", type: "cp_trench_1", counter: "marker cp trench_1", size: 45},
+            2: {name: "CP Trench Level 2", type: "cp_trench_2", counter: "marker cp trench_2", size: 45}
         }
     },
     oos: {
@@ -534,13 +550,13 @@ const marker_info = {
 
     // Event markers
     blockade: {name: "Blockade", counter: "marker blockade_vps ", size: 45},
-    influenza: {name: "Influenza", counter: "marker influenza ", size: 45},
+    influenza: {name: "Influenza", counter: "marker small influenza ", size: 36},
     prince_max: {name: "Prince Max", counter: "marker prince_max ", size: 45},
-    fourteen_points: {name: "US Points", counter: "marker us_points ", size: 45},
+    fourteen_points: {name: "US Points", counter: "marker small us_points ", size: 36},
     lusitania: {name: "Lusitania", counter: "marker lusitania ", size: 45},
     haig: {name: "Haig", counter: "marker haig ", size: 45},
     sud_army : {name: "Sud Army", counter: "marker sud_army ", size: 45},
-    sinai_pipeline: {name: "Sinai Pipeline", counter: "marker small sinai_pipeline ", size: 36},
+    sinai_pipeline: {name: "Sinai Pipeline", counter: "marker sinai_pipeline ", size: 45},
     stavka_timidity: {name: "Stavka Timidity", counter: "marker stavka_timidity ", size: 45},
     salonika: {name: "Salonika", counter: "marker salonika ", size: 45},
     falkenhayn: {name: "Falkenhayn", counter: "marker falkenhayn ", size: 45},

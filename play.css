@@ -47,7 +47,7 @@ body.Central_Powers header.your_turn { background-color: hsl(200, 40%, 70%); }
 .cardtip, .spacetip, .piecetip { cursor: pointer }
 .cardtip:hover, .spacetip:hover, .piecetip:hover { text-decoration: underline; }
 
-.cardtip { font-variant: small-caps; }
+#log .cardtip { font-variant: small-caps; }
 .cardtip.ap-card { color: brown; }
 .cardtip.cp-card { color: blue; }
 .piecetip.ap-unit { color: brown; }
@@ -340,6 +340,7 @@ body.shift .highlight {
     border-color: lime;
     border-style: dashed;
     box-shadow: 0 0 3px black, inset 0 0 3px black;
+    z-index: 500;
 }
 
 .space.cp_supply {
@@ -401,6 +402,10 @@ body.shift .highlight {
 .unit.attract {
     outline-style: solid;
     animation: attractAnimation 1s linear;
+}
+
+.unit.tip {
+    z-index: 500;
 }
 
 .unit.army_ix_1 { background-position: 0px 0px; }

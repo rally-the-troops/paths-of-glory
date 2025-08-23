@@ -1,19 +1,35 @@
 #map{background-image:url(map75.jpg)}
 
-.marker._11th_army { background-image: url(pieces/11th_army.webp); background-size: 45px 45px; }
+.marker.mini.fort_destroyed { background-image: url(pieces/fort_destroyed.webp); background-size: 18px 18px; }
+
+/* SMALL MARKERS 36x36 */
 .marker.action { background-image: url(pieces/action.webp); background-size: 216px 72px; }
+.marker.attack { background-image: url(pieces/attack.webp); background-size: 36px 36px; }
+.marker.move { background-image: url(pieces/move.webp); background-size: 36px 36px; }
+.marker.game_turn { background-image: url(pieces/game_turn.webp); background-size: 36px 36px; }
+.marker.game_turn.back { background-image: url(pieces/game_turn_back.webp); background-size: 36px 36px; }
+.marker.current_cp_russian_vp { background-image: url(pieces/current_cp_russian_vp.webp); background-size: 36px 36px; }
+.marker.tsar_fell_cp_russian_vp { background-image: url(pieces/tsar_fell_cp_russian_vp.webp); background-size: 36px 36px; }
+.marker.influenza { background-image: url(pieces/influenza.webp); background-size: 36px 36px; }
+.marker.trench_attempt { background-image: url(pieces/trench_attempt.webp); background-size: 36px 36px; }
+.marker.russian_capitulation { background-image: url(pieces/russian_capitulation.webp); background-size: 36px 36px; }
+.marker.us_entry { background-image: url(pieces/us_entry.webp); background-size: 36px 36px; }
+.marker.us_points { background-image: url(pieces/us_points.webp); background-size: 36px 36px; }
+
+/* REGULAR MARKERS 45x45 */
+.marker.ap.control { background-image: url(pieces/ap_control.webp); background-size: 45px 45px; }
+.marker.cp.control { background-image: url(pieces/cp_control.webp); background-size: 45px 45px; }
+.marker._11th_army { background-image: url(pieces/11th_army.webp); background-size: 45px 45px; }
 .marker.ah.rp { background-image: url(pieces/ah_rp.webp); background-size: 45px 45px; }
 .marker.ap.mandatory_offensive { background-image: url(pieces/allied_mandatory_offensive.webp); background-size: 45px 45px; }
 .marker.ap.mandatory_offensive.fr_mutiny { background-image: url(pieces/french_mutiny.webp); background-size: 45px 45px; }
 .marker.allied_rp { background-image: url(pieces/allied_rp.webp); background-size: 45px 45px; }
 .marker.ap.war_status { background-image: url(pieces/allied_war_status.webp); background-size: 45px 45px; }
 .marker.ap.bid { background-image: url(pieces/ap_bid.webp); background-size: 45px 45px; }
-.marker.ap.control { background-image: url(pieces/ap_control.webp); background-size: 36px 36px; }
 .marker.ap.missed_mo { background-image: url(pieces/ap_missed_mo.webp); background-size: 45px 45px; }
 .marker.ap.oos { background-image: url(pieces/ap_oos.webp); background-size: 45px 45px; }
-.marker.ap.trench_1 { background-image: url(pieces/ap_trench_1.webp); background-size: 36px 36px; }
-.marker.ap.trench_2 { background-image: url(pieces/ap_trench_2.webp); background-size: 36px 36px; }
-.marker.attack { background-image: url(pieces/attack.webp); background-size: 36px 36px; }
+.marker.ap.trench_1 { background-image: url(pieces/ap_trench_1.webp); background-size: 45px 45px; }
+.marker.ap.trench_2 { background-image: url(pieces/ap_trench_2.webp); background-size: 45px 45px; }
 .marker.blockade_vps { background-image: url(pieces/blockade_vps.webp); background-size: 45px 45px; }
 .marker.br_rp { background-image: url(pieces/br_rp.webp); background-size: 45px 45px; }
 .marker.br_rp.back { background-image: url(pieces/br_rp_back.webp); background-size: 45px 45px; }
@@ -21,40 +37,28 @@
 .marker.combined_war_status { background-image: url(pieces/combined_war_status.webp); background-size: 45px 45px; }
 .marker.combined_war_status.back { background-image: url(pieces/combined_war_status_back.webp); background-size: 45px 45px; }
 .marker.cp.bid { background-image: url(pieces/cp_bid.webp); background-size: 45px 45px; }
-.marker.cp.control { background-image: url(pieces/cp_control.webp); background-size: 36px 36px; }
 .marker.cp.done { background-image: url(pieces/cp_done.webp); background-size: 45px 45px; }
 .marker.cp.mandatory_offensive { background-image: url(pieces/cp_mandatory_offensive.webp); background-size: 45px 45px; }
 .marker.cp.missed_mo { background-image: url(pieces/cp_missed_mo.webp); background-size: 45px 45px; }
 .marker.cp.oos { background-image: url(pieces/cp_oos.webp); background-size: 45px 45px; }
-.marker.cp.trench_1 { background-image: url(pieces/cp_trench_1.webp); background-size: 36px 36px; }
-.marker.cp.trench_2 { background-image: url(pieces/cp_trench_2.webp); background-size: 36px 36px; }
+.marker.cp.trench_1 { background-image: url(pieces/cp_trench_1.webp); background-size: 45px 45px; }
+.marker.cp.trench_2 { background-image: url(pieces/cp_trench_2.webp); background-size: 45px 45px; }
 .marker.cp.war_status { background-image: url(pieces/cp_war_status.webp); background-size: 45px 45px; }
-.marker.current_cp_russian_vp { background-image: url(pieces/current_cp_russian_vp.webp); background-size: 36px 36px; }
 .marker.fort_besieged { background-image: url(pieces/fort_besieged.webp); background-size: 45px 45px; }
 .marker.fort_destroyed { background-image: url(pieces/fort_destroyed.webp); background-size: 45px 45px; }
-.marker.mini.fort_destroyed { background-image: url(pieces/fort_destroyed.webp); background-size: 18px 18px; }
 .marker.fr_rp { background-image: url(pieces/fr_rp.webp); background-size: 45px 45px; }
-.marker.game_turn { background-image: url(pieces/game_turn.webp); background-size: 36px 36px; }
-.marker.game_turn.back { background-image: url(pieces/game_turn_back.webp); background-size: 36px 36px; }
 .marker.ge_rp { background-image: url(pieces/ge_rp.webp); background-size: 45px 45px; }
 .marker.ge_rp.back { background-image: url(pieces/ge_rp_back.webp); background-size: 45px 45px; }
 .marker.haig { background-image: url(pieces/haig.webp); background-size: 45px 45px; }
-.marker.influenza { background-image: url(pieces/influenza.webp); background-size: 36px 36px; }
 .marker.it_rp { background-image: url(pieces/it_rp.webp); background-size: 45px 45px; }
 .marker.lusitania { background-image: url(pieces/lusitania.webp); background-size: 45px 45px; }
 .marker.mef_beachhead { background-image: url(pieces/mef_beachhead.webp); background-size: 45px 45px; }
-.marker.move { background-image: url(pieces/move.webp); background-size: 36px 36px; }
 .marker.prince_max { background-image: url(pieces/prince_max.webp); background-size: 45px 45px; }
 .marker.ru_rp { background-image: url(pieces/ru_rp.webp); background-size: 45px 45px; }
-.marker.russian_capitulation { background-image: url(pieces/russian_capitulation.webp); background-size: 36px 36px; }
-.marker.sinai_pipeline { background-image: url(pieces/sinai_pipeline.webp); background-size: 36px 36px; }
+.marker.sinai_pipeline { background-image: url(pieces/sinai_pipeline.webp); background-size: 45px 45px; }
 .marker.stavka_timidity { background-image: url(pieces/stavka_timidity.webp); background-size: 45px 45px; }
 .marker.sud_army { background-image: url(pieces/sud_army.webp); background-size: 45px 45px; }
-.marker.trench_attempt { background-image: url(pieces/trench_attempt.webp); background-size: 36px 36px; }
-.marker.tsar_fell_cp_russian_vp { background-image: url(pieces/tsar_fell_cp_russian_vp.webp); background-size: 36px 36px; }
 .marker.tu_rp { background-image: url(pieces/tu_rp.webp); background-size: 45px 45px; }
-.marker.us_entry { background-image: url(pieces/us_entry.webp); background-size: 36px 36px; }
-.marker.us_points { background-image: url(pieces/us_points.webp); background-size: 36px 36px; }
 .marker.us_rp { background-image: url(pieces/us_rp.webp); background-size: 45px 45px; }
 .marker.vp { background-image: url(pieces/vp.webp); background-size: 45px 45px; }
 
@@ -84,6 +88,7 @@
 .marker.entrench { text-align: center; width: 45px; height: 45px; }
 .marker.entrench:before { font-size: 11px; content:"Entrench"; }
 
+/* VASSAL NE MARKERS */
 .marker.ne_limit { background-size: 45px 45px; }
 .marker.ne_limit.ru_ne_move { background-image: url(pieces/ru_ne_move3.png); }
 .marker.ne_limit.ru_ne_move.used { background-image: url(pieces/ru_ne_move_used3.png); }
@@ -94,8 +99,10 @@
 .marker.ne_limit.br_ne_sr { background-image: url(pieces/br_ne_sr2.png); }
 .marker.ne_limit.br_ne_sr.used { background-image: url(pieces/br_ne_sr_used2.png); }
 
+/* LARGE NEUTRAL BADGE */
 .marker.neutral { background-image: url(pieces/neutral.png); }
 
+/* ARMIES (45x45) */
 .army_ah { background-image: url(pieces/army_ah.webp); background-size: 405px 90px; }
 .army_be { background-image: url(pieces/army_be.webp); background-size: 45px 90px; }
 .army_br { background-image: url(pieces/army_br.webp); background-size: 360px 90px; }
@@ -107,6 +114,7 @@
 .army_us { background-image: url(pieces/army_usa.webp); background-size: 90px 90px; }
 .army_tu { background-image: url(pieces/army_tu.webp); background-size: 90px 90px; }
 
+/* CORPS (36x36) */
 .corps_ah { background-image: url(pieces/corps_ah.webp); background-size: 36px 72px; }
 .corps_be { background-image: url(pieces/corps_be.webp); background-size: 36px 72px; }
 .corps_br { background-image: url(pieces/corps_br.webp); background-size: 216px 72px; }
@@ -124,6 +132,7 @@
 .corps_tu { background-image: url(pieces/corps_tu.webp); background-size: 72px 72px; }
 .corps_us { background-image: url(pieces/corps_usa.webp); background-size: 36px 72px; }
 
+/* CARDS */
 .card_ap_0{background-image:url(cards.1x/card_back_ap.jpg)}
 .card_ap_1{background-image:url(cards.1x/card_ap_01.jpg)}
 .card_ap_2{background-image:url(cards.1x/card_ap_02.jpg)}
@@ -190,7 +199,6 @@
 .card_ap_63{background-image:url(cards.1x/card_ap_63.jpg)}
 .card_ap_64{background-image:url(cards.1x/card_ap_64.jpg)}
 .card_ap_65{background-image:url(cards.1x/card_ap_65.jpg)}
-
 .card_cp_0{background-image:url(cards.1x/card_back_cp.jpg)}
 .card_cp_1{background-image:url(cards.1x/card_cp_01.jpg)}
 .card_cp_2{background-image:url(cards.1x/card_cp_02.jpg)}
@@ -258,3 +266,138 @@
 .card_cp_64{background-image:url(cards.1x/card_cp_64.jpg)}
 .card_cp_65{background-image:url(cards.1x/card_cp_65.jpg)}
 
+/* CARDS @2x*/
+@media (min-resolution: 97dpi) {
+.card_ap_0{background-image:url(cards.2x/card_back_ap.jpg)}
+.card_ap_1{background-image:url(cards.2x/card_ap_01.jpg)}
+.card_ap_2{background-image:url(cards.2x/card_ap_02.jpg)}
+.card_ap_3{background-image:url(cards.2x/card_ap_03.jpg)}
+.card_ap_4{background-image:url(cards.2x/card_ap_04.jpg)}
+.card_ap_5{background-image:url(cards.2x/card_ap_05.jpg)}
+.card_ap_6{background-image:url(cards.2x/card_ap_06.jpg)}
+.card_ap_7{background-image:url(cards.2x/card_ap_07.jpg)}
+.card_ap_8{background-image:url(cards.2x/card_ap_08.jpg)}
+.card_ap_9{background-image:url(cards.2x/card_ap_09.jpg)}
+.card_ap_10{background-image:url(cards.2x/card_ap_10.jpg)}
+.card_ap_11{background-image:url(cards.2x/card_ap_11.jpg)}
+.card_ap_12{background-image:url(cards.2x/card_ap_12.jpg)}
+.card_ap_13{background-image:url(cards.2x/card_ap_13.jpg)}
+.card_ap_14{background-image:url(cards.2x/card_ap_14.jpg)}
+.card_ap_15{background-image:url(cards.2x/card_ap_15.jpg)}
+.card_ap_16{background-image:url(cards.2x/card_ap_16.jpg)}
+.card_ap_17{background-image:url(cards.2x/card_ap_17.jpg)}
+.card_ap_18{background-image:url(cards.2x/card_ap_18.jpg)}
+.card_ap_19{background-image:url(cards.2x/card_ap_19.jpg)}
+.card_ap_20{background-image:url(cards.2x/card_ap_20.jpg)}
+.card_ap_21{background-image:url(cards.2x/card_ap_21.jpg)}
+.card_ap_22{background-image:url(cards.2x/card_ap_22.jpg)}
+.card_ap_23{background-image:url(cards.2x/card_ap_23.jpg)}
+.card_ap_24{background-image:url(cards.2x/card_ap_24.jpg)}
+.card_ap_25{background-image:url(cards.2x/card_ap_25.jpg)}
+.card_ap_26{background-image:url(cards.2x/card_ap_26.jpg)}
+.card_ap_27{background-image:url(cards.2x/card_ap_27.jpg)}
+.card_ap_28{background-image:url(cards.2x/card_ap_28.jpg)}
+.card_ap_29{background-image:url(cards.2x/card_ap_29.jpg)}
+.card_ap_30{background-image:url(cards.2x/card_ap_30.jpg)}
+.card_ap_31{background-image:url(cards.2x/card_ap_31.jpg)}
+.card_ap_32{background-image:url(cards.2x/card_ap_32.jpg)}
+.card_ap_33{background-image:url(cards.2x/card_ap_33.jpg)}
+.card_ap_34{background-image:url(cards.2x/card_ap_34.jpg)}
+.card_ap_35{background-image:url(cards.2x/card_ap_35.jpg)}
+.card_ap_36{background-image:url(cards.2x/card_ap_36.jpg)}
+.card_ap_37{background-image:url(cards.2x/card_ap_37.jpg)}
+.card_ap_38{background-image:url(cards.2x/card_ap_38.jpg)}
+.card_ap_39{background-image:url(cards.2x/card_ap_39.jpg)}
+.card_ap_40{background-image:url(cards.2x/card_ap_40.jpg)}
+.card_ap_41{background-image:url(cards.2x/card_ap_41.jpg)}
+.card_ap_42{background-image:url(cards.2x/card_ap_42.jpg)}
+.card_ap_43{background-image:url(cards.2x/card_ap_43.jpg)}
+.card_ap_44{background-image:url(cards.2x/card_ap_44.jpg)}
+.card_ap_45{background-image:url(cards.2x/card_ap_45.jpg)}
+.card_ap_46{background-image:url(cards.2x/card_ap_46.jpg)}
+.card_ap_47{background-image:url(cards.2x/card_ap_47.jpg)}
+.card_ap_48{background-image:url(cards.2x/card_ap_48.jpg)}
+.card_ap_49{background-image:url(cards.2x/card_ap_49.jpg)}
+.card_ap_50{background-image:url(cards.2x/card_ap_50.jpg)}
+.card_ap_51{background-image:url(cards.2x/card_ap_51.jpg)}
+.card_ap_52{background-image:url(cards.2x/card_ap_52.jpg)}
+.card_ap_53{background-image:url(cards.2x/card_ap_53.jpg)}
+.card_ap_54{background-image:url(cards.2x/card_ap_54.jpg)}
+.card_ap_55{background-image:url(cards.2x/card_ap_55.jpg)}
+.card_ap_56{background-image:url(cards.2x/card_ap_56.jpg)}
+.card_ap_57{background-image:url(cards.2x/card_ap_57.jpg)}
+.card_ap_58{background-image:url(cards.2x/card_ap_58.jpg)}
+.card_ap_59{background-image:url(cards.2x/card_ap_59.jpg)}
+.card_ap_60{background-image:url(cards.2x/card_ap_60.jpg)}
+.card_ap_61{background-image:url(cards.2x/card_ap_61.jpg)}
+.card_ap_62{background-image:url(cards.2x/card_ap_62.jpg)}
+.card_ap_63{background-image:url(cards.2x/card_ap_63.jpg)}
+.card_ap_64{background-image:url(cards.2x/card_ap_64.jpg)}
+.card_ap_65{background-image:url(cards.2x/card_ap_65.jpg)}
+.card_cp_0{background-image:url(cards.2x/card_back_cp.jpg)}
+.card_cp_1{background-image:url(cards.2x/card_cp_01.jpg)}
+.card_cp_2{background-image:url(cards.2x/card_cp_02.jpg)}
+.card_cp_3{background-image:url(cards.2x/card_cp_03.jpg)}
+.card_cp_4{background-image:url(cards.2x/card_cp_04.jpg)}
+.card_cp_5{background-image:url(cards.2x/card_cp_05.jpg)}
+.card_cp_6{background-image:url(cards.2x/card_cp_06.jpg)}
+.card_cp_7{background-image:url(cards.2x/card_cp_07.jpg)}
+.card_cp_8{background-image:url(cards.2x/card_cp_08.jpg)}
+.card_cp_9{background-image:url(cards.2x/card_cp_09.jpg)}
+.card_cp_10{background-image:url(cards.2x/card_cp_10.jpg)}
+.card_cp_11{background-image:url(cards.2x/card_cp_11.jpg)}
+.card_cp_12{background-image:url(cards.2x/card_cp_12.jpg)}
+.card_cp_13{background-image:url(cards.2x/card_cp_13.jpg)}
+.card_cp_14{background-image:url(cards.2x/card_cp_14.jpg)}
+.card_cp_15{background-image:url(cards.2x/card_cp_15.jpg)}
+.card_cp_16{background-image:url(cards.2x/card_cp_16.jpg)}
+.card_cp_17{background-image:url(cards.2x/card_cp_17.jpg)}
+.card_cp_18{background-image:url(cards.2x/card_cp_18.jpg)}
+.card_cp_19{background-image:url(cards.2x/card_cp_19.jpg)}
+.card_cp_20{background-image:url(cards.2x/card_cp_20.jpg)}
+.card_cp_21{background-image:url(cards.2x/card_cp_21.jpg)}
+.card_cp_22{background-image:url(cards.2x/card_cp_22.jpg)}
+.card_cp_23{background-image:url(cards.2x/card_cp_23.jpg)}
+.card_cp_24{background-image:url(cards.2x/card_cp_24.jpg)}
+.card_cp_25{background-image:url(cards.2x/card_cp_25.jpg)}
+.card_cp_26{background-image:url(cards.2x/card_cp_26.jpg)}
+.card_cp_27{background-image:url(cards.2x/card_cp_27.jpg)}
+.card_cp_28{background-image:url(cards.2x/card_cp_28.jpg)}
+.card_cp_29{background-image:url(cards.2x/card_cp_29.jpg)}
+.card_cp_30{background-image:url(cards.2x/card_cp_30.jpg)}
+.card_cp_31{background-image:url(cards.2x/card_cp_31.jpg)}
+.card_cp_32{background-image:url(cards.2x/card_cp_32.jpg)}
+.card_cp_33{background-image:url(cards.2x/card_cp_33.jpg)}
+.card_cp_34{background-image:url(cards.2x/card_cp_34.jpg)}
+.card_cp_35{background-image:url(cards.2x/card_cp_35.jpg)}
+.card_cp_36{background-image:url(cards.2x/card_cp_36.jpg)}
+.card_cp_37{background-image:url(cards.2x/card_cp_37.jpg)}
+.card_cp_38{background-image:url(cards.2x/card_cp_38.jpg)}
+.card_cp_39{background-image:url(cards.2x/card_cp_39.jpg)}
+.card_cp_40{background-image:url(cards.2x/card_cp_40.jpg)}
+.card_cp_41{background-image:url(cards.2x/card_cp_41.jpg)}
+.card_cp_42{background-image:url(cards.2x/card_cp_42.jpg)}
+.card_cp_43{background-image:url(cards.2x/card_cp_43.jpg)}
+.card_cp_44{background-image:url(cards.2x/card_cp_44.jpg)}
+.card_cp_45{background-image:url(cards.2x/card_cp_45.jpg)}
+.card_cp_46{background-image:url(cards.2x/card_cp_46.jpg)}
+.card_cp_47{background-image:url(cards.2x/card_cp_47.jpg)}
+.card_cp_48{background-image:url(cards.2x/card_cp_48.jpg)}
+.card_cp_49{background-image:url(cards.2x/card_cp_49.jpg)}
+.card_cp_50{background-image:url(cards.2x/card_cp_50.jpg)}
+.card_cp_51{background-image:url(cards.2x/card_cp_51.jpg)}
+.card_cp_52{background-image:url(cards.2x/card_cp_52.jpg)}
+.card_cp_53{background-image:url(cards.2x/card_cp_53.jpg)}
+.card_cp_54{background-image:url(cards.2x/card_cp_54.jpg)}
+.card_cp_55{background-image:url(cards.2x/card_cp_55.jpg)}
+.card_cp_56{background-image:url(cards.2x/card_cp_56.jpg)}
+.card_cp_57{background-image:url(cards.2x/card_cp_57.jpg)}
+.card_cp_58{background-image:url(cards.2x/card_cp_58.jpg)}
+.card_cp_59{background-image:url(cards.2x/card_cp_59.jpg)}
+.card_cp_60{background-image:url(cards.2x/card_cp_60.jpg)}
+.card_cp_61{background-image:url(cards.2x/card_cp_61.jpg)}
+.card_cp_62{background-image:url(cards.2x/card_cp_62.jpg)}
+.card_cp_63{background-image:url(cards.2x/card_cp_63.jpg)}
+.card_cp_64{background-image:url(cards.2x/card_cp_64.jpg)}
+.card_cp_65{background-image:url(cards.2x/card_cp_65.jpg)}
+}
