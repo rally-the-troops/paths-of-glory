@@ -1,19 +1,22 @@
-main { background-color: dimgray; }
-aside { background-color: silver; }
+main { background-color: slategray; }
 header { background-color: gainsboro; }
+#turn_info { background-color: thistle }
 
 #log { background-color: whitesmoke; }
-#log .h1 { background-color: hsl(255, 36%, 83%);}
+#log .h1 { background-color: thistle;}
 #log .h2 { background-color: lightgray; }
 #log .h3 { background-color: gainsboro; }
 
-body.Allied_Powers header.your_turn { background-color: hsl(5, 65%, 70%); }
-body.Central_Powers header.your_turn { background-color: hsl(200, 40%, 70%); }
+#log .h1 { border-top: 1px solid black; border-bottom: 1px solid black; }
+#log .h2 { border-top: 1px solid black; border-bottom: 1px solid black; }
 
-#role_Allied_Powers { background-color: hsl(5, 60%, 80%); }
-#role_Central_Powers { background-color: hsl(200, 35%, 80%); }
-#log .ap { background-color: hsl(5, 60%, 85%); }
-#log .cp { background-color: hsl(200, 35%, 85%); }
+body.Allied_Powers header.your_turn { background-color: lightcoral; }
+body.Central_Powers header.your_turn { background-color: lightsteelblue; }
+
+#role_Allied_Powers { background-color: lightcoral; }
+#role_Central_Powers { background-color: lightsteelblue; }
+#log .ap { background-color: lightpink; }
+#log .cp { background-color: lightblue; }
 
 .checked::before { content: "\2714  " }
 .unchecked::before { content: "\2714  "; color:transparent; }
@@ -99,10 +102,18 @@ body.Central_Powers header.your_turn { background-color: hsl(200, 40%, 70%); }
     border-radius: 16px;
     box-shadow: 1px 1px 4px #0004;
     transition: transform 100ms;
-    background-color: #f1ead0;
+    background-color: white;
     background-size: 100%;
     background-repeat: no-repeat;
-    border: 1px solid #655c4d;
+    border: 1px solid black;
+}
+
+.card.ap {
+	background-color: #efebe0;
+}
+
+.card.cp {
+	background-color: #e3ecf1;
 }
 
 .card.ap.highlight {
@@ -246,13 +257,13 @@ summary.dialog_header {
 
 #log .die.ap {
 	background-image: url(pieces/die_black_pips.svg);
-	background-color: #e6e2d0;
+	background-color: pink;
 	border: 1px solid #444;
 }
 
 #log .die.cp {
 	background-image: url(pieces/die_black_pips.svg);
-	background-color: #95b0be;
+	background-color: lightblue;
 	border: 1px solid #444;
 }
 

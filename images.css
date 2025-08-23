@@ -1,4 +1,7 @@
 #map{background-image:url(map75.jpg)}
+@media (min-resolution: 97dpi) {
+#map{background-image:url(map150.jpg)}
+}
 
 .marker.mini.fort_destroyed { background-image: url(pieces/fort_destroyed.webp); background-size: 18px 18px; }
 
