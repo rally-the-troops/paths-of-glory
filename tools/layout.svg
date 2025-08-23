@@ -1,0 +1,3751 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="2550"
+   height="1650"
+   version="1.1"
+   id="svg574"
+   sodipodi:docname="layout.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs578" />
+  <sodipodi:namedview
+     id="namedview576"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="true"
+     inkscape:zoom="4"
+     inkscape:cx="1806.625"
+     inkscape:cy="1342.25"
+     inkscape:current-layer="svg574">
+    <inkscape:grid
+       type="xygrid"
+       id="grid738" />
+  </sodipodi:namedview>
+  <image
+     xlink:href="../map75.png"
+     x="0"
+     y="0"
+     width="2550"
+     height="1650"
+     image-rendering="pixelated"
+     sodipodi:insensitive="true"
+     id="image2" />
+  <rect
+     inkscape:label="London"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="154"
+     y="515"
+     width="54"
+     height="53"
+     id="rect4"
+     style="stroke-width:0.999997" />
+  <rect
+     inkscape:label="Cherbourg"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="79"
+     y="651"
+     width="47"
+     height="48"
+     id="rect6"
+     style="stroke-width:0.999997" />
+  <rect
+     inkscape:label="Caen"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="123"
+     y="705"
+     width="48"
+     height="48"
+     id="rect8"
+     style="stroke-width:0.999996" />
+  <rect
+     inkscape:label="Rennes"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="84"
+     y="765"
+     width="48"
+     height="48"
+     id="rect10"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Nantes"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="78"
+     y="831"
+     width="47"
+     height="48"
+     id="rect12"
+     style="stroke-width:0.999998" />
+  <rect
+     inkscape:label="La Rochelle"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="117"
+     y="906"
+     width="48"
+     height="48"
+     id="rect14"
+     style="stroke-width:0.999998" />
+  <rect
+     inkscape:label="Bordeaux"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="135"
+     y="992.00006"
+     width="49"
+     height="48"
+     id="rect16"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Poitiers"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="201"
+     y="893"
+     width="48"
+     height="48"
+     id="rect18"
+     style="stroke-width:0.999996" />
+  <rect
+     inkscape:label="Tours"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="205"
+     y="821"
+     width="48"
+     height="48"
+     id="rect20"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Le Mans"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="179"
+     y="760"
+     width="48"
+     height="47"
+     id="rect22"
+     style="stroke-width:0.999995" />
+  <rect
+     inkscape:label="Le Havre"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="179"
+     y="653"
+     width="50"
+     height="48"
+     id="rect24"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Rouen"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="238"
+     y="689"
+     width="49"
+     height="49"
+     id="rect26"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Orleans"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="278"
+     y="785"
+     width="50"
+     height="50"
+     id="rect28"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="St. Amand"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="297"
+     y="870"
+     width="49"
+     height="49"
+     id="rect30"
+     style="stroke-width:0.999998" />
+  <rect
+     inkscape:label="Paris"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="308"
+     y="710"
+     width="50"
+     height="49"
+     id="rect32"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Amiens"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="285"
+     y="631"
+     width="49"
+     height="48"
+     id="rect34"
+     style="stroke-width:0.999999" />
+  <rect
+     inkscape:label="Calais"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="268"
+     y="567"
+     width="50"
+     height="50"
+     id="rect36"
+     style="stroke-width:0.999999" />
+  <rect
+     inkscape:label="Ostend"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="329"
+     y="522"
+     width="50"
+     height="50"
+     id="rect38"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Cambrai"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="349"
+     y="632"
+     width="49"
+     height="48"
+     id="rect40"
+     style="stroke-width:0.999997" />
+  <rect
+     inkscape:label="Chateau Thierry"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="389.00003"
+     y="701"
+     width="48"
+     height="48"
+     id="rect42"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Melun"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="360"
+     y="774"
+     width="49"
+     height="49"
+     id="rect44"
+     style="stroke-width:0.999999" />
+  <rect
+     inkscape:label="Nevers"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="377"
+     y="858"
+     width="49"
+     height="49"
+     id="rect46"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Lyon"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="432"
+     y="940"
+     width="49"
+     height="48"
+     id="rect48"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Avignon"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="411"
+     y="1027"
+     width="48"
+     height="48"
+     id="rect50"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Marseilles"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="455"
+     y="1115"
+     width="47"
+     height="48"
+     id="rect52" />
+  <rect
+     inkscape:label="Nice"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="537"
+     y="1098"
+     width="47"
+     height="48"
+     id="rect54"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Grenoble"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="503.00003"
+     y="971.00006"
+     width="48"
+     height="48"
+     id="rect56"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Dijon"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="466"
+     y="849"
+     width="49"
+     height="49"
+     id="rect58"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Bar le Duc"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="440"
+     y="762"
+     width="50"
+     height="50"
+     id="rect60"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Sedan"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="419"
+     y="629"
+     width="49"
+     height="49"
+     id="rect62"
+     style="stroke-width:0.999999" />
+  <rect
+     inkscape:label="Brussels"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="392"
+     y="565"
+     width="49"
+     height="49"
+     id="rect64"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Antwerp"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="426"
+     y="499"
+     width="50"
+     height="50"
+     id="rect66"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Liege"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="474"
+     y="571"
+     width="49"
+     height="49"
+     id="rect68"
+     style="stroke-width:0.999999" />
+  <rect
+     inkscape:label="Verdun"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="468"
+     y="675"
+     width="50"
+     height="50"
+     id="rect70"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Nancy"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="502.99997"
+     y="743"
+     width="50"
+     height="50"
+     id="rect72"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Belfort"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="535"
+     y="817"
+     width="48"
+     height="48"
+     id="rect74"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Turin"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="579"
+     y="982"
+     width="48"
+     height="48"
+     id="rect76"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Mulhouse"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="606"
+     y="798.99994"
+     width="47"
+     height="47"
+     id="rect78"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Strasbourg"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="589"
+     y="722.00006"
+     width="51"
+     height="51"
+     id="rect80"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Metz"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="550"
+     y="651"
+     width="51"
+     height="51"
+     id="rect82"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Koblenz"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="548"
+     y="581"
+     width="50"
+     height="50"
+     id="rect84"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Aachen"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="507"
+     y="512"
+     width="49"
+     height="49"
+     id="rect86"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Essen"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="577"
+     y="494.99997"
+     width="50"
+     height="50"
+     id="rect88"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Frankfurt"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="624"
+     y="582"
+     width="50"
+     height="50"
+     id="rect90"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Mannheim"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="626"
+     y="660"
+     width="48"
+     height="48"
+     id="rect92"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Stuttgart"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="669"
+     y="714"
+     width="50"
+     height="50"
+     id="rect94"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Wilhelmshaven"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="610"
+     y="342.99997"
+     width="48"
+     height="47"
+     id="rect96"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Bremen"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="648"
+     y="413"
+     width="48"
+     height="48"
+     id="rect98"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Kassel"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="674"
+     y="502.00003"
+     width="48"
+     height="48"
+     id="rect100"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Kiel"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="714"
+     y="307"
+     width="48"
+     height="48"
+     id="rect102"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Hamburg"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="714"
+     y="378"
+     width="48"
+     height="48"
+     id="rect104"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Hannover"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="773"
+     y="460"
+     width="49"
+     height="48"
+     id="rect106"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Erfurt"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="762"
+     y="590"
+     width="48"
+     height="48"
+     id="rect108"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Nuremberg"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="763"
+     y="663"
+     width="48"
+     height="48"
+     id="rect110"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Augsburg"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="740"
+     y="727"
+     width="48"
+     height="48"
+     id="rect112"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Innsbruck"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="783.99994"
+     y="825"
+     width="47"
+     height="48"
+     id="rect114"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Trent"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="705"
+     y="857"
+     width="35"
+     height="35"
+     id="rect116" />
+  <rect
+     inkscape:label="Milan"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="657"
+     y="950"
+     width="55"
+     height="55"
+     id="rect118"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Genoa"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="646"
+     y="1031"
+     width="54"
+     height="54"
+     id="rect120"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Verona"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="751"
+     y="956.00006"
+     width="48"
+     height="48"
+     id="rect122"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Bologna"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="770"
+     y="1017"
+     width="50"
+     height="50"
+     id="rect124"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Florence"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="766"
+     y="1082"
+     width="50"
+     height="49"
+     id="rect126"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Viterbo"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="811"
+     y="1152"
+     width="48"
+     height="48"
+     id="rect128"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Rome"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="838"
+     y="1216"
+     width="49"
+     height="49"
+     id="rect130"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Naples"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="932"
+     y="1293"
+     width="49"
+     height="49"
+     id="rect132"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Taranto"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1088"
+     y="1321"
+     width="48"
+     height="48"
+     id="rect134"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Foggia"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1014"
+     y="1262"
+     width="48"
+     height="48"
+     id="rect136"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Pescara"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="931"
+     y="1188"
+     width="48"
+     height="48"
+     id="rect138"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Ancona"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="898"
+     y="1120"
+     width="49"
+     height="48"
+     id="rect140"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Ravenna"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="842"
+     y="1059"
+     width="48"
+     height="48"
+     id="rect142"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Venice"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="823"
+     y="967"
+     width="48"
+     height="48"
+     id="rect144"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Udine"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="882"
+     y="940"
+     width="48"
+     height="48"
+     id="rect146"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Asiago"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="808"
+     y="893"
+     width="48"
+     height="48"
+     id="rect148"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Maggiore"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="872"
+     y="880"
+     width="48"
+     height="48"
+     id="rect150"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Spittal"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="861"
+     y="816"
+     width="48"
+     height="48"
+     id="rect152"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Munich"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="801"
+     y="753"
+     width="50"
+     height="50"
+     id="rect154"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Regensburg"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="828"
+     y="694"
+     width="48"
+     height="48"
+     id="rect156"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Leipzig"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="836"
+     y="529"
+     width="48"
+     height="49"
+     id="rect158"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Berlin"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="878"
+     y="436"
+     width="50"
+     height="50"
+     id="rect160"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Rostock"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="818"
+     y="326"
+     width="48"
+     height="49"
+     id="rect162"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Stettin"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="954"
+     y="343"
+     width="48"
+     height="48"
+     id="rect164"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Cottbus"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="954"
+     y="485"
+     width="48"
+     height="48"
+     id="rect166"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Dresden"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="902"
+     y="545"
+     width="48"
+     height="48"
+     id="rect168"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Prague"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="940"
+     y="615"
+     width="48"
+     height="49"
+     id="rect170"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Kolin"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1004"
+     y="653"
+     width="48"
+     height="48"
+     id="rect172"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Linz"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="922"
+     y="762"
+     width="48"
+     height="48"
+     id="rect174"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Villach"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="934"
+     y="860.99994"
+     width="48"
+     height="47"
+     id="rect176"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Trieste"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="946"
+     y="943"
+     width="51"
+     height="51"
+     id="rect178"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Graz"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="997"
+     y="839"
+     width="48"
+     height="48"
+     id="rect180"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Vienna"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1042"
+     y="759"
+     width="50"
+     height="50"
+     id="rect182"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Brun"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1063"
+     y="688"
+     width="48"
+     height="48"
+     id="rect184"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Olmutz"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1128"
+     y="636"
+     width="49"
+     height="48"
+     id="rect186"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Oppeln"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1156"
+     y="572"
+     width="48"
+     height="48"
+     id="rect188"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Breslau"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1076"
+     y="544"
+     width="51"
+     height="51"
+     id="rect190"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Posen"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1073"
+     y="451"
+     width="50"
+     height="50"
+     id="rect192"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Thorn"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1123"
+     y="382"
+     width="48"
+     height="48"
+     id="rect194"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Kolberg"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1056"
+     y="314"
+     width="48"
+     height="49"
+     id="rect196"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Danzig"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1164"
+     y="304"
+     width="50"
+     height="50"
+     id="rect198"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Konigsberg"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1255"
+     y="274"
+     width="50"
+     height="50"
+     id="rect200"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Tannenberg"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1252"
+     y="357"
+     width="48"
+     height="48"
+     id="rect202"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Plock"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1213"
+     y="421"
+     width="48"
+     height="48"
+     id="rect204"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Lodz"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1202"
+     y="487"
+     width="51"
+     height="51"
+     id="rect206"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Czestochowa"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1247"
+     y="560"
+     width="49"
+     height="48"
+     id="rect208"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Cracow"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1227"
+     y="623"
+     width="51"
+     height="51"
+     id="rect210"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Martin"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1164"
+     y="713"
+     width="48"
+     height="48"
+     id="rect212"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Budapest"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1193"
+     y="806.00006"
+     width="51"
+     height="51"
+     id="rect214"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Pecs"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1148"
+     y="914"
+     width="49"
+     height="49"
+     id="rect216"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Zagreb"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1023.9999"
+     y="931"
+     width="49"
+     height="48"
+     id="rect218"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Banja Luka"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1091"
+     y="1007"
+     width="48"
+     height="48"
+     id="rect220"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Mostar"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1083"
+     y="1116"
+     width="48"
+     height="48"
+     id="rect222"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Cetinje"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1178"
+     y="1166"
+     width="48"
+     height="48"
+     id="rect224"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Tirana"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1229"
+     y="1237"
+     width="48"
+     height="48"
+     id="rect226"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Valona"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1225"
+     y="1325"
+     width="47"
+     height="48"
+     id="rect228"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Florina"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1324"
+     y="1346"
+     width="48"
+     height="48"
+     id="rect230"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Larisa"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1372"
+     y="1396.9999"
+     width="48"
+     height="47"
+     id="rect232"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Athens"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1439"
+     y="1503.9999"
+     width="48"
+     height="47"
+     id="rect234"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Salonika"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1386"
+     y="1320"
+     width="47"
+     height="48"
+     id="rect236"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Monastir"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1325"
+     y="1270"
+     width="48"
+     height="48"
+     id="rect238"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Kavala"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1460"
+     y="1287"
+     width="48"
+     height="48"
+     id="rect240"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Strumitsa"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1428"
+     y="1217"
+     width="48"
+     height="48"
+     id="rect242"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Skopje"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1322"
+     y="1200"
+     width="48"
+     height="48"
+     id="rect244"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Nis"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1320"
+     y="1108"
+     width="47"
+     height="48"
+     id="rect246"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Valjevo"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1245"
+     y="1097"
+     width="47"
+     height="48"
+     id="rect248"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Sarajevo"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1158"
+     y="1067"
+     width="48"
+     height="48"
+     id="rect250"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Belgrade"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1287"
+     y="1018.9999"
+     width="50"
+     height="50"
+     id="rect252"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Novi Sad"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1224"
+     y="961"
+     width="49"
+     height="49"
+     id="rect254"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Timisvar"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1312"
+     y="937"
+     width="48"
+     height="48"
+     id="rect256"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Szeged"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1244"
+     y="883"
+     width="48"
+     height="48"
+     id="rect258"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Debrecen"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1330"
+     y="805.00006"
+     width="51"
+     height="51"
+     id="rect260"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Miskolcz"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1260"
+     y="746"
+     width="48"
+     height="48"
+     id="rect262"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Gorlice"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1286"
+     y="686"
+     width="48"
+     height="48"
+     id="rect264"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Tarnow"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1309"
+     y="624"
+     width="48"
+     height="48"
+     id="rect266"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Ivangorod"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1322"
+     y="550"
+     width="48"
+     height="48"
+     id="rect268"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Warsaw"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1293"
+     y="457.00003"
+     width="51"
+     height="51"
+     id="rect270"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Lomza"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1352"
+     y="392"
+     width="48"
+     height="48"
+     id="rect272"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Insterberg"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1331"
+     y="316"
+     width="49"
+     height="49"
+     id="rect274"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Memel"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1306"
+     y="210"
+     width="48"
+     height="48"
+     id="rect276"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Libau"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1307"
+     y="140"
+     width="48"
+     height="48"
+     id="rect278"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Szawli"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1388"
+     y="178"
+     width="48"
+     height="48"
+     id="rect280"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Riga"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1458"
+     y="118"
+     width="50"
+     height="50"
+     id="rect282"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Reval"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1547"
+     y="32"
+     width="87"
+     height="65"
+     id="rect284"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Pskov"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1696"
+     y="58"
+     width="48"
+     height="48"
+     id="rect286"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Petrograd"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1785.0001"
+     y="31"
+     width="86"
+     height="66"
+     id="rect288"
+     style="stroke-width:0.999999" />
+  <rect
+     inkscape:label="Velikiye Luki"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1794"
+     y="148"
+     width="48"
+     height="48"
+     id="rect290"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Opochka"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1703"
+     y="149"
+     width="48"
+     height="48"
+     id="rect292"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Dvinsk"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1591"
+     y="200"
+     width="48"
+     height="48"
+     id="rect294"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Kovno"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1400"
+     y="264.00003"
+     width="51"
+     height="51"
+     id="rect296"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Vilna"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1483"
+     y="262"
+     width="49"
+     height="49"
+     id="rect298"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Moldechno"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1570"
+     y="295"
+     width="48"
+     height="48"
+     id="rect300"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Polotsk"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1686"
+     y="257"
+     width="48"
+     height="48"
+     id="rect302"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Vitebsk"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1794"
+     y="235"
+     width="48"
+     height="48"
+     id="rect304"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Moscow"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1963.0001"
+     y="235.00002"
+     width="65"
+     height="86"
+     id="rect306"
+     style="stroke-width:0.999999" />
+  <rect
+     inkscape:label="Smolensk"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1892"
+     y="280"
+     width="48"
+     height="48"
+     id="rect308"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Orsha"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1794"
+     y="292"
+     width="48"
+     height="49"
+     id="rect310"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Roslavl"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1916"
+     y="379"
+     width="48"
+     height="48"
+     id="rect312"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Mogilev"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1799"
+     y="350"
+     width="49"
+     height="48"
+     id="rect314"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Minsk"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1656"
+     y="343"
+     width="48"
+     height="48"
+     id="rect316"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Gomel"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1834"
+     y="448"
+     width="48"
+     height="48"
+     id="rect318"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Slutsk"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1696"
+     y="415"
+     width="48"
+     height="48"
+     id="rect320"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Baranovichi"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1560"
+     y="367"
+     width="48"
+     height="48"
+     id="rect322"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Grodno"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1439"
+     y="340"
+     width="48"
+     height="48"
+     id="rect324"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Bialystok"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1469"
+     y="408"
+     width="48"
+     height="48"
+     id="rect326"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Brest Litovsk"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1413"
+     y="465.99997"
+     width="47"
+     height="47"
+     id="rect328"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Pinsk"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1535"
+     y="439.00003"
+     width="48"
+     height="48"
+     id="rect330"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Lublin"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1425"
+     y="548"
+     width="48"
+     height="48"
+     id="rect332"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Kovel"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1503"
+     y="503.00003"
+     width="48"
+     height="48"
+     id="rect334"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Sarny"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1607"
+     y="481"
+     width="49"
+     height="49"
+     id="rect336"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Mozyr"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1736"
+     y="503"
+     width="48"
+     height="49"
+     id="rect338"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Chernigov"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1848"
+     y="524"
+     width="49"
+     height="48"
+     id="rect340"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Kharkov"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1963.0001"
+     y="569"
+     width="65"
+     height="87"
+     id="rect342"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Kiev"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1805"
+     y="592"
+     width="50"
+     height="50"
+     id="rect344"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Zhitomir"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1718"
+     y="589"
+     width="48"
+     height="49"
+     id="rect346"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Rovno"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1639"
+     y="557"
+     width="48"
+     height="48"
+     id="rect348"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Lutsk"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1531"
+     y="570"
+     width="49"
+     height="49"
+     id="rect350"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Dubno"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1593"
+     y="625"
+     width="48"
+     height="47"
+     id="rect352"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Przemysl"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1388"
+     y="624"
+     width="47"
+     height="48"
+     id="rect354"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Lemberg"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1463"
+     y="633"
+     width="50"
+     height="50"
+     id="rect356"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Uzhgorod"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1362"
+     y="730"
+     width="48"
+     height="48"
+     id="rect358"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Stanislau"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1446"
+     y="711"
+     width="49"
+     height="49"
+     id="rect360"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Tarnopol"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1523"
+     y="684"
+     width="49"
+     height="48"
+     id="rect362"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Munkacs"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1441"
+     y="778"
+     width="48"
+     height="48"
+     id="rect364"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Czernowitz"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1521"
+     y="761"
+     width="50"
+     height="50"
+     id="rect366"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Kamenets-Podolski"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1596"
+     y="719"
+     width="48"
+     height="48"
+     id="rect368"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Vinnitsa"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1700.9999"
+     y="685"
+     width="47"
+     height="48"
+     id="rect370"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Belaya Tserkov"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1820"
+     y="680"
+     width="48"
+     height="48"
+     id="rect372"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Caucasus"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1963.0001"
+     y="782.00006"
+     width="65"
+     height="86"
+     id="rect374"
+     style="stroke-width:0.999999" />
+  <rect
+     inkscape:label="Uman"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1821"
+     y="772"
+     width="49"
+     height="48"
+     id="rect376"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Odessa"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1819"
+     y="876"
+     width="50"
+     height="50"
+     id="rect378"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Zhmerinka"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1663"
+     y="771"
+     width="48"
+     height="48"
+     id="rect380"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Jassy"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1586"
+     y="817"
+     width="48"
+     height="48"
+     id="rect382"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Schossburg"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1501"
+     y="854"
+     width="48"
+     height="48"
+     id="rect384"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Cluj"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1425"
+     y="842"
+     width="49"
+     height="49"
+     id="rect386"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Hermannstadt"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1424"
+     y="919.99994"
+     width="47"
+     height="47"
+     id="rect388"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Kronstadt"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1501"
+     y="917.99994"
+     width="48"
+     height="47"
+     id="rect390"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Targu Jiu"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1374"
+     y="986"
+     width="49"
+     height="49"
+     id="rect392"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Carte de Arges"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1449"
+     y="982"
+     width="49"
+     height="48"
+     id="rect394"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Caracal"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1464"
+     y="1048"
+     width="48"
+     height="48"
+     id="rect396"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Sofia"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1418"
+     y="1139"
+     width="50"
+     height="50"
+     id="rect398"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Barlad"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1606"
+     y="883"
+     width="48"
+     height="48"
+     id="rect400"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Kishinev"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1720"
+     y="845"
+     width="48"
+     height="48"
+     id="rect402"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Ismail"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1733"
+     y="926"
+     width="48"
+     height="48"
+     id="rect404"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Galatz"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1649"
+     y="968"
+     width="47"
+     height="47"
+     id="rect406"
+     style="stroke-width:0.999998" />
+  <rect
+     inkscape:label="Ploesti"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1558"
+     y="955"
+     width="50"
+     height="50"
+     id="rect408"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Bucharest"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1571"
+     y="1031"
+     width="49"
+     height="49"
+     id="rect410"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Constanta"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1687"
+     y="1036"
+     width="48"
+     height="47"
+     id="rect412"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Varna"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1660"
+     y="1111"
+     width="48"
+     height="49"
+     id="rect414"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Plevna"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1503"
+     y="1119"
+     width="48"
+     height="47"
+     id="rect416"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Kazanlik"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1545.9999"
+     y="1189"
+     width="47"
+     height="48"
+     id="rect418"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Burgas"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1645.9999"
+     y="1178"
+     width="47"
+     height="47"
+     id="rect420"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Adrianople"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1649"
+     y="1252"
+     width="48"
+     height="48"
+     id="rect422"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Philippoli"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1531"
+     y="1262"
+     width="48"
+     height="49"
+     id="rect424"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Gallipoli"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1583"
+     y="1317"
+     width="48"
+     height="48"
+     id="rect426"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Cana Kale"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1592"
+     y="1381"
+     width="48"
+     height="49"
+     id="rect428"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Balikesir"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1672.9999"
+     y="1394"
+     width="47"
+     height="48"
+     id="rect430"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Izmir"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1632"
+     y="1472"
+     width="48"
+     height="48"
+     id="rect432"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="MEF1"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1523"
+     y="1363"
+     width="36"
+     height="36"
+     id="rect434"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="MEF2"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1538"
+     y="1428"
+     width="36"
+     height="36"
+     id="rect436"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="MEF3"
+     fill-opacity="0.5"
+     fill="#0000ff"
+     x="1582"
+     y="1527"
+     width="36"
+     height="36"
+     id="rect438"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Constantinople"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="1831"
+     y="1053"
+     width="41"
+     height="41"
+     id="rect440"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Bursa"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="1835"
+     y="1124"
+     width="41"
+     height="41"
+     id="rect442"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Adapazari"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="1894"
+     y="1048"
+     width="41"
+     height="40"
+     id="rect444"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Eskidor"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="1893"
+     y="1118"
+     width="41"
+     height="41"
+     id="rect446"
+     style="stroke-width:0.999997" />
+  <rect
+     inkscape:label="Sinope"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="1948"
+     y="1024"
+     width="41"
+     height="41"
+     id="rect448"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Ankara"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="1951"
+     y="1100"
+     width="41"
+     height="41"
+     id="rect450"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Samsun"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2001"
+     y="1016"
+     width="41"
+     height="41"
+     id="rect452"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Sivas"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2028"
+     y="1095"
+     width="41"
+     height="41"
+     id="rect454"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Giresun"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2051"
+     y="1033"
+     width="41"
+     height="41"
+     id="rect456"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Trebizond"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2111"
+     y="1052"
+     width="40"
+     height="41"
+     id="rect458"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Erzingan"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2114"
+     y="1115"
+     width="40"
+     height="41"
+     id="rect460"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Rize"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2176"
+     y="1049"
+     width="40"
+     height="40"
+     id="rect462"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Batum"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2227"
+     y="1017"
+     width="41"
+     height="41"
+     id="rect464"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Kars"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2278"
+     y="1041"
+     width="41"
+     height="41"
+     id="rect466"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Poti"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2187"
+     y="934"
+     width="41"
+     height="41"
+     id="rect468"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Grozny"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2295"
+     y="939"
+     width="41"
+     height="41"
+     id="rect470"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Petrovsk"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2399"
+     y="959"
+     width="41"
+     height="41"
+     id="rect472"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Tbilisi"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2340"
+     y="1016"
+     width="41"
+     height="41"
+     id="rect474"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Elizabethpol"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2396"
+     y="1058"
+     width="42"
+     height="41"
+     id="rect476"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Baku"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2457"
+     y="1098"
+     width="43"
+     height="43"
+     id="rect478"
+     style="stroke-width:0.999999" />
+  <rect
+     inkscape:label="Erivan"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2340"
+     y="1082"
+     width="41"
+     height="40"
+     id="rect480"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Eleskirt"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2262"
+     y="1110"
+     width="40"
+     height="41"
+     id="rect482"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Erzerum"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2196"
+     y="1103"
+     width="42"
+     height="42"
+     id="rect484"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Dilman"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2339"
+     y="1158"
+     width="40"
+     height="41"
+     id="rect486"
+     style="stroke-width:0.999998" />
+  <rect
+     inkscape:label="Tabriz"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2395"
+     y="1199"
+     width="41"
+     height="41"
+     id="rect488"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Van"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2270"
+     y="1168"
+     width="41"
+     height="41"
+     id="rect490"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Bitlis"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2213"
+     y="1170"
+     width="41"
+     height="41"
+     id="rect492"
+     style="stroke-width:0.999998" />
+  <rect
+     inkscape:label="Diyarbakir"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2160"
+     y="1167"
+     width="41"
+     height="40"
+     id="rect494"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Kharput"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2103"
+     y="1171"
+     width="42"
+     height="42"
+     id="rect496"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Kayseri"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2044"
+     y="1165"
+     width="41"
+     height="41"
+     id="rect498"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Konya"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="1978"
+     y="1175"
+     width="41.000126"
+     height="42"
+     id="rect500"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Adana"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2034.0001"
+     y="1225"
+     width="41"
+     height="41"
+     id="rect502"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Aleppo"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2096"
+     y="1253"
+     width="41"
+     height="41"
+     id="rect504"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Urfa"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2153"
+     y="1232"
+     width="41"
+     height="41"
+     id="rect506"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Mardin"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2215"
+     y="1232"
+     width="41"
+     height="41"
+     id="rect508"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Mosul"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2270"
+     y="1238"
+     width="43"
+     height="43"
+     id="rect510"
+     style="stroke-width:0.999999" />
+  <rect
+     inkscape:label="Hamadan"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2420"
+     y="1279"
+     width="41"
+     height="41"
+     id="rect512"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Kermanshah"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2356"
+     y="1314"
+     width="41"
+     height="41"
+     id="rect514"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Kirkuk"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2277"
+     y="1304"
+     width="41"
+     height="41"
+     id="rect516"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Damascus"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2103"
+     y="1304"
+     width="44"
+     height="44"
+     id="rect518"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Beirut"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2044"
+     y="1291"
+     width="41"
+     height="40"
+     id="rect520"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="MEF4"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="1927"
+     y="1298"
+     width="33"
+     height="32"
+     id="rect522"
+     style="stroke-width:0.999999" />
+  <rect
+     inkscape:label="Nablus"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2020.0001"
+     y="1363"
+     width="41"
+     height="41"
+     id="rect524"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Amman"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2081"
+     y="1371"
+     width="41"
+     height="41"
+     id="rect526"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Baghdad"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2299"
+     y="1366"
+     width="43"
+     height="43"
+     id="rect528"
+     style="stroke-width:0.999999" />
+  <rect
+     inkscape:label="Kut"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2354"
+     y="1391"
+     width="41"
+     height="41.000126"
+     id="rect530"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Khorramabad"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2427"
+     y="1349"
+     width="41"
+     height="41"
+     id="rect532"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Ahwaz"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2434"
+     y="1422"
+     width="41"
+     height="41"
+     id="rect534"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Qurna"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2378"
+     y="1441"
+     width="41"
+     height="40"
+     id="rect536"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Samawah"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2275"
+     y="1436"
+     width="42"
+     height="42"
+     id="rect538"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Basra"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2415"
+     y="1490"
+     width="47"
+     height="47"
+     id="rect540"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="An Nasiriya"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2334"
+     y="1515"
+     width="42"
+     height="42"
+     id="rect542"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Arabia"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2159"
+     y="1493"
+     width="41"
+     height="41"
+     id="rect544"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Medina"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2081"
+     y="1575"
+     width="43"
+     height="43"
+     id="rect546"
+     style="stroke-width:0.999999" />
+  <rect
+     inkscape:label="Aqaba"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2006"
+     y="1536"
+     width="42"
+     height="42"
+     id="rect548"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Beersheba"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2048"
+     y="1482"
+     width="42"
+     height="42"
+     id="rect550"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Jerusalem"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="2056"
+     y="1418"
+     width="42"
+     height="42"
+     id="rect552"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Gaza"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="1992"
+     y="1434"
+     width="42"
+     height="42"
+     id="rect554"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Sinai"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="1946"
+     y="1487"
+     width="42"
+     height="42"
+     id="rect556"
+     style="stroke-width:0.999995" />
+  <rect
+     inkscape:label="Cairo"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="1889"
+     y="1514"
+     width="48"
+     height="48"
+     id="rect558"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Port Said"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="1883.9999"
+     y="1445"
+     width="47"
+     height="47"
+     id="rect560"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Alexandria"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="1827.0001"
+     y="1475.0001"
+     width="44"
+     height="44"
+     id="rect562"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="Libya"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="1756.9999"
+     y="1466"
+     width="42"
+     height="40"
+     id="rect564"
+     style="stroke-width:1" />
+  <rect
+     inkscape:label="AP Reserve Box"
+     fill-opacity="0.5"
+     fill="#00ff00"
+     x="2132"
+     y="648"
+     width="366"
+     height="186"
+     id="rect566"
+     style="display:inline;stroke-width:1" />
+  <rect
+     inkscape:label="CP Reserve Box"
+     fill-opacity="0.5"
+     fill="#00ff00"
+     x="2132"
+     y="426"
+     width="365"
+     height="182"
+     id="rect568"
+     style="display:inline;stroke-width:1" />
+  <rect
+     inkscape:label="AP Eliminated Box"
+     fill-opacity="0.5"
+     fill="#00ff00"
+     x="938"
+     y="1472.9999"
+     width="220"
+     height="126.99999"
+     id="rect570"
+     style="display:inline;stroke-width:1" />
+  <rect
+     inkscape:label="CP Eliminated Box"
+     fill-opacity="0.5"
+     fill="#00ff00"
+     x="522"
+     y="57"
+     width="222.99998"
+     height="127"
+     id="rect572"
+     style="display:inline;stroke-width:1" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect9435"
+     width="53"
+     height="61"
+     x="68"
+     y="98"
+     inkscape:label="Turn 1" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect11667"
+     width="53"
+     height="61"
+     x="127"
+     y="98"
+     inkscape:label="Turn 2" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect11669"
+     width="53"
+     height="61"
+     x="186"
+     y="98"
+     inkscape:label="Turn 3" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect11671"
+     width="53"
+     height="61"
+     x="245"
+     y="98"
+     inkscape:label="Turn 4" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect11673"
+     width="53"
+     height="61"
+     x="304"
+     y="98"
+     inkscape:label="Turn 5" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect11675"
+     width="53"
+     height="61"
+     x="68"
+     y="190"
+     inkscape:label="Turn 6" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect11677"
+     width="53"
+     height="61.000004"
+     x="68"
+     y="282"
+     inkscape:label="Turn 11" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect11679"
+     width="53"
+     height="61.000004"
+     x="68"
+     y="374"
+     inkscape:label="Turn 16" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect11681"
+     width="40"
+     height="40"
+     x="795"
+     y="64"
+     inkscape:label="CP AR Neutral Entry" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:0.999998;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect11683"
+     width="40"
+     height="40"
+     x="795"
+     y="110"
+     inkscape:label="CP AR GE Reinf" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:0.999998;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect11685"
+     width="40"
+     height="40"
+     x="837"
+     y="110"
+     inkscape:label="CP AR AH Reinf" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:0.999998;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect11687"
+     width="40"
+     height="40"
+     x="879"
+     y="110"
+     inkscape:label="CP AR TU Reinf" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:0.999998;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect11689"
+     width="40"
+     height="40"
+     x="795"
+     y="157"
+     inkscape:label="CP AR SR Card" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:0.999998;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect11691"
+     width="40"
+     height="40"
+     x="837"
+     y="157"
+     inkscape:label="CP AR RP Card" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:0.999998;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect11693"
+     width="40"
+     height="40"
+     x="795"
+     y="204"
+     inkscape:label="CP AR OPS Card" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:0.999998;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect11695"
+     width="40"
+     height="40"
+     x="837"
+     y="204"
+     inkscape:label="CP AR Other Event" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:0.999998;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect11697"
+     width="40"
+     height="40"
+     x="879"
+     y="204"
+     inkscape:label="CP AR 1 Ops" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:0.999998;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect11699"
+     width="40"
+     height="40"
+     x="921"
+     y="204"
+     inkscape:label="CP AR Peace Terms" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:0.999998;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect11701"
+     width="38"
+     height="38"
+     x="1046"
+     y="79"
+     inkscape:label="CP MO AH" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:0.999998;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect11703"
+     width="38"
+     height="38"
+     x="1087"
+     y="79"
+     inkscape:label="CP MO IT" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:0.999998;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect11705"
+     width="38"
+     height="38"
+     x="1129"
+     y="79"
+     inkscape:label="CP MO TU" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:0.999998;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect11707"
+     width="38"
+     height="38"
+     x="1171"
+     y="79"
+     inkscape:label="CP MO GE" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:0.999998;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect11709"
+     width="38"
+     height="38"
+     x="1212"
+     y="79"
+     inkscape:label="CP MO None" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect11711"
+     width="40"
+     height="40"
+     x="700"
+     y="1413"
+     inkscape:label="AP AR Neutral Entry" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:0.999998;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect11713"
+     width="40"
+     height="40"
+     x="700"
+     y="1459"
+     inkscape:label="CP AR FR Reinf" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:0.999998;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect11715"
+     width="40"
+     height="40"
+     x="742"
+     y="1459"
+     inkscape:label="CP AR BR Reinf" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:0.999998;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect11717"
+     width="40"
+     height="40"
+     x="784"
+     y="1459"
+     inkscape:label="CP AR RU Reinf" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:0.999998;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect11731"
+     width="40"
+     height="40"
+     x="826"
+     y="1459"
+     inkscape:label="CP AR IT Reinf" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:0.999998;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect11733"
+     width="40"
+     height="40"
+     x="869"
+     y="1459"
+     inkscape:label="CP AR US Reinf" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:0.999998;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect11719"
+     width="40"
+     height="40"
+     x="700"
+     y="1506"
+     inkscape:label="AP AR SR Card" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:0.999998;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect11721"
+     width="40"
+     height="40"
+     x="742"
+     y="1506"
+     inkscape:label="AP AR RP Card" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:0.999998;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect11723"
+     width="40"
+     height="40"
+     x="700"
+     y="1553"
+     inkscape:label="AP AR OPS Card" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:0.999998;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect11725"
+     width="40"
+     height="40"
+     x="742"
+     y="1553"
+     inkscape:label="AP AR Other Event" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:0.999998;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect11727"
+     width="40"
+     height="40"
+     x="784"
+     y="1553"
+     inkscape:label="AP AR 1 Ops" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:0.999998;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect11729"
+     width="40"
+     height="40"
+     x="826"
+     y="1553"
+     inkscape:label="AP AR Peace Terms" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect12385"
+     width="48"
+     height="48"
+     x="64"
+     y="1156"
+     inkscape:label="US Track 1" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect13113"
+     width="48"
+     height="48"
+     x="116"
+     y="1156"
+     inkscape:label="US Track 2" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect13115"
+     width="48"
+     height="48"
+     x="168"
+     y="1156"
+     inkscape:label="US Track 3" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect13117"
+     width="48"
+     height="48"
+     x="220"
+     y="1156"
+     inkscape:label="US Track 4" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect13119"
+     width="49"
+     height="49"
+     x="71"
+     y="1253"
+     inkscape:label="RC Track 1" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect13121"
+     width="49"
+     height="49"
+     x="123"
+     y="1253"
+     inkscape:label="RC Track 2" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect13123"
+     width="49"
+     height="49"
+     x="175"
+     y="1253"
+     inkscape:label="RC Track 3" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect13125"
+     width="49"
+     height="49"
+     x="227"
+     y="1253"
+     inkscape:label="RC Track 4" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect13127"
+     width="49"
+     height="49"
+     x="279"
+     y="1253"
+     inkscape:label="RC Track 5" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect13129"
+     width="49"
+     height="49"
+     x="331"
+     y="1253"
+     inkscape:label="RC Track 6" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect13131"
+     width="49"
+     height="49"
+     x="383"
+     y="1253"
+     inkscape:label="RC Track 7" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect13133"
+     width="49"
+     height="49"
+     x="435"
+     y="1253"
+     inkscape:label="RC Track 8" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect13472"
+     width="53"
+     height="61"
+     x="127"
+     y="190"
+     inkscape:label="Turn 7" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect13474"
+     width="53"
+     height="61.000004"
+     x="127"
+     y="282"
+     inkscape:label="Turn 12" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect13476"
+     width="53"
+     height="61.000004"
+     x="127"
+     y="374"
+     inkscape:label="Turn 17" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect13478"
+     width="53"
+     height="61"
+     x="186"
+     y="190"
+     inkscape:label="Turn 8" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect13480"
+     width="53"
+     height="61.000004"
+     x="186"
+     y="282"
+     inkscape:label="Turn 13" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect13482"
+     width="53"
+     height="61.000004"
+     x="186"
+     y="374"
+     inkscape:label="Turn 18" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect13484"
+     width="53"
+     height="61"
+     x="245"
+     y="190"
+     inkscape:label="Turn 9" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect13486"
+     width="53"
+     height="61.000004"
+     x="245"
+     y="282"
+     inkscape:label="Turn 14" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect13488"
+     width="53"
+     height="61.000004"
+     x="245"
+     y="374"
+     inkscape:label="Turn 19" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect13490"
+     width="53"
+     height="61"
+     x="304"
+     y="190"
+     inkscape:label="Turn 10" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect13492"
+     width="53"
+     height="61.000004"
+     x="304"
+     y="282"
+     inkscape:label="Turn 15" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect13494"
+     width="53"
+     height="61.000004"
+     x="304"
+     y="374"
+     inkscape:label="Turn 20" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:0.999997;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect14573"
+     width="55"
+     height="60"
+     x="57"
+     y="1344"
+     inkscape:label="GR 0" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect13845"
+     width="55"
+     height="60"
+     x="113"
+     y="1344"
+     inkscape:label="GR 1" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect14589"
+     width="55"
+     height="60"
+     x="169"
+     y="1344"
+     inkscape:label="GR 2" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect14587"
+     width="55"
+     height="60"
+     x="225"
+     y="1344"
+     inkscape:label="GR 3" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect14585"
+     width="55"
+     height="60"
+     x="282"
+     y="1344"
+     inkscape:label="GR 4" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect14583"
+     width="55"
+     height="60"
+     x="338"
+     y="1344"
+     inkscape:label="GR 5" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect14581"
+     width="55"
+     height="60"
+     x="394"
+     y="1344"
+     inkscape:label="GR 6" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect14579"
+     width="55"
+     height="60"
+     x="450"
+     y="1344"
+     inkscape:label="GR 7" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect14575"
+     width="55"
+     height="60"
+     x="507"
+     y="1344"
+     inkscape:label="GR 8" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect14577"
+     width="55"
+     height="60"
+     x="563"
+     y="1344"
+     inkscape:label="GR 9" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:0.999995;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect14950"
+     width="55"
+     height="64"
+     x="57"
+     y="1406"
+     inkscape:label="GR 10" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect14952"
+     width="55"
+     height="64"
+     x="113"
+     y="1406"
+     inkscape:label="GR 11" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect14954"
+     width="55"
+     height="64"
+     x="169"
+     y="1406"
+     inkscape:label="GR 12" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect14956"
+     width="55"
+     height="64"
+     x="225"
+     y="1406"
+     inkscape:label="GR 13" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect14958"
+     width="55"
+     height="64"
+     x="282"
+     y="1406"
+     inkscape:label="GR 14" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect14960"
+     width="55"
+     height="64"
+     x="338"
+     y="1406"
+     inkscape:label="GR 15" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect14962"
+     width="55"
+     height="64"
+     x="394"
+     y="1406"
+     inkscape:label="GR 16" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect14964"
+     width="55"
+     height="64"
+     x="450"
+     y="1406"
+     inkscape:label="GR 17" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect14966"
+     width="55"
+     height="64"
+     x="507"
+     y="1406"
+     inkscape:label="GR 18" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect14968"
+     width="55"
+     height="64"
+     x="563"
+     y="1406"
+     inkscape:label="GR 19" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:0.999995;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect14971"
+     width="55"
+     height="64"
+     x="57"
+     y="1471"
+     inkscape:label="GR 20" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect14973"
+     width="55"
+     height="64"
+     x="113"
+     y="1471"
+     inkscape:label="GR 21" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect14975"
+     width="55"
+     height="64"
+     x="169"
+     y="1471"
+     inkscape:label="GR 22" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect14977"
+     width="55"
+     height="64"
+     x="225"
+     y="1471"
+     inkscape:label="GR 23" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect14979"
+     width="55"
+     height="64"
+     x="282"
+     y="1471"
+     inkscape:label="GR 24" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect14981"
+     width="55"
+     height="64"
+     x="338"
+     y="1471"
+     inkscape:label="GR 25" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect14983"
+     width="55"
+     height="64"
+     x="394"
+     y="1471"
+     inkscape:label="GR 26" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect14985"
+     width="55"
+     height="64"
+     x="450"
+     y="1471"
+     inkscape:label="GR 27" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect14987"
+     width="55"
+     height="64"
+     x="507"
+     y="1471"
+     inkscape:label="GR 28" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect14989"
+     width="55"
+     height="64"
+     x="563"
+     y="1471"
+     inkscape:label="GR 29" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:0.999992;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect14991"
+     width="55"
+     height="60"
+     x="57"
+     y="1537"
+     inkscape:label="GR 30" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect14993"
+     width="55"
+     height="60"
+     x="113"
+     y="1537"
+     inkscape:label="GR 31" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect14995"
+     width="55"
+     height="60"
+     x="169"
+     y="1537"
+     inkscape:label="GR 32" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect14997"
+     width="55"
+     height="60"
+     x="225"
+     y="1537"
+     inkscape:label="GR 33" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect14999"
+     width="55"
+     height="60"
+     x="282"
+     y="1537"
+     inkscape:label="GR 34" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect15001"
+     width="55"
+     height="60"
+     x="338"
+     y="1537"
+     inkscape:label="GR 35" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect15003"
+     width="55"
+     height="60"
+     x="394"
+     y="1537"
+     inkscape:label="GR 36" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect15005"
+     width="55"
+     height="60"
+     x="450"
+     y="1537"
+     inkscape:label="GR 37" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect15007"
+     width="55"
+     height="60"
+     x="507"
+     y="1537"
+     inkscape:label="GR 38" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect15009"
+     width="55"
+     height="60"
+     x="563"
+     y="1537"
+     inkscape:label="GR 19" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect15011"
+     width="55"
+     height="60"
+     x="619"
+     y="1537"
+     inkscape:label="GR 40" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect15795"
+     width="38"
+     height="38"
+     x="1177"
+     y="1540"
+     inkscape:label="AP MO FR" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect16523"
+     width="38"
+     height="38"
+     x="1218"
+     y="1540"
+     inkscape:label="AP MO BR" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect16525"
+     width="38"
+     height="38"
+     x="1260"
+     y="1540"
+     inkscape:label="AP MO IT" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect16527"
+     width="38"
+     height="38"
+     x="1302"
+     y="1540"
+     inkscape:label="AP MO RU" />
+  <rect
+     style="fill:#008000;fill-opacity:0.581897;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+     id="rect16529"
+     width="38"
+     height="38"
+     x="1343"
+     y="1540"
+     inkscape:label="AP MO None" />
+  <rect
+     inkscape:label="Constantinople 2"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="1734"
+     y="1277"
+     width="44"
+     height="44"
+     id="rect555"
+     style="stroke-width:1;fill:#ff00ff" />
+  <rect
+     inkscape:label="Bursa 2"
+     fill-opacity="0.5"
+     fill="#008000"
+     x="1734"
+     y="1346"
+     width="48"
+     height="48"
+     id="rect557"
+     style="stroke-width:1;fill:#ff00ff" />
+</svg>

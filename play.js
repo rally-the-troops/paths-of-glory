@@ -14,9 +14,6 @@ const CORPS = "corps"
 const AP_MO_MARKER = "marker ap mandatory_offensive "
 const CP_MO_MARKER = "marker cp mandatory_offensive "
 
-const US_ENTRY_MARKER = "marker small us_entry us_entry_"
-const RC_MARKER = "marker small russian_capitulation rc_"
-
 const AP_RESERVE_BOX = 282
 const CP_RESERVE_BOX = 283
 const AP_ELIMINATED_BOX = 284
@@ -608,7 +605,7 @@ let markers = {
         cp: []
     },
     mef_beachhead: [],
-    sinai: []
+    sinai: [],
 }
 
 function toggle_counters() {
@@ -873,6 +870,19 @@ function on_click_card(evt) {
 
 // BUILD UI
 
+function build_unique_marker(cn, size) {
+    let elt = document.createElement("div")
+    elt.className = cn + " hide"
+    elt.my_size = size
+    document.getElementById("markers").appendChild(elt)
+    return elt
+}
+
+ui.us_entry = build_unique_marker("marker small us_entry", 36)
+ui.russian_capitulation = build_unique_marker("marker small russian_capitulation", 36)
+ui.ap_mo = build_unique_marker("marker ap mandatory_offensive", 45)
+ui.cp_mo = build_unique_marker("marker cp mandatory_offensive", 45)
+
 function build_marker(list, find, new_marker, info, no_listeners) {
     let marker = list.find(find)
     if (marker)
@@ -1028,21 +1038,35 @@ function destroy_action_marker(faction, round) {
     destroy_marker(markers.actions, e => e.faction === faction && e.round === round)
 }
 
+function grow_layout(rect, n) {
+    let [ x, y, w, h ] = rect
+    return [ x - n, y - n, w + n * 2, h  + n * 2]
+}
+
+function layout_center(rect, dx=0, dy=0) {
+    let [ x, y, w, h ] = rect
+    return [ Math.floor(x + w/2) + dx, Math.ceil(y + h/2) + dy ]
+}
+
 function build_space(id) {
     let space = spaces[id]
-
-    let w = space.w
-    let h = space.h
-
-    let x = space.x - w / 2 - 4
-    let y = space.y - h / 2 - 4 // 4 px border space
+    let [ x, y, w, h ] = grow_layout(layout[space.name], 8)
 
     space.stack = []
     space.stack.name = spaces[id].name
 
     let elt = space.element = document.createElement("div")
     elt.space = id
-    elt.className = "space"
+    if (space.fort && space.vp)
+        elt.className = "space fort vp"
+    else if (space.fort)
+        elt.className = "space fort"
+    else if (space.vp)
+        elt.className = "space vp"
+    else if (space.name === "MEF1" || space.name === "MEF2" || space.name === "MEF3" || space.name === "MEF4")
+        elt.className = "space mef"
+    else
+        elt.className = "space"
     elt.style.left = x + "px"
     elt.style.top = y + "px"
     elt.style.width = w + "px"
@@ -1062,12 +1086,7 @@ const cp_eliminated_box_order = [GERMANY, AUSTRIA_HUNGARY, TURKEY, OTHER]
 
 function build_eliminated_box(id) {
     let space = spaces[id]
-
-    let w = space.w
-    let h = space.h
-
-    let x = space.x - w / 2 - 4
-    let y = space.y - h / 2 - 4 // 4 px border space
+    let [ x, y, w, h ] = grow_layout(layout[space.name], 0)
 
     space.stacks = {}
     if (id === AP_ELIMINATED_BOX) {
@@ -1101,12 +1120,7 @@ const cp_reserve_box_order = [GERMANY, AUSTRIA_HUNGARY, TURKEY, MINOR]
 
 function build_reserve_box(id) {
     let space = spaces[id]
-
-    let w = space.w
-    let h = space.h
-
-    let x = space.x - w / 2 - 4
-    let y = space.y - h / 2 - 4 // 4 px border space
+    let [ x, y, w, h ] = grow_layout(layout[space.name], 0)
 
     space.stacks = {}
     if (id === AP_RESERVE_BOX) {
@@ -1288,6 +1302,10 @@ function update_space(s) {
     let stack = space.stack
     stack.length = 0
 
+    let [ x, y, w, h ] = layout[space.name]
+    let xc = Math.round(x + w/2)
+    let yc = Math.round(y + h/2)
+
     let ap_oos = false
     let cp_oos = false
 
@@ -1364,8 +1382,8 @@ function update_space(s) {
     if (view.forts.destroyed.includes(s)) {
         push_stack(stack, build_fort_destroyed_marker(s))
         let mini = build_fort_destroyed_mini_marker(s)
-        mini.style.left = `${spaces[s].x - 9}px`
-        mini.style.top = `${spaces[s].y + 30}px`
+        mini.style.left = `${xc - 10}px`
+        mini.style.top = `${y + h + 5}px`
     } else {
         destroy_fort_destroyed_marker(s)
         destroy_fort_destroyed_mini_marker(s)
@@ -1413,7 +1431,7 @@ function update_space(s) {
         destroy_activation_marker(s, 'attack')
     }
 
-    layout_stack(stack, space.x, space.y)
+    layout_stack(stack, xc, yc)
     update_space_highlight(s)
 }
 
@@ -1455,6 +1473,8 @@ function get_reserve_box_stack(nation) {
 function update_reserve_boxes() {
     let ap_space = spaces[AP_RESERVE_BOX]
     let cp_space = spaces[CP_RESERVE_BOX]
+    let [ ap_space_x, ap_space_y ] = layout_center(layout[ap_space.name])
+    let [ cp_space_x, cp_space_y ] = layout_center(layout[cp_space.name])
 
     for (let nation of ap_reserve_box_order) {
         ap_space.stacks[nation].full.length = 0
@@ -1488,8 +1508,8 @@ function update_reserve_boxes() {
     for_each_piece_in_space(CP_RESERVE_BOX, insert_piece_in_stack)
 
     const stride = 60
-    const ap_x = ap_space.x - stride * 2.5
-    const ap_y = ap_space.y
+    const ap_x = ap_space_x - stride * 2.5
+    const ap_y = ap_space_y
     for (let i = 0; i < ap_reserve_box_order.length; ++i) {
         let nation = ap_reserve_box_order[i]
         if (ap_space.stacks[nation].full.length > 0) {
@@ -1499,8 +1519,8 @@ function update_reserve_boxes() {
             layout_stack(ap_space.stacks[nation].reduced, ap_x + i * stride, ap_y + 45)
         }
     }
-    const cp_x = cp_space.x - stride * 2
-    const cp_y = cp_space.y
+    const cp_x = cp_space_x - stride * 2
+    const cp_y = cp_space_y
     for (let i = 0; i < cp_reserve_box_order.length; ++i) {
         let nation = cp_reserve_box_order[i]
         if (cp_space.stacks[nation].full.length > 0) {
@@ -1537,6 +1557,8 @@ function get_eliminated_box_group(p) {
 function update_eliminated_boxes() {
     let ap_space = spaces[AP_ELIMINATED_BOX]
     let cp_space = spaces[CP_ELIMINATED_BOX]
+    let [ ap_space_x, ap_space_y ] = layout_center(layout[ap_space.name])
+    let [ cp_space_x, cp_space_y ] = layout_center(layout[cp_space.name])
 
     for (let group of ap_eliminated_box_order) {
         ap_space.stacks[group].armies.length = 0
@@ -1564,8 +1586,8 @@ function update_eliminated_boxes() {
     for_each_piece_in_space(CP_ELIMINATED_BOX, insert_piece_in_stack)
 
     const stride = 50
-    const ap_x = ap_space.x - stride * 2
-    const ap_y = ap_space.y - 45
+    const ap_x = ap_space_x - stride * 2
+    const ap_y = ap_space_y
     for (let i = 0; i < ap_eliminated_box_order.length; ++i) {
         let group = ap_eliminated_box_order[i]
         if (ap_space.stacks[group].armies.length > 0) {
@@ -1575,8 +1597,8 @@ function update_eliminated_boxes() {
             layout_stack(ap_space.stacks[group].corps, ap_x + i * stride, ap_y + 60)
         }
     }
-    const cp_x = cp_space.x - stride * 2
-    const cp_y = cp_space.y - 45
+    const cp_x = cp_space_x - stride * 2
+    const cp_y = cp_space_y - 45
     for (let i = 0; i < cp_eliminated_box_order.length; ++i) {
         let group = cp_eliminated_box_order[i]
         if (cp_space.stacks[group].armies.length > 0) {
@@ -1668,14 +1690,6 @@ for (let i = 0; i < 20; ++i) {
     turn_track_stacks[i].name = `Turn Track ${i + 1}`
 }
 
-function turn_track_pos(value) {
-    let row = Math.floor((value - 1) / 5)
-    let col = (value - 1) % 5
-    let x = 71 + col * 59 + 22
-    let y = 106 + row * 92 + 22
-    return [x, y]
-}
-
 function update_turn_track_marker(type, value, remove = false) {
     if (remove) {
         destroy_turn_track_marker(type)
@@ -1716,7 +1730,7 @@ function update_turn_track() {
 
     turn_track_stacks.forEach((stack, ix) => {
         if (stack.length > 0) {
-            let [x, y] = turn_track_pos(ix + 1)
+            let [x, y] = layout_center(layout["Turn " + (ix + 1)])
             layout_stack(stack, x, y)
         }
     })
@@ -1726,18 +1740,6 @@ let general_records_stacks = new Array(41)
 for (let i = 0; i <= 40; ++i) {
     general_records_stacks[i] = []
     general_records_stacks[i].name = `General Records ${i}`
-}
-
-function general_records_pos(value) {
-    let row = Math.floor(value / 10)
-    let col = value % 10
-    if (value === 40) {
-        row = 3
-        col = 10
-    }
-    let x = col * 56 + 62 + 22
-    let y = row * 66 + 1350 + 22
-    return [x, y]
 }
 
 function update_general_record(type, value, remove = false) {
@@ -1781,7 +1783,7 @@ function update_general_records_track() {
 
     general_records_stacks.forEach((stack, ix) => {
         if (stack.length > 0) {
-            let [x, y] = general_records_pos(ix)
+            let [x, y] = layout_center(layout["GR " + ix])
             layout_stack(stack, x, y)
         }
     })
@@ -1823,32 +1825,33 @@ const ACTION_REINF = "reinf"
 
 let action_stacks = {
     "ap": {
-        "entry": {left: 701, top: 1414, stack: []},
-        "reinf_fr": {left: 701, top: 1461, stack: []},
-        "reinf_br": {left: 743, top: 1461, stack: []},
-        "reinf_ru": {left: 785, top: 1461, stack: []},
-        "reinf_it": {left: 828, top: 1461, stack: []},
-        "reinf_us": {left: 870, top: 1461, stack: []},
-        "sr": {left: 701, top: 1507, stack: []},
-        "rp": {left: 743, top: 1507, stack: []},
-        "op": {left: 701, top: 1554, stack: []},
-        "evt": {left: 743, top: 1554, stack: []},
-        "oneop": {left: 785, top: 1554, stack: []},
-        "peace": {left: 828, top: 1554, stack: []}
+        "entry": {xy: layout_center(layout["AP AR Neutral Entry"]), stack: []},
+        "reinf_fr": {xy: layout_center(layout["AP AR FR Reinf"]), stack: []},
+        "reinf_br": {xy: layout_center(layout["AP AR BR Reinf"]), stack: []},
+        "reinf_ru": {xy: layout_center(layout["AP AR RU Reinf"]), stack: []},
+        "reinf_it": {xy: layout_center(layout["AP AR IT Reinf"]), stack: []},
+        "reinf_us": {xy: layout_center(layout["AP AR US Reinf"]), stack: []},
+        "sr": {xy: layout_center(layout["AP AR SR Card"]), stack: []},
+        "rp": {xy: layout_center(layout["AP AR RP Card"]), stack: []},
+        "op": {xy: layout_center(layout["AP AR OPS Card"]), stack: []},
+        "evt": {xy: layout_center(layout["AP AR Other Event"]), stack: []},
+        "oneop": {xy: layout_center(layout["AP AR 1 Ops"]), stack: []},
+        "peace": {xy: layout_center(layout["AP AR Peace Terms"]), stack: []}
     },
     "cp": {
-        "entry": {left: 794, top: 67, stack: []},
-        "reinf_ge": {left: 794, top: 114, stack: []},
-        "reinf_ah": {left: 837, top: 114, stack: []},
-        "reinf_tu": {left: 879, top: 114, stack: []},
-        "sr": {left: 794, top: 160, stack: []},
-        "rp": {left: 837, top: 160, stack: []},
-        "op": {left: 794, top: 208, stack: []},
-        "evt": {left: 837, top: 208, stack: []},
-        "oneop": {left: 879, top: 208, stack: []},
-        "peace": {left: 921, top: 208, stack: []}
+        "entry": {xy: layout_center(layout["CP AR Neutral Entry"]), stack: []},
+        "reinf_ge": {xy: layout_center(layout["CP AR GE Reinf"]), stack: []},
+        "reinf_ah": {xy: layout_center(layout["CP AR AH Reinf"]), stack: []},
+        "reinf_tu": {xy: layout_center(layout["CP AR TU Reinf"]), stack: []},
+        "sr": {xy: layout_center(layout["CP AR SR Card"]), stack: []},
+        "rp": {xy: layout_center(layout["CP AR RP Card"]), stack: []},
+        "op": {xy: layout_center(layout["CP AR OPS Card"]), stack: []},
+        "evt": {xy: layout_center(layout["CP AR Other Event"]), stack: []},
+        "oneop": {xy: layout_center(layout["CP AR 1 Ops"]), stack: []},
+        "peace": {xy: layout_center(layout["CP AR Peace Terms"]), stack: []}
     }
 }
+
 
 function update_action_round_marker(faction, round, action) {
     let action_type = action.type
@@ -1886,7 +1889,7 @@ function update_action_round_tracks() {
         for (let action_type in action_stacks[faction]) {
             let stack_info = action_stacks[faction][action_type]
             if (stack_info.stack.length > 0) {
-                layout_stack(stack_info.stack, stack_info.left + 20, stack_info.top + 20)
+                layout_stack(stack_info.stack, stack_info.xy[0], stack_info.xy[1])
             }
         }
     }
@@ -2024,6 +2027,31 @@ function add_review_rollback_button() {
     return button
 }
 
+function update_unique_marker(elt, [x,y,w,h]) {
+    let dim = style_dims[style]
+    x -= elt.my_size / 2 + dim.border
+    y -= elt.my_size / 2 + dim.border
+    elt.style.left = x + "px"
+    elt.style.top = y + "px"
+    elt.classList.remove("hide")
+}
+
+const layout_ap_mo = {
+    fr: layout_center(layout["AP MO FR"], 0, -35),
+    br: layout_center(layout["AP MO BR"], 0, -35),
+    it: layout_center(layout["AP MO IT"], 0, -35),
+    ru: layout_center(layout["AP MO RU"], 0, -35),
+    none: layout_center(layout["AP MO None"], 0, -35),
+}
+
+const layout_cp_mo = {
+    ah: layout_center(layout["CP MO AH"], 0, 35),
+    ah_it: layout_center(layout["CP MO IT"], 0, 35),
+    tu: layout_center(layout["CP MO TU"], 0, 35),
+    ge: layout_center(layout["CP MO GE"], 0, 35),
+    none: layout_center(layout["CP MO None"], 0, 35),
+}
+
 function update_map() {
     if (!view)
         return
@@ -2062,14 +2090,14 @@ function update_map() {
 
     // Update tracks
     update_general_records_track()
-    let ap_mo = document.getElementById("ap_mandatory_offensive")
-    ap_mo.className = AP_MO_MARKER + view.ap.mo + (view.events.french_mutiny ? " fr_mutiny" : "")
-    let cp_mo = document.getElementById("cp_mandatory_offensive")
-    cp_mo.className = CP_MO_MARKER + view.cp.mo
-    let us_entry_marker = document.getElementById("us_entry")
-    us_entry_marker.className = US_ENTRY_MARKER + view.us_entry
-    let russian_capitulation_marker = document.getElementById("russian_capitulation")
-    russian_capitulation_marker.className = RC_MARKER + view.russian_capitulation
+
+
+    ui.ap_mo.classList.toggle("fr_mutiny", !!view.events.french_mutiny)
+    update_unique_marker(ui.ap_mo, layout_ap_mo[view.ap.mo])
+    update_unique_marker(ui.cp_mo, layout_cp_mo[view.cp.mo])
+    update_unique_marker(ui.us_entry, layout_center(layout["US Track " + (view.us_entry+1)]))
+    update_unique_marker(ui.russian_capitulation, layout_center(layout["RC Track " + (view.russian_capitulation + 1)]))
+
     update_turn_track()
     update_action_round_tracks()
 
