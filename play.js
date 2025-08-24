@@ -1278,8 +1278,8 @@ function layout_stack(stack, start_x, start_y) {
             elt.style.left = ex + "px"
             elt.style.top = ey + "px"
             elt.style.zIndex = z++
-            x += 6
-            y -= 6
+            x += 9
+            y -= 9
             if (y < MINY)
                 y = MINY
         }
