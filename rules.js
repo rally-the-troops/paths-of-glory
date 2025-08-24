@@ -834,8 +834,6 @@ function goto_start_turn() {
     log_br()
     roll_mandated_offensives()
     log_br()
-    log_h3(`${faction_name(active_faction())} Action ${game[active_faction()].actions.length+1}`)
-
     update_russian_capitulation()
 }
 
@@ -1442,8 +1440,9 @@ function get_trench_level_for_attack(s, faction) {
 // === GAME STATES ===
 
 function goto_action_phase() {
-    save_rollback_point()
+    log_h3(`${faction_name(active_faction())} Action ${game[active_faction()].actions.length+1}`)
     game.state = 'action_phase'
+    save_rollback_point()
 }
 
 states.action_phase = {
@@ -2400,7 +2399,6 @@ function goto_end_action() {
         } else {
             goto_review_supply_warnings()
         }
-        log_h3(`${faction_name(active_faction())} Action ${game[active_faction()].actions.length+1}`)
     } else {
         goto_attrition_phase()
     }
