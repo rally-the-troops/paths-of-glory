@@ -2211,8 +2211,8 @@ states.activate_spaces = {
 
         const used_ne_activation = game.activated.attack.find((s) => is_neareast_space(s) && !is_mef_space(s) && s !== game.location[BRITISH_NE_ARMY]) !== undefined
         spaces.forEach((s) => {
-            if (set_has(game.activated.move, s) || set_has(game.activated.attack, s) && !globalThis.RTT_FUZZER) {
-                gen_action('deactivate', s)
+            if (set_has(game.activated.move, s) || set_has(game.activated.attack, s)) {
+                // already chosen
             } else {
                 if (is_space_supplied(active_faction(), s)) {
                     if (!nation_at_war(GREECE) && game.events.salonika > 0) {
@@ -2224,6 +2224,7 @@ states.activate_spaces = {
                     if (game.ops >= cost_to_activate(s, MOVE))
                         gen_action('activate_move', s)
 
+                    // TODO: check if any attacks are actually possible
                     if (game.ops >= cost_to_activate(s, ATTACK)) {
                         if (active_faction() === AP && used_ne_activation && is_neareast_space(s)) {
                             // The Allied player may Activate only one space per Action Round for combat on the Near East
@@ -2240,20 +2241,8 @@ states.activate_spaces = {
                 }
             }
         })
-        gen_action_done()
-    },
-    deactivate(s) {
-        push_undo()
-        if (set_has(game.activated.move, s)) {
-            game.ops += cost_to_activate(s, MOVE)
-            set_delete(game.activated.move, s)
-        } else if (set_has(game.activated.attack, s)) {
-            game.ops += cost_to_activate(s, ATTACK)
-            set_delete(game.activated.attack, s)
-        }
-        if (game.sud_army_space === s) {
-            delete game.sud_army_space
-        }
+
+        gen_action_skip()
     },
     activate_move(s) {
         push_undo()
@@ -2262,6 +2251,8 @@ states.activate_spaces = {
         if (!game.sud_army_space && is_possible_sud_army_stack(get_pieces_in_space(s))) {
             game.sud_army_space = s
         }
+        if (game.ops === 0)
+            start_action_round()
     },
     activate_attack(s) {
         push_undo()
@@ -2270,8 +2261,10 @@ states.activate_spaces = {
         if (!game.sud_army_space && is_possible_sud_army_stack(get_pieces_in_space(s))) {
             game.sud_army_space = s
         }
+        if (game.ops === 0)
+            start_action_round()
     },
-    done() {
+    skip() {
         start_action_round()
     }
 }
@@ -2589,14 +2582,10 @@ states.choose_pieces_to_move = {
             }
         })
 
-        if (game.move.pieces.length > 0) {
-            get_eligible_spaces_to_move().forEach((s) => {
-                gen_action_pass()
-                gen_action_space(s)
-            })
-        } else {
-            gen_action('done')
-        }
+        if (game.move.pieces.length > 0)
+            get_eligible_spaces_to_move().forEach(gen_action_space)
+
+        view.actions.end_activation = 1
     },
     piece(p) {
         let here = game.move.initial
@@ -2620,18 +2609,14 @@ states.choose_pieces_to_move = {
         game.move_path.push(s)
         game.state = 'move_stack'
     },
-    pass() {
-        push_undo()
-        end_move_activation()
-    },
     move() {
         push_undo()
         game.state = 'move_stack'
     },
-    done() {
+    end_activation() {
         push_undo()
         end_move_activation()
-    }
+    },
 }
 
 function get_eligible_spaces_to_move() {
@@ -5753,6 +5738,10 @@ function gen_action_next() {
 
 function gen_action_done() {
     gen_action('done')
+}
+
+function gen_action_skip() {
+    gen_action('skip')
 }
 
 function gen_action_pass() {
