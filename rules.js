@@ -1687,9 +1687,9 @@ states.choose_sr_destination = {
         let from = game.location[game.sr.unit]
         game.location[game.sr.unit] = s
         if (from === AP_RESERVE_BOX || from === CP_RESERVE_BOX)
-            log(`${piece_name(game.sr.unit)}${log_corps(game.sr.unit)} SR from ${space_name(from)} to ${space_name(s)}`)
+            log(`${piece_name(game.sr.unit)}${log_corps(game.sr.unit)} SR\n${space_name(from)} -> ${space_name(s)}`)
         else
-            log(`${piece_name(game.sr.unit)} SR from ${space_name(from)} to ${space_name(s)}`)
+            log(`${piece_name(game.sr.unit)} SR\n${space_name(from)} -> ${space_name(s)}`)
         game.sr.unit = 0
         game.who = 0
         game.state = 'choose_sr_unit'
@@ -7670,7 +7670,7 @@ states.salonika = {
         push_undo()
 
         game.salonika_sr_remaining--
-        log(`SR ${piece_name(p)} from ${space_name(game.location[p])} to ${space_name(SALONIKA_SPACE)}`)
+        log(`${piece_name(p)} SR\n${space_name(game.location[p])} -> ${space_name(SALONIKA_SPACE)}`)
         game.location[p] = SALONIKA_SPACE
         set_control(SALONIKA_SPACE, AP)
     },
@@ -8686,7 +8686,7 @@ function log_all_pending_moves() {
     // Log each group
     Object.keys(path_groups).forEach(path => {
         let piece_names = path_groups[path].map(piece => piece_name(piece))
-        log(piece_names.join(", ") + " from ")
+        log(piece_names.join(", ") + " moved")
         logi(path)
     })  
     game.pending_moves = []
