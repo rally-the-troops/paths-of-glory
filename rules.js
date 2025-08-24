@@ -1,8 +1,9 @@
 "use strict"
 
-const data = require("./data")
-const {cards} = require("./data")
-const lz4 = require("./lz4")
+const data = require("./data.js")
+const lz4 = require("./lz4.js")
+
+const cards = data.cards
 
 let game, view
 
@@ -8793,4 +8794,4 @@ exports.assert_state = function(state) {
     assert_reinforcement_rules()
 }
 
-/* vim:set sw=4 expandtab: */
+/* vim:set sts=4 sw=4 expandtab: */
