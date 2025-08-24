@@ -781,7 +781,7 @@ function on_blur_marker(evt) {
 function on_focus_card(evt) {
     let id = evt.target.card
     let card = cards[id]
-    ui.status.textContent = `#${id} ${card.name} [${card.ops}/${card.sr}]`
+    ui.status.textContent = `#${card.num} ${card.name} [${card.ops}/${card.sr}]`
 }
 
 function on_blur_card(evt) {
