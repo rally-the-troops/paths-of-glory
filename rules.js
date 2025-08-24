@@ -6327,7 +6327,6 @@ events.landwehr = {
     play() {
         game.landwehr_pieces = []
         game.state = 'landwehr'
-        push_undo()
     }
 }
 
@@ -6389,7 +6388,6 @@ events.cp_entrench = {
         return !game.events.entrench && game.turn > 1
     },
     play() {
-        push_undo()
         game.events.entrench = game.turn
         game.state = 'place_event_trench'
     }
@@ -6401,7 +6399,6 @@ events.race_to_the_sea = {
         return true
     },
     play() {
-        push_undo()
         game.events.race_to_the_sea = game.turn
         goto_end_action()
     }
@@ -6435,7 +6432,6 @@ events.sud_army = {
         return true
     },
     play() {
-        push_undo()
         game.events.sud_army = game.turn
         goto_end_action()
     }
@@ -6447,7 +6443,6 @@ events.oberost = {
         return true
     },
     play() {
-        push_undo()
         game.events.oberost = game.turn
         goto_end_action()
     }
@@ -6459,7 +6454,6 @@ events.falkenhayn = {
         return game.turn >= 3 || game.events.moltke
     },
     play() {
-        push_undo()
         game.events.falkenhayn = game.turn
         goto_end_action()
     }
@@ -6559,7 +6553,6 @@ events.high_seas_fleet = {
         return true
     },
     play() {
-        push_undo()
         game.events.high_seas_fleet = game.turn
         goto_end_action()
     }
@@ -6615,7 +6608,6 @@ events.zeppelin_raids = {
         return true
     },
     play() {
-        push_undo()
         game.events.zeppelin_raids = game.turn
         goto_end_action()
     }
@@ -6627,7 +6619,6 @@ events.tsar_takes_command = {
         return game.cp.ru_vp >= 3
     },
     play() {
-        push_undo()
         game.events.tsar_takes_command = game.turn
         game.ops = data.cards[TSAR_TAKES_COMMAND].ops
         game.state = 'activate_spaces'
@@ -6640,7 +6631,6 @@ events.eleventh_army = {
         return true
     },
     play() {
-        push_undo()
         game.events.eleventh_army = game.turn
         goto_end_action()
     }
@@ -6766,7 +6756,6 @@ events.walter_rathenau = {
         return true
     },
     play() {
-        push_undo()
         game.events.walter_rathenau = game.turn
         goto_end_action()
     }
@@ -6810,7 +6799,6 @@ events.uboats_unleashed = {
         return game.events.h_l_take_command > 0
     },
     play() {
-        push_undo()
         game.events.uboats_unleashed = game.turn
         goto_end_action()
     }
@@ -6822,7 +6810,6 @@ events.hoffmann = {
         return game.events.h_l_take_command > 0
     },
     play() {
-        push_undo()
         game.events.hoffmann = game.turn
         goto_end_action()
     }
@@ -6907,7 +6894,6 @@ events.treaty_of_brest_litovsk = {
         return game.events.bolshevik_revolution > 0
     },
     play() {
-        push_undo()
         game.events.treaty_of_brest_litovsk = game.turn
         goto_end_action()
     }
@@ -7014,7 +7000,6 @@ events.fall_of_the_tsar = {
         return game.events.tsar_takes_command > 0 && (game.cp.ru_vp + game.ap.ws + game.cp.ws >= 33)
     },
     play() {
-        push_undo()
         game.events.fall_of_the_tsar = game.turn
         game.tsar_fell_cp_russian_vp = game.cp.ru_vp
         if (!nation_at_war(ROMANIA)) {
@@ -7048,7 +7033,6 @@ events.bolshevik_revolution = {
             (game.cp.ru_vp > game.tsar_fell_cp_russian_vp || cp_controls_all_russian_vp_spaces)
     },
     play() {
-        push_undo()
         game.events.bolshevik_revolution = game.turn
 
         game.ops = data.cards[BOLSHEVIK_REVOLUTION].ops
@@ -7062,7 +7046,6 @@ events.h_l_take_command = {
         return true
     },
     play() {
-        push_undo()
         game.events.h_l_take_command = game.turn
         goto_end_action()
     }
@@ -7203,7 +7186,6 @@ events.russian_desertions = {
         game.events.russian_desertions = game.turn
         game.state = 'russian_desertions'
         game.russian_desertions_remaining = 4
-        push_undo()
     }
 }
 
@@ -7277,7 +7259,6 @@ events.prince_max = {
         return game.turn <= 16
     },
     play() {
-        push_undo()
         game.events.prince_max = game.turn
         goto_end_action()
     }
@@ -7291,7 +7272,6 @@ events.blockade = {
         return true
     },
     play() {
-        push_undo()
         game.events.blockade = game.turn
         goto_end_action()
     }
@@ -7375,7 +7355,6 @@ events.moltke = {
         return game.turn <= 2
     },
     play() {
-        push_undo()
         game.events.moltke = game.turn
         goto_end_action()
     }
@@ -7387,7 +7366,6 @@ events.ap_entrench = {
         return !game.events.entrench && game.turn > 1
     },
     play() {
-        push_undo()
         game.events.entrench = game.turn
         game.state = 'place_event_trench'
     }
@@ -7399,7 +7377,6 @@ events.rape_of_belgium = {
         return game.events.guns_of_august && game.ap.commitment === COMMITMENT_MOBILIZATION
     },
     play() {
-        push_undo()
         logi(`-1 VP for ${card_name(RAPE_OF_BELGIUM)}`)
         game.vp -= 1
         record_score_event(-1, RAPE_OF_BELGIUM)
@@ -7520,7 +7497,6 @@ events.lusitania = {
         return game.events.blockade && !game.events.zimmermann_telegram
     },
     play() {
-        push_undo()
         game.vp -= 1
         record_score_event(-1, LUSITANIA)
         logi(`-1 VP for ${card_name(LUSITANIA)}`)
@@ -7618,7 +7594,6 @@ events.landships = {
         return true
     },
     play() {
-        push_undo()
         game.events.landships = game.turn
         game.ops = data.cards[LANDSHIPS].ops
         game.state = 'activate_spaces'
@@ -7685,7 +7660,6 @@ events.grand_fleet = {
         return game.events.high_seas_fleet > 0
     },
     play() {
-        push_undo()
         delete game.events.high_seas_fleet
         goto_end_action()
     }
@@ -7740,7 +7714,6 @@ events.independent_air_force = {
         return true
     },
     play() {
-        push_undo()
         game.events.independent_air_force = game.turn
         goto_end_action()
     }
@@ -7936,7 +7909,6 @@ events.convoy = {
         return game.events.uboats_unleashed > 0
     },
     play() {
-        push_undo()
         game.events.convoy = game.turn
         game.vp--
         record_score_event(-1, CONVOY)
@@ -7951,7 +7923,6 @@ events.zimmermann_telegram = {
         return game.cp.ws + game.ap.ws >= 30
     },
     play() {
-        push_undo()
         game.events.zimmermann_telegram = game.turn
         game.vp--
         record_score_event(-1, ZIMMERMANN_TELEGRAM)
@@ -7967,7 +7938,6 @@ events.over_there = {
         return game.events.zimmermann_telegram > 0 && game.turn > game.events.zimmermann_telegram
     },
     play() {
-        push_undo()
         game.events.over_there = game.turn
         set_nation_at_war(US)
         game.ops = data.cards[OVER_THERE].ops
@@ -8022,7 +7992,6 @@ events.russian_cavalry = {
         return true
     },
     play() {
-        push_undo()
         game.units_to_place = find_n_unused_pieces(RUSSIA, 'RU CAVc', 2)
         game.state = 'russian_cavalry'
     }
@@ -8102,7 +8071,6 @@ events.czech_legion = {
         return true
     },
     play() {
-        push_undo()
         for (let p = 1; p < data.pieces.length; ++p) {
             const piece_data = data.pieces[p]
             if (is_unit_eliminated(p) && piece_data.nation === AUSTRIA_HUNGARY && piece_data.type === CORPS) {
