@@ -3084,6 +3084,25 @@ states.choose_attackers = {
         })
     },
     pass() {
+        if (game.eligible_attackers.length > 0) {
+            push_undo()
+            game.state = 'confirm_pass_attack'
+        }
+        else {
+            game.eligible_attackers = []
+            end_attack_activation()
+            goto_next_activation()
+        }
+    }
+}
+
+states.confirm_pass_attack = {
+    inactive: 'Choosing units and space to attack',
+    prompt() {
+        view.prompt = `You still have units eligible to attack. Confirm Pass ?`
+        gen_action('pass')
+    },
+    pass() {
         game.eligible_attackers = []
         end_attack_activation()
         goto_next_activation()
