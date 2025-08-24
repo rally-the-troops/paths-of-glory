@@ -2556,17 +2556,19 @@ states.place_event_trench = {
         spaces.forEach(gen_action_space)
 
         if (spaces.length === 0) {
-            gen_action_done()
+            gen_action_skip()
         }
 
     },
     space(s) {
+        push_undo()
         log(`Placed a trench in ${space_name(s)}`)
         set_trench_level(s, 1, active_faction())
-        goto_end_action()
+        goto_end_event()
     },
-    done() {
-        goto_end_action()
+    skip() {
+        push_undo()
+        goto_end_event()
     }
 }
 
@@ -6248,6 +6250,21 @@ function get_oos_pieces() {
 
 // === CARD EVENTS ===
 
+function goto_end_event() {
+    game.state = "confirm_event"
+}
+
+states.confirm_event = {
+    prompt() {
+        let c = game.last_card
+        view.prompt = data.cards[game.last_card].name + " \u2013 done."
+        view.actions.end_event = 1
+    },
+    end_event() {
+        goto_end_action()
+    },
+}
+
 // CP #1
 events.guns_of_august = {
     can_play() {
@@ -6366,7 +6383,7 @@ states.landwehr = {
     },
     done() {
         delete game.landwehr_pieces
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -6388,7 +6405,7 @@ events.race_to_the_sea = {
     },
     play() {
         game.events.race_to_the_sea = game.turn
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -6421,7 +6438,7 @@ events.sud_army = {
     },
     play() {
         game.events.sud_army = game.turn
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -6432,7 +6449,7 @@ events.oberost = {
     },
     play() {
         game.events.oberost = game.turn
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -6443,7 +6460,7 @@ events.falkenhayn = {
     },
     play() {
         game.events.falkenhayn = game.turn
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -6542,7 +6559,7 @@ events.high_seas_fleet = {
     },
     play() {
         game.events.high_seas_fleet = game.turn
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -6577,7 +6594,7 @@ events.place_of_execution = {
     play() {
         game.events.place_of_execution = game.turn
         if (!game.attack)
-            goto_end_action()
+            goto_end_event()
     }
 }
 
@@ -6597,7 +6614,7 @@ events.zeppelin_raids = {
     },
     play() {
         game.events.zeppelin_raids = game.turn
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -6620,7 +6637,7 @@ events.eleventh_army = {
     },
     play() {
         game.events.eleventh_army = game.turn
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -6734,7 +6751,7 @@ states.war_in_africa = {
     done() {
         delete game.war_in_africa_removed
         set_active_faction(CP)
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -6745,7 +6762,7 @@ events.walter_rathenau = {
     },
     play() {
         game.events.walter_rathenau = game.turn
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -6788,7 +6805,7 @@ events.uboats_unleashed = {
     },
     play() {
         game.events.uboats_unleashed = game.turn
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -6799,7 +6816,7 @@ events.hoffmann = {
     },
     play() {
         game.events.hoffmann = game.turn
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -6883,7 +6900,7 @@ events.treaty_of_brest_litovsk = {
     },
     play() {
         game.events.treaty_of_brest_litovsk = game.turn
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -6894,7 +6911,7 @@ events.french_mutiny = {
     },
     play() {
         game.events.french_mutiny = game.turn
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -7035,7 +7052,7 @@ events.h_l_take_command = {
     },
     play() {
         game.events.h_l_take_command = game.turn
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -7046,7 +7063,7 @@ events.lloyd_george = {
     },
     play() {
         game.events.lloyd_george = game.turn
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -7090,7 +7107,7 @@ events.stavka_timidity = {
     },
     play() {
         game.events.stavka_timidity = game.turn
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -7108,7 +7125,7 @@ events.polish_restoration = {
         for (let p of polish_corps) {
             game.location[p] = CP_RESERVE_BOX
         }
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -7138,7 +7155,7 @@ events.haig = {
     },
     play() {
         game.events.haig = game.turn
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -7198,7 +7215,7 @@ states.russian_desertions = {
     },
     done() {
         delete game.russian_desertions_remaining
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -7248,7 +7265,7 @@ events.prince_max = {
     },
     play() {
         game.events.prince_max = game.turn
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -7261,7 +7278,7 @@ events.blockade = {
     },
     play() {
         game.events.blockade = game.turn
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -7344,7 +7361,7 @@ events.moltke = {
     },
     play() {
         game.events.moltke = game.turn
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -7368,7 +7385,7 @@ events.rape_of_belgium = {
         logi(`-1 VP for ${card_name(RAPE_OF_BELGIUM)}`)
         game.vp -= 1
         record_score_event(-1, RAPE_OF_BELGIUM)
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -7393,7 +7410,7 @@ events.italy_entry = {
     },
     play() {
         set_nation_at_war(ITALY)
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -7489,7 +7506,7 @@ events.lusitania = {
         record_score_event(-1, LUSITANIA)
         logi(`-1 VP for ${card_name(LUSITANIA)}`)
         game.events.lusitania = game.turn
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -7500,7 +7517,7 @@ events.great_retreat = {
     },
     play() {
         game.events.great_retreat = game.turn
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -7638,7 +7655,7 @@ states.salonika = {
         delete game.salonika_sr_remaining
         const num_actions = game.ap.actions.length
         game.ap.actions[num_actions - 1].type = ACTION_SR
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -7649,7 +7666,7 @@ events.grand_fleet = {
     },
     play() {
         delete game.events.high_seas_fleet
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -7703,7 +7720,7 @@ events.independent_air_force = {
     },
     play() {
         game.events.independent_air_force = game.turn
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -7741,7 +7758,7 @@ events.fourteen_points = {
         game.vp--
         record_score_event(-1, FOURTEEN_POINTS)
         logi(`-1 VP for ${card_name(FOURTEEN_POINTS)}`)
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -7754,7 +7771,7 @@ events.greece_entry = {
     play() {
         game.events.greece_entry = game.turn
         set_nation_at_war(GREECE)
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -7876,7 +7893,7 @@ events.sinai_pipeline = {
     },
     play() {
         game.events.sinai_pipeline = game.turn
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -7887,7 +7904,7 @@ events.everyone_into_battle = {
     },
     play() {
         game.events.everyone_into_battle = game.turn
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -7901,7 +7918,7 @@ events.convoy = {
         game.vp--
         record_score_event(-1, CONVOY)
         logi(`-1 VP for ${card_name(CONVOY)}`)
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -7967,10 +7984,10 @@ states.paris_taxis = {
         log(`Flipped ${piece_name(p)} in ${space_name(game.location[p])} to full strength`)
     },
     pass() {
-        goto_end_action()
+        goto_end_event()
     },
     done() {
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -8014,7 +8031,7 @@ states.russian_cavalry = {
         game.units_to_place.length = 0
     },
     done() {
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -8069,7 +8086,7 @@ events.czech_legion = {
         }
         const czech_legion = find_piece(RUSSIA, 'RU Czlc')
         game.location[czech_legion] = AP_RESERVE_BOX
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -8109,7 +8126,7 @@ events.the_sixtus_affair = {
     play() {
         game.events.the_sixtus_affair = game.turn
         roll_peace_terms(AP, 0)
-        goto_end_action()
+        goto_end_event()
     }
 }
 
@@ -8140,7 +8157,7 @@ events.influenza = {
     },
     play() {
         game.events.influenza = game.turn
-        goto_end_action()
+        goto_end_event()
     }
 }
 

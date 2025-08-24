@@ -2153,6 +2153,7 @@ function update_map() {
     action_button("reset_phase", "Reset Phase")
     action_button("end_activation", "End Activation")
     action_button("finish_attacks", "End Attack Phase")
+    action_button("end_event", "End Event")
     action_button("skip", "Skip")
     action_button("done", "Done")
     action_button("attack", "Attack")
