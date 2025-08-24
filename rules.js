@@ -8458,8 +8458,8 @@ function restore_rollback(index) {
     save_log.length = game.log
     game.log = save_log
     game.undo = [] // Rollback always wipes out the undo stack
-    game.rollback = save_rollback.slice(0, index) // Keep older rollback points
-    game.rollback_state = compress_state(rollback_state.slice(0, index))
+    game.rollback = save_rollback.slice(0, index+1) // Keep older (and restored) rollback points
+    game.rollback_state = compress_state(rollback_state.slice(0, index+1))
     game.seed = save_seed
 }
 
