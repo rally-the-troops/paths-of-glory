@@ -5,6 +5,8 @@ const lz4 = require("./lz4.js")
 
 const cards = data.cards
 
+let _assert_push_undo
+
 let game, view
 
 let states = {}
@@ -324,6 +326,8 @@ exports.scenarios = [ HISTORICAL ]
 exports.roles = [ AP_ROLE, CP_ROLE ]
 
 exports.action = function (state, current, action, arg) {
+    _assert_push_undo = 0
+
     game = state
     if (action in states[game.state]) {
         states[game.state][action](arg, current)
@@ -8342,6 +8346,10 @@ function clear_undo() {
 }
 
 function push_undo() {
+    if (_assert_push_undo)
+        throw new Error("duplicate undo point!")
+    _assert_push_undo = 1
+
     let copy = {}
     for (let k in game) {
         let v = game[k]
