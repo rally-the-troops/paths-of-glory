@@ -1591,7 +1591,6 @@ function goto_play_sr(card) {
     log(`${card_name(card)} -- Strategic Redeployment (${card_data.sr})`)
     play_card(card)
     game.state = 'choose_sr_unit'
-    save_checkpoint("sr")
 }
 
 states.choose_sr_unit = {
@@ -1625,7 +1624,7 @@ states.choose_sr_unit = {
         goto_end_action()
     },
     reset_phase() {
-        restore_checkpoint("sr")
+        pop_all_undo()
     }
 }
 
@@ -2285,7 +2284,6 @@ function start_action_round() {
             game.eligible_attackers.push(p)
         }
     })
-    save_checkpoint("action_round")
     goto_next_activation()
 }
 
@@ -3014,19 +3012,16 @@ states.confirm_moves = {
     inactive: 'Confirming moves',
     prompt() {
         const violations = check_rule_violations()
-
-        if (has_checkpoint("action_round"))
-            gen_action('reset_phase')
-
         if (violations.length === 0) {
             view.prompt = `Confirm moves`
             gen_action_done()
         } else {
             view.prompt = `Correct rules violations before continuing`
+            gen_action('reset_phase')
         }
     },
     reset_phase() {
-        restore_checkpoint("action_round")
+        pop_all_undo()
     },
     done() {
         goto_next_activation()
@@ -8382,30 +8377,10 @@ function pop_undo() {
     game.rollback_state = save_rollback_state
 }
 
-function save_checkpoint(name) {
-    name = name || "checkpoint"
-    push_undo()
-    game.undo[game.undo.length-1].checkpoint = name
-}
-
-function restore_checkpoint(name) {
-    let save_log = game.log
-    let save_undo = game.undo
-    name = name || "checkpoint"
-    let checkpoint_index = save_undo.findIndex((u) => u.checkpoint === name)
-    if (checkpoint_index < 0 )
-        return
-    let checkpoint = save_undo[checkpoint_index]
-    save_undo.length = checkpoint_index
-    game = checkpoint
-    save_log.length = game.log
-    game.log = save_log
-    game.undo = save_undo
-}
-
-function has_checkpoint(name) {
-    name = name || "checkpoint"
-    return game.undo.some((u) => u.checkpoint === name)
+function pop_all_undo() {
+    if (game.undo.length > 1)
+        game.undo.length = 1
+    pop_undo()
 }
 
 // ROLLBACK
