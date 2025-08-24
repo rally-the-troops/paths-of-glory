@@ -1704,19 +1704,23 @@ function update_turn_track() {
 
     update_turn_track_marker("turn", view.turn)
 
-    view.ap.missed_mo.forEach((missed_mo) => {
-        push_stack(turn_track_stacks[missed_mo - 1], build_missed_mo_marker(AP, missed_mo))
-    })
-
-    view.cp.missed_mo.forEach((missed_mo) => {
-        push_stack(turn_track_stacks[missed_mo - 1], build_missed_mo_marker(CP, missed_mo))
-    })
+    for (let i = 1; i <= 20; ++i) {
+        if (view.ap.missed_mo.includes(i))
+            push_stack(turn_track_stacks[i-1], build_missed_mo_marker(AP, i))
+        else
+            destroy_missed_mo_marker(AP, i)
+        if (view.cp.missed_mo.includes(i))
+            push_stack(turn_track_stacks[i-1], build_missed_mo_marker(CP, i))
+        else
+            destroy_missed_mo_marker(CP, i)
+    }
 
     const event_markers = [
         "blockade", "influenza", "prince_max", "fourteen_points", "lusitania", "stavka_timidity",
         "peace_offensive", "_11th_army", "sud_army", "haig", 
         "sinai_pipeline", "mef_beachhead"
     ]
+
     // These events don't have marker art available in this version of the game: "guns_of_august", "falkenhayn",
     // "salonika", "h_l_take_command", "zeppelin_raids", "hoffmann", "race_to_the_sea", "moltke", "oberost",
     // "great_retreat", "landships", "entrench", "michael",  "blucher", "independent_air_force"
