@@ -4030,7 +4030,8 @@ states.apply_defender_losses = {
         }
     },
     done() {
-        push_undo()
+        clear_undo()
+
         update_siege(game.attack.space)
         if (has_undestroyed_fort(game.attack.space, game.attack.attacker) && !is_besieged(game.attack.space)) {
             // Fort is no longer besieged due to losses, but the remaining pieces are allowed to continue occupying the space
@@ -4049,11 +4050,9 @@ states.apply_defender_losses = {
             determine_combat_winner()
         } else if (game.attack.is_flank || (game.attack.combat_cards.includes(VON_HUTIER) && events.von_hutier.can_play())) {
             resolve_defenders_fire()
-            clear_undo()
             set_active_faction(game.attack.attacker)
             game.state = 'apply_attacker_losses'
         } else {
-            clear_undo()
             set_active_faction(game.attack.attacker)
             game.state = 'apply_attacker_losses'
         }
