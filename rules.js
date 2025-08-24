@@ -1614,6 +1614,7 @@ states.choose_sr_unit = {
         }
     },
     piece(p) {
+        // (TOR) - is this check useful?
         if (game.sr.unit === 0) {
             push_undo()
             game.sr.unit = p
@@ -1679,6 +1680,7 @@ states.choose_sr_destination = {
         destinations.forEach(gen_action_space)
         if (destinations.length === 0) {
             view.prompt = `No valid destinations for Strategic Redeployment`
+            // (TOR) why not undo instead; or check that the unit has a destination?
             gen_action_pass()
         }
     },
@@ -8345,7 +8347,8 @@ function pop_undo() {
     game.log = save_log
     game.undo = save_undo
 
-    // This is safe because rollback checkpoints are only generated at the start of an action round, so it should be impossible to undo past a rollback point
+    // This is safe because rollback checkpoints are only generated at the start of an action round,
+    // so it should be impossible to undo past a rollback point
     game.rollback = save_rollback
     game.rollback_state = save_rollback_state
 }
