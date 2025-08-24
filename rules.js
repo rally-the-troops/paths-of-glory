@@ -1681,7 +1681,6 @@ states.choose_sr_destination = {
         }
     },
     space(s) {
-        push_undo()
         set_ne_restriction_flags_for_sr(game.sr.unit, game.location[game.sr.unit], s)
         set_add(game.sr.done, game.sr.unit)
         let from = game.location[game.sr.unit]
@@ -1695,7 +1694,6 @@ states.choose_sr_destination = {
         game.state = 'choose_sr_unit'
     },
     pass() {
-        push_undo()
         set_add(game.sr.done, game.sr.unit)
         game.sr.unit = 0
         game.who = 0
