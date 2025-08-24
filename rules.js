@@ -1585,8 +1585,7 @@ function goto_play_sr(card) {
     game.sr = {
         pts: card_data.sr,
         unit: 0,
-        done: [],
-        initial : 0
+        done: []
     }
 
     log(`${card_name(card)} -- Strategic Redeployment (${card_data.sr})`)
@@ -1618,7 +1617,6 @@ states.choose_sr_unit = {
             game.sr.unit = p
             game.sr.pts -= sr_cost(p)
             game.who = p
-            game.sr.initial = game.location[p]
         }
         game.state = 'choose_sr_destination'
     },
@@ -1686,11 +1684,14 @@ states.choose_sr_destination = {
         push_undo()
         set_ne_restriction_flags_for_sr(game.sr.unit, game.location[game.sr.unit], s)
         set_add(game.sr.done, game.sr.unit)
+        let from = game.location[game.sr.unit]
         game.location[game.sr.unit] = s
-        log(`${piece_name(game.sr.unit)}${log_corps(game.sr.unit)} SR from ${space_name(game.sr.initial)} to ${space_name(s)}`)
+        if (from === AP_RESERVE_BOX || from === CP_RESERVE_BOX)
+            log(`${piece_name(game.sr.unit)}${log_corps(game.sr.unit)} SR from ${space_name(from)} to ${space_name(s)}`)
+        else
+            log(`${piece_name(game.sr.unit)} SR from ${space_name(from)} to ${space_name(s)}`)
         game.sr.unit = 0
         game.who = 0
-        game.sr.initial = 0
         game.state = 'choose_sr_unit'
     },
     pass() {
@@ -1698,7 +1699,6 @@ states.choose_sr_destination = {
         set_add(game.sr.done, game.sr.unit)
         game.sr.unit = 0
         game.who = 0
-        game.sr.initial = 0
         game.state = 'choose_sr_unit'
     }
 }
@@ -8651,12 +8651,7 @@ function log_h3(msg, faction) {
 }
 
 function log_corps(p) {
-    let initial_space = game.sr?.initial
-    let final_space = game.location[p]
-    if (is_unit_corps(p) && ((initial_space === 282 || initial_space === 283) || (final_space === 282 || final_space === 283)))
-        return `(${get_reserve_units_by_nation(data.pieces[p].nation)})`
-    else 
-        return ''
+    return `(${get_reserve_units_by_nation(data.pieces[p].nation)})`
 }
 
 function log_piece_move(piece) {
