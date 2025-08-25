@@ -116,16 +116,20 @@ body.Central_Powers header.your_turn { background-color: lightsteelblue; }
 	background-color: #e3ecf1;
 }
 
+.card.ap.active {
+    box-shadow: 0 0 0 3px brown;
+}
+
+.card.cp.active {
+    box-shadow: 0 0 0 3px navy;
+}
+
 .card.ap.highlight {
     box-shadow: 0 0 0 3px pink;
 }
 
 .card.cp.highlight {
     box-shadow: 0 0 0 3px skyblue;
-}
-
-.card.active {
-    box-shadow: 0 0 0 3px cyan;
 }
 
 .card.enabled {
@@ -403,7 +407,7 @@ X.space.fort::before {
 
 .space.no_supply {
 	border-color: transparent;
-	background-color: none;
+	background-color: transparent;
 	box-shadow: none;
 }
 
