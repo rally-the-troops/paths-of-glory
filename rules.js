@@ -3509,7 +3509,7 @@ states.negate_trench = {
         game.attack.combat_cards.push(c)
         game.attack.new_combat_cards.push(c)
         events[data.cards[c].event].play()
-        log(`${faction_name(active_faction())} plays ${card_name(c)}`)
+        log(`${faction_name(active_faction())} played ${card_name(c)}`)
     },
     next() {
         goto_attack_step_flank()
@@ -3557,7 +3557,7 @@ states.play_wireless_intercepts = {
         array_remove_item(game[active_faction()].hand, c)
         game.combat_cards.push(c)
         game.attack.combat_cards.push(c)
-        log(`${faction_name(active_faction())} plays ${card_name(c)}`)
+        log(`${faction_name(active_faction())} played ${card_name(c)}`)
         log('Flank attack successful')
         game.attack.is_flank = true
         goto_attack_step_withdrawal()
@@ -3617,35 +3617,39 @@ function roll_flank_attack() {
 states.choose_withdrawal = {
     inactive: 'Defender Choosing Whether to Withdraw',
     prompt() {
-        view.prompt = 'Play Withdrawal or pass'
-
+        view.prompt = 'You may play Withdrawal.'
         const active_withdrawal_card = active_faction() === AP ? WITHDRAWAL_AP : WITHDRAWAL_CP
-        if (game[active_faction()].hand.includes(active_withdrawal_card)) {
-            gen_action_card(active_withdrawal_card)
+        if (game.combat_cards.includes(active_withdrawal_card)) {
+            gen_action_done()
+        } else {
+            if (game[active_faction()].hand.includes(active_withdrawal_card))
+                gen_action_card(active_withdrawal_card)
+            gen_action_pass()
+            gen_action_pass_w_turn()
         }
-        gen_action_pass()
-        gen_action_pass_w_turn()
     },
     card(c) {
-        clear_undo()
+        push_undo()
         array_remove_item(game[active_faction()].hand, c)
         game.combat_cards.push(c)
         game.attack.combat_cards.push(c)
-        log(`${faction_name(active_faction())} plays ${card_name(c)}`)
-        this.pass()
+        log(`${faction_name(active_faction())} played ${card_name(c)}`)
     },
     pass_w_turn() {
-        states.choose_withdrawal.pass()
         if (game.active === AP)
             game.ap.pass_w = 1
         else
             game.cp.pass_w = 1
+        this.pass()
     },
     pass() {
+        this.done()
+    },
+    done() {
         clear_undo()
         switch_active_faction()
         goto_attack_step_kerensky_offensive()
-    }
+    },
 }
 
 states.attacker_combat_cards = {
@@ -3671,9 +3675,9 @@ states.attacker_combat_cards = {
         gen_action_done()
     },
     card(c) {
+        push_undo()
         if (game.combat_cards.includes(c)) {
             // This is a played combat card, so toggle whether it is active in this attack
-            push_undo()
             if (game.attack.combat_cards.includes(c)) {
                 array_remove_item(game.attack.combat_cards, c)
                 log(`${faction_name(active_faction())} chooses not to use ${card_name(c)}`)
@@ -3683,12 +3687,11 @@ states.attacker_combat_cards = {
             }
         } else {
             // Card was not played yet, so add it to the played combat cards and make it active for this attack
-            clear_undo()
             array_remove_item(game[active_faction()].hand, c)
             game.combat_cards.push(c)
             game.attack.combat_cards.push(c)
             game.attack.new_combat_cards.push(c)
-            log(`${faction_name(active_faction())} plays ${card_name(c)}`)
+            log(`${faction_name(active_faction())} played ${card_name(c)}`)
             let evt = events[data.cards[c].event]
             if (evt && evt.play)
                 evt.play()
@@ -3726,9 +3729,9 @@ states.defender_combat_cards = {
         gen_action_done()
     },
     card(c) {
+        push_undo()
         if (game.combat_cards.includes(c)) {
             // This is a played combat card, so toggle whether it is active in this attack
-            push_undo()
             if (game.attack.combat_cards.includes(c)) {
                 array_remove_item(game.attack.combat_cards, c)
                 log(`${faction_name(active_faction())} chooses not to use ${card_name(c)}`)
@@ -3738,12 +3741,11 @@ states.defender_combat_cards = {
             }
         } else {
             // Card was not played yet, so add it to the played combat cards and make it active for this attack
-            clear_undo()
             array_remove_item(game[active_faction()].hand, c)
             game.combat_cards.push(c)
             game.attack.combat_cards.push(c)
             game.attack.new_combat_cards.push(c)
-            log(`${faction_name(active_faction())} plays ${card_name(c)}`)
+            log(`${faction_name(active_faction())} played ${card_name(c)}`)
             let evt = events[data.cards[c].event]
             if (evt && evt.play)
                 evt.play()
