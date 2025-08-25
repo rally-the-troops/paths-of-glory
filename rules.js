@@ -3,14 +3,14 @@
 const data = require("./data.js")
 const lz4 = require("./lz4.js")
 
-const cards = data.cards
-
 let _assert_push_undo
 
 let game, view
 
 let states = {}
 let events = {}
+
+// === CONSTANTS ===
 
 const MAX_ROLLBACK_TURNS = 2
 const MAX_ROLLBACK_ACTION_ROUNDS = 4
@@ -312,6 +312,7 @@ function nation_name(nation) {
 
 const AP_ROLE = "Allied Powers"
 const CP_ROLE = "Central Powers"
+
 function faction_name(faction) {
     switch (faction) {
         case AP: return AP_ROLE
@@ -319,11 +320,12 @@ function faction_name(faction) {
         default: return faction
     }
 }
+// === VIEW & QUERY ===
+
+exports.roles = [ AP_ROLE, CP_ROLE ]
 
 const HISTORICAL = "Historical"
 exports.scenarios = [ HISTORICAL ]
-
-exports.roles = [ AP_ROLE, CP_ROLE ]
 
 exports.action = function (state, current, action, arg) {
     _assert_push_undo = 0
@@ -534,6 +536,8 @@ exports.view = function(state, current) {
 
     return view
 }
+
+// === SETUP ===
 
 exports.setup = function (seed, scenario, options) {
     scenario = HISTORICAL
@@ -825,6 +829,8 @@ function setup_initial_decks() {
     deal_cp_cards()
 }
 
+// === START TURN ===
+
 function goto_start_turn() {
     game.state = 'confirm_mo'
     game.active = CP_ROLE
@@ -929,6 +935,8 @@ function goto_end_turn() {
     goto_start_turn()
 }
 
+// === SETUP (2) ===
+
 function setup_piece(nation, unit, space, reduced) {
     let where = find_space(space)
     let who = find_unused_piece(nation, unit)
@@ -1017,27 +1025,7 @@ function find_space(name) {
     throw new Error(`Could not find space named ${name}`)
 }
 
-function for_each_piece_in_space(s, f) {
-    for (let p = 1; p < data.pieces.length; ++p)
-        if (game.location[p] === s)
-            f(p)
-}
-
-function get_pieces_in_space(s) {
-    let pieces = []
-    for (let p = 1; p < data.pieces.length; ++p)
-        if (game.location[p] === s)
-            pieces.push(p)
-    return pieces
-}
-
-function get_defenders_pieces() {
-    let pieces = []
-    for (let p = 1; p < data.pieces.length; ++p)
-        if (game.location[p] === game.attack.space && data.pieces[p].faction !== game.attack.attacker)
-            pieces.push(p)
-    return pieces
-}
+// === NATION AT WAR ===
 
 function nation_at_war(nation) {
     return game.war[nation] !== 0
@@ -1297,6 +1285,20 @@ function send_to_eliminated_box(p) {
     }
 }
 
+function for_each_piece_in_space(s, f) {
+    for (let p = 1; p < data.pieces.length; ++p)
+        if (game.location[p] === s)
+            f(p)
+}
+
+function get_pieces_in_space(s) {
+    let pieces = []
+    for (let p = 1; p < data.pieces.length; ++p)
+        if (game.location[p] === s)
+            pieces.push(p)
+    return pieces
+}
+
 // === GAME UTILITIES ===
 
 // Checks for game state that violates the game rules. In some cases, the game should allow players to get into a state
@@ -1437,7 +1439,7 @@ function get_trench_level_for_attack(s, faction) {
     return base_lvl
 }
 
-// === GAME STATES ===
+// === ACTION PHASE ===
 
 function goto_action_phase() {
     log_h3(`${faction_name(active_faction())} Action ${game[active_faction()].actions.length+1}`)
@@ -1548,7 +1550,7 @@ function goto_play_event(card) {
     array_remove_item(active_player.hand, card)
     game.last_card = card
 
-    if (cards[card].remove)
+    if (data.cards[card].remove)
         active_player.removed.push(card)
     else
         active_player.discard.push(card)
@@ -1580,6 +1582,8 @@ function goto_play_ops(card) {
     }
     game.state = 'activate_spaces'
 }
+
+// === STRATEGIC REDEPLOYMENT ===
 
 function goto_play_sr(card) {
     push_undo()
@@ -1941,6 +1945,8 @@ function clear_ne_restriction_flags() {
 function end_sr() {
     delete game.sr
 }
+
+// === REPLACEMENTS ===
 
 function goto_play_rps(card) {
     push_undo()
@@ -3021,6 +3027,14 @@ states.confirm_moves = {
 
 // === ATTACK STATES ===
 
+function get_defenders_pieces() {
+    let pieces = []
+    for (let p = 1; p < data.pieces.length; ++p)
+        if (game.location[p] === game.attack.space && data.pieces[p].faction !== game.attack.attacker)
+            pieces.push(p)
+    return pieces
+}
+
 states.choose_attackers = {
     inactive: 'Choosing units and space to attack',
     prompt() {
@@ -3213,7 +3227,7 @@ function goto_attack_step_kerensky_offensive() {
 }
 
 function goto_attack_step_combat_cards() {
-     if (can_play_combat_cards()) {
+    if (can_play_combat_cards()) {
          // Start with all eligible combat cards selected
          game.combat_cards.forEach((c) => {
              if (could_apply_combat_card(c))
@@ -5082,6 +5096,8 @@ function cost_to_activate(space, type) {
     return cost;
 }
 
+// === ATTRITION PHASE ===
+
 function goto_attrition_phase() {
     game.attrition = {
         ap: {
@@ -5195,6 +5211,8 @@ states.attrition_phase = {
     }
 }
 
+// === SIEGE PHASE ===
+
 function goto_siege_phase() {
     if (game.forts.besieged.length > 0) {
         log_h2("Siege Phase")
@@ -5239,6 +5257,8 @@ states.siege_phase = {
         }
     }
 }
+
+// === WAR STATUS PHASE ===
 
 function goto_war_status_phase() {
     // E. War Status Phase
@@ -5332,6 +5352,18 @@ function goto_war_status_phase() {
     goto_replacement_phase()
 }
 
+function add_cards_to_deck(faction, commitment, deck) {
+    const use_optional_cards = game.options.optional_cards
+    for (let i = 1; i < data.cards.length; i++) {
+        if (data.cards[i].commitment === commitment && data.cards[i].faction === faction) {
+            if (use_optional_cards || !is_optional_card(i))
+                deck.push(i)
+        }
+    }
+}
+
+// === VICTORY ===
+
 function get_game_result_by_vp() {
     if (game.scenario === HISTORICAL) {
         // In the historical scenario, certain unplayed cards affect the final VP tally, per 5.7.4
@@ -5369,16 +5401,6 @@ function get_result_message(prefix, result) {
     return `${prefix}Game result unknown`
 }
 
-function add_cards_to_deck(faction, commitment, deck) {
-    const use_optional_cards = game.options.optional_cards
-    for (let i = 1; i < data.cards.length; i++) {
-        if (data.cards[i].commitment === commitment && data.cards[i].faction === faction) {
-            if (use_optional_cards || !is_optional_card(i))
-                deck.push(i)
-        }
-    }
-}
-
 function goto_game_over(result, victory) {
     log_br()
     log(victory)
@@ -5396,6 +5418,8 @@ states.game_over = {
         view.prompt = game.victory
     }
 }
+
+// === REPLACEMENT PHASE ===
 
 function apply_replacement_phase_events() {
     if (game.turn === game.events.zeppelin_raids) {
@@ -5676,6 +5700,8 @@ function get_army_replacement_spaces(p) {
     return spaces
 }
 
+// === DRAW CARDS PHASE ===
+
 function goto_draw_cards_phase() {
     // All played combat cards are discarded
     game.combat_cards.forEach((c) => {
@@ -5808,6 +5834,8 @@ function get_connected_spaces_for_pieces(s, pieces) {
 }
 
 function get_connected_spaces(s, nation) {
+    // (TOR) can we cache or precompute these?
+
     let connections = []
     let space_data = data.spaces[s]
     if (!space_data || s === 0)
@@ -8365,7 +8393,7 @@ function pop_all_undo() {
     pop_undo()
 }
 
-// ROLLBACK
+// === ROLLBACK ===
 
 const textdec = new TextDecoder()
 
@@ -8508,7 +8536,7 @@ function log_event_for_rollback(description) {
     game.rollback[game.rollback.length-1].events.push(description)
 }
 
-// SUPPLY WARNINGS
+// === SUPPLY WARNINGS ===
 
 function goto_flag_supply_warnings() {
     game.save_state = game.state
@@ -8563,7 +8591,7 @@ states.review_supply_warnings = {
     }
 }
 
-// LOG HELPERS
+// === LOG HELPERS ===
 
 function log(msg) {
     game.log.push(msg)
@@ -8663,7 +8691,7 @@ function fmt_roll(roll, drm, faction) {
     return s
 }
 
-// ASSERTS
+// === ASSERTS ===
 
 function assert_stacking_limits() {
     const rule_text = "10.1.2 Stacking limits are in effect at all times except during SR and movement"
