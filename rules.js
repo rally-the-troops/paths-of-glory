@@ -8657,7 +8657,9 @@ function log_h3(msg, faction) {
 }
 
 function log_corps(p) {
-    return get_reserve_units_by_nation(data.pieces[p].nation)
+    if (is_unit_corps(p))
+        return get_reserve_units_by_nation(data.pieces[p].nation)
+    return ""
 }
 
 function log_piece_move(piece) {
