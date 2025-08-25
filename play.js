@@ -1,6 +1,6 @@
 "use strict"
 
-/* globals spaces pieces cards */
+/* globals spaces pieces cards layout */
 
 const DEBUG_SPACES = false
 const DEBUG_CONNECTIONS = false
@@ -35,7 +35,7 @@ function check_menu(id, x) {
     document.getElementById(id).className = x ? "menu_item checked" : "menu_item unchecked"
 }
 
-const HIGHEST_AP_CARD = 65;
+const HIGHEST_AP_CARD = 65
 
 // LAYOUT AND STYLE OPTIONS
 
@@ -115,8 +115,8 @@ function hide_supply() {
 }
 
 function faction_card_number(card_number) {
-    let faction = card_number > HIGHEST_AP_CARD ? "cp" : "ap";
-    let faction_card_number = card_number > HIGHEST_AP_CARD ? card_number - HIGHEST_AP_CARD : card_number;
+    let faction = card_number > HIGHEST_AP_CARD ? "cp" : "ap"
+    let faction_card_number = card_number > HIGHEST_AP_CARD ? card_number - HIGHEST_AP_CARD : card_number
     return `${faction}_${faction_card_number}`
 }
 

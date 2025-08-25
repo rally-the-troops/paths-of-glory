@@ -700,15 +700,15 @@ function create_empty_game_state(seed, scenario, options) {
         // Replacement points
         rp: {
             ge: 0,
-                ah: 0,
-                fr: 0,
-                br: 0,
-                ru: 0,
-                allied: 0,
-                bu: 0,
-                tu: 0,
-                it: 0,
-                us: 0
+            ah: 0,
+            fr: 0,
+            br: 0,
+            ru: 0,
+            allied: 0,
+            bu: 0,
+            tu: 0,
+            it: 0,
+            us: 0
         },
 
         // Which nations are at war
@@ -921,8 +921,8 @@ function goto_end_turn() {
     clear_ne_restriction_flags()
     if (game.ap.pass_w === 1)
         delete game.ap.pass_w
-            if (game.cp.pass_w === 1)
-                delete game.cp.pass_w
+    if (game.cp.pass_w === 1)
+        delete game.cp.pass_w
 
     // Check for game end
     if (game.turn === 20) {
@@ -1120,9 +1120,9 @@ function roll_mandated_offensives() {
 
     let cp_roll = roll_die(6)
     if (game.events.hoffmann > 0) {
-        cp_roll++;
+        cp_roll++
     }
-    let cp_index = cp_roll > 6 ? 6 : cp_roll;
+    let cp_index = cp_roll > 6 ? 6 : cp_roll
     let cp_mo = CP_MO_TABLE[cp_index]
 
     if ((cp_mo === AUSTRIA_HUNGARY || cp_mo === AH_IT) && all_capitals_occupied(AUSTRIA_HUNGARY)) {
@@ -1190,7 +1190,7 @@ function any_capitals_occupied(nation) {
 }
 
 function satisfies_mo(mo, attackers, defenders, space) {
-    let attacker_nation = mo === AH_IT ? AUSTRIA_HUNGARY : mo;
+    let attacker_nation = mo === AH_IT ? AUSTRIA_HUNGARY : mo
     let valid_attacker = attackers.find((a) => {
         let piece = data.pieces[a]
         if (piece.nation !== attacker_nation)
@@ -1216,7 +1216,7 @@ function satisfies_mo(mo, attackers, defenders, space) {
     if (valid_defender === undefined)
         return false
 
-    let location = data.spaces[space].nation;
+    let location = data.spaces[space].nation
     if (attacker_nation === FRANCE || attacker_nation === BRITAIN || attacker_nation === GERMANY) {
         if (location !== FRANCE && location !== BELGIUM && location !== GERMANY) {
             return false
@@ -1637,7 +1637,7 @@ states.choose_sr_unit = {
 }
 
 function sr_cost(p) {
-    return data.pieces[p].type === ARMY ? 4 : 1;
+    return data.pieces[p].type === ARMY ? 4 : 1
 }
 
 function can_sr(p) {
@@ -3228,21 +3228,21 @@ function goto_attack_step_kerensky_offensive() {
 
 function goto_attack_step_combat_cards() {
     if (can_play_combat_cards()) {
-         // Start with all eligible combat cards selected
-         game.combat_cards.forEach((c) => {
-             if (could_apply_combat_card(c))
-                 game.attack.combat_cards.push(c)
-         })
+        // Start with all eligible combat cards selected
+        game.combat_cards.forEach((c) => {
+            if (could_apply_combat_card(c))
+                game.attack.combat_cards.push(c)
+        })
 
-         if (game.attack.combat_cards.length > 0 || could_have_usable_combat_card(game.attack.attacker, true))
-             game.state = 'attacker_combat_cards'
-         else if (could_have_usable_combat_card(other_faction(game.attack.attacker))) {
-             clear_undo()
-             set_active_faction(other_faction(game.attack.attacker))
-             game.state = 'defender_combat_cards'
-         } else
-             begin_combat()
-     } else {
+        if (game.attack.combat_cards.length > 0 || could_have_usable_combat_card(game.attack.attacker, true))
+            game.state = 'attacker_combat_cards'
+        else if (could_have_usable_combat_card(other_faction(game.attack.attacker))) {
+            clear_undo()
+            set_active_faction(other_faction(game.attack.attacker))
+            game.state = 'defender_combat_cards'
+        } else
+            begin_combat()
+    } else {
         begin_combat()
     }
 }
@@ -3252,7 +3252,7 @@ function could_apply_combat_card(c) {
     if (!card_data.cc && card_data.event !== "yanks_and_tanks")
         return false
     let evt = events[card_data.event]
-    return !!(evt && evt.can_apply());
+    return !!(evt && evt.can_apply())
 }
 
 function could_have_usable_combat_card(faction, skip_deck) {
@@ -3636,10 +3636,10 @@ states.choose_withdrawal = {
     },
     pass_w_turn() {
         states.choose_withdrawal.pass()
-            if (game.active === AP)
-                game.ap.pass_w = 1
-            else
-                game.cp.pass_w = 1
+        if (game.active === AP)
+            game.ap.pass_w = 1
+        else
+            game.cp.pass_w = 1
     },
     pass() {
         clear_undo()
@@ -3864,7 +3864,7 @@ function resolve_attackers_fire() {
     let attacker_shifts = 0
 
     // Terrain shifts
-    let terrain = data.spaces[game.attack.space].terrain;
+    let terrain = data.spaces[game.attack.space].terrain
     if (terrain === MOUNTAIN) {
         attacker_shifts -= 1
         logi(`Mountains: shift 1L`)
@@ -4077,7 +4077,7 @@ states.choose_defender_replacement = {
 function replace_defender_unit(unit, location, replacement) {
     game.location[replacement] = location
     game.attack.defender_replacements[unit] = replacement
-    log(`${piece_name(unit, true)} in ${space_name(location)} breaks to ${piece_name(replacement)}${log_corps(replacement)}`);
+    log(`${piece_name(unit, true)} in ${space_name(location)} breaks to ${piece_name(replacement)}${log_corps(replacement)}`)
 }
 
 states.withdrawal_negate_step_loss = {
@@ -4300,19 +4300,19 @@ function get_units_in_reserve() {
 }
 
 function get_reserve_units_by_nation(nation) {
-    let units = get_units_in_reserve().filter(p => data.pieces[p].nation === nation);
-    let full = 0;
-    let reduced = 0;
+    let units = get_units_in_reserve().filter(p => data.pieces[p].nation === nation)
+    let full = 0
+    let reduced = 0
 
     for (let unit of units) {
         if (is_unit_reduced(unit)) {
-            reduced += 1;
+            reduced += 1
         } else {
-            full += 1;
+            full += 1
         }
     }
 
-    return [full, reduced];
+    return [full, reduced]
 }
 
 // Recursively build a tree of possible options for choosing losses
@@ -4430,10 +4430,10 @@ function get_replacement_options(unit, available_replacements) {
             continue // Russian cavalry corps and Czech Legion cannot be used as replacements
         if ((unit_data.nation === BRITAIN && replacement_data.name === 'BRc') ||
             (unit_data.nation !== BRITAIN && replacement_data.nation === unit_data.nation)) {
-                if (is_unit_reduced(available_replacements[i]))
-                    reduced_options.push(available_replacements[i])
-                else
-                    full_options.push(available_replacements[i])
+            if (is_unit_reduced(available_replacements[i]))
+                reduced_options.push(available_replacements[i])
+            else
+                full_options.push(available_replacements[i])
         }
     }
 
@@ -4650,7 +4650,7 @@ states.choose_retreat_canceling_replacement = {
 
 function replace_retreat_canceling_unit(unit, location, replacement) {
     game.location[replacement] = location
-    log(`${piece_name(unit, true)} in ${space_name(location)} breaks to ${piece_name(replacement)}(${log_corps(replacement)})`);
+    log(`${piece_name(unit, true)} in ${space_name(location)} breaks to ${piece_name(replacement)}(${log_corps(replacement)})`)
 }
 
 function goto_defender_retreat() {
@@ -5093,7 +5093,7 @@ function cost_to_activate(space, type) {
         })
     }
 
-    return cost;
+    return cost
 }
 
 // === ATTRITION PHASE ===
@@ -5915,20 +5915,20 @@ const SUPPLY_MASK = {
 
 function get_supply_mask(source) {
     switch (source) {
-        case ESSEN: return SUPPLY_MASK.Essen;
-        case BRESLAU: return SUPPLY_MASK.Breslau;
-        case SOFIA: return SUPPLY_MASK.Sofia;
-        case CONSTANTINOPLE: return SUPPLY_MASK.Constantinople;
-        case PETROGRAD: return SUPPLY_MASK.Petrograd;
-        case MOSCOW: return SUPPLY_MASK.Moscow;
-        case KHARKOV: return SUPPLY_MASK.Kharkov;
-        case CAUCASUS: return SUPPLY_MASK.Caucasus;
-        case BELGRADE: return SUPPLY_MASK.Belgrade;
-        case LONDON: return SUPPLY_MASK.London;
-        case SALONIKA_SPACE: return SUPPLY_MASK.Salonika;
-        case BASRA: return SUPPLY_MASK.Basra;
+        case ESSEN: return SUPPLY_MASK.Essen
+        case BRESLAU: return SUPPLY_MASK.Breslau
+        case SOFIA: return SUPPLY_MASK.Sofia
+        case CONSTANTINOPLE: return SUPPLY_MASK.Constantinople
+        case PETROGRAD: return SUPPLY_MASK.Petrograd
+        case MOSCOW: return SUPPLY_MASK.Moscow
+        case KHARKOV: return SUPPLY_MASK.Kharkov
+        case CAUCASUS: return SUPPLY_MASK.Caucasus
+        case BELGRADE: return SUPPLY_MASK.Belgrade
+        case LONDON: return SUPPLY_MASK.London
+        case SALONIKA_SPACE: return SUPPLY_MASK.Salonika
+        case BASRA: return SUPPLY_MASK.Basra
     }
-    return 0; // Default case, should not happen
+    return 0 // Default case, should not happen
 }
 
 // Fill the supply cache for a given faction based on the sources provided.
@@ -8087,7 +8087,7 @@ events.alpine_troops = {
     can_play() {
         if (!game.attack)
             return false
-        return !!(game.attack.attacker === AP && game.attack.pieces.every(p => data.pieces[p].nation === ITALY));
+        return !!(game.attack.attacker === AP && game.attack.pieces.every(p => data.pieces[p].nation === ITALY))
     },
     can_apply() {
         return this.can_play()
@@ -8204,7 +8204,7 @@ function gen_action(action, argument) {
 }
 
 function roll_die(sides) {
-    return random(sides) + 1;
+    return random(sides) + 1
 }
 
 function random(range) {
@@ -8603,10 +8603,10 @@ function log_br() {
 }
 
 function logi(msg) {
-    game.log.push(">" + msg);
+    game.log.push(">" + msg)
 }
 function logii(msg) {
-    game.log.push(">>" + msg);
+    game.log.push(">>" + msg)
 }
 
 function log_h1(msg) {
@@ -8623,14 +8623,14 @@ function log_h2(msg) {
 
 function log_h3(msg, faction) {
     faction = faction || active_faction()
-    log_br();
+    log_br()
     if (faction === AP)
-        log(".h3ap " + msg);
+        log(".h3ap " + msg)
     else if (faction === CP)
-        log(".h3cp " + msg);
+        log(".h3cp " + msg)
     else
-        log(".h3 " + msg);
-    log_br();
+        log(".h3 " + msg)
+    log_br()
 }
 
 function log_corps(p) {
