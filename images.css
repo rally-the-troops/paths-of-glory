@@ -66,30 +66,20 @@
 .marker.vp { background-image: url(pieces/vp.webp); background-size: 45px 45px; }
 
 /* TEMP: For markers that are missing images, use CSS to insert some text */
-.marker.guns_of_august { text-align: center; width: 45px; height: 45px; }
-.marker.guns_of_august:before { font-size: 11px; content:"Guns of August"; }
-.marker.falkenhayn { text-align: center; width: 45px; height: 45px; }
-.marker.falkenhayn:before { font-size: 11px; content:"Falkenhayn"; }
-.marker.salonika { text-align: center; width: 45px; height: 45px; }
-.marker.salonika:before { font-size: 11px; content:"Salonika"; }
-.marker.h_l_take_command { text-align: center; width: 45px; height: 45px; }
-.marker.h_l_take_command:before { font-size: 11px; content:"H-L Take Command"; }
-.marker.zeppelin_raids { text-align: center; width: 45px; height: 45px; }
-.marker.zeppelin_raids:before { font-size: 11px; content:"Zeppelin Raids"; }
-.marker.hoffmann { text-align: center; width: 45px; height: 45px; }
-.marker.hoffmann:before { font-size: 11px; content:"Hoffmann"; }
-.marker.race_to_the_sea { text-align: center; width: 45px; height: 45px; }
-.marker.race_to_the_sea:before { font-size: 11px; content:"Race to the Sea"; }
-.marker.moltke { text-align: center; width: 45px; height: 45px; }
-.marker.moltke:before { font-size: 11px; content:"Moltke"; }
-.marker.oberost { text-align: center; width: 45px; height: 45px; }
-.marker.oberost:before { font-size: 11px; content:"Oberost"; }
-.marker.great_retreat { text-align: center; width: 45px; height: 45px; }
-.marker.great_retreat:before { font-size: 11px; content:"Great Retreat"; }
-.marker.landships { text-align: center; width: 45px; height: 45px; }
-.marker.landships:before { font-size: 11px; content:"Landships"; }
-.marker.entrench { text-align: center; width: 45px; height: 45px; }
-.marker.entrench:before { font-size: 11px; content:"Entrench"; }
+.marker { line-height: 12px; font-family: var(--font-small); font-size: 10px; text-align: center; }
+.marker:before { position: absolute; inset: 3px; padding: 6px 1px 0 1px; background-color: #e3dedc; }
+.marker.guns_of_august:before { content:"Guns of August"; }
+.marker.falkenhayn:before { content:"Falkenhayn"; }
+.marker.salonika:before { content:"Salonika"; }
+.marker.h_l_take_command:before { content:"H-L Take Command"; }
+.marker.zeppelin_raids:before { content:"Zeppelin Raids"; }
+.marker.hoffmann:before { content:"Hoffmann"; }
+.marker.race_to_the_sea:before { content:"Race to the Sea"; }
+.marker.moltke:before { content:"Moltke"; }
+.marker.oberost:before { content:"Oberost"; }
+.marker.great_retreat:before { content:"Great Retreat"; }
+.marker.landships:before { content:"Landships"; }
+.marker.entrench:before { content:"Entrench"; }
 
 /* VASSAL NE MARKERS */
 .marker.ne_limit { background-size: 45px 45px; }

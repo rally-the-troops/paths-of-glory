@@ -1722,14 +1722,37 @@ function update_turn_track() {
     }
 
     const event_markers = [
-        "blockade", "influenza", "prince_max", "fourteen_points", "lusitania", "stavka_timidity",
-        "peace_offensive", "_11th_army", "sud_army", "haig", 
-        "sinai_pipeline", "mef_beachhead"
+        "_11th_army",
+        "blockade",
+        "fourteen_points",
+        "haig",
+        "influenza",
+        "lusitania",
+        "mef_beachhead",
+        "peace_offensive",
+        "prince_max",
+        "sinai_pipeline",
+        "stavka_timidity",
+        "sud_army",
+
+        // These events don't have marker art available in this version of the game:
+        "blucher",
+        "entrench",
+        "falkenhayn",
+        "great_retreat",
+        "guns_of_august",
+        "h_l_take_command",
+        "hoffmann",
+        "independent_air_force",
+        "landships",
+        "michael",
+        "moltke",
+        "oberost",
+        "race_to_the_sea",
+        "salonika",
+        "zeppelin_raids",
     ]
 
-    // These events don't have marker art available in this version of the game: "guns_of_august", "falkenhayn",
-    // "salonika", "h_l_take_command", "zeppelin_raids", "hoffmann", "race_to_the_sea", "moltke", "oberost",
-    // "great_retreat", "landships", "entrench", "michael",  "blucher", "independent_air_force"
     event_markers.forEach((marker) => {
         if (view.events[marker] > 0) {
             update_turn_track_marker(marker, view.events[marker])
