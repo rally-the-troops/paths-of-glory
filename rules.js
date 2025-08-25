@@ -4085,7 +4085,7 @@ function replace_defender_unit(unit, location, replacement) {
 states.withdrawal_negate_step_loss = {
     inactive: 'Defender Choosing Step Loss to Negate from Withdrawal',
     prompt() {
-        view.prompt = 'Choose a step loss to negate from withdrawal'
+        view.prompt = 'Withdrawal: Choose a step loss to negate.'
 
         const has_corps_option = game.attack.defender_loss_pieces.find((p) => data.pieces[p].type === CORPS) !== undefined
         game.attack.defender_loss_pieces.forEach((p) => {
@@ -4093,7 +4093,7 @@ states.withdrawal_negate_step_loss = {
                 gen_action_piece(p)
         })
 
-        gen_action_done()
+        gen_action_pass()
     },
     piece(p) {
         push_undo()
@@ -4116,7 +4116,18 @@ states.withdrawal_negate_step_loss = {
         } else if (game.reduced.includes(p)) {
             array_remove_item(game.reduced, p)
         }
-        this.done()
+        game.state = "withdrawal_negate_step_loss_confirm"
+    },
+    pass() {
+        push_undo()
+        game.state = "withdrawal_negate_step_loss_confirm"
+    },
+}
+
+states.withdrawal_negate_step_loss_confirm = {
+    prompt() {
+        view.prompt = "Withdrawal: Done."
+        gen_action_done()
     },
     done() {
         if (game.attack.failed_flank || game.attack.is_flank || (game.attack.combat_cards.includes(VON_HUTIER) && events.von_hutier.can_play())) {
