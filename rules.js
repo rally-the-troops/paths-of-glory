@@ -4620,7 +4620,6 @@ states.cancel_retreat = {
     piece(p) {
         push_undo()
         log(`Retreat canceled by taking an extra step loss to ${piece_name(p)}`)
-
         if (is_unit_reduced(p)) {
             const location = game.location[p]
             let replacement_options = eliminate_piece(p)
@@ -4635,16 +4634,26 @@ states.cancel_retreat = {
         } else {
             reduce_piece(p)
         }
-
-        switch_active_faction()
-        clear_undo()
-        end_attack_activation()
-        goto_next_activation()
+        game.state = "cancel_retreat_confirm"
     },
     pass() {
         push_undo()
         goto_defender_retreat()
-    }
+    },
+}
+
+states.cancel_retreat_confirm = {
+    inactive: 'Defender choosing whether to cancel retreat',
+    prompt() {
+        view.prompt = "Retreat canceled."
+        gen_action_done()
+    },
+    done() {
+        clear_undo()
+        switch_active_faction()
+        end_attack_activation()
+        goto_next_activation()
+    },
 }
 
 states.choose_retreat_canceling_replacement = {
