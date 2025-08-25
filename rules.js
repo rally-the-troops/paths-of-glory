@@ -320,6 +320,10 @@ function faction_name(faction) {
         default: return faction
     }
 }
+
+const all_pieces = Array.from(data.pieces, (p,ix) => ix)
+const all_pieces_by_nation = Object.groupBy(all_pieces, p => data.pieces[p].nation)
+
 // === VIEW & QUERY ===
 
 exports.roles = [ AP_ROLE, CP_ROLE ]
@@ -2796,8 +2800,8 @@ function contains_piece_of_faction(s, faction) {
 }
 
 function contains_piece_of_nation(s, nation) {
-    for (let p = 1; p < data.pieces.length; ++p)
-        if (game.location[p] === s && data.pieces[p].nation === nation)
+    for (let p of all_pieces_by_nation[nation])
+        if (game.location[p] === s)
             return true
 
     return false
@@ -4313,19 +4317,16 @@ function get_units_in_reserve() {
 }
 
 function get_reserve_units_by_nation(nation) {
-    let units = get_units_in_reserve().filter(p => data.pieces[p].nation === nation)
-    let full = 0
-    let reduced = 0
-
-    for (let unit of units) {
-        if (is_unit_reduced(unit)) {
-            reduced += 1
-        } else {
-            full += 1
+    let reduced = 0, full = 0
+    for (let p of all_pieces_by_nation[nation]) {
+        if (game.location[p] === AP_RESERVE_BOX || game.location[p] === CP_RESERVE_BOX) {
+            if (is_unit_reduced(p))
+                ++reduced
+            else
+                ++full
         }
     }
-
-    return [full, reduced]
+    return `(${full},${reduced})`
 }
 
 // Recursively build a tree of possible options for choosing losses
@@ -8647,7 +8648,7 @@ function log_h3(msg, faction) {
 }
 
 function log_corps(p) {
-    return `(${get_reserve_units_by_nation(data.pieces[p].nation)})`
+    return get_reserve_units_by_nation(data.pieces[p].nation)
 }
 
 function log_piece_move(piece) {
