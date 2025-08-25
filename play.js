@@ -1585,6 +1585,11 @@ function update_eliminated_boxes() {
     for_each_piece_in_space(AP_ELIMINATED_BOX, insert_piece_in_stack)
     for_each_piece_in_space(CP_ELIMINATED_BOX, insert_piece_in_stack)
 
+    for_each_piece_in_space(0, p => {
+        if (is_action_piece(p))
+            insert_piece_in_stack(p)
+    })
+
     const stride = 50
     const ap_x = ap_space_x - stride * 2
     const ap_y = ap_space_y
@@ -1597,6 +1602,7 @@ function update_eliminated_boxes() {
             layout_stack(ap_space.stacks[group].corps, ap_x + i * stride, ap_y + 60)
         }
     }
+
     const cp_x = cp_space_x - stride * 2
     const cp_y = cp_space_y - 45
     for (let i = 0; i < cp_eliminated_box_order.length; ++i) {
