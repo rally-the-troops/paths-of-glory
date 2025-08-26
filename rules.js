@@ -2275,6 +2275,7 @@ states.activate_spaces = {
             start_action_round()
     },
     skip() {
+        log(`Skipped ${game.ops} OPs`)
         start_action_round()
     }
 }
