@@ -2155,7 +2155,7 @@ function get_available_reinforcement_spaces(p) {
     if (nation === US) {
         for (let s = 1; s < data.spaces.length; s++) {
             const space = data.spaces[s]
-            if (space.nation === FRANCE && is_port(s, AP) && is_controlled_by(s, active_faction()) && !is_besieged(s)) {
+            if (space.nation === FRANCE && is_port(s, AP) && is_controlled_by(s, active_faction()) && !is_besieged(s) && !is_fully_stacked(s, AP)) {
                 spaces.push(s)
             }
         }
