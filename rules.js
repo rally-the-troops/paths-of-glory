@@ -6475,6 +6475,7 @@ events.reichstag_truce = {
         return false
     },
     play() {
+        game.events.reichstag_truce = game.turn
         game.vp += 1
         record_score_event(1, REICHSTAG_TRUCE)
         logi(`+1 VP for ${card_name(REICHSTAG_TRUCE)}`)
@@ -7434,6 +7435,7 @@ events.rape_of_belgium = {
         return game.events.guns_of_august && game.ap.commitment === COMMITMENT_MOBILIZATION
     },
     play() {
+        game.events.rape_of_belgium = game.turn
         logi(`-1 VP for ${card_name(RAPE_OF_BELGIUM)}`)
         game.vp -= 1
         record_score_event(-1, RAPE_OF_BELGIUM)

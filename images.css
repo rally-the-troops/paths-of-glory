@@ -80,6 +80,13 @@
 .marker.great_retreat:before { content:"Great Retreat"; }
 .marker.landships:before { content:"Landships"; }
 .marker.entrench:before { content:"Entrench"; }
+.marker.reichstag_truce:before { content:"Reichstag Truce +1 VP"; }
+.marker.high_seas_fleet:before { content:"High Seas Fleet +1 VP"; }
+.marker.polish_restoration:before { content:"Polish Rest. +1 VP"; }
+.marker.rape_of_belgium:before { content:"Rape of Belgium -1 VP"; }
+.marker.independent_air_force:before { content:"Indep. Air Force"; }
+.marker.blucher:before { content:"Blücher"; }
+.marker.convoy:before { content:"Convoy -1 VP"; }
 
 /* VASSAL NE MARKERS */
 .marker.ne_limit { background-size: 45px 45px; }
