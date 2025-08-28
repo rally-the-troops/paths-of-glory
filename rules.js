@@ -2711,7 +2711,11 @@ states.move_stack = {
             gen_action_space(s)
         })
 
-        game.move.pieces.forEach((p) => { gen_action_piece(p) })
+        game.move.pieces.forEach((p) => {
+        if (can_end_move(game.move.current))
+            gen_action_piece(p) 
+            }
+        )
 
         if (can_end_move(game.move.current))
             gen_action('end_move')
