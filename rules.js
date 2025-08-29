@@ -1562,6 +1562,7 @@ function goto_play_event(card) {
     const card_data = data.cards[card]
     if (card_data.ws) {
         active_player.ws += card_data.ws
+        logi(`War Status +${card_data.ws} to ${active_player.ws} (${game.ap.ws + game.cp.ws})`)
         update_us_entry()
     }
 
@@ -2022,6 +2023,7 @@ function goto_play_reinf(card) {
 
     if (card_data.ws) {
         active_player.ws += card_data.ws
+        logi(`War Status +${card_data.ws} to ${active_player.ws} (${game.ap.ws + game.cp.ws})`)
         update_us_entry()
     }
 
