@@ -23,7 +23,7 @@
 .marker.ap.control { background-image: url(pieces/ap_control.webp); background-size: 45px 45px; }
 .marker.cp.control { background-image: url(pieces/cp_control.webp); background-size: 45px 45px; }
 .marker._11th_army { background-image: url(pieces/11th_army.webp); background-size: 45px 45px; }
-.marker.ah.rp { background-image: url(pieces/ah_rp.webp); background-size: 45px 45px; }
+.marker.ah_rp { background-image: url(pieces/ah_rp.webp); background-size: 45px 45px; }
 .marker.ap.mandatory_offensive { background-image: url(pieces/allied_mandatory_offensive.webp); background-size: 45px 45px; }
 .marker.ap.mandatory_offensive.fr_mutiny { background-image: url(pieces/french_mutiny.webp); background-size: 45px 45px; }
 .marker.allied_rp { background-image: url(pieces/allied_rp.webp); background-size: 45px 45px; }
