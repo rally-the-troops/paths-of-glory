@@ -176,7 +176,7 @@ function sub_card_name(match, p1, offset, string) {
     let c = p1 | 0
     let card = cards[c]
     if (card) {
-        return `<span class="cardtip ${c <= HIGHEST_AP_CARD ? "ap-card" : "cp-card"}" onmouseenter="on_focus_card_tip(${c})" onmouseleave="on_blur_card_tip()"">${card.name}</span>`
+        return `<span class="cardtip ${c <= HIGHEST_AP_CARD ? "ap-card" : "cp-card"}" onmouseenter="on_focus_card_tip(${c})" onmouseleave="on_blur_card_tip()">${card.name}</span>`
     } else {
         return `Unknown Card`
     }
@@ -543,40 +543,42 @@ const marker_info = {
     ap_missed_mo: {name: "AP Missed Mandatory Offensive", counter: "marker ap_missed_mo ", size: 45},
     cp_missed_mo: {name: "CP Missed Mandatory Offensive", counter: "marker cp_missed_mo ", size: 45},
     failed_entrench: {name: "Failed Entrench", counter: "marker small trench_attempt ", size: 36},
-    mef_beachhead: {name: "MEF Beachhead", counter: "marker mef_beachhead ", size: 45},
+    mef_beachhead: {name: "MEF Beachhead", counter: "cardtip ap-card marker mef_beachhead ", size: 45, cardIndex: 53},
 
     // Event markers
-    blockade: {name: "Blockade", counter: "marker blockade_vps ", size: 45},
-    influenza: {name: "Influenza", counter: "marker small influenza ", size: 36},
-    prince_max: {name: "Prince Max", counter: "marker prince_max ", size: 45},
-    fourteen_points: {name: "US Points", counter: "marker small us_points ", size: 36},
-    lusitania: {name: "Lusitania", counter: "marker lusitania ", size: 45},
-    haig: {name: "Haig", counter: "marker haig ", size: 45},
-    sud_army : {name: "Sud Army", counter: "marker sud_army ", size: 45},
-    sinai_pipeline: {name: "Sinai Pipeline", counter: "marker sinai_pipeline ", size: 45},
-    stavka_timidity: {name: "Stavka Timidity", counter: "marker stavka_timidity ", size: 45},
-    salonika: {name: "Salonika", counter: "marker salonika ", size: 45},
-    high_seas_fleet: {name: "High Seas Fleet", counter: "marker high_seas_fleet", size: 45},
-    reichstag_truce: {name: "Reichstag Truce", counter: "marker reichstag_truce", size: 45},
-    polish_restoration: {name: "Polish Restoration", counter: "marker polish_restoration", size: 45},
-    convoy: {name: "Convoy", counter: "marker convoy", size: 45},
-    rape_of_belgium: {name: "rape of Belgium", counter:"marker rape_of_belgium", size:45},
-    falkenhayn: {name: "Falkenhayn", counter: "marker falkenhayn ", size: 45},
-    h_l_take_command: {name: "H-L Take Command", counter: "marker h_l_take_command ", size: 45},
-    zeppelin_raids: {name: "Zeppelin Raids", counter: "marker zeppelin_raids ", size: 45},
-    peace_offensive: {name: "Peace Offensive", counter: "marker peace_offensive ", size: 45},
-    hoffmann: {name: "Hoffmann", counter: "marker hoffmann ", size: 45},
-    guns_of_august: {name: "Guns of August", counter: "marker guns_of_august ", size: 45},
-    landships: {name: "Landships", counter: "marker landships ", size: 45},
-    race_to_the_sea: {name: "Race to the Sea", counter: "marker race_to_the_sea ", size: 45},
-    michael: {name: "Michael", counter: "marker michael ", size: 45},
-    entrench: {name: "Entrench", counter: "marker entrench ", size: 45},
-    _11th_army: {name: "11th Army", counter: "marker _11th_army ", size: 45},
-    independent_air_force: {name: "Independent Air Force", counter: "marker independent_air_force ", size: 45},
-    blucher: {name: "Blucher", counter: "marker blucher ", size: 45},
-    moltke: {name: "Moltke", counter: "marker moltke ", size: 45},
-    oberost: {name: "Oberost", counter: "marker oberost ", size: 45},
-    great_retreat: {name: "Great Retreat", counter: "marker great_retreat ", size: 45},
+    blockade: {name: "Blockade", counter: "cardtip ap-card marker blockade_vps ", size: 45, cardIndex: 2},
+    influenza: {name: "Influenza", counter: "cardtip ap-card marker small influenza ", size: 36, cardIndex: 65},
+    prince_max: {name: "Prince Max", counter: "cardtip cp-card marker prince_max ", size: 45, cardIndex: 130},
+    fourteen_points: {name: "US Points", counter: "cardtip ap-card marker small us_points ", size: 36, cardIndex: 40},
+    lusitania: {name: "Lusitania", counter: "cardtip ap-card marker lusitania ", size: 45, cardIndex: 26},
+    haig: {name: "Haig", counter: "cardtip cp-card marker haig ", size: 45, cardIndex: 126},
+    sud_army: {name: "Sud Army", counter: "cardtip cp-card marker sud_army ", size: 45, cardIndex: 75},
+    sinai_pipeline: {name: "Sinai Pipeline", counter: "cardtip ap-card marker sinai_pipeline ", size: 45, cardIndex: 49},
+    stavka_timidity: {name: "Stavka Timidity", counter: "cardtip cp-card marker stavka_timidity ", size: 45, cardIndex: 123},
+    salonika: {name: "Salonika", counter: "cardtip ap-card marker salonika ", size: 45, cardIndex: 30},
+    high_seas_fleet: {name: "High Seas Fleet", counter: "cardtip cp-card marker high_seas_fleet", size: 45, cardIndex: 90},
+    reichstag_truce: {name: "Reichstag Truce", counter: "cardtip cp-card marker reichstag_truce", size: 45, cardIndex: 74},
+    polish_restoration: {name: "Polish Restoration", counter: "cardtip cp-card marker polish_restoration", size: 45, cardIndex: 124},
+    convoy: {name: "Convoy", counter: "cardtip ap-card marker convoy", size: 45, cardIndex: 52},
+    rape_of_belgium: {name: "rape of Belgium", counter:"cardtip ap-card marker rape_of_belgium", size:45, cardIndex: 13},
+    falkenhayn: {name: "Falkenhayn", counter: "cardtip cp-card marker falkenhayn ", size: 45, cardIndex: 78},
+    h_l_take_command: {name: "H-L Take Command", counter: "cardtip cp-card marker h_l_take_command ", size: 45, cardIndex: 119},
+    zeppelin_raids: {name: "Zeppelin Raids", counter: "cardtip cp-card marker zeppelin_raids ", size: 45, cardIndex: 92},
+    peace_offensive: {name: "Peace Offensive", counter: "cardtip cp-card marker peace_offensive ", size: 45, cardIndex: 116},
+    hoffmann: {name: "Hoffmann", counter: "cardtip cp-card marker hoffmann ", size: 45, cardIndex: 102},
+    guns_of_august: {name: "Guns of August", counter: "cardtip cp-card marker guns_of_august ", size: 45, cardIndex: 66},
+    landships: {name: "Landships", counter: "cardtip ap-card marker landships ", size: 45, cardIndex: 28},
+    race_to_the_sea: {name: "Race to the Sea", counter: "cardtip ap-card marker race_to_the_sea ", size: 45, cardIndex: 73},
+    michael: {name: "Michael", counter: "cardtip cp-card marker michael ", size: 45, cardIndex: 114},
+    entrench: {name: "Entrench", counter: "cardtip ap-card marker entrench ", size: 45, cardIndex: 12},
+    entrench: {name: "Entrench", counter: "cardtip cp-card marker entrench ", size: 45, cardIndex: 71},
+    _11th_army: {name: "11th Army", counter: "cardtip cp-card marker _11th_army ", size: 45, cardIndex: 94},
+    independent_air_force: {name: "Independent Air Force", counter: "cardtip ap-card marker independent_air_force ", size: 45, cardIndex: 102},
+    blucher: {name: "Blucher", counter: "cardtip cp-card marker blucher ", size: 45, cardIndex: 115},
+    moltke: {name: "Moltke", counter: "cardtip cp-card marker moltke ", size: 45, cardIndex: 74},
+    oberost: {name: "Oberost", counter: "cardtip cp-card marker oberost ", size: 45, cardIndex: 76},
+    great_retreat: {name: "Great Retreat", counter: "cardtip cp-card marker great_retreat ", size: 45, cardIndex: 92}
+
 }
 
 let markers = {
@@ -1006,7 +1008,13 @@ function destroy_general_records_marker(type) {
 }
 
 function build_turn_track_marker(type) {
-    return build_marker(markers.turn_track, e => e.type === type, {type: type}, marker_info[type])
+    let marker = build_marker(markers.turn_track, e => e.type === type, {type: type}, marker_info[type]);
+    if (marker_info[type].cardIndex && marker_info[type].cardIndex > 0) {
+        marker.setAttribute('onmouseenter', `on_focus_card_tip(${marker_info[type].cardIndex})`);
+        marker.setAttribute('onmouseleave', 'on_blur_card_tip()');
+    }
+    
+    return marker;
 }
 
 function destroy_turn_track_marker(type) {
