@@ -5331,22 +5331,6 @@ function goto_war_status_phase() {
     }
     delete game.french_attacked_without_us_support
 
-    // E.2. Determine if either player has won an Automatic Victory.
-    if (game.vp <= 0) {
-        goto_game_over(AP, get_result_message("Automatic Victory: ", AP))
-        return
-    }
-    if (game.vp >= 20) {
-        goto_game_over(CP, get_result_message("Automatic Victory: ", CP))
-        return
-    }
-
-    // E.3. Determine winner if an Armistice has been declared.
-    if (game.ap.ws + game.cp.ws >= 40) {
-        let result = get_game_result_by_vp()
-        goto_game_over(result, get_result_message("Armistice Declared: ", result))
-    }
-
     // E.4. Each player determines if his War Commitment Level has increased. This is not checked on the August 1914
     // turn (turn 1). If the appropriate War Status conditions are met, Limited War or Total War cards may be added
     // to the Draw Pile at this time.
@@ -5378,8 +5362,24 @@ function goto_war_status_phase() {
         }
     }
 
+    // E.2. Determine if either player has won an Automatic Victory.
+    if (game.vp <= 0) {
+        goto_game_over(AP, get_result_message("Automatic Victory: ", AP))
+        return
+    }
+    else if (game.vp >= 20) {
+        goto_game_over(CP, get_result_message("Automatic Victory: ", CP))
+        return
+    }
+    // E.3. Determine winner if an Armistice has been declared.
+    else if (game.ap.ws + game.cp.ws >= 40) {
+        let result = get_game_result_by_vp()
+        goto_game_over(result, get_result_message("Armistice Declared: ", result))
+    }
+    else {
     apply_replacement_phase_events()
     goto_replacement_phase()
+    }
 }
 
 function add_cards_to_deck(faction, commitment, deck) {
