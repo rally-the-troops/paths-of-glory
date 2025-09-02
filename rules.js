@@ -2539,7 +2539,7 @@ states.choose_entrench_units = {
         log(`${piece_name(p)} will attempt to entrench in ${space_name(game.location[p])}`)
         game.entrenching.push(p)
         // If there are no pieces left to move, deactivate the space
-        if (undefined === get_pieces_in_space(game.location[p]).find((unit) => { !game.entrenching.includes(unit) }))
+        if (get_pieces_in_space(game.location[p]).every((piece) => game.entrenching.includes(piece) || game.moved.includes(piece)))
             set_delete(game.activated.move, game.location[p])
     },
     done() {
