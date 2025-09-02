@@ -1041,25 +1041,23 @@ function set_nation_at_war(nation) {
     game.war[nation] = 1
 
     if (nation === TURKEY) {
-        log_h3("Turkey enters the war")
+        log_h3("Turkey enters the war", CP)
     }
 
     if (nation === ITALY) {
-        log_h3("Italy enters the war")
+        log_h3("Italy enters the war", AP)
     }
 
     if (nation === BULGARIA) {
-        log_h3("Bulgaria enters the war")
-        // Other 4 Bulgarian pieces are setup by player choice
+        log_h3("Bulgaria enters the war", CP)
     }
 
     if (nation === ROMANIA) {
-        log_h3("Romania enters the war")
-        // Other 4 Romanian pieces are setup by player choice
+        log_h3("Romania enters the war", AP)
     }
 
     if (nation === GREECE) {
-        log_h3("Greece enters the war")
+        log_h3("Greece enters the war", AP)
         if (!game.events.salonika) {
             setup_piece(GREECE, 'GRc', 'Athens')
             setup_piece(GREECE, 'GRc', 'Florina')
