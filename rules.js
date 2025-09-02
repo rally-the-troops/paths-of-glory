@@ -653,6 +653,7 @@ exports.setup = function (seed, scenario, options) {
     set_trench_level(find_space('Villach'), 1, CP)
     set_trench_level(find_space('Cracow'), 1, CP)
     set_trench_level(find_space('Konigsberg'), 1, CP)
+    set_trench_level(find_space('Giresun'), 1, CP)
     set_trench_level(find_space('Verona'), 1, AP)
     set_trench_level(find_space('Asiago'), 1, AP)
     set_trench_level(find_space('Maggiore'), 1, AP)
