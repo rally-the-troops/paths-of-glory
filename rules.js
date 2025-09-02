@@ -3120,7 +3120,11 @@ states.confirm_pass_attack = {
 states.confirm_attack = {
     inactive: 'Confirming attack',
     prompt() {
-        view.prompt = `Begin attack at ${space_name(game.attack.space)}?`
+        const attack_factors = game.attack.pieces.reduce((sum, p) => sum + get_piece_cf(p), 0)
+        let defense_factors = get_defenders_pieces().reduce((sum, p) => sum + get_piece_cf(p), 0)
+        if (has_undestroyed_fort(game.attack.space, other_faction(game.attack.attacker)))
+            defense_factors += data.spaces[game.attack.space].fort
+        view.prompt = `Begin attack at ${space_name(game.attack.space)}? (${attack_factors} vs ${defense_factors})`
         gen_action('attack')
     },
     attack() {
