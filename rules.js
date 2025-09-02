@@ -8524,7 +8524,8 @@ function restore_rollback(index) {
     let save_seed = game.seed
     let save_log = game.log
     game = rollback_state[index]
-    save_log.length = game.log
+    if (game.log.length !== save_log.length)
+        save_log.length = game.log
     game.log = save_log
     game.undo = [] // Rollback always wipes out the undo stack
     game.rollback = save_rollback.slice(0, index+1) // Keep older (and restored) rollback points
