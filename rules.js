@@ -4678,7 +4678,7 @@ states.choose_retreat_canceling_replacement = {
 
 function replace_retreat_canceling_unit(unit, location, replacement) {
     game.location[replacement] = location
-    log(`${piece_name(unit, true)} in ${space_name(location)} breaks to ${piece_name(replacement)}(${log_corps(replacement)})`)
+    log(`${piece_name(unit, true)} in ${space_name(location)} breaks to ${piece_name(replacement)}${log_corps(replacement)}`)
 }
 
 function goto_defender_retreat() {
@@ -6510,8 +6510,7 @@ events.reichstag_truce = {
         game.vp += 1
         record_score_event(1, REICHSTAG_TRUCE)
         logi(`+1 VP for ${card_name(REICHSTAG_TRUCE)}`)
-        start_action_round()
-        clear_undo()
+        goto_end_event()
     }
 }
 
