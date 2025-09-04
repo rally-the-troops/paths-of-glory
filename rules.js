@@ -6813,7 +6813,7 @@ states.war_in_africa = {
     done() {
         delete game.war_in_africa_removed
         set_active_faction(CP)
-        goto_end_event()
+        goto_end_action() // Skip the end event confirmation because it adds an extra control handoff just for the CP player to click "Done"
     }
 }
 
