@@ -2018,18 +2018,7 @@ function on_log(text) {
         p.className = "i"
     }
 
-    text = text.replace(/---/g, "\u2014")
-    text = text.replace(/--/g, "\u2013")
-    text = text.replace(/->/g, "\u2192")
-    text = text.replace(/-( ?[\d])/g, "\u2212$1")
-    text = text.replace(/&/g, "&amp;")
-    text = text.replace(/</g, "&lt;")
-    text = text.replace(/>/g, "&gt;")
-    text = text.replace(/s(\d+)/g, sub_space_name)
-    text = text.replace(/p(\d+)/g, sub_piece_name_reduced)
-    text = text.replace(/P(\d+)/g, sub_piece_name)
-    text = text.replace(/c(\d+)/g, sub_card_name)
-    text = text.replace(/\b[BW]\d\b/g, sub_icon)
+    text = escape_text(text)
 
     if (text.match(/^\.h1/)) {
         text = text.substring(4)
@@ -2067,13 +2056,25 @@ function on_log(text) {
     return p
 }
 
-function on_prompt(text) {
+function escape_text(text) {
+    text = text.replace(/---/g, "\u2014")
+    text = text.replace(/--/g, "\u2013")
+    text = text.replace(/->/g, "\u2192")
+    text = text.replace(/-( ?[\d])/g, "\u2212$1")
+    text = text.replace(/&/g, "&amp;")
+    text = text.replace(/</g, "&lt;")
+    text = text.replace(/>/g, "&gt;")
     text = text.replace(/s(\d+)/g, sub_space_name)
     text = text.replace(/p(\d+)/g, sub_piece_name_reduced)
     text = text.replace(/P(\d+)/g, sub_piece_name)
     text = text.replace(/c(\d+)/g, sub_card_name)
     text = text.replace(/\b[BW]\d\b/g, sub_icon)
+    text = text.replace(" 1 spaces", " 1 space")
     return text
+}
+
+function on_prompt(text) {
+    return escape_text(text)
 }
 
 function add_review_rollback_button() {
@@ -2196,7 +2197,7 @@ function update_map() {
     }
 
     action_button("offer_peace", "Offer Peace")
-    action_button("single_op", "Automatic Operation (1 Op)")
+    action_button("single_op", "Automatic Operation")
     action_button("use", "Use")
     action_button("pass_w_turn", "Pass Turn")
     action_button("pass", "Pass")

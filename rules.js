@@ -1244,7 +1244,7 @@ function satisfies_mo(mo, attackers, defenders, space) {
 states.confirm_mo = {
     inactive: "review mandated offensive roll",
     prompt() {
-        view.prompt = `Turn ${game.turn}: Rolled Mandated Offensive - ${nation_name(game[active_faction()].mo)}` // FIXME
+        view.prompt = `Turn ${game.turn}: Mandated Offensive for ${nation_name(game[active_faction()].mo)}.`
         gen_action_next()
     },
     next() {
@@ -1451,18 +1451,17 @@ function goto_action_phase() {
 }
 
 states.action_phase = {
-    inactive: "play a card",
+    inactive: "take one action",
     prompt() {
         let player_hand = game[active_faction()].hand
         let player_actions = game[active_faction()].actions
+        view.prompt = `Turn ${game.turn}, Action ${player_actions.length+1}: Take one action.`
         if (game.turn === 1 && game.scenario === HISTORICAL && player_actions.length === 0 && active_faction() === CP) {
-            view.prompt = `Turn ${game.turn} Action ${player_actions.length+1}: Play Guns of August`
+            view.prompt += ` You must play "Guns of August"!`
             gen_card_menu(GUNS_OF_AUGUST, true)
         } else {
             if (player_actions.length === 5 && game[active_faction()].mo !== NONE)
-                view.prompt = `Turn ${game.turn} Action ${player_actions.length + 1}: Play a card or choose an action (Warning: final action round to complete ${nation_name(game[active_faction()].mo)} mandated offensive)`
-            else
-                view.prompt = `Turn ${game.turn} Action ${player_actions.length + 1}: Play a card or choose an action`
+                view.prompt += ` Final round for ${nation_name(game[active_faction()].mo)} mandated offensive!`
             for(let card of player_hand) {
                 gen_card_menu(card)
             }
@@ -1607,7 +1606,7 @@ function goto_play_sr(card) {
 states.choose_sr_unit = {
     inactive: "use strategic redeployment",
     prompt() {
-        view.prompt = `Select a unit to move by SR (${game.sr.pts} points remaining)`
+        view.prompt = `Strategic Redeployment: ${game.sr.pts} points left.`
         game.location.forEach((loc, p) => {
             if (loc !== 0 && data.pieces[p].faction === active_faction() && can_sr(p)) {
                 gen_action_piece(p)
@@ -1683,13 +1682,13 @@ function any_capital_occupied_or_besieged(nation) {
 states.choose_sr_destination = {
     inactive: "use strategic redeployment",
     prompt() {
-        view.prompt = `Choose destination for Strategic Redeployment`
+        view.prompt = `Strategic Redeployment: Move ${piece_name(game.sr.unit)}.`
         let destinations = get_sr_destinations(game.sr.unit)
         destinations.forEach(gen_action_space)
         if (destinations.length === 0) {
-            view.prompt = `No valid destinations for Strategic Redeployment`
             // (TOR) why not undo instead; or check that the unit has a destination?
             gen_action_pass()
+            view.prompt = `Strategic Redeployment: No valid destination for ${piece_name(game.sr.unit)}.`
         }
     },
     space(s) {
@@ -1990,10 +1989,10 @@ states.rps = {
     inactive: "record replacements",
     prompt() {
         if (active_faction() === AP) {
-            view.prompt = `Replacements: ${game.rp.fr} FR, ${game.rp.br} BR, ${game.rp.ru} RU, ${game.rp.it} IT, ${game.rp.us} US, ${game.rp.allied} Allied`
+            view.prompt = `Replacements: ${game.rp.fr} FR, ${game.rp.br} BR, ${game.rp.ru} RU, ${game.rp.it} IT, ${game.rp.us} US, ${game.rp.allied} Allied.`
         }
         else {
-            view.prompt = `Replacements: ${game.rp.ge} GE, ${game.rp.ah} AH, ${game.rp.bu} BU, ${game.rp.tu} TU`
+            view.prompt = `Replacements: ${game.rp.ge} GE, ${game.rp.ah} AH, ${game.rp.bu} BU, ${game.rp.tu} TU.`
         }
         gen_action_done()
     },
@@ -2057,7 +2056,7 @@ states.place_reinforcements = {
         if (game.reinforcements.length > 0) {
             const first_piece = game.reinforcements[0]
             const first_piece_data = data.pieces[first_piece]
-            view.prompt = `Place reinforcements: ${nation_name(first_piece_data.nation)} ${piece_name(first_piece)}`
+            view.prompt = `Reinforcements: Place ${nation_name(first_piece_data.nation)} ${piece_name(first_piece)}.`
 
             const spaces = get_available_reinforcement_spaces(first_piece)
             spaces.forEach((s) => {
@@ -2065,11 +2064,11 @@ states.place_reinforcements = {
             })
 
             if (spaces.length === 0) {
-                view.prompt = `Place reinforcements: No valid spaces for ${piece_name(first_piece)}`
-                gen_action_pass()
+                view.prompt = `Reinforcements: No valid destination for ${piece_name(first_piece)}.`
+                gen_action_skip()
             }
         } else {
-            view.prompt = `Place reinforcements: Done`
+            view.prompt = `Reinforcements: Done.`
             gen_action_done()
         }
     },
@@ -2212,7 +2211,7 @@ function roll_peace_terms(faction_offering, combined_war_status) {
 states.activate_spaces = {
     inactive: "activate spaces",
     prompt() {
-        view.prompt = `Activate spaces to move or attack — ${game.ops} ops remaining`
+        view.prompt = `Activate spaces for movement or combat: ${game.ops} ops left.`
         let spaces = []
         game.location.forEach((loc, p) => {
             if (loc !== 0 && data.pieces[p].faction === active_faction()) {
@@ -2461,7 +2460,7 @@ function update_russian_capitulation() {
 states.choose_move_space = {
     inactive: 'move',
     prompt() {
-        view.prompt = `Choose an activated space to begin moving`
+        view.prompt = `Move units in spaces activated for movement.`
         let space_eligible_to_move = false
         game.activated.move.forEach((s) => {
             let piece_eligible_to_move = false
@@ -2477,7 +2476,7 @@ states.choose_move_space = {
         })
 
         if (can_entrench() && get_units_eligible_to_entrench().length > 0) {
-            view.prompt = `Choose an activated space to begin moving or entrench`
+            view.prompt = `Move units (or entrench) in spaces activated for movement.`
             gen_action('entrench')
         }
 
@@ -2528,7 +2527,7 @@ function get_units_eligible_to_entrench() {
 states.choose_entrench_units = {
     inactive: 'entrench units',
     prompt() {
-        view.prompt = `Choose units to entrench`
+        view.prompt = `Choose armies that will attempt to entrench.`
 
         get_units_eligible_to_entrench().forEach((p) => {
             gen_action_piece(p)
@@ -2553,7 +2552,7 @@ states.choose_entrench_units = {
 states.place_event_trench = {
     inactive: 'place trench',
     prompt() {
-        view.prompt = `Place a trench in a space with a supplied friendly army`
+        view.prompt = `Place a trench in a space with a supplied friendly army.`
 
         let spaces = []
         for (let p = 1; p < data.pieces.length; p++) {
@@ -2588,7 +2587,10 @@ states.place_event_trench = {
 states.choose_pieces_to_move = {
     inactive: 'move',
     prompt() {
-        view.prompt = `Move units from ${space_name(game.move.initial)}`
+        if (game.move.pieces.length > 0)
+            view.prompt = `Move ${game.move.pieces.map(piece_name).join(", ")} from ${space_name(game.move.initial)}.`
+        else
+            view.prompt = `Move units from ${space_name(game.move.initial)}.`
         game.move_path = [game.move.initial]
         for_each_piece_in_space(game.move.initial, (p) => {
             if (get_piece_mf(p) > 0 && !game.entrenching.includes(p) && !game.moved.includes(p)) {
@@ -2708,7 +2710,7 @@ function move_stack_to_space(s) {
 states.move_stack = {
     inactive: 'move',
     prompt() {
-        view.prompt = 'Move the stack of units'
+        view.prompt = `Move ${game.move.pieces.map(piece_name).join(", ")} from ${space_name(game.move.current)}.`
 
         get_eligible_spaces_to_move().forEach((s) => {
             gen_action_space(s)
@@ -3021,10 +3023,10 @@ states.confirm_moves = {
     prompt() {
         const violations = check_rule_violations()
         if (violations.length === 0) {
-            view.prompt = `Confirm moves`
+            view.prompt = `Confirm moves.`
             gen_action_done()
         } else {
-            view.prompt = `Correct rules violations before continuing`
+            view.prompt = `Correct rules violations before continuing.`
             gen_action('reset_phase')
         }
     },
@@ -3049,7 +3051,7 @@ function get_defenders_pieces() {
 states.choose_attackers = {
     inactive: 'attack',
     prompt() {
-        view.prompt = `Select which units will attack then select a space to begin the attack`
+        view.prompt = `Choose units and a space to attack.`
 
         game.eligible_attackers.forEach((p) => {
             if (game.attack.pieces.includes(p)) {
@@ -3109,7 +3111,7 @@ states.choose_attackers = {
 states.confirm_pass_attack = {
     inactive: 'attack',
     prompt() {
-        view.prompt = `You still have units eligible to attack. Confirm Pass ?`
+        view.prompt = `You still have units eligible to attack!`
         gen_action('pass')
     },
     pass() {
@@ -3126,7 +3128,7 @@ states.confirm_attack = {
         let defense_factors = get_defenders_pieces().reduce((sum, p) => sum + get_piece_cf(p), 0)
         if (has_undestroyed_fort(game.attack.space, other_faction(game.attack.attacker)))
             defense_factors += data.spaces[game.attack.space].fort
-        view.prompt = `Begin attack at ${space_name(game.attack.space)}? (${attack_factors} vs ${defense_factors})`
+        view.prompt = `Attack ${space_name(game.attack.space)} with ${game.attack.pieces.map(piece_name).join(", ")} at ${attack_factors} vs ${defense_factors}?`
         gen_action('attack')
     },
     attack() {
@@ -3538,7 +3540,7 @@ states.choose_flank_attack = {
         let flank_roll_target = 4 - flanking_spaces.length
         gen_action('flank')
         gen_action_pass()
-        view.prompt = `Flank attack? (Succeeds on ${Math.max(flank_roll_target, 1)}+)`
+        view.prompt = `You may attempt a flank attack (success on ${Math.max(flank_roll_target, 1)}+).`
     },
     flank() {
         game.attack.attempt_flank = true
@@ -3562,7 +3564,7 @@ function can_play_wireless_intercepts() {
 states.play_wireless_intercepts = {
     inactive: 'flank attack',
     prompt() {
-        view.prompt = 'Play Wireless Intercepts?'
+        view.prompt = 'You may play "Wireless Intercepts".'
         if (game[active_faction()].hand.includes(WIRELESS_INTERCEPTS)) {
             gen_action_card(WIRELESS_INTERCEPTS)
         }
@@ -3632,7 +3634,7 @@ function roll_flank_attack() {
 states.choose_withdrawal = {
     inactive: 'play combat cards',
     prompt() {
-        view.prompt = 'You may play Withdrawal.'
+        view.prompt = 'You may play "Withdrawal".'
         const active_withdrawal_card = active_faction() === AP ? WITHDRAWAL_AP : WITHDRAWAL_CP
         if (game.combat_cards.includes(active_withdrawal_card)) {
             gen_action_done()
@@ -3670,7 +3672,7 @@ states.choose_withdrawal = {
 states.attacker_combat_cards = {
     inactive: 'play combat cards',
     prompt() {
-        view.prompt = `Select combat cards for this attack`
+        view.prompt = `You may play combat cards.`
 
         game[active_faction()].hand.forEach((c) => {
             if (data.cards[c].cc) {
@@ -3725,7 +3727,7 @@ states.attacker_combat_cards = {
 states.defender_combat_cards = {
     inactive: 'play combat cards',
     prompt() {
-        view.prompt = `Play combat cards`
+        view.prompt = `You may play combat cards.`
         game[active_faction()].hand.forEach((c) => {
             if (data.cards[c].cc) {
                 let evt = events[data.cards[c].event]
@@ -3967,7 +3969,7 @@ function resolve_defenders_fire() {
 }
 
 states.eliminate_retreated_units = {
-    inactive: 'eliminate retreated units',
+    inactive: 'eliminate previously retreated units',
     prompt() {
         let has_pieces_to_eliminate = false
         for_each_piece_in_space(game.attack.space, (p) => {
@@ -3979,10 +3981,8 @@ states.eliminate_retreated_units = {
             }
         })
 
-        if (has_pieces_to_eliminate) {
-            view.prompt = 'Eliminate units that previously retreated'
-        } else {
-            view.prompt = 'Eliminate units that previously retreated — Done'
+        view.prompt = 'Eliminate units that previously retreated.'
+        if (!has_pieces_to_eliminate) {
             gen_action_done()
         }
     },
@@ -4006,7 +4006,7 @@ states.apply_defender_losses = {
             loss_options = get_loss_options(true, game.attack.defender_losses - game.attack.defender_losses_taken, get_defenders_pieces(), fort_strength)
         }
         if (loss_options.length > 0) {
-            view.prompt = `Take losses (${game.attack.defender_losses_taken}/${game.attack.defender_losses})`
+            view.prompt = `Take losses: ${game.attack.defender_losses_taken} / ${game.attack.defender_losses}.`
             loss_options.forEach((option) => {
                 if (option === FORT_LOSS) {
                     gen_action_space(game.attack.space)
@@ -4015,7 +4015,7 @@ states.apply_defender_losses = {
                 }
             })
         } else {
-            view.prompt = `Take losses (${game.attack.defender_losses_taken}/${game.attack.defender_losses}) — Done`
+            view.prompt = `Take losses: Done.`
             gen_action_done()
         }
     },
@@ -4080,7 +4080,7 @@ states.apply_defender_losses = {
 states.choose_defender_replacement = {
     inactive: 'take losses',
     prompt() {
-        view.prompt = `Choose a replacement for ${piece_name(game.attack.replacement.p)} in ${space_name(game.attack.replacement.s)}`
+        view.prompt = `Take losses: Choose a replacement for ${piece_name(game.attack.replacement.p)} in ${space_name(game.attack.replacement.s)}.`
         game.attack.replacement.options.forEach(gen_action_piece)
     },
     piece(p) {
@@ -4194,12 +4194,12 @@ states.apply_attacker_losses = {
         if (game.attack.attacker_losses - game.attack.attacker_losses_taken > 0)
             loss_options = get_loss_options(false,game.attack.attacker_losses - game.attack.attacker_losses_taken, game.attack.pieces, 0)
         if (loss_options.length > 0) {
-            view.prompt = `Take losses (${game.attack.attacker_losses_taken}/${game.attack.attacker_losses})`
+            view.prompt = `Take losses: ${game.attack.attacker_losses_taken} / ${game.attack.attacker_losses}.`
             loss_options.forEach((p) => {
                 gen_action_piece(p)
             })
         } else {
-            view.prompt = `Take losses (${game.attack.attacker_losses_taken}/${game.attack.attacker_losses}) — Done`
+            view.prompt = `Take losses: Done.`
             gen_action_done()
         }
     },
@@ -4239,7 +4239,7 @@ states.apply_attacker_losses = {
 states.choose_attacker_replacement = {
     inactive: 'take losses',
     prompt() {
-        view.prompt = `Choose a replacement for ${piece_name(game.attack.replacement.p)} in ${space_name(game.attack.replacement.s)}`
+        view.prompt = `Choose a replacement for ${piece_name(game.attack.replacement.p)} in ${space_name(game.attack.replacement.s)}.`
         game.attack.replacement.options.forEach(gen_action_piece)
     },
     piece(p) {
@@ -4622,7 +4622,7 @@ function defender_can_cancel_retreat() {
 states.cancel_retreat = {
     inactive: 'retreat',
     prompt() {
-        view.prompt = `Cancel retreat by taking an extra step loss or pass to begin retreat`
+        view.prompt = `You may cancel retreat by taking an extra step loss.`
         for_each_piece_in_space(game.attack.space, (p) => {
             if (data.pieces[p].faction === other_faction(game.attack.attacker))
                 gen_action_piece(p)
@@ -4671,7 +4671,7 @@ states.cancel_retreat_confirm = {
 states.choose_retreat_canceling_replacement = {
     inactive: 'retreat',
     prompt() {
-        view.prompt = `Choose a replacement for ${piece_name(game.attack.replacement.p)} in ${space_name(game.attack.replacement.s)}`
+        view.prompt = `Choose a replacement for ${piece_name(game.attack.replacement.p)} in ${space_name(game.attack.replacement.s)}.`
         game.attack.replacement.options.forEach(gen_action_piece)
     },
     piece(p) {
@@ -4869,18 +4869,22 @@ states.attacker_advance = {
         if (globalThis.RTT_FUZZER) {
             gen_action_pass()
         }
+
+        if (game.attack.advancing_pieces.length > 0)
+            view.prompt = `Advance with ${piece_list(game.attack.advancing_pieces)} up to ${remaining_length} spaces.`
+        else
+            view.prompt = `Advance: You may advance up to ${remaining_length} spaces.`
+
         if (game.attack.advance_length === 0) {
-            view.prompt = `Select units to advance or select a space to begin advancing (${remaining_length} ${remaining_length === 1 ? 'space' : 'spaces'} remaining)`
             game.attack.to_advance.forEach((p) => {
                 gen_action_piece(p)
             })
             if (game.attack.advancing_pieces.length === 0)
                 gen_action_pass()
         } else if (game.attack.advance_length === 1 && spaces.length > 0) {
-            view.prompt = `Advance ${piece_list(game.attack.advancing_pieces)} (${remaining_length} ${remaining_length === 1 ? 'space' : 'spaces'} remaining)`
             gen_action_done()
         } else {
-            view.prompt = `Advance ${piece_list(game.attack.advancing_pieces)} (Done)`
+            view.prompt = `Advance: Done.`
             gen_action_done()
         }
         spaces.forEach(gen_action_space)
@@ -5205,7 +5209,7 @@ states.attrition_phase = {
         let spaces = game.attrition[active_faction()].spaces
         const pieces_str = pieces.length <= 3 && pieces.length > 0 ? ` (${piece_list(pieces)})` : ""
         const spaces_str = spaces.length <= 3 && spaces.length > 0 ? ` (${space_list(spaces)})` : ""
-        view.prompt = `Remove OOS pieces${pieces_str} and flip OOS spaces${spaces_str}`
+        view.prompt = `Attrition Phase: Remove OOS pieces${pieces_str} and flip OOS spaces${spaces_str}.`
         pieces.forEach((p) => { gen_action_piece(p) })
         spaces.forEach((s) => { gen_action_space(s) })
     },
@@ -5265,7 +5269,7 @@ states.siege_phase = {
     prompt() {
         let siege_spaces = game.sieges_to_roll.filter((s) => data.spaces[s].faction === inactive_faction())
         siege_spaces.forEach(gen_action_space)
-        view.prompt = `Roll sieges - ${space_list(siege_spaces)}`
+        view.prompt = `Roll for besieged forts: ${space_list(siege_spaces)}.`
     },
     space(s) {
         array_remove_item(game.sieges_to_roll, s)
@@ -5582,14 +5586,14 @@ states.replacement_phase = {
     inactive: 'spend replacement points',
     prompt() {
         if (game.army_to_rebuild) {
-            view.prompt = `Choosing where to rebuild ${piece_name(game.army_to_rebuild)}`
+            view.prompt = `Replacement Phase: Rebuild ${piece_name(game.army_to_rebuild)}.`
             get_army_replacement_spaces(game.army_to_rebuild).forEach(gen_action_space)
         } else {
             const replaceable_units = get_replaceable_units()
             if (has_rps(active_faction()) && replaceable_units.length > 0) {
-                view.prompt = `Replacement phase - Spend RPs to rebuild or flip units (${summarize_rps(active_faction())})`
+                view.prompt = `Replacement Phase: Spend RPs to rebuild or flip units (${summarize_rps(active_faction())}).`
             } else {
-                view.prompt = 'Spend RPs to rebuild or flip units - Done'
+                view.prompt = `Replacement Phase: Done.`
             }
 
             replaceable_units.forEach(gen_action_piece)
@@ -5750,7 +5754,7 @@ function goto_draw_cards_phase() {
 states.draw_cards_phase = {
     inactive: 'discard combat cards',
     prompt() {
-        view.prompt = 'Discard any Combat Cards you wish before drawing new cards'
+        view.prompt = `You may discard combat cards before drawing new cards.`
         game[active_faction()].hand.forEach((c) => {
             if (data.cards[c].cc) {
                 gen_action_discard(c)
@@ -5893,13 +5897,17 @@ function is_neareast_space(s) {
     return data.spaces[s].map === 'neareast'
 }
 
+function current_card_name() {
+    return data.cards[game.last_card].name
+}
+
 states.place_new_neutral_units = {
     inactive() {
-        view.prompt = `execute "${data.cards[game.last_card].name}"`
+        view.prompt = `execute "${current_card_name()}"`
     },
     prompt() {
         if (game.units_to_place.length > 0) {
-            view.prompt = `Place ${game.units_to_place.length} new units`
+            view.prompt = `${current_card_name()}: Place ${game.units_to_place.length} new units.`
             let available_spaces = []
             const nation = data.pieces[game.units_to_place[0]].nation
             for (let s = 1; s < data.spaces.length; ++s) {
@@ -5914,7 +5922,7 @@ states.place_new_neutral_units = {
                 gen_action_space(s)
             })
         } else {
-            view.prompt = 'Done placing new units'
+            view.prompt = current_card_name() + ": Done."
             gen_action_done()
         }
 
@@ -6321,11 +6329,11 @@ function goto_end_event() {
 
 states.confirm_event = {
     inactive() {
-        view.prompt = `execute "${data.cards[game.last_card].name}"`
+        view.prompt = `execute "${current_card_name()}"`
     },
     prompt() {
         let c = game.last_card
-        view.prompt = data.cards[game.last_card].name + " \u2013 done."
+        view.prompt = current_card_name() + ": Done."
         view.actions.end_event = 1
     },
     end_event() {
@@ -6408,14 +6416,14 @@ states.landwehr = {
     prompt() {
         let spent_rp = game.landwehr_pieces.reduce((acc, p) => { return acc + (data.pieces[p].type === CORPS ? 0.5 : 1)}, 0)
         if (spent_rp >= 2) {
-            view.prompt = `Landwehr - Done`
+            view.prompt = `Landwehr: Done.`
             gen_action_done()
         } else {
             let has_eligible_piece = false
             const has_half_rp = spent_rp !== Math.floor(spent_rp)
             const remaining_rp = Math.floor(2 - spent_rp)
             if (remaining_rp === 0) {
-                view.prompt = `Landwehr - Choose a reduced corps to flip`
+                view.prompt = `Landwehr: Choose a reduced corps to flip.`
                 for (let p = 1; p < data.pieces.length; ++p) {
                     if (data.pieces[p].nation === GERMANY && data.pieces[p].type === CORPS && is_unit_reduced(p) && is_unit_supplied(p)) {
                         has_eligible_piece = true
@@ -6423,7 +6431,7 @@ states.landwehr = {
                     }
                 }
             } else {
-                view.prompt = `Landwehr - Choose a reduced unit to flip (${remaining_rp} RP${has_half_rp ? ' plus 1 corps': ''})`
+                view.prompt = `Landwehr: Choose a reduced unit to flip (${remaining_rp} RP${has_half_rp ? ' plus 1 corps': ''}).`
                 for (let p = 1; p < data.pieces.length; ++p) {
                     if (data.pieces[p].nation === GERMANY && is_unit_reduced(p) && is_unit_supplied(p)) {
                         has_eligible_piece = true
@@ -6433,7 +6441,7 @@ states.landwehr = {
             }
 
             if (!has_eligible_piece) {
-                view.prompt = `Landwehr - Done`
+                view.prompt = `Landwehr: Done.`
                 gen_action_done()
             } else {
                 gen_action_pass()
@@ -6775,10 +6783,10 @@ states.war_in_africa = {
     inactive: 'execute "War in Africa"',
     prompt() {
         if (game.war_in_africa_removed === undefined) {
-            view.prompt = 'War in Africa - Done'
+            view.prompt = 'War in Africa: Done'
             gen_action_done()
         } else if (game.war_in_africa_removed === 0) {
-            view.prompt = 'War in Africa event: Remove a British Corps or pass to lose 1 VP'
+            view.prompt = 'War in Africa: Remove a British Corps or pass to lose 1 VP.'
             let full_strength_piece = false
             let pieces = []
             for (let p = 1; p < data.pieces.length; ++p) {
@@ -6797,7 +6805,7 @@ states.war_in_africa = {
             pieces.forEach(gen_action_piece)
             gen_action_pass()
         } else {
-            view.prompt = 'War in Africa - Done'
+            view.prompt = 'War in Africa: Done.'
             gen_action_done()
         }
     },
@@ -7266,7 +7274,7 @@ events.russian_desertions = {
 states.russian_desertions = {
     inactive: 'execute "Russian Desertions"',
     prompt() {
-        view.prompt = `Choose a Russian unit to reduce (${game.russian_desertions_remaining} remaining)`
+        view.prompt = `Russian Desertions: Reduce a Russian unit (${game.russian_desertions_remaining} remaining).`
         if (game.russian_desertions_remaining > 0) {
             for (let p = 1; p < data.pieces.length; ++p) {
                 if (game.location[p] !== 0 && data.pieces[p].nation === RUSSIA && !is_unit_reduced(p)) {
@@ -7594,7 +7602,7 @@ events.great_retreat = {
 states.great_retreat_option = {
     inactive: 'use "Great Retreat"',
     prompt() {
-        view.prompt = 'Great Retreat: Choose whether to retreat Russian units before combat'
+        view.prompt = 'Great Retreat: You may retreat Russian units before combat.'
         gen_action_pass()
         get_defenders_pieces().filter(p => data.pieces[p].nation === RUSSIA).forEach(gen_action_piece)
     },
@@ -7615,7 +7623,7 @@ states.great_retreat = {
         if (game.who !== 0) {
             let options = get_retreat_options([game.who], game.attack.space, 0)
             if (options.length > 0) {
-                view.prompt = `Choose a space to retreat ${piece_name(game.who)}`
+                view.prompt = `Great Retreat: Retreat ${piece_name(game.who)}.`
                 options.forEach(gen_action_space)
             } else {
                 // TODO: Must eliminate the unit
@@ -7623,10 +7631,10 @@ states.great_retreat = {
         } else {
             let pieces_to_retreat = get_defenders_pieces().filter(p => data.pieces[p].nation === RUSSIA)
             if (pieces_to_retreat.length === 0) {
-                view.prompt = `Great Retreat: done`
+                view.prompt = `Great Retreat: Done.`
                 gen_action_done()
             } else {
-                view.prompt = `Great Retreat: Choose a Russian unit to retreat`
+                view.prompt = `Great Retreat: Choose a Russian unit to retreat.`
                 pieces_to_retreat.forEach(gen_action_piece)
             }
         }
@@ -7695,7 +7703,7 @@ events.salonika = {
 states.salonika = {
     inactive: 'execute "Salonika"',
     prompt() {
-        view.prompt = `Choose a unit to SR to Salonika (${game.salonika_sr_remaining} remaining)`
+        view.prompt = `Use strategic redeployment to Salonika (${game.salonika_sr_remaining} remaining).`
         if (!is_fully_stacked(SALONIKA_SPACE, AP) && game.salonika_sr_remaining > 0) {
             for (let p = 1; p < data.pieces.length; ++p) {
                 const loc = game.location[p]
@@ -8033,7 +8041,7 @@ events.paris_taxis = {
 states.paris_taxis = {
     inactive: 'execute "Paris Taxis"',
     prompt() {
-        view.prompt = 'Paris Taxis - Choose a reduced army to strengthen'
+        view.prompt = 'Paris Taxis: Flip a reduced French army in or adjacent to Paris.'
         let has_eligible_army = false
         const spaces = [PARIS, AMIENS, ROUEN, CHATEAU_THIERRY, ORLEANS, MELUN]
         for (let p = 1; p < data.pieces.length; ++p) {
@@ -8043,7 +8051,7 @@ states.paris_taxis = {
             }
         }
         if (!has_eligible_army) {
-            view.prompt = 'Paris Taxis - Done'
+            view.prompt = 'Paris Taxis: Done.'
             gen_action_done()
         } else {
             gen_action_pass()
@@ -8076,7 +8084,7 @@ states.russian_cavalry = {
     inactive: 'execute "Russian Cavalry"',
     prompt() {
         if (game.units_to_place.length > 0) {
-            view.prompt = 'Place the Russian Cavalry'
+            view.prompt = 'Russian Cavalry: Place the two Russian cavalry corps.'
             for (let p = 1; p < data.pieces.length; ++p) {
                 if (game.location[p] !== 0 &&
                     data.pieces[p].nation === RUSSIA &&
@@ -8088,7 +8096,7 @@ states.russian_cavalry = {
                 }
             }
         } else {
-            view.prompt = 'Place the Russian Cavalry - Done'
+            view.prompt = 'Russian Cavalry: Done.'
             gen_action_done()
         }
     },
@@ -8559,7 +8567,7 @@ states.review_rollback_proposal = {
         const turn = rollback.turn
         const faction = short_faction(rollback.active)
         const action = rollback.action
-        view.prompt = `${game.rollback_proposal.faction} proposed rolling back to Turn ${turn}, ${faction_name(faction)} Action ${action}`
+        view.prompt = `${game.rollback_proposal.faction} proposed rolling back to Turn ${turn}, ${faction_name(faction)} Action ${action}.`
         gen_action('accept')
         gen_action('reject')
     },
@@ -8589,7 +8597,7 @@ function goto_flag_supply_warnings() {
 states.flag_supply_warnings = {
     inactive: 'flag supply warnings',
     prompt() {
-        view.prompt = 'Flag spaces where supply lines are threatened'
+        view.prompt = 'Flag spaces where supply lines are threatened.'
         for (let s = 1; s < AP_RESERVE_BOX; ++s) {
             gen_action_space(s)
         }
@@ -8623,7 +8631,7 @@ function goto_review_supply_warnings() {
 states.review_supply_warnings = {
     inactive: 'review supply warnings',
     prompt() {
-        view.prompt = 'Review supply warnings'
+        view.prompt = 'Review supply warnings.'
         if (game.supply_warnings && game.supply_warnings.length < 4)
             view.prompt += ` (${space_list(game.supply_warnings)})`
         gen_action_done()
