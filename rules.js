@@ -4844,7 +4844,6 @@ function get_retreat_options(pieces, from, length_retreated) {
 
 function goto_attacker_advance() {
     if (game.attack.to_advance.length > 0) {
-        clear_undo()
         game.attack.advancing_pieces = []
         game.attack.advance_length = 0
         game.state = 'attacker_advance'
@@ -4863,27 +4862,37 @@ states.attacker_advance = {
             gen_action_pass()
         }
 
-        if (game.attack.advancing_pieces.length > 0)
-            view.prompt = `Advance with ${piece_list(game.attack.advancing_pieces)} up to ${remaining_length} spaces.`
-        else
-            view.prompt = `Advance: You may advance up to ${remaining_length} spaces.`
+        console.log("attacker advance", game.attack)
+
+        if (remaining_length > 1) {
+            if (game.attack.advancing_pieces.length > 0)
+                view.prompt = `Advance with ${piece_list(game.attack.advancing_pieces)} up to ${remaining_length} spaces.`
+            else
+                view.prompt = `You may advance up to ${remaining_length} spaces.`
+        } else {
+            if (game.attack.advancing_pieces.length > 0)
+                view.prompt = `Advance with ${piece_list(game.attack.advancing_pieces)} into ${space_name(spaces[0])}.`
+            else
+                view.prompt = `You may advance into ${space_name(game.attack.space)}.`
+        }
 
         if (game.attack.advance_length === 0) {
             game.attack.to_advance.forEach((p) => {
                 gen_action_piece(p)
             })
-            if (game.attack.advancing_pieces.length === 0)
-                gen_action_pass()
-        } else if (game.attack.advance_length === 1 && spaces.length > 0) {
-            gen_action_done()
-        } else {
-            view.prompt = `Advance: Done.`
-            gen_action_done()
+            if (game.attack.advancing_pieces.length === 0) {
+                // TODO: select all
+                gen_action_done()
+            }
+        } else if (game.attack.advance_length > 0) {
+            gen_action("stop")
         }
+
         spaces.forEach(gen_action_space)
     },
     piece(p) {
-        push_undo()
+        if (game.attack.advancing_pieces.length === 0)
+            push_undo()
         game.attack.advancing_pieces.push(p)
         array_remove_item(game.attack.to_advance, p)
     },
@@ -4906,24 +4915,29 @@ states.attacker_advance = {
         }
         capture_trench(s, game.attack.attacker)
 
-
         // TODO: Double-check the rules to see if it's even allowed to advance out of a space and leave an insufficient besieging force
         leaving_spaces.forEach(update_siege) // Update any forts in the spaces left by the advancing pieces
+
+        // stop automatically
+        const remaining_length = game.attack.retreat_length - game.attack.advance_length
+        console.log("remaining_length", remaining_length, get_possible_advance_spaces(game.attack.advancing_pieces))
+        if (remaining_length === 0 || get_possible_advance_spaces(game.attack.advancing_pieces).length === 0)
+            this.stop()
     },
-    pass() {
+    stop() {
+        const end_space = game.location[game.attack.advancing_pieces[0]]
+        if (has_undestroyed_fort(end_space, other_faction(game.attack.attacker))) {
+            set_add(game.forts.besieged, end_space)
+            update_supply()
+        }
+        game.attack.advancing_pieces.length = 0
+        game.attack.advance_length = 0
+    }
+    done() {
+        push_undo()
         end_attack_activation()
         goto_next_activation()
     },
-    done() {
-        if (game.attack.advancing_pieces.length > 0) {
-            const end_space = game.location[game.attack.advancing_pieces[0]]
-            if (has_undestroyed_fort(end_space, other_faction(game.attack.attacker))) {
-                set_add(game.forts.besieged, end_space)
-                update_supply()
-            }
-        }
-        goto_attacker_advance()
-    }
 }
 
 function get_possible_advance_spaces(pieces) {
