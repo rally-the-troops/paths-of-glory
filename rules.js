@@ -2623,10 +2623,6 @@ states.choose_pieces_to_move = {
         game.move_path.push(s)
         game.state = 'move_stack'
     },
-    move() {
-        push_undo()
-        game.state = 'move_stack'
-    },
     end_activation() {
         push_undo()
         end_move_activation()
@@ -2714,13 +2710,12 @@ states.move_stack = {
             gen_action_space(s)
         })
 
-        game.move.pieces.forEach((p) => {
-            if (can_end_move(game.move.current))
+        if (can_end_move(game.move.current)) {
+            game.move.pieces.forEach((p) => {
                 gen_action_piece(p)
-        })
-
-        if (can_end_move(game.move.current))
-            gen_action('end_move')
+            })
+            gen_action('stop')
+        }
     },
     space(s) {
         push_undo()
@@ -2737,7 +2732,7 @@ states.move_stack = {
         if (game.move.pieces.length === 0)
             end_move_stack()
     },
-    end_move() {
+    stop() {
         push_undo()
         game.move.pieces.forEach(piece => {
             log_piece_move(piece)
