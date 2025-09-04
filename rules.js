@@ -1686,9 +1686,10 @@ states.choose_sr_destination = {
         let destinations = get_sr_destinations(game.sr.unit)
         destinations.forEach(gen_action_space)
         if (destinations.length === 0) {
-            // (TOR) why not undo instead; or check that the unit has a destination?
-            gen_action_pass()
+            // (TOR) add faster check that a unit has a destination?
             view.prompt = `Strategic Redeployment: No valid destination for ${piece_name(game.sr.unit)}.`
+            if (globalThis.RTT_FUZZER)
+                gen_action_skip()
         }
     },
     space(s) {
@@ -1704,7 +1705,7 @@ states.choose_sr_destination = {
         game.who = 0
         game.state = 'choose_sr_unit'
     },
-    pass() {
+    skip() {
         set_add(game.sr.done, game.sr.unit)
         game.sr.unit = 0
         game.who = 0
@@ -2091,7 +2092,7 @@ states.place_reinforcements = {
         }
         set_control(s, active_faction())
     },
-    pass() {
+    skip() {
         push_undo()
         const p = game.reinforcements.shift()
         game.location[p] = 0
