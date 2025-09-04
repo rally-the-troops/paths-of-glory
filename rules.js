@@ -4932,7 +4932,7 @@ states.attacker_advance = {
         }
         game.attack.advancing_pieces.length = 0
         game.attack.advance_length = 0
-    }
+    },
     done() {
         push_undo()
         end_attack_activation()
