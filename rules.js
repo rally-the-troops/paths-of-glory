@@ -6354,18 +6354,35 @@ events.guns_of_august = {
         return (game.turn === 1 && game.cp.actions.length === 0)
     },
     play() {
-        set_add(game.forts.destroyed, LIEGE)
-
-        game.location[GE_1_ARMY] = LIEGE
-        game.location[GE_2_ARMY] = LIEGE
-        game.activated.attack.push(LIEGE)
-        game.activated.attack.push(KOBLENZ)
-        set_control(LIEGE, CP)
         game.events.guns_of_august = game.turn
-
-        start_action_round()
-        clear_undo()
+        game.state = 'guns_of_august'
     }
+}
+
+states.guns_of_august = {
+    inactive: 'execute "Guns of August"',
+    prompt() {
+        if (!set_has(game.activated.attack, LIEGE)) {
+            view.prompt = "Guns of August: Destroy fort and place armies in Liege."
+            gen_action('space', LIEGE)
+        } else if (!set_has(game.activated.attack, KOBLENZ)) {
+            view.prompt = "Guns of August: Activate Koblenz."
+            gen_action('space', KOBLENZ)
+        }
+    },
+    space(s) {
+        if (s === LIEGE) {
+            set_control(LIEGE, CP)
+            set_add(game.forts.destroyed, LIEGE)
+            game.location[GE_1_ARMY] = LIEGE
+            game.location[GE_2_ARMY] = LIEGE
+            set_add(game.activated.attack, LIEGE)
+        }
+        if (s === KOBLENZ) {
+            set_add(game.activated.attack, KOBLENZ)
+            start_action_round()
+        }
+    },
 }
 
 // CP #3
