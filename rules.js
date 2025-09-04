@@ -408,7 +408,7 @@ function query_cards(state, faction) {
 }
 
 function inactive_prompt(name, who, where) {
-    view.prompt = `Waiting for ${faction_name(active_faction())} \u2014 ${name}...`
+    view.prompt = `Waiting for ${faction_name(active_faction())} to ${name}.`
     if (who)
         view.who = who
     if (where)
@@ -1242,7 +1242,7 @@ function satisfies_mo(mo, attackers, defenders, space) {
 }
 
 states.confirm_mo = {
-    inactive: "Reviewing Mandated Offensive Roll",
+    inactive: "review mandated offensive roll",
     prompt() {
         view.prompt = `Turn ${game.turn}: Rolled Mandated Offensive - ${nation_name(game[active_faction()].mo)}` // FIXME
         gen_action_next()
@@ -1451,7 +1451,7 @@ function goto_action_phase() {
 }
 
 states.action_phase = {
-    inactive: "Action Phase",
+    inactive: "play a card",
     prompt() {
         let player_hand = game[active_faction()].hand
         let player_actions = game[active_faction()].actions
@@ -1605,7 +1605,7 @@ function goto_play_sr(card) {
 }
 
 states.choose_sr_unit = {
-    inactive: "Selecting Unit to SR",
+    inactive: "use strategic redeployment",
     prompt() {
         view.prompt = `Select a unit to move by SR (${game.sr.pts} points remaining)`
         game.location.forEach((loc, p) => {
@@ -1681,7 +1681,7 @@ function any_capital_occupied_or_besieged(nation) {
 }
 
 states.choose_sr_destination = {
-    inactive: "Choosing destination for Strategic Redeployment",
+    inactive: "use strategic redeployment",
     prompt() {
         view.prompt = `Choose destination for Strategic Redeployment`
         let destinations = get_sr_destinations(game.sr.unit)
@@ -1987,7 +1987,7 @@ function goto_play_rps(card) {
 }
 
 states.rps = {
-    inactive: "Replacements",
+    inactive: "record replacements",
     prompt() {
         if (active_faction() === AP) {
             view.prompt = `Replacements: ${game.rp.fr} FR, ${game.rp.br} BR, ${game.rp.ru} RU, ${game.rp.it} IT, ${game.rp.us} US, ${game.rp.allied} Allied`
@@ -2052,7 +2052,7 @@ function goto_play_reinf(card) {
 }
 
 states.place_reinforcements = {
-    inactive: "Place Reinforcements",
+    inactive: "place reinforcements",
     prompt() {
         if (game.reinforcements.length > 0) {
             const first_piece = game.reinforcements[0]
@@ -2210,7 +2210,7 @@ function roll_peace_terms(faction_offering, combined_war_status) {
 }
 
 states.activate_spaces = {
-    inactive: "Activate Spaces",
+    inactive: "activate spaces",
     prompt() {
         view.prompt = `Activate spaces to move or attack — ${game.ops} ops remaining`
         let spaces = []
@@ -2459,7 +2459,7 @@ function update_russian_capitulation() {
 // === MOVE STATES ===
 
 states.choose_move_space = {
-    inactive: 'Choosing a space to move',
+    inactive: 'move',
     prompt() {
         view.prompt = `Choose an activated space to begin moving`
         let space_eligible_to_move = false
@@ -2526,7 +2526,7 @@ function get_units_eligible_to_entrench() {
 }
 
 states.choose_entrench_units = {
-    inactive: 'Choosing units to entrench',
+    inactive: 'entrench units',
     prompt() {
         view.prompt = `Choose units to entrench`
 
@@ -2551,7 +2551,7 @@ states.choose_entrench_units = {
 }
 
 states.place_event_trench = {
-    inactive: 'Place trench for the Entrench event',
+    inactive: 'place trench',
     prompt() {
         view.prompt = `Place a trench in a space with a supplied friendly army`
 
@@ -2586,7 +2586,7 @@ states.place_event_trench = {
 
 
 states.choose_pieces_to_move = {
-    inactive: 'Choose units to move',
+    inactive: 'move',
     prompt() {
         view.prompt = `Move units from ${space_name(game.move.initial)}`
         game.move_path = [game.move.initial]
@@ -2706,7 +2706,7 @@ function move_stack_to_space(s) {
 }
 
 states.move_stack = {
-    inactive: 'Moving a stack of units',
+    inactive: 'move',
     prompt() {
         view.prompt = 'Move the stack of units'
 
@@ -3017,7 +3017,7 @@ function piece_can_join_attack_without_breaking_siege(piece) {
 }
 
 states.confirm_moves = {
-    inactive: 'Confirming moves',
+    inactive: 'move',
     prompt() {
         const violations = check_rule_violations()
         if (violations.length === 0) {
@@ -3047,7 +3047,7 @@ function get_defenders_pieces() {
 }
 
 states.choose_attackers = {
-    inactive: 'Choosing units and space to attack',
+    inactive: 'attack',
     prompt() {
         view.prompt = `Select which units will attack then select a space to begin the attack`
 
@@ -3107,7 +3107,7 @@ states.choose_attackers = {
 }
 
 states.confirm_pass_attack = {
-    inactive: 'Choosing units and space to attack',
+    inactive: 'attack',
     prompt() {
         view.prompt = `You still have units eligible to attack. Confirm Pass ?`
         gen_action('pass')
@@ -3120,7 +3120,7 @@ states.confirm_pass_attack = {
 }
 
 states.confirm_attack = {
-    inactive: 'Confirming attack',
+    inactive: 'attack',
     prompt() {
         const attack_factors = game.attack.pieces.reduce((sum, p) => sum + get_piece_cf(p), 0)
         let defense_factors = get_defenders_pieces().reduce((sum, p) => sum + get_piece_cf(p), 0)
@@ -3505,9 +3505,9 @@ function can_be_attacked(s) {
 const TRENCH_NEGATING_CARDS = [ROYAL_TANK_CORPS, VON_BELOW, VON_HUTIER, MICHAEL, BLUCHER, PEACE_OFFENSIVE]
 
 states.negate_trench = {
-    inactive: 'Attacker Choosing Whether to Negate Trenches',
+    inactive: 'play trench-negating combat cards',
     prompt() {
-        view.prompt = 'Play any combat cards that would negate trenches'
+        view.prompt = 'You may play trench-negating combat cards.'
 
         game[active_faction()].hand.forEach((c) => {
             if (TRENCH_NEGATING_CARDS.includes(c) && events[data.cards[c].event].can_play()) {
@@ -3532,7 +3532,7 @@ states.negate_trench = {
 }
 
 states.choose_flank_attack = {
-    inactive: 'Attacker Choosing Whether to Attempt a Flank Attack',
+    inactive: 'flank attack',
     prompt() {
         let flanking_spaces = get_flanking_spaces(get_attack_spaces(game.attack.pieces), game.attack.space, game.attack.attacker)
         let flank_roll_target = 4 - flanking_spaces.length
@@ -3560,7 +3560,7 @@ function can_play_wireless_intercepts() {
 }
 
 states.play_wireless_intercepts = {
-    inactive: 'Attacker Choosing Whether to Attempt a Flank Attack',
+    inactive: 'flank attack',
     prompt() {
         view.prompt = 'Play Wireless Intercepts?'
         if (game[active_faction()].hand.includes(WIRELESS_INTERCEPTS)) {
@@ -3630,7 +3630,7 @@ function roll_flank_attack() {
 }
 
 states.choose_withdrawal = {
-    inactive: 'Defender Choosing Whether to Withdraw',
+    inactive: 'play combat cards',
     prompt() {
         view.prompt = 'You may play Withdrawal.'
         const active_withdrawal_card = active_faction() === AP ? WITHDRAWAL_AP : WITHDRAWAL_CP
@@ -3668,7 +3668,7 @@ states.choose_withdrawal = {
 }
 
 states.attacker_combat_cards = {
-    inactive: 'Attacker Combat Cards',
+    inactive: 'play combat cards',
     prompt() {
         view.prompt = `Select combat cards for this attack`
 
@@ -3723,7 +3723,7 @@ states.attacker_combat_cards = {
 }
 
 states.defender_combat_cards = {
-    inactive: 'Defender Combat Cards',
+    inactive: 'play combat cards',
     prompt() {
         view.prompt = `Play combat cards`
         game[active_faction()].hand.forEach((c) => {
@@ -3967,7 +3967,7 @@ function resolve_defenders_fire() {
 }
 
 states.eliminate_retreated_units = {
-    inactive: 'Eliminating Units that Previously Retreated',
+    inactive: 'eliminate retreated units',
     prompt() {
         let has_pieces_to_eliminate = false
         for_each_piece_in_space(game.attack.space, (p) => {
@@ -3998,7 +3998,7 @@ states.eliminate_retreated_units = {
 }
 
 states.apply_defender_losses = {
-    inactive: 'Defender taking losses',
+    inactive: 'take losses',
     prompt() {
         let loss_options = []
         if (game.attack.defender_losses - game.attack.defender_losses_taken > 0) {
@@ -4078,7 +4078,7 @@ states.apply_defender_losses = {
 }
 
 states.choose_defender_replacement = {
-    inactive: 'Defender Choosing Replacement',
+    inactive: 'take losses',
     prompt() {
         view.prompt = `Choose a replacement for ${piece_name(game.attack.replacement.p)} in ${space_name(game.attack.replacement.s)}`
         game.attack.replacement.options.forEach(gen_action_piece)
@@ -4098,7 +4098,7 @@ function replace_defender_unit(unit, location, replacement) {
 }
 
 states.withdrawal_negate_step_loss = {
-    inactive: 'Defender Choosing Step Loss to Negate from Withdrawal',
+    inactive: 'negate step loss',
     prompt() {
         view.prompt = 'Withdrawal: Choose a step loss to negate.'
 
@@ -4140,6 +4140,7 @@ states.withdrawal_negate_step_loss = {
 }
 
 states.withdrawal_negate_step_loss_confirm = {
+    inactive: 'negate step loss',
     prompt() {
         view.prompt = "Withdrawal: Done."
         gen_action_done()
@@ -4186,7 +4187,7 @@ function reduce_piece(p) {
 }
 
 states.apply_attacker_losses = {
-    inactive: 'Attacker Applying Losses',
+    inactive: 'take losses',
     prompt() {
 
         let loss_options = []
@@ -4236,7 +4237,7 @@ states.apply_attacker_losses = {
 }
 
 states.choose_attacker_replacement = {
-    inactive: 'Attacker Choosing Replacement',
+    inactive: 'take losses',
     prompt() {
         view.prompt = `Choose a replacement for ${piece_name(game.attack.replacement.p)} in ${space_name(game.attack.replacement.s)}`
         game.attack.replacement.options.forEach(gen_action_piece)
@@ -4619,7 +4620,7 @@ function defender_can_cancel_retreat() {
 }
 
 states.cancel_retreat = {
-    inactive: 'Defender choosing whether to cancel retreat',
+    inactive: 'retreat',
     prompt() {
         view.prompt = `Cancel retreat by taking an extra step loss or pass to begin retreat`
         for_each_piece_in_space(game.attack.space, (p) => {
@@ -4654,7 +4655,7 @@ states.cancel_retreat = {
 }
 
 states.cancel_retreat_confirm = {
-    inactive: 'Defender choosing whether to cancel retreat',
+    inactive: 'retreat',
     prompt() {
         view.prompt = "Retreat canceled."
         gen_action_done()
@@ -4668,7 +4669,7 @@ states.cancel_retreat_confirm = {
 }
 
 states.choose_retreat_canceling_replacement = {
-    inactive: 'Defender Choosing Replacement',
+    inactive: 'retreat',
     prompt() {
         view.prompt = `Choose a replacement for ${piece_name(game.attack.replacement.p)} in ${space_name(game.attack.replacement.s)}`
         game.attack.replacement.options.forEach(gen_action_piece)
@@ -4693,7 +4694,7 @@ function goto_defender_retreat() {
 }
 
 states.defender_retreat = {
-    inactive: 'Defender Retreating',
+    inactive: 'retreat',
     prompt() {
         view.prompt = `Select next unit to retreat`
         game.attack.to_retreat.forEach((p) => {
@@ -4717,7 +4718,7 @@ states.defender_retreat = {
 }
 
 states.choose_retreat_path = {
-    inactive: 'Defender Retreating',
+    inactive: 'retreat',
     prompt() {
 
         if (game.attack.retreat_path.length === game.attack.retreat_length || game.attack.retreating_pieces.length === 0) {
@@ -4861,7 +4862,7 @@ function goto_attacker_advance() {
 }
 
 states.attacker_advance = {
-    inactive: 'Attacker Advancing',
+    inactive: 'advance',
     prompt() {
         const spaces = get_possible_advance_spaces(game.attack.advancing_pieces)
         const remaining_length = game.attack.retreat_length - game.attack.advance_length
@@ -5198,7 +5199,7 @@ function goto_attrition_phase() {
 }
 
 states.attrition_phase = {
-    inactive: 'Remove OOS pieces and flip OOS spaces',
+    inactive: 'remove OOS pieces and flip OOS spaces',
     prompt() {
         let pieces = game.attrition[active_faction()].pieces
         let spaces = game.attrition[active_faction()].spaces
@@ -5260,7 +5261,7 @@ function goto_siege_phase() {
 }
 
 states.siege_phase = {
-    inactive: 'Roll sieges',
+    inactive: 'roll for besieged forts',
     prompt() {
         let siege_spaces = game.sieges_to_roll.filter((s) => data.spaces[s].faction === inactive_faction())
         siege_spaces.forEach(gen_action_space)
@@ -5578,7 +5579,7 @@ function summarize_rps(faction) {
 }
 
 states.replacement_phase = {
-    inactive: 'Choosing replacements',
+    inactive: 'spend replacement points',
     prompt() {
         if (game.army_to_rebuild) {
             view.prompt = `Choosing where to rebuild ${piece_name(game.army_to_rebuild)}`
@@ -5747,7 +5748,7 @@ function goto_draw_cards_phase() {
 }
 
 states.draw_cards_phase = {
-    inactive: 'Discarding combat cards',
+    inactive: 'discard combat cards',
     prompt() {
         view.prompt = 'Discard any Combat Cards you wish before drawing new cards'
         game[active_faction()].hand.forEach((c) => {
@@ -5893,7 +5894,9 @@ function is_neareast_space(s) {
 }
 
 states.place_new_neutral_units = {
-    inactive: 'Place new units',
+    inactive() {
+        view.prompt = `execute "${data.cards[game.last_card].name}"`
+    },
     prompt() {
         if (game.units_to_place.length > 0) {
             view.prompt = `Place ${game.units_to_place.length} new units`
@@ -6317,6 +6320,9 @@ function goto_end_event() {
 }
 
 states.confirm_event = {
+    inactive() {
+        view.prompt = `execute "${data.cards[game.last_card].name}"`
+    },
     prompt() {
         let c = game.last_card
         view.prompt = data.cards[game.last_card].name + " \u2013 done."
@@ -6398,7 +6404,7 @@ events.landwehr = {
 }
 
 states.landwehr = {
-    inactive: 'Choose units for the Landwehr event',
+    inactive: 'execute "Landwehr"',
     prompt() {
         let spent_rp = game.landwehr_pieces.reduce((acc, p) => { return acc + (data.pieces[p].type === CORPS ? 0.5 : 1)}, 0)
         if (spent_rp >= 2) {
@@ -6766,7 +6772,7 @@ events.war_in_africa = {
 }
 
 states.war_in_africa = {
-    inactive: `War in Africa: ${faction_name(AP)} choose to remove a British Corps or lose 1 VP`,
+    inactive: 'execute "War in Africa"',
     prompt() {
         if (game.war_in_africa_removed === undefined) {
             view.prompt = 'War in Africa - Done'
@@ -7258,7 +7264,7 @@ events.russian_desertions = {
 }
 
 states.russian_desertions = {
-    inactive: 'Russian Desertions: Choosing units to reduce',
+    inactive: 'execute "Russian Desertions"',
     prompt() {
         view.prompt = `Choose a Russian unit to reduce (${game.russian_desertions_remaining} remaining)`
         if (game.russian_desertions_remaining > 0) {
@@ -7586,7 +7592,7 @@ events.great_retreat = {
 }
 
 states.great_retreat_option = {
-    inactive: 'Great Retreat: Choosing whether to retreat Russian units',
+    inactive: 'use "Great Retreat"',
     prompt() {
         view.prompt = 'Great Retreat: Choose whether to retreat Russian units before combat'
         gen_action_pass()
@@ -7604,7 +7610,7 @@ states.great_retreat_option = {
 }
 
 states.great_retreat = {
-    inactive: 'Great Retreat: Retreating Russian units',
+    inactive: 'execute "Great Retreat"',
     prompt() {
         if (game.who !== 0) {
             let options = get_retreat_options([game.who], game.attack.space, 0)
@@ -7687,7 +7693,7 @@ events.salonika = {
 }
 
 states.salonika = {
-    inactive: 'Choosing units to SR to Salonika',
+    inactive: 'execute "Salonika"',
     prompt() {
         view.prompt = `Choose a unit to SR to Salonika (${game.salonika_sr_remaining} remaining)`
         if (!is_fully_stacked(SALONIKA_SPACE, AP) && game.salonika_sr_remaining > 0) {
@@ -7860,7 +7866,7 @@ events.kerensky_offensive = {
 }
 
 states.kerensky_offensive_option = {
-    inactive: 'Kerensky Offensive - Choosing whether to apply DRM',
+    inactive: 'use "Kerensky Offensive"',
     prompt() {
         view.prompt = 'Use Kerensky Offensive for +2 DRM?'
         gen_action('use')
@@ -7905,7 +7911,7 @@ events.brusilov_offensive = {
 }
 
 states.brusilov_offensive_option = {
-    inactive: 'Brusilov Offensive - Choosing whether to cancel trenches',
+    inactive: 'use "Brusilov Offensive"',
     prompt() {
         view.prompt = 'Use Brusilov Offensive to cancel trench effects?'
         gen_action('use')
@@ -8025,7 +8031,7 @@ events.paris_taxis = {
 }
 
 states.paris_taxis = {
-    inactive: 'Choose armies for the Paris Taxis event',
+    inactive: 'execute "Paris Taxis"',
     prompt() {
         view.prompt = 'Paris Taxis - Choose a reduced army to strengthen'
         let has_eligible_army = false
@@ -8067,7 +8073,7 @@ events.russian_cavalry = {
 }
 
 states.russian_cavalry = {
-    inactive: 'Placing Russian Cavalry',
+    inactive: 'execute "Russian Cavalry"',
     prompt() {
         if (game.units_to_place.length > 0) {
             view.prompt = 'Place the Russian Cavalry'
@@ -8547,7 +8553,7 @@ function goto_propose_rollback(rollback_index) {
 }
 
 states.review_rollback_proposal = {
-    inactive: 'Reviewing rollback proposal',
+    inactive: 'review rollback proposal',
     prompt() {
         const rollback = game.rollback[game.rollback_proposal.index]
         const turn = rollback.turn
@@ -8581,7 +8587,7 @@ function goto_flag_supply_warnings() {
 }
 
 states.flag_supply_warnings = {
-    inactive: 'Flagging supply warnings',
+    inactive: 'flag supply warnings',
     prompt() {
         view.prompt = 'Flag spaces where supply lines are threatened'
         for (let s = 1; s < AP_RESERVE_BOX; ++s) {
@@ -8615,7 +8621,7 @@ function goto_review_supply_warnings() {
 }
 
 states.review_supply_warnings = {
-    inactive: 'Reviewing supply warnings',
+    inactive: 'review supply warnings',
     prompt() {
         view.prompt = 'Review supply warnings'
         if (game.supply_warnings && game.supply_warnings.length < 4)
@@ -8810,5 +8816,11 @@ exports.assert_state = function(state) {
     assert_trench_level()
     assert_reinforcement_rules()
 }
+
+;(function(){
+    for (let key in states)
+        if (!states[key].inactive)
+            console.log("MISSING INACTIVE FOR: " + key)
+})()
 
 /* vim:set sts=4 sw=4 expandtab: */
