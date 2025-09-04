@@ -218,7 +218,7 @@ const LODZ = 102
 const CETINJE = 111
 const TIRANA = 112
 const VALONA = 113
-const SALONIKA_SPACE = 117
+const SALONIKA = 117
 const NIS = 122
 const BELGRADE = 125
 const WARSAW = 134
@@ -1739,9 +1739,8 @@ function get_sr_destinations(unit) {
         }
 
         // If the nation is Serbia, add Salonika, when it is controlled by the allies and in supply
-        const salonika = find_space('Salonika')
-        if (nation === SERBIA && is_space_supplied(AP, salonika) && is_controlled_by(salonika, AP)) {
-            set_add(destinations, salonika)
+        if (nation === SERBIA && is_space_supplied(AP, SALONIKA) && is_controlled_by(SALONIKA, AP)) {
+            set_add(destinations, SALONIKA)
         }
 
         // If the nation is the US, add all Allied-controlled ports in France
@@ -2134,8 +2133,8 @@ function get_available_reinforcement_spaces(p) {
     }
 
     // Special placement options for French Orient Army, British NE Army, Russian CAU Army, and British MEF Army
-    if (piece_data.name === 'FR Orient' && !is_fully_stacked(SALONIKA_SPACE, active_faction())) {
-        spaces.push(SALONIKA_SPACE)
+    if (piece_data.name === 'FR Orient' && !is_fully_stacked(SALONIKA, active_faction())) {
+        spaces.push(SALONIKA)
     } else if (piece_data.name === 'BR NE' && game.events.sinai_pipeline > 0 && !is_fully_stacked(ALEXANDRIA, active_faction())) {
         spaces.push(ALEXANDRIA)
     } else if (piece_data.name === 'RU CAU') {
@@ -2179,14 +2178,12 @@ function get_available_reinforcement_spaces(p) {
     }
 
     // If Paris is fully stacked, but not besieged or captured, French reinforcements can go in Orleans
-    const paris = find_space('Paris')
-    const orleans = find_space('Orleans')
     if (nation === FRANCE &&
-        is_fully_stacked(paris, active_faction()) &&
-        is_controlled_by(paris, active_faction()) &&
-        is_controlled_by(orleans, active_faction() &&
-        is_space_supplied(active_faction(), orleans))) {
-        spaces.push(orleans)
+        is_fully_stacked(PARIS, active_faction()) &&
+        is_controlled_by(PARIS, active_faction()) &&
+        is_controlled_by(ORLEANS, active_faction() &&
+        is_space_supplied(active_faction(), ORLEANS))) {
+        spaces.push(ORLEANS)
     }
 
     return spaces
@@ -5726,8 +5723,8 @@ function get_army_replacement_spaces(p) {
         //  Cards have been played and Salonika is under Allied control. They may also be recreated in Belgrade
         //  following normal reinforcement restrictions.
         if (game.events.salonika > 0 || game.events.greece_entry > 0) {
-            if (is_controlled_by(SALONIKA_SPACE, AP) && is_space_supplied(AP, SALONIKA_SPACE))
-                spaces.push(SALONIKA_SPACE)
+            if (is_controlled_by(SALONIKA, AP) && is_space_supplied(AP, SALONIKA))
+                spaces.push(SALONIKA)
         }
 
         // Exception: Serb armies may not be recreated at Belgrade if Nis is under CP control.
@@ -5970,7 +5967,7 @@ function get_supply_mask(source) {
         case CAUCASUS: return SUPPLY_MASK.Caucasus
         case BELGRADE: return SUPPLY_MASK.Belgrade
         case LONDON: return SUPPLY_MASK.London
-        case SALONIKA_SPACE: return SUPPLY_MASK.Salonika
+        case SALONIKA: return SUPPLY_MASK.Salonika
         case BASRA: return SUPPLY_MASK.Basra
     }
     return 0 // Default case, should not happen
@@ -6134,7 +6131,7 @@ function update_supply() {
     fill_supply_cache(AP, game.supply_cache, [LONDON], { use_ports: true, national_connections: ITALY, override_mask: SUPPLY_MASK.London_Italian })
 
     // These are also special cases, but don't need a separate mask because they use separate sources
-    fill_supply_cache(AP, game.supply_cache, [SALONIKA_SPACE])
+    fill_supply_cache(AP, game.supply_cache, [SALONIKA])
     fill_supply_cache(AP, game.supply_cache, [BASRA], { national_connections: BRITAIN })
 
     game.oos_pieces = get_oos_pieces()
@@ -6167,7 +6164,7 @@ function is_unit_supplied(p) {
     if (nation === SERBIA) {
         if (data.spaces[location].nation === SERBIA)
             return true // Serbian units are always in supply in Serbia
-        else if (is_controlled_by(SALONIKA_SPACE, AP) && check_supply_cache(game.supply_cache, location, [SALONIKA_SPACE]))
+        else if (is_controlled_by(SALONIKA, AP) && check_supply_cache(game.supply_cache, location, [SALONIKA]))
             return true // Serbian units can trace supply to Salonika if it is friendly controlled
     }
 
@@ -6271,7 +6268,7 @@ function is_space_supplied(faction, s) {
         }
 
         return (check_supply_cache(game.supply_cache, s, [LONDON, PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE])
-            || (is_controlled_by(SALONIKA_SPACE, AP) && check_supply_cache(game.supply_cache, s, [SALONIKA_SPACE])))
+            || (is_controlled_by(SALONIKA, AP) && check_supply_cache(game.supply_cache, s, [SALONIKA])))
     }
 }
 
@@ -7686,7 +7683,7 @@ events.landships = {
 // AP #30
 events.salonika = {
     can_play() {
-        return (!game.events.greece_entry || (is_controlled_by(SALONIKA_SPACE, AP) && !is_fully_stacked(SALONIKA_SPACE, AP)))
+        return (!game.events.greece_entry || (is_controlled_by(SALONIKA, AP) && !is_fully_stacked(SALONIKA, AP)))
     },
     play() {
         game.events.salonika = game.turn
@@ -7704,12 +7701,12 @@ states.salonika = {
     inactive: 'execute "Salonika"',
     prompt() {
         view.prompt = `Use strategic redeployment to Salonika (${game.salonika_sr_remaining} remaining).`
-        if (!is_fully_stacked(SALONIKA_SPACE, AP) && game.salonika_sr_remaining > 0) {
+        if (!is_fully_stacked(SALONIKA, AP) && game.salonika_sr_remaining > 0) {
             for (let p = 1; p < data.pieces.length; ++p) {
                 const loc = game.location[p]
                 const nation = data.pieces[p].nation
                 if (loc !== 0 &&
-                    loc !== SALONIKA_SPACE &&
+                    loc !== SALONIKA &&
                     data.pieces[p].type === CORPS &&
                     (nation === FRANCE || (nation === BRITAIN && !is_minor_british_nation(p))) &&
                     (is_port(loc, AP) || AP_RESERVE_BOX === loc)) {
@@ -7725,9 +7722,9 @@ states.salonika = {
         push_undo()
 
         game.salonika_sr_remaining--
-        log(`${piece_name(p)} SR\n${space_name(game.location[p])} -> ${space_name(SALONIKA_SPACE)}`)
-        game.location[p] = SALONIKA_SPACE
-        set_control(SALONIKA_SPACE, AP)
+        log(`${piece_name(p)} SR\n${space_name(game.location[p])} -> ${space_name(SALONIKA)}`)
+        game.location[p] = SALONIKA
+        set_control(SALONIKA, AP)
     },
     done() {
         delete game.salonika_sr_remaining
