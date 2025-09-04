@@ -570,15 +570,15 @@ const marker_info = {
     landships: {name: "Landships", counter: "cardtip ap-card marker landships ", size: 45, cardIndex: 28},
     race_to_the_sea: {name: "Race to the Sea", counter: "cardtip ap-card marker race_to_the_sea ", size: 45, cardIndex: 73},
     michael: {name: "Michael", counter: "cardtip cp-card marker michael ", size: 45, cardIndex: 114},
-    entrench: {name: "Entrench", counter: "cardtip ap-card marker entrench ", size: 45, cardIndex: 12},
-    entrench: {name: "Entrench", counter: "cardtip cp-card marker entrench ", size: 45, cardIndex: 71},
     _11th_army: {name: "11th Army", counter: "cardtip cp-card marker _11th_army ", size: 45, cardIndex: 94},
     independent_air_force: {name: "Independent Air Force", counter: "cardtip ap-card marker independent_air_force ", size: 45, cardIndex: 102},
-    blucher: {name: "Blucher", counter: "cardtip cp-card marker blucher ", size: 45, cardIndex: 115},
+    blucher: {name: "Blücher", counter: "cardtip cp-card marker blucher ", size: 45, cardIndex: 115},
     moltke: {name: "Moltke", counter: "cardtip cp-card marker moltke ", size: 45, cardIndex: 74},
     oberost: {name: "Oberost", counter: "cardtip cp-card marker oberost ", size: 45, cardIndex: 76},
-    great_retreat: {name: "Great Retreat", counter: "cardtip cp-card marker great_retreat ", size: 45, cardIndex: 92}
+    great_retreat: {name: "Great Retreat", counter: "cardtip cp-card marker great_retreat ", size: 45, cardIndex: 92},
 
+    entrench_ap: {name: "Entrench", counter: "cardtip ap-card marker entrench ", size: 45, cardIndex: 12},
+    entrench_cp: {name: "Entrench", counter: "cardtip cp-card marker entrench ", size: 45, cardIndex: 71},
 }
 
 let markers = {
@@ -1750,7 +1750,6 @@ function update_turn_track() {
 
         // These events don't have marker art available in this version of the game:
         "blucher",
-        "entrench",
         "reichstag_truce",
         "high_seas_fleet",
         "falkenhayn",
@@ -1778,6 +1777,17 @@ function update_turn_track() {
             update_turn_track_marker(marker, 0, true)
         }
     })
+
+    if (view.events.entrench & 128) {
+        update_turn_track_marker("entrench_ap", view.events.entrench & 127)
+        update_turn_track_marker("entrench_cp", 0, true)
+    } else if (view.events.entrench & 256) {
+        update_turn_track_marker("entrench_ap", 0, true)
+        update_turn_track_marker("entrench_cp", view.events.entrench & 127)
+    } else {
+        update_turn_track_marker("entrench_ap", 0, true)
+        update_turn_track_marker("entrench_cp", 0, true)
+    }
 
     turn_track_stacks.forEach((stack, ix) => {
         if (stack.length > 0) {

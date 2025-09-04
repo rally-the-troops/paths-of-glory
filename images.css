@@ -66,10 +66,10 @@
 .marker.vp { background-image: url(pieces/vp.webp); background-size: 45px 45px; }
 
 /* TEMP: For markers that are missing images, use CSS to insert some text */
-.marker { line-height: 12px; font-family: var(--font-small); font-size: 10px; text-align: center; }
-.marker:before { position: absolute; inset: 3px; padding: 6px 1px 0 1px; background-color: #e3dedc; }
+.marker { line-height: 10px; font-family: var(--font-small); font-size: 8px; text-align: center; }
+.marker:before { position: absolute; inset: 3px; padding: 8px 1px 0 1px; background-color: #e3dedc; }
 .marker.guns_of_august:before { content:"Guns of August"; }
-.marker.falkenhayn:before { content:"Falkenhayn"; }
+.marker.falkenhayn:before { content:"Falken\ad hayn"; }
 .marker.salonika:before { content:"Salonika"; }
 .marker.h_l_take_command:before { content:"H-L Take Command"; }
 .marker.zeppelin_raids:before { content:"Zeppelin Raids"; }
@@ -78,15 +78,17 @@
 .marker.moltke:before { content:"Moltke"; }
 .marker.oberost:before { content:"Oberost"; }
 .marker.great_retreat:before { content:"Great Retreat"; }
-.marker.landships:before { content:"Landships"; }
+.marker.landships:before { content:"Land\ad ships"; }
 .marker.entrench:before { content:"Entrench"; }
 .marker.reichstag_truce:before { content:"Reichstag Truce +1 VP"; }
 .marker.high_seas_fleet:before { content:"High Seas Fleet +1 VP"; }
 .marker.polish_restoration:before { content:"Polish Rest. +1 VP"; }
 .marker.rape_of_belgium:before { content:"Rape of Belgium -1 VP"; }
-.marker.independent_air_force:before { content:"Indep. Air Force"; }
-.marker.blucher:before { content:"Blücher"; }
 .marker.convoy:before { content:"Convoy -1 VP"; }
+.marker.independent_air_force:before { content:"Indep. Air Force"; }
+.marker.michael:before { content:"Michael"; }
+.marker.blucher:before { content:"Blücher"; }
+.marker.peace_offensive:before { content:"Peace Offensive"; }
 
 /* VASSAL NE MARKERS */
 .marker.ne_limit { background-size: 45px 45px; }

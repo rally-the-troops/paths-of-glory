@@ -6455,7 +6455,7 @@ events.cp_entrench = {
         return !game.events.entrench && game.turn > 1
     },
     play() {
-        game.events.entrench = game.turn
+        game.events.entrench = game.turn | 256
         game.state = 'place_event_trench'
     }
 }
@@ -7434,7 +7434,7 @@ events.ap_entrench = {
         return !game.events.entrench && game.turn > 1
     },
     play() {
-        game.events.entrench = game.turn
+        game.events.entrench = game.turn | 128
         game.state = 'place_event_trench'
     }
 }
