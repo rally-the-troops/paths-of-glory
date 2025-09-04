@@ -2652,6 +2652,7 @@ function get_eligible_spaces_to_move() {
             lowest_mf = mf
     })
 
+    let is_last_space = game.move.spaces_moved + 1 === lowest_mf
     if (game.move.spaces_moved < lowest_mf) {
         let moving_nations = []
         game.move.pieces.forEach((p) => { set_add(moving_nations, data.pieces[p].nation) })
@@ -2662,7 +2663,8 @@ function get_eligible_spaces_to_move() {
             connections = get_connected_spaces(game.move.current)
         }
         connections.forEach((conn) => {
-            if (can_move_to(conn, game.move.pieces))
+            const blocked_end_space = is_last_space && !can_end_move(conn)
+            if (can_move_to(conn, game.move.pieces) && !blocked_end_space)
                 spaces.push(conn)
         })
     }
@@ -2713,10 +2715,9 @@ states.move_stack = {
         })
 
         game.move.pieces.forEach((p) => {
-        if (can_end_move(game.move.current))
-            gen_action_piece(p) 
-            }
-        )
+            if (can_end_move(game.move.current))
+                gen_action_piece(p)
+        })
 
         if (can_end_move(game.move.current))
             gen_action('end_move')
