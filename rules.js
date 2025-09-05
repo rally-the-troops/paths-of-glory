@@ -2448,18 +2448,15 @@ states.choose_move_space = {
     inactive: 'move',
     prompt() {
         view.prompt = `Move units in spaces activated for movement.`
+
         let space_eligible_to_move = false
         game.activated.move.forEach((s) => {
-            let piece_eligible_to_move = false
             for_each_piece_in_space(s, (p) => {
-                if (get_piece_mf(p) > 0 && !set_has(game.entrenching, p)) {
-                    piece_eligible_to_move = true
+                if (get_piece_mf(p) > 0 && !set_has(game.entrenching, p) && !set_has(game.moved, p)) {
+                    gen_action_piece(p)
+                    space_eligible_to_move = true
                 }
             })
-            if (piece_eligible_to_move) {
-                space_eligible_to_move = true
-                gen_action_space(s)
-            }
         })
 
         if (can_entrench() && get_units_eligible_to_entrench().length > 0) {
@@ -2468,23 +2465,20 @@ states.choose_move_space = {
         }
 
         if (!space_eligible_to_move) { // This can happen if all spaces are entrenching, for example
-            gen_action_done()
+            if (game.activated.attack.length > 0)
+                gen_action_done()
+            else
+                gen_action("end_action")
         }
     },
-    space(s) {
+    piece(p) {
         push_undo()
-
+        let s = game.location[p]
         log("Moved from " + space_name(s))
-
         game.move.initial = s
         game.move.current = s
-        game.move.pieces = []
-        
-        for_each_piece_in_space(game.move.initial, (p) => {
-            if (get_piece_mf(p) > 0 && !set_has(game.entrenching, p) && !set_has(game.moved, p))
-                game.move.pieces.push(p)
-        })
-        game.state = 'choose_pieces_to_move'
+        game.move.pieces = [ p ]
+        game.state = "choose_pieces_to_move"
     },
     entrench() {
         push_undo()
@@ -2494,7 +2488,12 @@ states.choose_move_space = {
         push_undo()
         game.activated.move.length = 0
         end_move_activation()
-    }
+    },
+    end_action() {
+        this.done()
+        game.activated.move.length = 0
+        end_move_activation()
+    },
 }
 
 function get_units_eligible_to_entrench() {
@@ -2571,7 +2570,6 @@ states.place_event_trench = {
         goto_end_event()
     }
 }
-
 
 states.choose_pieces_to_move = {
     inactive: 'move',
@@ -2682,11 +2680,9 @@ function move_stack_to_space(s) {
 states.move_stack = {
     inactive: 'move',
     prompt() {
-        view.prompt = `Move ${game.move.pieces.map(piece_name).join(", ")} from ${space_name(game.move.current)}.`
+        view.prompt = `Move ${piece_list(game.move.pieces)} from ${space_name(game.move.current)}.`
 
-        get_eligible_spaces_to_move().forEach((s) => {
-            gen_action_space(s)
-        })
+        get_eligible_spaces_to_move().forEach(gen_action_space)
 
         if (can_end_move(game.move.current)) {
             game.move.pieces.forEach((p) => {
@@ -2698,6 +2694,7 @@ states.move_stack = {
     space(s) {
         push_undo()
         move_stack_to_space(s)
+        // TODO + FIXME: stop automatically if it is impossible to continue
     },
     piece(p) {
         push_undo()
@@ -4808,6 +4805,7 @@ function get_retreat_options(pieces, from, length_retreated) {
 
 function goto_attacker_advance() {
     if (game.attack.to_advance.length > 0) {
+        log("Advance")
         game.attack.advancing_pieces = []
         game.attack.advance_length = 0
         game.state = 'attacker_advance'
@@ -4838,26 +4836,36 @@ states.attacker_advance = {
         }
 
         if (game.attack.advance_length === 0) {
-            game.attack.to_advance.forEach((p) => {
-                gen_action_piece(p)
-            })
+            game.attack.to_advance.forEach(gen_action_piece)
             if (game.attack.advancing_pieces.length === 0) {
                 // TODO: select all
                 gen_action_done()
             }
         } else if (game.attack.advance_length > 0) {
-            const end_space = game.location[game.attack.advancing_pieces[0]]
-            gen_action_space(end_space)
+            for (let p of game.attack.advancing_pieces)
+                gen_action_piece(p)
             gen_action("stop")
         }
 
         spaces.forEach(gen_action_space)
     },
     piece(p) {
-        if (game.attack.advancing_pieces.length === 0)
-            push_undo()
-        game.attack.advancing_pieces.push(p)
-        array_remove_item(game.attack.to_advance, p)
+        if (set_has(game.attack.advancing_pieces, p)) {
+            const end_space = game.location[p]
+            logi(piece_name(p) + " -> " + space_name(end_space))
+            if (has_undestroyed_fort(end_space, other_faction(game.attack.attacker))) {
+                set_add(game.forts.besieged, end_space)
+                update_supply()
+            }
+            set_delete(game.attack.advancing_pieces, p)
+            if (game.attack.advancing_pieces.length === 0)
+                game.attack.advance_length = 0
+        } else {
+            if (game.attack.advancing_pieces.length === 0)
+                push_undo()
+            set_add(game.attack.advancing_pieces, p)
+            set_delete(game.attack.to_advance, p)
+        }
     },
     space(s) {
         let leaving_spaces = []
@@ -4888,6 +4896,7 @@ states.attacker_advance = {
     },
     stop() {
         const end_space = game.location[game.attack.advancing_pieces[0]]
+        logi(piece_list(game.attack.advancing_pieces) + " -> " + space_name(end_space))
         if (has_undestroyed_fort(end_space, other_faction(game.attack.attacker))) {
             set_add(game.forts.besieged, end_space)
             update_supply()
@@ -7610,6 +7619,7 @@ states.great_retreat = {
                 options.forEach(gen_action_space)
             } else {
                 // TODO: Must eliminate the unit
+                throw new Error("TODO: Must eliminate the unit")
             }
         } else {
             let pieces_to_retreat = get_defenders_pieces().filter(p => data.pieces[p].nation === RUSSIA)
