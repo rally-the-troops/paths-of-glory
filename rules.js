@@ -4851,6 +4851,8 @@ states.attacker_advance = {
                 view.prompt = `Advance with ${piece_list(game.attack.advancing_pieces)} up to ${remaining_length} spaces.`
             else
                 view.prompt = `Advance with ${piece_list(game.attack.advancing_pieces)} into ${space_name(spaces[0])}.`
+        } else if (game.attack.to_advance.length === 0) {
+            view.prompt = `Advance: Done.`
         } else {
             view.prompt = `You may advance into ${space_name(game.attack.space)}.`
         }
@@ -4864,6 +4866,8 @@ states.attacker_advance = {
                 gen_action_done()
             }
         } else if (game.attack.advance_length > 0) {
+            const end_space = game.location[game.attack.advancing_pieces[0]]
+            gen_action_space(end_space)
             gen_action("stop")
         }
 
