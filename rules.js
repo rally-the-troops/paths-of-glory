@@ -2303,8 +2303,7 @@ function start_attack_activation() {
 }
 
 function end_move_activation() {
-    log_all_pending_moves()
-    array_remove_item(game.activated.move, game.move.initial)
+    set_delete(game.activated.move, game.move.initial)
     game.move = null
     if (game.activated.move.length === 0) {
         if (check_rule_violations().length > 0)
@@ -2474,9 +2473,11 @@ states.choose_move_space = {
     },
     space(s) {
         push_undo()
+
+        log("Moved from " + space_name(s))
+
         game.move.initial = s
         game.move.current = s
-        game.move_path = [s]
         game.move.pieces = []
         
         for_each_piece_in_space(game.move.initial, (p) => {
@@ -2524,7 +2525,7 @@ states.choose_entrench_units = {
     },
     piece(p) {
         push_undo()
-        log(`${piece_name(p)} will attempt to entrench in ${space_name(game.location[p])}`)
+        log(`>${piece_name(p)} will attempt to entrench`)
         set_add(game.entrenching, p)
         // If there are no pieces left to move, deactivate the space
         if (get_pieces_in_space(game.location[p]).every((piece) => set_has(game.entrenching, piece) || set_has(game.moved, piece)))
@@ -2579,7 +2580,6 @@ states.choose_pieces_to_move = {
             view.prompt = `Move ${piece_list(game.move.pieces)} from ${space_name(game.move.initial)}.`
         else
             view.prompt = `Move units from ${space_name(game.move.initial)}.`
-        game.move_path = [game.move.initial]
         for_each_piece_in_space(game.move.initial, (p) => {
             if (get_piece_mf(p) > 0 && !set_has(game.entrenching, p) && !set_has(game.moved, p) && !set_has(game.move.pieces, p)) {
                 gen_action_piece(p)
@@ -2599,10 +2599,6 @@ states.choose_pieces_to_move = {
     space(s) {
         push_undo()
         move_stack_to_space(s)
-
-        if (!game.move_path) 
-            game.move_path = [game.move.initial]
-        game.move_path.push(s)
         game.state = 'move_stack'
     },
     done() {
@@ -2702,9 +2698,6 @@ states.move_stack = {
     space(s) {
         push_undo()
         move_stack_to_space(s)
-        if (!game.move_path)
-            game.move_path = [game.move.current || game.move.initial]
-        game.move_path.push(s)
     },
     piece(p) {
         push_undo()
@@ -2716,9 +2709,7 @@ states.move_stack = {
     },
     stop() {
         push_undo()
-        game.move.pieces.forEach(piece => {
-            log_piece_move(piece)
-        })
+        log_piece_move(game.move.pieces)
         end_move_stack()
     }
 }
@@ -2966,9 +2957,8 @@ function end_move_stack() {
         update_supply()
     }
 
-    game.move.pieces.forEach((p) => {
+    for (let p of game.move.pieces)
         set_add(game.moved, p)
-    })
 
     if (get_pieces_in_space(game.move.initial).length > 0) {
         game.move.current = game.move.initial
@@ -8682,44 +8672,12 @@ function log_corps(p) {
     return ""
 }
 
-function log_piece_move(piece) {
-    // Store to be able to group the logs by same piece + path
-    if (game.move_path && game.move_path.length > 1) {
-        let first_space = space_name(game.move_path[0])
-        let last_space = space_name(game.move_path[game.move_path.length - 1])
-
-        if (!game.pending_moves)
-            game.pending_moves = []
-        
-        game.pending_moves.push({
-            piece: piece,
-            path: first_space + " -> " + last_space
-        })
-    }
+function log_piece_move(p) {
+    if (Array.isArray(p))
+        logi(piece_list(p) + " -> " + space_name(game.location[p[0]]))
+    else
+        logi(piece_name(p) + " -> " + space_name(game.location[p]))
 }
-
-function log_all_pending_moves() {
-    if (!game.pending_moves || game.pending_moves.length === 0) 
-        return
-    
-    let path_groups = {}
-    
-    game.pending_moves.forEach(move => {
-        if (!path_groups[move.path]) {
-            path_groups[move.path] = []
-        }
-        path_groups[move.path].push(move.piece)
-    })
-    
-    // Log each group
-    Object.keys(path_groups).forEach(path => {
-        let piece_names = path_groups[path].map(piece => piece_name(piece))
-        log(piece_names.join(", ") + " moved")
-        logi(path)
-    })  
-    game.pending_moves = []
-}
-
 
 function die_color(faction) {
     if (faction === AP)
