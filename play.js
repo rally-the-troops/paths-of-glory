@@ -1635,7 +1635,7 @@ function update_space_highlight(s) {
     else
         space.element.classList.remove("highlight")
 
-    if (view.attack && view.attack.space === s)
+    if (view.where === s)
         space.element.classList.add("selected")
     else
         space.element.classList.remove("selected")
@@ -1693,8 +1693,9 @@ function update_piece(id) {
             !!(
                 (view.attack && view.attack.advancing_pieces && view.attack.advancing_pieces.includes(id)) ||
                 (view.attack && view.attack.retreating_pieces && view.attack.retreating_pieces.includes(id)) ||
+                (view.move && view.move.pieces.includes(id)) ||
                 (view.who === id)
-            )
+            ) && !is_action("piece", id)
         )
 }
 
