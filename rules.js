@@ -2592,7 +2592,7 @@ states.choose_pieces_to_move = {
             view.prompt = `Move units from ${space_name(game.move.initial)}.`
         game.move_path = [game.move.initial]
         for_each_piece_in_space(game.move.initial, (p) => {
-            if (get_piece_mf(p) > 0 && !game.entrenching.includes(p) && !game.moved.includes(p)) {
+            if (get_piece_mf(p) > 0 && !set_has(game.entrenching, p) && !set_has(game.moved, p) && !set_has(game.move.pieces, p)) {
                 gen_action_piece(p)
             }
         })
@@ -2603,17 +2603,9 @@ states.choose_pieces_to_move = {
         view.actions.end_activation = 1
     },
     piece(p) {
-        let here = game.move.initial
-        game.selected = [p]
-        if (!game.move_path) 
-            game.move_path = [here]
-        if (game.move.pieces.includes(p))
-            array_remove_item(game.move.pieces, p)
-        else {
-            game.move.pieces.push(p)
-            game.move_path = [here]
-        }
-        update_siege(game.location[p])
+        if (game.move.pieces.length === 0)
+            push_undo()
+        set_add(game.move.pieces, p)
     },
     space(s) {
         push_undo()
