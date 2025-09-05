@@ -4647,6 +4647,7 @@ function replace_retreat_canceling_unit(unit, location, replacement) {
 }
 
 function goto_defender_retreat() {
+    log("Retreat")
     game.attack.retreat_path = []
     game.state = 'defender_retreat'
 }
@@ -4725,6 +4726,7 @@ states.defender_retreat = {
         }
     },
     _next() {
+            logi(piece_list(game.attack.retreating_pieces) + " -> " + space_list(game.attack.retreat_path))
             if (game.attack.retreat_path.length > 0)
                 game.attack.retreat_paths.push(game.attack.retreat_path)
             game.attack.retreat_path = []
