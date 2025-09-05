@@ -1013,7 +1013,6 @@ function build_turn_track_marker(type) {
         marker.setAttribute('onmouseenter', `on_focus_card_tip(${marker_info[type].cardIndex})`);
         marker.setAttribute('onmouseleave', 'on_blur_card_tip()');
     }
-    
     return marker;
 }
 
@@ -1682,27 +1681,21 @@ function update_card(id) {
 }
 
 function update_piece(id) {
-    let piece = pieces[id]
-    if (view.actions && view.actions.piece && view.actions.piece.includes(id))
-        piece.element.classList.add('highlight')
-    else
-        piece.element.classList.remove('highlight')
-
-    if ((view.activation && view.activation.includes(id)) ||
-        (view.move && view.move.pieces.includes(id)) ||
-        (view.attack && view.attack.pieces.includes(id))
-    )
-        piece.element.classList.add('activated')
-    else
-        piece.element.classList.remove('activated')
-
-    if (view.who === id ||
-        (view.attack && view.attack.advancing_pieces && view.attack.advancing_pieces.includes(id)) ||
-        (view.attack && view.attack.retreating_pieces && view.attack.retreating_pieces.includes(id))
-    )
-        piece.element.classList.add('selected')
-    else
-        piece.element.classList.remove('selected')
+	let piece = pieces[id]
+	piece.element.classList.toggle("highlight", !!(view.actions && view.actions.piece && view.actions.piece.includes(id)))
+	piece.element.classList.toggle("activated",
+            !!(
+                (view.attack && view.attack.pieces.includes(id)) ||
+                (view.move && view.move.pieces.includes(id))
+            )
+	)
+	piece.element.classList.toggle("selected",
+            !!(
+                (view.who === id) ||
+                (view.attack && view.attack.advancing_pieces && view.attack.advancing_pieces.includes(id)) ||
+                (view.attack && view.attack.retreating_pieces && view.attack.retreating_pieces.includes(id))
+            )
+        )
 }
 
 let turn_track_stacks = new Array(20)
@@ -1831,7 +1824,7 @@ function update_general_records_track() {
         update_general_record("ge_rp_back", view.rp.ge, !view.rp.ge)
     else
         update_general_record("ge_rp", view.rp.ge, !view.rp.ge)
-    
+
     update_general_record("ah_rp", view.rp.ah, !view.rp.ah)
     update_general_record("fr_rp", view.rp.fr, !view.rp.fr)
     update_general_record("br_rp", view.rp.br, !view.rp.br) // TODO: Check for uboats event and apply the uboats class
