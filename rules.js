@@ -947,7 +947,7 @@ function setup_piece(nation, unit, space, reduced) {
     let who = find_unused_piece(nation, unit)
     game.location[who] = where
     if (reduced) {
-        game.reduced.push(who)
+        set_add(game.reduced, who)
     }
 }
 
@@ -1258,7 +1258,7 @@ states.confirm_mo = {
 // === PIECE UTILITIES ===
 
 function is_unit_reduced(p) {
-    return game.reduced.includes(p)
+    return set_has(game.reduced, p)
 }
 
 function is_unit_corps(p) {
@@ -1283,7 +1283,7 @@ function is_unit_eliminated(p) {
 
 function send_to_eliminated_box(p) {
     if (is_unit_reduced(p))
-        array_remove_item(game.reduced, p)
+        set_delete(game.reduced, p)
     if (data.pieces[p].faction === AP) {
         game.location[p] = AP_ELIMINATED_BOX
     } else {
@@ -2079,9 +2079,7 @@ states.place_reinforcements = {
         push_undo()
         const p = game.reinforcements.shift()
         game.location[p] = s
-        if (game.reduced.includes(p)) {
-            array_remove_item(game.reduced, p)
-        }
+        set_delete(game.reduced, p)
         log(`${piece_name(p)}${log_corps(p)} placed in ${space_name(s)}`)
 
         if (neareast_armies.includes(p) && data.spaces[s].map !== 'neareast' && !is_mef_space(s)) {
@@ -2290,7 +2288,7 @@ function start_action_round() {
     game.attacked = []
     game.retreated = []
     game.location.forEach((s, p) => {
-        if (game.activated.attack.includes(s)) {
+        if (set_has(game.activated.attack, s)) {
             game.eligible_attackers.push(p)
         }
     })
@@ -2466,7 +2464,7 @@ states.choose_move_space = {
         game.activated.move.forEach((s) => {
             let piece_eligible_to_move = false
             for_each_piece_in_space(s, (p) => {
-                if (get_piece_mf(p) > 0 && !game.entrenching.includes(p)) {
+                if (get_piece_mf(p) > 0 && !set_has(game.entrenching, p)) {
                     piece_eligible_to_move = true
                 }
             })
@@ -2493,7 +2491,7 @@ states.choose_move_space = {
         game.move.pieces = []
         
         for_each_piece_in_space(game.move.initial, (p) => {
-            if (get_piece_mf(p) > 0 && !game.entrenching.includes(p) && !game.moved.includes(p))
+            if (get_piece_mf(p) > 0 && !set_has(game.entrenching, p) && !set_has(game.moved, p))
                 game.move.pieces.push(p)
         })
         game.state = 'choose_pieces_to_move'
@@ -2516,7 +2514,7 @@ function get_units_eligible_to_entrench() {
         let trench_lvl = get_trench_level(s, active_faction())
         if (is_controlled_by(s, active_faction()) && trench_lvl < 2 && !entrenching_spaces.includes(s)) {
             for_each_piece_in_space(s, (p) => {
-                if (data.pieces[p].type === ARMY && !game.moved.includes(p)) {
+                if (data.pieces[p].type === ARMY && !set_has(game.moved, p)) {
                     units.push(p)
                 }
             })
@@ -2538,9 +2536,9 @@ states.choose_entrench_units = {
     piece(p) {
         push_undo()
         log(`${piece_name(p)} will attempt to entrench in ${space_name(game.location[p])}`)
-        game.entrenching.push(p)
+        set_add(game.entrenching, p)
         // If there are no pieces left to move, deactivate the space
-        if (get_pieces_in_space(game.location[p]).every((piece) => game.entrenching.includes(piece) || game.moved.includes(piece)))
+        if (get_pieces_in_space(game.location[p]).every((piece) => set_has(game.entrenching, piece) || set_has(game.moved, piece)))
             set_delete(game.activated.move, game.location[p])
     },
     done() {
@@ -2589,7 +2587,7 @@ states.choose_pieces_to_move = {
     inactive: 'move',
     prompt() {
         if (game.move.pieces.length > 0)
-            view.prompt = `Move ${game.move.pieces.map(piece_name).join(", ")} from ${space_name(game.move.initial)}.`
+            view.prompt = `Move ${piece_list(game.move.pieces)} from ${space_name(game.move.initial)}.`
         else
             view.prompt = `Move units from ${space_name(game.move.initial)}.`
         game.move_path = [game.move.initial]
@@ -2636,7 +2634,7 @@ function get_eligible_spaces_to_move() {
     if (is_besieged(game.move.current)) {
         let units_in_space_after_move = []
         for_each_piece_in_space(game.move.current, (p) => {
-            if (!game.move.pieces.includes(p))
+            if (!set_has(game.move.pieces, p))
                 units_in_space_after_move.push(p)
         })
         if (units_in_space_after_move.length > 0 && !can_besiege(game.move.current, units_in_space_after_move))
@@ -2674,7 +2672,7 @@ function move_stack_to_space(s) {
     if (is_besieged(game.move.current)) {
         let pieces_remaining = []
         for_each_piece_in_space(game.move.current, (p) => {
-            if (!game.move.pieces.includes(p))
+            if (!set_has(game.move.pieces, p))
                 pieces_remaining.push(p)
         })
         if (!can_besiege(game.move.current, pieces_remaining)) {
@@ -2730,8 +2728,8 @@ states.move_stack = {
     piece(p) {
         push_undo()
         log_piece_move(p)
-        array_remove_item(game.move.pieces, p)
-        game.moved.push(p)
+        set_delete(game.move.pieces, p)
+        set_add(game.moved, p)
         if (game.move.pieces.length === 0)
             end_move_stack()
     },
@@ -2970,7 +2968,7 @@ function get_all_overstacked_spaces() {
 }
 
 function can_end_move(s) {
-    if (game.activated.attack.includes(s))
+    if (set_has(game.activated.attack, s))
         return false
 
     if (active_faction() === CP && !game.events.race_to_the_sea && (s === AMIENS || s === CALAIS || s === OSTEND) && game.cp.ws < 4) {
@@ -2988,7 +2986,7 @@ function end_move_stack() {
     }
 
     game.move.pieces.forEach((p) => {
-        game.moved.push(p)
+        set_add(game.moved, p)
     })
 
     if (get_pieces_in_space(game.move.initial).length > 0) {
@@ -3007,7 +3005,7 @@ function piece_can_join_attack_without_breaking_siege(piece) {
 
     let pieces_remaining = []
     for_each_piece_in_space(game.location[piece], (p) => {
-        if (piece !== p && !game.attack.pieces.includes(p))
+        if (piece !== p && !set_has(game.attack.pieces, p))
             pieces_remaining.push(p)
     })
 
@@ -3092,7 +3090,7 @@ states.choose_attackers = {
     },
     select_all() {
         game.eligible_attackers.forEach((p) => {
-            game.attack.pieces.push(p)
+            set_add(game.attack.pieces, p)
         })
     },
     confirm_pass_attack() {
@@ -4115,9 +4113,7 @@ states.withdrawal_negate_step_loss = {
         log(`${card_name(game.attack.attacker === CP ? WITHDRAWAL_AP : WITHDRAWAL_CP)} negates step loss for ${piece_name(p)}`)
         if (game.removed.includes(p) || is_unit_eliminated(p)) {
             array_remove_item(game.removed, p)
-            if (!game.reduced.includes(p)) {
-                game.reduced.push(p)
-            }
+            set_add(game.reduced, p)
 
             // If the piece was replaced, move the replacement back to the reserve box
             if (game.attack.defender_replacements[p]) {
@@ -4126,8 +4122,8 @@ states.withdrawal_negate_step_loss = {
             }
 
             game.location[p] = game.attack.space
-        } else if (game.reduced.includes(p)) {
-            array_remove_item(game.reduced, p)
+        } else {
+            set_delete(game.reduced, p)
         }
         game.state = "withdrawal_negate_step_loss_confirm"
     },
@@ -4181,7 +4177,7 @@ function eliminate_piece(p, force_permanent_elimination) {
 
 function reduce_piece(p) {
     log(`Flipped ${piece_name(p)} in ${space_name(game.location[p])}`)
-    game.reduced.push(p)
+    set_add(game.reduced, p)
 }
 
 states.apply_attacker_losses = {
@@ -4207,7 +4203,7 @@ states.apply_attacker_losses = {
         if (is_unit_reduced(p)) {
             const location = game.location[p]
             let replacement_options = eliminate_piece(p)
-            array_remove_item(game.attack.pieces, p)
+            set_delete(game.attack.pieces, p)
             // If there are multiple options, player must choose a replacement
             if (replacement_options.length > 1) {
                 game.attack.replacement = { p: p, s: location, options: replacement_options }
@@ -4250,7 +4246,7 @@ states.choose_attacker_replacement = {
 
 function replace_attacker_unit(unit, location, replacement) {
     log(`Replaced ${piece_name(unit, true)} in ${space_name(location)} with ${piece_name(replacement)}`)
-    game.attack.pieces.push(replacement)
+    set_add(game.attack.pieces, replacement)
     game.location[replacement] = location
 }
 
@@ -5609,15 +5605,14 @@ states.replacement_phase = {
             if (is_unit_eliminated(p)) {
                 game.army_to_rebuild = p
             } else {
-                array_remove_item(game.reduced, p)
+                set_delete(game.reduced, p)
                 log(`Flipped ${piece_name(p)} in ${space_name(game.location[p])} to full strength`)
                 spend_rps(get_rp_type(p), 1)
                 game.who = 0
             }
         } else {
             if (is_unit_eliminated(p)) {
-                if (!is_unit_reduced(p))
-                    game.reduced.push(p)
+                set_add(game.reduced, p)
                 if (p === BRITISH_ANA_CORPS)
                     game.location[p] = ARABIA_SPACE
                 else
@@ -5625,7 +5620,7 @@ states.replacement_phase = {
                 spend_rps(get_rp_type(p), 0.5)
                 log(`Rebuilt ${piece_name(p)}${log_corps(p)} `)
             } else {
-                array_remove_item(game.reduced, p)
+                set_delete(game.reduced, p)
                 spend_rps(get_rp_type(p), 0.5)
                 log(`Flipped ${piece_name(p)}${log_corps(p)} in ${space_name(game.location[p])} to full strength`)
             }
@@ -5633,8 +5628,7 @@ states.replacement_phase = {
     },
     space(s) {
         push_undo()
-        if (!is_unit_reduced(game.army_to_rebuild))
-            game.reduced.push(game.army_to_rebuild)
+        set_add(game.reduced, game.army_to_rebuild)
         game.location[game.army_to_rebuild] = s
         spend_rps(get_rp_type(game.army_to_rebuild), 1)
         log(`Rebuilt ${piece_name(game.army_to_rebuild)} at ${space_name(s)}`)
@@ -6316,7 +6310,7 @@ function get_oos_pieces() {
     for (let p = 1; p < data.pieces.length; ++p) {
         if (!nation_at_war(data.pieces[p].nation))
             continue
-        if (game.location[p] !== 0 && game.location[p] < AP_RESERVE_BOX && !is_unit_supplied(p) && !moving_pieces.includes(p)) {
+        if (game.location[p] !== 0 && game.location[p] < AP_RESERVE_BOX && !is_unit_supplied(p) && !set_has(moving_pieces, p)) {
             oos_pieces.push(p)
         }
     }
@@ -6469,7 +6463,7 @@ states.landwehr = {
     },
     piece(p) {
         push_undo()
-        array_remove_item(game.reduced, p)
+        set_delete(game.reduced, p)
         log(`Flipped ${piece_name(p)} (${space_name(game.location[p])}) to full strength`)
         game.landwehr_pieces.push(p)
     },
@@ -7304,7 +7298,7 @@ states.russian_desertions = {
     },
     piece(p) {
         push_undo()
-        game.reduced.push(p)
+        set_add(game.reduced, p)
         log(`Flipped ${piece_name(p)} in ${space_name(game.location[p])}`)
         game.russian_desertions_remaining--
     },
@@ -8076,7 +8070,7 @@ states.paris_taxis = {
         }
     },
     piece(p) {
-        array_remove_item(game.reduced, p)
+        set_delete(game.reduced, p)
         log(`Flipped ${piece_name(p)} in ${space_name(game.location[p])} to full strength`)
     },
     pass() {
