@@ -6411,7 +6411,7 @@ states.landwehr = {
         let spent_rp = game.landwehr_pieces.reduce((acc, p) => { return acc + (data.pieces[p].type === CORPS ? 0.5 : 1)}, 0)
         if (spent_rp >= 2) {
             view.prompt = `Landwehr: Done.`
-            gen_action_done()
+            view.actions.end_action = 1
         } else {
             let has_eligible_piece = false
             const has_half_rp = spent_rp !== Math.floor(spent_rp)
@@ -6436,7 +6436,7 @@ states.landwehr = {
 
             if (!has_eligible_piece) {
                 view.prompt = `Landwehr: Done.`
-                gen_action_done()
+                view.actions.end_action = 1
             } else {
                 gen_action_pass()
             }
@@ -6449,11 +6449,11 @@ states.landwehr = {
         game.landwehr_pieces.push(p)
     },
     pass() {
-        this.done()
+        this.end_action()
     },
-    done() {
+    end_action() {
         delete game.landwehr_pieces
-        goto_end_event()
+        goto_end_action() // Don't go to the end event prompt, just end the action, since we already prompted
     }
 }
 
