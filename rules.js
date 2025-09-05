@@ -1608,7 +1608,7 @@ states.choose_sr_unit = {
 
         const rule_violations = check_rule_violations()
         if (rule_violations.length === 0) {
-            gen_action_done()
+            gen_action("end_action")
         } else {
             gen_action('reset_phase')
         }
@@ -1619,7 +1619,7 @@ states.choose_sr_unit = {
         game.sr.pts -= sr_cost(p)
         game.state = 'choose_sr_destination'
     },
-    done() {
+    end_action() {
         end_sr()
         goto_end_action()
     },
@@ -1982,10 +1982,9 @@ states.rps = {
         else {
             view.prompt = `Replacements: ${game.rp.ge} GE, ${game.rp.ah} AH, ${game.rp.bu} BU, ${game.rp.tu} TU.`
         }
-        gen_action_done()
+        gen_action("end_action")
     },
-    done() {
-        clear_undo()
+    end_action() {
         goto_end_action()
     }
 }
@@ -2308,7 +2307,12 @@ function end_move_activation() {
     array_remove_item(game.activated.move, game.move.initial)
     game.move = null
     if (game.activated.move.length === 0) {
-        game.state = 'confirm_moves'
+        if (check_rule_violations().length > 0)
+            game.state = 'confirm_move_violations'
+        else if (game.activated.attack.length === 0)
+            game.state = 'confirm_move'
+        else
+            goto_next_activation()
     } else {
         start_move_activation()
     }
@@ -2584,8 +2588,8 @@ states.choose_pieces_to_move = {
 
         if (game.move.pieces.length > 0)
             get_eligible_spaces_to_move().forEach(gen_action_space)
-
-        view.actions.end_activation = 1
+        else
+            view.actions.done = 1
     },
     piece(p) {
         if (game.move.pieces.length === 0)
@@ -2601,7 +2605,7 @@ states.choose_pieces_to_move = {
         game.move_path.push(s)
         game.state = 'move_stack'
     },
-    end_activation() {
+    done() {
         push_undo()
         end_move_activation()
     },
@@ -2989,22 +2993,24 @@ function piece_can_join_attack_without_breaking_siege(piece) {
     return pieces_remaining.length === 0 || can_besiege(game.location[piece], pieces_remaining)
 }
 
-states.confirm_moves = {
+states.confirm_move_violations = {
     inactive: 'move',
     prompt() {
-        const violations = check_rule_violations()
-        if (violations.length === 0) {
-            view.prompt = `Confirm moves.`
-            gen_action_done()
-        } else {
-            view.prompt = `Correct rules violations before continuing.`
-            gen_action('reset_phase')
-        }
+        view.prompt = `You must correct rule violations before continuing.`
+        gen_action('reset_phase')
     },
     reset_phase() {
         pop_all_undo()
     },
-    done() {
+}
+
+states.confirm_move = {
+    inactive: 'move',
+    prompt() {
+        view.prompt = `Operations: Done.`
+        gen_action("end_action")
+    },
+    end_action() {
         goto_next_activation()
     }
 }
@@ -6303,9 +6309,9 @@ states.confirm_event = {
     prompt() {
         let c = game.last_card
         view.prompt = current_card_name() + ": Done."
-        view.actions.end_event = 1
+        view.actions.end_action = 1
     },
-    end_event() {
+    end_action() {
         goto_end_action()
     },
 }
