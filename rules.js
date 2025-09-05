@@ -2720,10 +2720,10 @@ function set_control(s, faction) {
         const is_russian = data.spaces[s].nation === RUSSIA
         if (faction === AP) {
             game.vp--
-            logi(`-1 VP for ${faction_name(faction)} taking ${space_name(s)}`)
+            logi(`-1 VP ${space_name(s)} captured`)
             if (is_russian) game.cp.ru_vp--
         } else {
-            logi(`+1 VP for ${faction_name(faction)} taking ${space_name(s)}`)
+            logi(`+1 VP ${space_name(s)} captured`)
             game.vp++
             if (is_russian) game.cp.ru_vp++
         }
