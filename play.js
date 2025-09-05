@@ -2198,6 +2198,10 @@ function update_map() {
         }
     }
 
+    confirm_action_button("confirm_pass_attack", "Pass",
+        "You still have units eligible to attack!\n\Do you still want to PASS?"
+    )
+
     action_button("offer_peace", "Offer Peace")
     action_button("single_op", "Automatic Operation")
     action_button("use", "Use")

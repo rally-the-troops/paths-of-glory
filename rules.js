@@ -3069,8 +3069,12 @@ states.choose_attackers = {
             gen_action('select_all')
         }
 
-        if (game.attack.pieces.length === 0)
-            gen_action_pass()
+        if (game.attack.pieces.length === 0) {
+            if (game.eligible_attackers.length > 0)
+                gen_action("confirm_pass_attack")
+            else
+                gen_action_pass()
+        }
     },
     piece(p) {
         push_undo()
@@ -3087,21 +3091,18 @@ states.choose_attackers = {
         game.state = 'confirm_attack'
     },
     select_all() {
-        push_undo()
         game.eligible_attackers.forEach((p) => {
             game.attack.pieces.push(p)
         })
     },
+    confirm_pass_attack() {
+        this.pass()
+    },
     pass() {
-        if (game.eligible_attackers.length > 0) {
-            push_undo()
-            game.state = 'confirm_pass_attack'
-        }
-        else {
-            game.eligible_attackers = []
-            end_attack_activation()
-            goto_next_activation()
-        }
+        push_undo()
+        game.eligible_attackers = []
+        end_attack_activation()
+        goto_next_activation()
     }
 }
 
