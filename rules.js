@@ -3163,8 +3163,8 @@ function goto_attack() {
     }
 
     if (game.events.french_mutiny > 0 && game.attack.attacker === AP) {
-        const french_attacking = undefined !== game.attack.pieces.find((p) => data.pieces[p].nation === FRANCE)
-        const us_supporting = undefined !== game.attack.pieces.find((p) => data.pieces[p].nation === US)
+        const french_attacking = game.attack.pieces.some((p) => data.pieces[p].nation === FRANCE)
+        const us_supporting = game.attack.pieces.some((p) => data.pieces[p].nation === US)
         if (french_attacking && !us_supporting) {
             game.french_attacked_without_us_support = true // Set a flag to track this for the French Mutiny event, which will update the VP at end of turn
         }
@@ -3174,7 +3174,7 @@ function goto_attack() {
 }
 
 function goto_attack_step_great_retreat() {
-    if (game.turn === game.events.great_retreat && undefined !== get_defenders_pieces().find((p) => data.pieces[p].nation === RUSSIA)) {
+    if (game.turn === game.events.great_retreat && get_defenders_pieces().some((p) => data.pieces[p].nation === RUSSIA)) {
         clear_undo()
         switch_active_faction()
         game.state = 'great_retreat_option'
@@ -6380,7 +6380,7 @@ events.von_francois = {
         if (!game.attack || game.attack.attacker !== CP || undefined === game.attack.pieces.find(p => data.pieces[p].nation === GERMANY))
             return false
 
-        return undefined !== get_defenders_pieces().find(p => data.pieces[p].nation === RUSSIA)
+        return get_defenders_pieces().some(p => data.pieces[p].nation === RUSSIA)
     },
     can_apply() {
         return this.can_play()
@@ -6556,7 +6556,7 @@ events.falkenhayn = {
 // CP #15
 events.chlorine_gas = {
     can_play() {
-        return (game.attack && game.attack.attacker === CP && undefined !== game.attack.pieces.find(p => data.pieces[p].nation === GERMANY))
+        return (game.attack && game.attack.attacker === CP && game.attack.pieces.some(p => data.pieces[p].nation === GERMANY))
     },
     can_apply() {
         return this.can_play()
@@ -6572,9 +6572,9 @@ events.liman_von_sanders = {
     can_play() {
         if (!game.attack)
             return false
-        if (undefined !== game.attack.pieces.find(p => data.pieces[p].nation === TURKEY))
+        if (game.attack.pieces.some(p => data.pieces[p].nation === TURKEY))
             return true
-        return (undefined !== get_defenders_pieces().find(p => data.pieces[p].nation === TURKEY))
+        return (get_defenders_pieces().some(p => data.pieces[p].nation === TURKEY))
     },
     can_apply() {
         return this.can_play()
@@ -6611,7 +6611,7 @@ events.fortified_machine_guns = {
         return (game.attack &&
                 game.attack.attacker !== CP &&
                 get_trench_level(game.attack.space) > 0 &&
-                undefined !== get_defenders_pieces().find(p => data.pieces[p].nation === GERMANY))
+                get_defenders_pieces().some(p => data.pieces[p].nation === GERMANY))
     },
     can_apply() {
         return this.can_play()
@@ -6630,7 +6630,7 @@ events.flamethrowers = {
         if (game.attack.attacker !== CP)
             return false
 
-        return undefined !== game.attack.pieces.find(p => data.pieces[p].nation === GERMANY)
+        return game.attack.pieces.some(p => data.pieces[p].nation === GERMANY)
     },
     can_apply() {
         return this.can_play()
@@ -6737,7 +6737,7 @@ events.alpenkorps = {
             return false
 
         if (game.attack.attacker === CP &&
-            undefined !== game.attack.pieces.find(p => data.pieces[p].nation === GERMANY &&
+            game.attack.pieces.some(p => data.pieces[p].nation === GERMANY &&
             (data.spaces[game.location[p]].terrain === MOUNTAIN || 
             data.spaces[game.attack.space].terrain === MOUNTAIN))) {
             return true
@@ -6762,14 +6762,14 @@ events.kemal = {
             return false
         if (game.attack.attacker !== AP)
             return false
-        return (undefined !== get_defenders_pieces().find(p => data.pieces[p].nation === TURKEY && get_piece_cf(p) > 0))
+        return (get_defenders_pieces().some(p => data.pieces[p].nation === TURKEY && get_piece_cf(p) > 0))
     },
     can_apply() {
         if (!game.attack)
             return false
         if (game.attack.attacker !== AP)
             return false
-        return (undefined !== get_defenders_pieces().find(p => data.pieces[p].nation === TURKEY))
+        return (get_defenders_pieces().some(p => data.pieces[p].nation === TURKEY))
     },
     apply() {
         log(`${card_name(KEMAL)} -- defender fires on the Army table`)
@@ -6876,7 +6876,7 @@ events.mustard_gas = {
         if (game.attack.attacker !== CP)
             return false
 
-        return undefined !== game.attack.pieces.find(p => data.pieces[p].nation === GERMANY)
+        return game.attack.pieces.some(p => data.pieces[p].nation === GERMANY)
     },
     can_apply() {
         return this.can_play()
@@ -6917,7 +6917,7 @@ events.cp_air_superiority = {
         if (game.attack.attacker !== CP)
             return false
 
-        return undefined !== game.attack.pieces.find(p => data.pieces[p].nation === GERMANY)
+        return game.attack.pieces.some(p => data.pieces[p].nation === GERMANY)
     },
     can_apply() {
         return this.can_play()
@@ -7013,7 +7013,7 @@ events.michael = {
             return false
         if (!game.events.h_l_take_command)
             return false
-        return (undefined !== game.attack.pieces.find(p => data.pieces[p].nation === GERMANY))
+        return (game.attack.pieces.some(p => data.pieces[p].nation === GERMANY))
     },
     can_apply() {
         return this.can_play()
@@ -7044,7 +7044,7 @@ events.blucher = {
             return false
         if (!game.events.h_l_take_command)
             return false
-        return (undefined !== game.attack.pieces.find(p => data.pieces[p].nation === GERMANY))
+        return (game.attack.pieces.some(p => data.pieces[p].nation === GERMANY))
     },
     can_apply() {
         return this.can_play() && !game.attack.trenches_canceled
@@ -7070,7 +7070,7 @@ events.peace_offensive = {
             return false
         if (!game.events.h_l_take_command)
             return false
-        return (undefined !== game.attack.pieces.find(p => data.pieces[p].nation === GERMANY))
+        return (game.attack.pieces.some(p => data.pieces[p].nation === GERMANY))
     },
     can_apply() {
         return this.can_play() && !game.attack.trenches_canceled
@@ -7171,9 +7171,9 @@ events.kaisertreu = {
         if (!game.attack)
             return false
         if (game.attack.attacker === CP)
-            return undefined !== game.attack.pieces.find(p => data.pieces[p].nation === AUSTRIA_HUNGARY)
+            return game.attack.pieces.some(p => data.pieces[p].nation === AUSTRIA_HUNGARY)
         else
-            return undefined !== get_defenders_pieces().find(p => data.pieces[p].nation === AUSTRIA_HUNGARY)
+            return get_defenders_pieces().some(p => data.pieces[p].nation === AUSTRIA_HUNGARY)
     },
     can_apply() {
         return this.can_play()
@@ -7260,7 +7260,7 @@ events.achtung_panzer = {
         if (game.attack.attacker !== CP)
             return false
 
-        return (undefined === data.spaces[game.attack.space].terrain && undefined !== game.attack.pieces.find(p => data.pieces[p].nation === GERMANY))
+        return (undefined === data.spaces[game.attack.space].terrain && game.attack.pieces.some(p => data.pieces[p].nation === GERMANY))
     },
     can_apply() {
         return this.can_play()
@@ -7377,9 +7377,9 @@ events.pleve = {
         if (!game.attack)
             return false
         if (game.attack.attacker === AP)
-            return undefined !== game.attack.pieces.find(p => data.pieces[p].nation === RUSSIA)
+            return game.attack.pieces.some(p => data.pieces[p].nation === RUSSIA)
         else
-            return undefined !== get_defenders_pieces().find(p => data.pieces[p].nation === RUSSIA)
+            return get_defenders_pieces().some(p => data.pieces[p].nation === RUSSIA)
     },
     can_apply() {
         return this.can_play()
@@ -7405,9 +7405,9 @@ events.putnik = {
             return false
 
         if (game.attack.attacker === AP)
-            return undefined !== game.attack.pieces.find(p => data.pieces[p].nation === SERBIA)
+            return game.attack.pieces.some(p => data.pieces[p].nation === SERBIA)
         else
-            return undefined !== get_defenders_pieces().find(p => data.pieces[p].nation === SERBIA)
+            return get_defenders_pieces().some(p => data.pieces[p].nation === SERBIA)
     },
     can_apply() {
         return this.can_play()
@@ -7558,7 +7558,7 @@ events.phosgene_gas = {
         if (game.attack.attacker !== AP)
             return false
 
-        return undefined !== game.attack.pieces.find(p => data.pieces[p].nation === FRANCE)
+        return game.attack.pieces.some(p => data.pieces[p].nation === FRANCE)
     },
     can_apply() {
         return this.can_play()
@@ -7776,7 +7776,7 @@ events.yanks_and_tanks = {
             return false
         if (game.attack.attacker !== AP)
             return false
-        return (undefined !== game.attack.pieces.find(p => data.pieces[p].nation === US))
+        return (game.attack.pieces.some(p => data.pieces[p].nation === US))
     },
     apply() {
         log(`${card_name(YANKS_AND_TANKS)} adds +2 DRM`)
@@ -7792,7 +7792,7 @@ events.mine_attack = {
         if (game.attack.attacker !== AP)
             return false
 
-        return (get_trench_level(game.attack.space, CP) > 0 && undefined !== game.attack.pieces.find(p => data.pieces[p].nation === BRITAIN))
+        return (get_trench_level(game.attack.space, CP) > 0 && game.attack.pieces.some(p => data.pieces[p].nation === BRITAIN))
     },
     can_apply() {
         return this.can_play()
@@ -7825,7 +7825,7 @@ events.they_shall_not_pass = {
             return false
         if (!has_undestroyed_fort(game.attack.space, AP))
             return false
-        return undefined !== get_defenders_pieces().find(p => data.pieces[p].nation === FRANCE)
+        return get_defenders_pieces().some(p => data.pieces[p].nation === FRANCE)
     },
     can_apply() {
         return this.can_play()
@@ -7877,9 +7877,9 @@ events.kerensky_offensive = {
         game.state = 'activate_spaces'
     },
     can_apply() {
-        if (undefined === game.attack.pieces.find(p => data.pieces[p].nation === RUSSIA))
+        if (!game.attack.pieces.some(p => data.pieces[p].nation === RUSSIA))
             return false
-        if (undefined === get_defenders_pieces().find(p => data.pieces[p].nation === AUSTRIA_HUNGARY || data.pieces[p].nation === BULGARIA || data.pieces[p].nation === TURKEY))
+        if (!get_defenders_pieces().some(p => data.pieces[p].nation === AUSTRIA_HUNGARY || data.pieces[p].nation === BULGARIA || data.pieces[p].nation === TURKEY))
             return false
         return true
     }
@@ -7916,14 +7916,14 @@ events.brusilov_offensive = {
         game.state = 'activate_spaces'
     },
     can_apply() {
-        if (undefined === game.attack.pieces.find(p => data.pieces[p].nation === RUSSIA))
+        if (!game.attack.pieces.some(p => data.pieces[p].nation === RUSSIA))
             return false
-        if (undefined !== get_defenders_pieces().find(p => data.pieces[p].nation === GERMANY))
+        if (get_defenders_pieces().some(p => data.pieces[p].nation === GERMANY))
             return false
         return get_trench_level_for_attack(game.attack.space, CP) > 0
     },
     apply_drm() {
-        if (undefined !== game.attack.pieces.find(p => data.pieces[p].nation === RUSSIA)) {
+        if (game.attack.pieces.some(p => data.pieces[p].nation === RUSSIA)) {
             game.attack.attacker_drm += 1
             log(`${card_name(BRUSILOV_OFFENSIVE)} adds +1 DRM`)
         }
@@ -7957,7 +7957,7 @@ events.royal_tank_corps = {
             return false
         if (!game.events.landships)
             return false
-        if (undefined === game.attack.pieces.find(p => data.pieces[p].nation === BRITAIN))
+        if (!game.attack.pieces.some(p => data.pieces[p].nation === BRITAIN))
             return false
         const nation = data.spaces[game.attack.space].nation
         if (nation !== FRANCE && nation !== BELGIUM)
@@ -8133,7 +8133,7 @@ events.russian_guards = {
         if (game.attack.attacker !== AP)
             return false
 
-        return undefined !== game.attack.pieces.find(p => data.pieces[p].nation === RUSSIA)
+        return game.attack.pieces.some(p => data.pieces[p].nation === RUSSIA)
     },
     can_apply() {
         return this.can_play()
@@ -8229,7 +8229,7 @@ events.backs_to_the_wall = {
             return false
         if (![FRANCE, BELGIUM].includes(data.spaces[game.attack.space].nation))
             return false
-        return undefined !== get_defenders_pieces().find(p => data.pieces[p].nation === BRITAIN && data.pieces[p].type === ARMY)
+        return get_defenders_pieces().some(p => data.pieces[p].nation === BRITAIN && data.pieces[p].type === ARMY)
     },
     can_apply() {
         return this.can_play()
