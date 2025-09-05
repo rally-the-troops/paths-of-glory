@@ -1690,14 +1690,16 @@ function update_piece(id) {
 
     if ((view.activation && view.activation.includes(id)) ||
         (view.move && view.move.pieces.includes(id)) ||
-        (view.attack && view.attack.pieces.includes(id)) ||
-        (view.attack && view.attack.retreating_pieces && view.attack.retreating_pieces.includes(id)))
+        (view.attack && view.attack.pieces.includes(id))
+    )
         piece.element.classList.add('activated')
     else
         piece.element.classList.remove('activated')
 
     if (view.who === id ||
-        (view.attack && view.attack.advancing_pieces && view.attack.advancing_pieces.includes(id)))
+        (view.attack && view.attack.advancing_pieces && view.attack.advancing_pieces.includes(id)) ||
+        (view.attack && view.attack.retreating_pieces && view.attack.retreating_pieces.includes(id))
+    )
         piece.element.classList.add('selected')
     else
         piece.element.classList.remove('selected')
@@ -2202,6 +2204,8 @@ function update_map() {
     action_button("pass_w_turn", "Pass Turn")
     action_button("pass", "Pass")
     action_button("next", "Next")
+    action_button("eliminate", "Eliminate")
+    action_button("retreat", "Retreat")
     action_button("pick_up_all", "Pick Up All")
     action_button("select_all", "Select All")
     action_button("entrench", "Entrench")

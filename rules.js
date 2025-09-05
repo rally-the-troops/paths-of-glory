@@ -1244,7 +1244,10 @@ function satisfies_mo(mo, attackers, defenders, space) {
 states.confirm_mo = {
     inactive: "review mandated offensive roll",
     prompt() {
-        view.prompt = `Turn ${game.turn}: Mandated Offensive for ${nation_name(game[active_faction()].mo)}.`
+        if (game[active_faction()].mo === NONE)
+            view.prompt = `Turn ${game.turn}: No mandated offensive.`
+        else
+            view.prompt = `Turn ${game.turn}: Mandated offensive for ${nation_name(game[active_faction()].mo)}.`
         gen_action_next()
     },
     next() {
@@ -3066,7 +3069,8 @@ states.choose_attackers = {
             gen_action('select_all')
         }
 
-        gen_action_pass()
+        if (game.attack.pieces.length === 0)
+            gen_action_pass()
     },
     piece(p) {
         push_undo()
@@ -4615,12 +4619,12 @@ function defender_can_cancel_retreat() {
 states.cancel_retreat = {
     inactive: 'retreat',
     prompt() {
-        view.prompt = `You may cancel retreat by taking an extra step loss.`
+        view.prompt = `You may cancel the retreat by taking an extra step loss.`
         for_each_piece_in_space(game.attack.space, (p) => {
             if (data.pieces[p].faction === other_faction(game.attack.attacker))
                 gen_action_piece(p)
         })
-        gen_action_pass()
+        gen_action("retreat")
     },
     piece(p) {
         push_undo()
@@ -4641,7 +4645,7 @@ states.cancel_retreat = {
         }
         game.state = "cancel_retreat_confirm"
     },
-    pass() {
+    retreat() {
         push_undo()
         goto_defender_retreat()
     },
@@ -4689,91 +4693,87 @@ function goto_defender_retreat() {
 states.defender_retreat = {
     inactive: 'retreat',
     prompt() {
-        view.prompt = `Select next unit to retreat`
-        game.attack.to_retreat.forEach((p) => {
-            gen_action_piece(p)
-        })
-        if (game.attack.to_retreat.length === 0) {
-            gen_action_done()
+        const dist = game.attack.retreat_length - game.attack.retreat_path.length
+
+        if (game.attack.retreating_pieces.length > 0)
+            view.prompt = `Retreat ${dist} spaces with ${piece_list(game.attack.retreating_pieces)}.`
+        else if (game.attack.to_retreat.length === 0)
+            view.prompt = `Retreat: Done.`
+        else
+            view.prompt = `Retreat from ${space_name(game.attack.space)}.`
+
+        if (game.attack.retreat_path.length === 0 && game.attack.to_retreat.length > 0) {
+            for (let p of game.attack.to_retreat)
+                gen_action_piece(p)
+            if (game.attack.retreating_pieces.length === 0)
+                gen_action("select_all")
         }
+
+        if (game.attack.retreating_pieces.length > 0) {
+            let options = get_retreat_options()
+            if (options.length > 0)
+                options.forEach(gen_action_space)
+            else
+                gen_action("eliminate")
+        }
+
+        if (game.attack.retreating_pieces.length + game.attack.to_retreat.length === 0)
+            gen_action("done")
+    },
+    select_all() {
+        push_undo()
+        game.attack.retreating_pieces = game.attack.to_retreat
+        game.attack.to_retreat = []
     },
     piece(p) {
-        push_undo()
+        if (game.attack.retreating_pieces.length === 0)
+            push_undo()
         set_delete(game.attack.to_retreat, p)
         set_add(game.attack.retreating_pieces, p)
-        game.state = 'choose_retreat_path'
+    },
+    eliminate() {
+        for (let p of game.attack.retreating_pieces) {
+            eliminate_piece(p, true)
+            // 12.4.7, section 2
+            // When an army is replaced by a corps and then that corps cannot fulfill a mandatory retreat, the army is
+            // permanently eliminated
+            for (let replaced in game.attack.defender_replacements) {
+                let replacement = game.attack.defender_replacements[replaced]
+                if (replacement === p) {
+                    eliminate_piece(parseInt(replaced), true)
+                }
+            }
+        }
+        this._next()
+    },
+    space(s) {
+        update_russian_ne_restriction_flag(game.attack.retreating_pieces, game.location[game.attack.retreating_pieces[0]], s)
+
+        game.attack.retreat_path.push(s)
+
+        for (let p of game.attack.retreating_pieces) {
+            if (set_has(game.broken_sieges, game.location[p]))
+                set_delete(game.broken_sieges, game.location[p])
+            game.location[p] = s
+        }
+
+        if (game.attack.retreat_path.length === game.attack.retreat_length) {
+            for (let p of game.attack.retreating_pieces)
+                set_add(game.retreated, p)
+            this._next()
+        }
+    },
+    _next() {
+            if (game.attack.retreat_path.length > 0)
+                game.attack.retreat_paths.push(game.attack.retreat_path)
+            game.attack.retreat_path = []
+            game.attack.retreating_pieces.length = 0
     },
     done() {
         clear_undo()
         switch_active_faction()
         goto_attacker_advance()
-    }
-}
-
-states.choose_retreat_path = {
-    inactive: 'retreat',
-    prompt() {
-
-        if (game.attack.retreat_path.length === game.attack.retreat_length || game.attack.retreating_pieces.length === 0) {
-            view.prompt = `Retreat ${piece_list(game.attack.retreating_pieces)} (Done)`
-            gen_action_done()
-        } else {
-            const remaining_retreat_length = game.attack.retreat_length - game.attack.retreat_path.length
-            view.prompt = `Retreat ${piece_list(game.attack.retreating_pieces)} (${remaining_retreat_length} ${remaining_retreat_length === 1 ? 'space' : 'spaces'} remaining)`
-
-            let options = get_retreat_options()
-            options.forEach((s) => {
-                gen_action_space(s)
-            })
-
-            if (options.length === 0) {
-                view.prompt = `No valid retreat options — eliminate retreating units`
-                game.attack.retreating_pieces.forEach((p) => {
-                    gen_action_piece(p)
-                })
-            }
-        }
     },
-    space(s) {
-        push_undo()
-
-        update_russian_ne_restriction_flag(game.attack.retreating_pieces, game.location[game.attack.retreating_pieces[0]], s)
-
-        game.attack.retreat_path.push(s)
-        game.attack.retreating_pieces.forEach((p) => {
-            if (set_has(game.broken_sieges, game.location[p]))
-                set_delete(game.broken_sieges, game.location[p])
-            game.location[p] = s
-        })
-    },
-    piece(p) {
-        array_remove_item(game.attack.retreating_pieces, p)
-        eliminate_piece(p, true)
-        // 12.4.7, section 2
-        // When an army is replaced by a corps and then that corps cannot fulfill a mandatory retreat, the army is
-        // permanently eliminated
-        for (let replaced in game.attack.defender_replacements) {
-            let replacement = game.attack.defender_replacements[replaced]
-            if (replacement === p) {
-                eliminate_piece(parseInt(replaced), true)
-            }
-        }
-    },
-    done() {
-        game.attack.retreating_pieces.forEach((p) => { set_add(game.retreated, p) })
-        if (game.attack.retreat_path.length > 0) {
-            game.attack.retreat_paths.push(game.attack.retreat_path)
-        }
-        game.attack.retreat_path = []
-        game.attack.retreating_pieces.length = 0
-        if (game.attack.to_retreat.length > 0) {
-            goto_defender_retreat()
-        } else {
-            clear_undo()
-            switch_active_faction()
-            goto_attacker_advance()
-        }
-    }
 }
 
 function get_retreat_options(pieces, from, length_retreated) {
@@ -4858,22 +4858,17 @@ states.attacker_advance = {
     prompt() {
         const spaces = get_possible_advance_spaces(game.attack.advancing_pieces)
         const remaining_length = game.attack.retreat_length - game.attack.advance_length
-        if (globalThis.RTT_FUZZER) {
-            gen_action_pass()
-        }
 
-        console.log("attacker advance", game.attack)
+        if (globalThis.RTT_FUZZER)
+            gen_action_done()
 
-        if (remaining_length > 1) {
-            if (game.attack.advancing_pieces.length > 0)
+        if (game.attack.advancing_pieces.length > 0) {
+            if (remaining_length > 1)
                 view.prompt = `Advance with ${piece_list(game.attack.advancing_pieces)} up to ${remaining_length} spaces.`
             else
-                view.prompt = `You may advance up to ${remaining_length} spaces.`
-        } else {
-            if (game.attack.advancing_pieces.length > 0)
                 view.prompt = `Advance with ${piece_list(game.attack.advancing_pieces)} into ${space_name(spaces[0])}.`
-            else
-                view.prompt = `You may advance into ${space_name(game.attack.space)}.`
+        } else {
+            view.prompt = `You may advance into ${space_name(game.attack.space)}.`
         }
 
         if (game.attack.advance_length === 0) {
@@ -4920,7 +4915,6 @@ states.attacker_advance = {
 
         // stop automatically
         const remaining_length = game.attack.retreat_length - game.attack.advance_length
-        console.log("remaining_length", remaining_length, get_possible_advance_spaces(game.attack.advancing_pieces))
         if (remaining_length === 0 || get_possible_advance_spaces(game.attack.advancing_pieces).length === 0)
             this.stop()
     },
