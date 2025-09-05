@@ -3088,7 +3088,7 @@ states.confirm_attack = {
         let defense_factors = get_defenders_pieces().reduce((sum, p) => sum + get_piece_cf(p), 0)
         if (has_undestroyed_fort(game.attack.space, other_faction(game.attack.attacker)))
             defense_factors += data.spaces[game.attack.space].fort
-        view.prompt = `Attack ${space_name(game.attack.space)} with ${game.attack.pieces.map(piece_name).join(", ")} at ${attack_factors} vs ${defense_factors}?`
+        view.prompt = `Attack ${space_name(game.attack.space)} with ${piece_list(game.attack.pieces)} at ${attack_factors} vs ${defense_factors}?`
         view.where = game.attack.space
         gen_action('attack')
     },
