@@ -3047,16 +3047,13 @@ states.choose_attackers = {
     prompt() {
         view.prompt = `Choose units and a space to attack.`
 
-        game.eligible_attackers.forEach((p) => {
-            if (game.attack.pieces.includes(p)) {
-                gen_action_piece(p)
-            } else if (piece_can_join_attack_without_breaking_siege(p)) {
-                gen_action_piece(p)
-            }
-        })
-        get_attackable_spaces(game.attack.pieces).forEach((s) => {
+        for (let p of game.eligible_attackers)
+            if (!set_has(game.attack.pieces, p) && piece_can_join_attack_without_breaking_siege(p))
+                if (get_attackable_spaces([p, ...game.attack.pieces]).length > 0)
+                    gen_action_piece(p)
+
+        for (let s of get_attackable_spaces(game.attack.pieces))
             gen_action_space(s)
-        })
 
         // If no attackers selected and all eligible pieces can attack the same space, add a select all button
         // Don't show this if any attackers are attacking out of a besieged space because then the calculation of whether
@@ -3075,11 +3072,9 @@ states.choose_attackers = {
         }
     },
     piece(p) {
-        push_undo()
-        if (game.attack.pieces.includes(p))
-            array_remove_item(game.attack.pieces, p)
-        else
-            game.attack.pieces.push(p)
+        if (game.attack.pieces.length === 0)
+            push_undo()
+        set_add(game.attack.pieces, p)
     },
     space(s) {
         push_undo()
