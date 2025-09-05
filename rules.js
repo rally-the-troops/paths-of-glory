@@ -407,14 +407,6 @@ function query_cards(state, faction) {
     return cards
 }
 
-function inactive_prompt(name, who, where) {
-    view.prompt = `Waiting for ${faction_name(active_faction())} to ${name}.`
-    if (who)
-        view.who = who
-    if (where)
-        view.where = where
-}
-
 exports.view = function(state, current) {
     game = state
 
@@ -464,8 +456,6 @@ exports.view = function(state, current) {
         },
         control: game.control,
         events: game.events,
-        who: game.who,
-        where: game.where,
         combat_cards: game.combat_cards,
         mef_beachhead: game.mef_beachhead_captured ? null : game.mef_beachhead,
         tsar_fell_cp_russian_vp: game.tsar_fell_cp_russian_vp,
@@ -513,9 +503,9 @@ exports.view = function(state, current) {
         if (typeof inactive === 'function')
             states[game.state].inactive()
         else if (typeof inactive === 'string')
-            inactive_prompt(inactive)
+            view.prompt = `Waiting for ${faction_name(active_faction())} to ${inactive}.`
         else
-            inactive_prompt(game.state.replace(/_/g, " "))
+            view.prompt = `Waiting for ${faction_name(active_faction())}.`
     } else {
         view.actions = {}
         states[game.state].prompt()
@@ -1624,13 +1614,9 @@ states.choose_sr_unit = {
         }
     },
     piece(p) {
-        // (TOR) - is this check useful?
-        if (game.sr.unit === 0) {
-            push_undo()
-            game.sr.unit = p
-            game.sr.pts -= sr_cost(p)
-            game.who = p
-        }
+        push_undo()
+        game.sr.unit = p
+        game.sr.pts -= sr_cost(p)
         game.state = 'choose_sr_destination'
     },
     done() {
@@ -1686,6 +1672,7 @@ states.choose_sr_destination = {
     inactive: "use strategic redeployment",
     prompt() {
         view.prompt = `Strategic Redeployment: Move ${piece_name(game.sr.unit)}.`
+        view.who = game.sr.unit
         let destinations = get_sr_destinations(game.sr.unit)
         destinations.forEach(gen_action_space)
         if (destinations.length === 0) {
@@ -1705,13 +1692,11 @@ states.choose_sr_destination = {
         else
             log(`${piece_name(game.sr.unit)} SR\n${space_name(from)} -> ${space_name(s)}`)
         game.sr.unit = 0
-        game.who = 0
         game.state = 'choose_sr_unit'
     },
     skip() {
         set_add(game.sr.done, game.sr.unit)
         game.sr.unit = 0
-        game.who = 0
         game.state = 'choose_sr_unit'
     }
 }
@@ -3072,7 +3057,6 @@ states.choose_attackers = {
         push_undo()
         game.attack.space = s
         game.attacked.push(s)
-        game.where = s
         game.state = 'confirm_attack'
     },
     select_all() {
@@ -3115,7 +3099,6 @@ states.confirm_attack = {
         gen_action('attack')
     },
     attack() {
-        game.where = 0
         goto_attack()
     }
 }
@@ -5599,7 +5582,6 @@ states.replacement_phase = {
                 set_delete(game.reduced, p)
                 log(`Flipped ${piece_name(p)} in ${space_name(game.location[p])} to full strength`)
                 spend_rps(get_rp_type(p), 1)
-                game.who = 0
             }
         } else {
             if (is_unit_eliminated(p)) {
@@ -7612,7 +7594,7 @@ states.great_retreat_option = {
     piece(p) {
         push_undo()
         game.state = 'great_retreat'
-        game.who = p
+        game.attack.great_retreat = p
     },
     pass() {
         set_active_faction(game.attack.attacker)
@@ -7623,10 +7605,11 @@ states.great_retreat_option = {
 states.great_retreat = {
     inactive: 'execute "Great Retreat"',
     prompt() {
-        if (game.who !== 0) {
-            let options = get_retreat_options([game.who], game.attack.space, 0)
+        if (game.attack.great_retreat !== 0) {
+            view.who = game.attack.great_retreat
+            let options = get_retreat_options([game.attack.great_retreat], game.attack.space, 0)
             if (options.length > 0) {
-                view.prompt = `Great Retreat: Retreat ${piece_name(game.who)}.`
+                view.prompt = `Great Retreat: Retreat ${piece_name(game.attack.great_retreat)}.`
                 options.forEach(gen_action_space)
             } else {
                 // TODO: Must eliminate the unit
@@ -7644,13 +7627,13 @@ states.great_retreat = {
     },
     piece(p) {
         push_undo()
-        game.who = p
+        game.attack.great_retreat = p
     },
     space(s) {
         push_undo()
-        log(`Retreat ${piece_name(game.who)} to ${space_name(s)}`)
-        game.location[game.who] = s
-        game.who = 0
+        log(`Retreat ${piece_name(game.attack.great_retreat)} to ${space_name(s)}`)
+        game.location[game.attack.great_retreat] = s
+        game.attack.great_retreat = 0
     },
     done() {
         clear_undo()

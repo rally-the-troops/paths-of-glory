@@ -1635,7 +1635,7 @@ function update_space_highlight(s) {
     else
         space.element.classList.remove("highlight")
 
-    if (view.where === s)
+    if (view.attack && view.attack.space === s)
         space.element.classList.add("selected")
     else
         space.element.classList.remove("selected")
@@ -1691,9 +1691,9 @@ function update_piece(id) {
 	)
 	piece.element.classList.toggle("selected",
             !!(
-                (view.who === id) ||
                 (view.attack && view.attack.advancing_pieces && view.attack.advancing_pieces.includes(id)) ||
-                (view.attack && view.attack.retreating_pieces && view.attack.retreating_pieces.includes(id))
+                (view.attack && view.attack.retreating_pieces && view.attack.retreating_pieces.includes(id)) ||
+                (view.who === id)
             )
         )
 }
@@ -2191,32 +2191,32 @@ function update_map() {
         }
     }
 
+    action_button("single_op", "Automatic Operation")
+
+    action_button("select_all", "Select all")
+    action_button("use", "Use")
+    action_button("eliminate", "Eliminate")
+    action_button("retreat", "Retreat")
+    action_button("entrench", "Entrench")
+    action_button("flank", "Flank")
+    action_button("attack", "Attack")
+    action_button("stop", "Stop")
+
+    action_button("accept", "Accept")
+    action_button("reject", "Reject")
+
+    action_button("end_action", "End Action")
+
+    action_button("reset_phase", "Reset Phase")
     confirm_action_button("confirm_pass_attack", "Pass",
         "You still have units eligible to attack!\n\Do you still want to PASS?"
     )
-
-    action_button("offer_peace", "Offer Peace")
-    action_button("single_op", "Automatic Operation")
-    action_button("use", "Use")
     action_button("pass_w_turn", "Pass Turn")
     action_button("pass", "Pass")
-    action_button("next", "Next")
-    action_button("eliminate", "Eliminate")
-    action_button("retreat", "Retreat")
-    action_button("pick_up_all", "Pick Up All")
-    action_button("select_all", "Select All")
-    action_button("entrench", "Entrench")
-    action_button("flank", "Flank")
-    action_button("stop", "Stop")
-    action_button("reset_phase", "Reset Phase")
-    action_button("end_activation", "End Activation")
-    action_button("finish_attacks", "End Attack Phase")
-    action_button("end_event", "End Event")
     action_button("skip", "Skip")
+    action_button("next", "Next")
+    action_button("end_round", "end_round")
     action_button("done", "Done")
-    action_button("attack", "Attack")
-    action_button("accept", "Accept")
-    action_button("reject", "Reject")
     action_button("undo", "Undo")
 }
 
