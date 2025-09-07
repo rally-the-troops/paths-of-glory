@@ -1521,30 +1521,33 @@ function update_reserve_boxes() {
         else
             push_stack(stack, pe)
     }
+
     for_each_piece_in_space(AP_RESERVE_BOX, insert_piece_in_stack)
     for_each_piece_in_space(CP_RESERVE_BOX, insert_piece_in_stack)
 
     const stride = 60
-    const ap_x = ap_space_x - stride * 2.5
-    const ap_y = ap_space_y
+
+    const ap_x = ap_space_x - 4 * stride/2
+    const ap_y = ap_space_y - stride/2 + 20
     for (let i = 0; i < ap_reserve_box_order.length; ++i) {
         let nation = ap_reserve_box_order[i]
         if (ap_space.stacks[nation].full.length > 0) {
             layout_stack(ap_space.stacks[nation].full, ap_x + i * stride, ap_y)
         }
         if (ap_space.stacks[nation].reduced.length > 0) {
-            layout_stack(ap_space.stacks[nation].reduced, ap_x + i * stride, ap_y + 45)
+            layout_stack(ap_space.stacks[nation].reduced, ap_x + i * stride, ap_y + stride)
         }
     }
-    const cp_x = cp_space_x - stride * 2
-    const cp_y = cp_space_y
+
+    const cp_x = cp_space_x - 3 * stride/2
+    const cp_y = cp_space_y - stride/2 + 20
     for (let i = 0; i < cp_reserve_box_order.length; ++i) {
         let nation = cp_reserve_box_order[i]
         if (cp_space.stacks[nation].full.length > 0) {
             layout_stack(cp_space.stacks[nation].full, cp_x + i * stride, cp_y)
         }
         if (cp_space.stacks[nation].reduced.length > 0) {
-            layout_stack(cp_space.stacks[nation].reduced, cp_x + i * stride, cp_y + 45)
+            layout_stack(cp_space.stacks[nation].reduced, cp_x + i * stride, cp_y + stride)
         }
     }
 
@@ -1607,28 +1610,33 @@ function update_eliminated_boxes() {
             insert_piece_in_stack(p)
     })
 
-    const stride = 50
-    const ap_x = ap_space_x - stride * 2
-    const ap_y = ap_space_y
+    const army_stride = 56
+    const corp_stride = 48
+    const row_stride = 60
+
+    const ap_army_x = ap_space_x - 3 * army_stride/2
+    const ap_corp_x = ap_space_x - 3 * corp_stride/2
+    const ap_y = ap_space_y - row_stride/2 + 5
     for (let i = 0; i < ap_eliminated_box_order.length; ++i) {
         let group = ap_eliminated_box_order[i]
         if (ap_space.stacks[group].armies.length > 0) {
-            layout_stack(ap_space.stacks[group].armies, ap_x + i * stride, ap_y)
+            layout_stack(ap_space.stacks[group].armies, ap_army_x + i * army_stride, ap_y)
         }
         if (ap_space.stacks[group].corps.length > 0) {
-            layout_stack(ap_space.stacks[group].corps, ap_x + i * stride, ap_y + 60)
+            layout_stack(ap_space.stacks[group].corps, ap_corp_x + i * corp_stride, ap_y + row_stride)
         }
     }
 
-    const cp_x = cp_space_x - stride * 2
-    const cp_y = cp_space_y - 45
+    const cp_army_x = cp_space_x - 2 * army_stride/2
+    const cp_corp_x = cp_space_x - 3 * corp_stride/2
+    const cp_y = cp_space_y - row_stride/2 + 5
     for (let i = 0; i < cp_eliminated_box_order.length; ++i) {
         let group = cp_eliminated_box_order[i]
         if (cp_space.stacks[group].armies.length > 0) {
-            layout_stack(cp_space.stacks[group].armies, cp_x + i * stride, cp_y)
+            layout_stack(cp_space.stacks[group].armies, cp_army_x + i * army_stride, cp_y)
         }
         if (cp_space.stacks[group].corps.length > 0) {
-            layout_stack(cp_space.stacks[group].corps, cp_x + i * stride, cp_y + 60)
+            layout_stack(cp_space.stacks[group].corps, cp_corp_x + i * corp_stride, cp_y + row_stride)
         }
     }
 }
