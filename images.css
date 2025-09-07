@@ -91,6 +91,9 @@
 .marker.blucher:before { content:"Blucher"; }
 .marker.peace_offensive:before { content:"Peace Offensive"; }
 .marker.uboats_unleashed:before { content:"U-Boats Unleashed"; }
+.marker.everyone_into_battle:before { content:"Everyone into Battle"; }
+.marker.lloyd_george:before { content:"Lloyd George"; }
+
 
 /* VASSAL NE MARKERS */
 .marker.ne_limit { background-size: 45px 45px; }

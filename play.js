@@ -568,6 +568,7 @@ const marker_info = {
     salonika: {name: "Salonika", counter: "ap-marker marker salonika", size: 45, cardIndex: 30},
     independent_air_force: {name: "Independent Air Force", counter: "ap-marker marker independent_air_force", size: 45, cardIndex: 37},
     convoy: {name: "Convoy", counter: "ap-marker marker convoy", size: 45, cardIndex: 52},
+    everyone_into_battle: {name: "Everyone into battle", counter: "ap-marker marker everyone_into_battle", size: 45, cardIndex: 51},
 
     // synthesized cp event markers
     guns_of_august: {name: "Guns of August", counter: "cp-marker marker guns_of_august", size: 45, cardIndex: 65 + 1},
@@ -585,6 +586,7 @@ const marker_info = {
     peace_offensive: {name: "Peace Offensive", counter: "cp-marker marker peace_offensive", size: 45, cardIndex: 65 + 51},
     h_l_take_command: {name: "H-L Take Command", counter: "cp-marker marker h_l_take_command", size: 45, cardIndex: 65 + 54},
     polish_restoration: {name: "Polish Restoration", counter: "cp-marker marker polish_restoration", size: 45, cardIndex: 65 + 59},
+    lloyd_george: {name: "Lloyd George", counter: "cp-marker marker lloyd_george", size: 45, cardIndex: 65 + 55},
 }
 
 let markers = {
@@ -1774,6 +1776,7 @@ function update_turn_track() {
         "salonika",
         "independent_air_force",
         "convoy",
+        "everyone_into_battle",
 
         // cp markers with no printed counter
         "guns_of_august",
@@ -1790,6 +1793,7 @@ function update_turn_track() {
         "peace_offensive",
         "h_l_take_command",
         "polish_restoration",
+        "lloyd_george",
     ]
 
     event_markers.forEach((marker) => {
