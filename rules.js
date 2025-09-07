@@ -4118,7 +4118,7 @@ states.withdrawal_negate_step_loss_confirm = {
 }
 
 function eliminate_piece(p, force_permanent_elimination) {
-    if (data.pieces[p].type === CORPS) {
+    if (data.pieces[p].type === CORPS && p !== BEF_CORPS) {
         log(`Eliminated ${piece_name(p)} in ${space_name(game.location[p])}`)
         send_to_eliminated_box(p)
         return []
@@ -4126,7 +4126,7 @@ function eliminate_piece(p, force_permanent_elimination) {
 
     force_permanent_elimination = force_permanent_elimination || false
     let replacement_options = get_replacement_options(p, get_units_in_reserve())
-    if (force_permanent_elimination || replacement_options.length === 0 || data.pieces[p].notreplaceable || !is_unit_supplied(p)) {
+    if (force_permanent_elimination || replacement_options.length === 0 || data.pieces[p].notreplaceable || !is_unit_supplied(p) || p === BEF_CORPS) {
         // Permanently eliminate piece
         log(`Permanently eliminated ${piece_name(p)} in ${space_name(game.location[p])}`)
         game.removed.push(p)
