@@ -2202,7 +2202,7 @@ states.activate_spaces = {
             }
         })
 
-        const used_ne_activation = game.activated.attack.find((s) => is_neareast_space(s) && !is_mef_space(s) && s !== game.location[BRITISH_NE_ARMY]) !== undefined
+        const used_ne_activation = game.activated.attack.some((s) => is_neareast_space(s) && !is_mef_space(s) && s !== game.location[BRITISH_NE_ARMY])
         spaces.forEach((s) => {
             if (set_has(game.activated.move, s) || set_has(game.activated.attack, s)) {
                 // already chosen
@@ -2835,14 +2835,14 @@ function can_move_to(s, moving_pieces) {
 
     //  15.1.12 Russian units may not attack, enter, or besiege a German fort space during the August 1914 turn.
     if (game.turn === 1
-        && moving_pieces.find((p) => data.pieces[p].nation === RUSSIA) !== undefined
+        && moving_pieces.some((p) => data.pieces[p].nation === RUSSIA)
         && data.spaces[s].nation === GERMANY
         && has_undestroyed_fort(s, CP)) {
         return false
     }
 
     // Once Fall of the Tsar is played, Russian corps cannot move between the Caucasus box and the near east map
-    if (game.events.fall_of_the_tsar > 0 && moving_pieces.find((p) => data.pieces[p].nation === RUSSIA && data.pieces[p].type === CORPS) !== undefined) {
+    if (game.events.fall_of_the_tsar > 0 && moving_pieces.some((p) => data.pieces[p].nation === RUSSIA && data.pieces[p].type === CORPS)) {
         const from = game.location[moving_pieces[0]]
         if (s === CAUCASUS && (from === POTI || from === GROZNY)) {
             return false
@@ -3351,8 +3351,8 @@ function get_attackable_spaces(attackers) {
         eligible_spaces = eligible_spaces.filter((s) => data.spaces[s].nation !== GREECE || !contains_piece_of_nation(s, GREECE))
     }
 
-    const russian_attacker = attackers.find((p) => data.pieces[p].nation === RUSSIA) !== undefined
-    const german_attacker = attackers.find((p) => data.pieces[p].nation === GERMANY) !== undefined
+    const russian_attacker = attackers.some((p) => data.pieces[p].nation === RUSSIA)
+    const german_attacker = attackers.some((p) => data.pieces[p].nation === GERMANY)
     eligible_spaces = eligible_spaces.filter((s) => {
         //  15.1.12 Russian units may not attack, enter, or besiege a German fort space during the August 1914 turn.
         if (game.turn === 1 && russian_attacker && data.spaces[s].nation === GERMANY && has_undestroyed_fort(s, CP)) {
@@ -3375,12 +3375,12 @@ function get_attackable_spaces(attackers) {
     })
 
     // Lloyd George prevents attacks against German defenders with level 2 trenches while active
-    if (is_lloyd_george_active() && attackers.find((p) => data.pieces[p].nation === BRITAIN) !== undefined) {
+    if (is_lloyd_george_active() && attackers.some((p) => data.pieces[p].nation === BRITAIN)) {
         eligible_spaces = eligible_spaces.filter((s) => !(get_trench_level(s, CP) === 2 && contains_piece_of_nation(s, GERMANY)))
     }
 
     // Stavka Timidity prevents Russian attacks against entrenched German defenders for the turn it is played
-    if (game.turn === game.events.stavka_timidity && attackers.find((p) => data.pieces[p].nation === RUSSIA) !== undefined) {
+    if (game.turn === game.events.stavka_timidity && attackers.some((p) => data.pieces[p].nation === RUSSIA)) {
         eligible_spaces = eligible_spaces.filter((s) => !(get_trench_level(s, CP) > 0 && contains_only_pieces_of_nation(s, GERMANY)))
     }
 
@@ -3517,7 +3517,7 @@ states.choose_flank_attack = {
 
 function can_play_wireless_intercepts() {
     return game[active_faction()].hand.includes(WIRELESS_INTERCEPTS) &&
-        game.attack.pieces.find((p) => data.pieces[p].nation === GERMANY) &&
+        game.attack.pieces.some((p) => data.pieces[p].nation === GERMANY) &&
         contains_piece_of_nation(game.attack.space, RUSSIA)
 }
 
@@ -3738,7 +3738,8 @@ function begin_combat() {
         get_trench_level(game.attack.space, CP) > 0 &&
         contains_piece_of_nation(game.attack.space, GERMANY) &&
         [FRANCE, BELGIUM, GERMANY].includes(data.spaces[game.attack.space].nation) &&
-        game.attack.pieces.find((p) => data.pieces[p].nation === BRITAIN) !== undefined) {
+        game.attack.pieces.some((p) => data.pieces[p].nation === BRITAIN)
+    ) {
         game.attack.haig_cancels_ge_retreat = true
     }
 
@@ -4223,7 +4224,7 @@ function replace_attacker_unit(unit, location, replacement) {
 function goto_defender_losses() {
     clear_undo()
     set_active_faction(other_faction(game.attack.attacker))
-    if (game.attack.defender_losses > 0 && get_defenders_pieces().find((p) => set_has(game.retreated, p)) !== undefined)
+    if (game.attack.defender_losses > 0 && get_defenders_pieces().some((p) => set_has(game.retreated, p)))
         game.state = 'eliminate_retreated_units'
     else
         game.state = 'apply_defender_losses'
@@ -4266,7 +4267,7 @@ function get_loss_options(is_defender, to_satisfy, units, fort_strength) {
         // If the defender is choosing losses and has played withdrawal, they must choose a path that includes a corps
         // step loss, if possible
         let valid_paths_with_corps = valid_paths.filter((path) => {
-            return path.picked.find((p) => data.pieces[p].type === CORPS) !== undefined
+            return path.picked.some((p) => data.pieces[p].type === CORPS)
         })
         if (valid_paths_with_corps.length > 0) {
             valid_paths = valid_paths_with_corps
@@ -4506,7 +4507,7 @@ function determine_combat_winner() {
     })
 
     // Check for a full strength attacker
-    let attacker_has_full_strength_unit = game.attack.pieces.find((p) => !is_unit_reduced(p)) !== undefined
+    let attacker_has_full_strength_unit = game.attack.pieces.some((p) => !is_unit_reduced(p))
 
     // Decide if the defender should retreat, attacker should advance, or if the combat is over
     let defender_pieces = get_defenders_pieces()
@@ -4514,7 +4515,7 @@ function determine_combat_winner() {
     // Not sure if the non-German pieces should still retreat if Haig cancels the German retreat
     if (game.attack.haig_cancels_ge_retreat &&
         get_trench_level_for_attack(game.attack.space, CP) > 0 &&
-        defender_pieces.find((p) => data.pieces[p].nation === GERMANY) !== undefined) {
+        defender_pieces.some((p) => data.pieces[p].nation === GERMANY)) {
         log(`${card_name(HAIG)} cancels the retreat`)
         end_attack_activation()
         goto_next_activation()
@@ -5242,7 +5243,7 @@ function goto_siege_phase() {
     if (game.forts.besieged.length > 0) {
         log_h2("Siege Phase")
         game.state = 'siege_phase'
-        const ap_has_sieges = game.forts.besieged.find((s) => data.spaces[s].faction === CP) !== undefined
+        const ap_has_sieges = game.forts.besieged.some((s) => data.spaces[s].faction === CP)
         set_active_faction(ap_has_sieges ? AP : CP)
         game.sieges_to_roll = [...game.forts.besieged]
     } else {
@@ -5276,7 +5277,7 @@ states.siege_phase = {
 
         if (game.sieges_to_roll.length === 0) {
             goto_war_status_phase()
-        } else if (game.sieges_to_roll.find((s) => data.spaces[s].faction === active_faction()) !== undefined) {
+        } else if (game.sieges_to_roll.some((s) => data.spaces[s].faction === active_faction())) {
             clear_undo()
             switch_active_faction()
         }
