@@ -6592,7 +6592,6 @@ events.mata_hari = {
     },
     play() {
         clear_undo()
-        game.events.mata_hari = game.turn
         log(`${card_name(MATA_HARI)} reveals the contents of the ${faction_name(AP)} hand:`)
         for (let c of game.ap.hand) {
             log(`${card_name(c)}`)
@@ -6678,7 +6677,6 @@ events.place_of_execution = {
         game.attack.attacker_drm += 2
     },
     play() {
-        game.events.place_of_execution = game.turn
         if (!game.attack)
             goto_end_event()
     }
@@ -6780,7 +6778,6 @@ events.war_in_africa = {
         return true
     },
     play() {
-        game.events.war_in_africa = game.turn
         set_active_faction(AP)
         game.war_in_africa_removed = 0
         game.state = 'war_in_africa'
@@ -6955,7 +6952,6 @@ events.von_below = {
         game.attack.trenches_canceled = true
     },
     play() {
-        game.events.von_below = game.turn
     }
 }
 
@@ -7274,7 +7270,6 @@ events.russian_desertions = {
         return game.events.fall_of_the_tsar > 0
     },
     play() {
-        game.events.russian_desertions = game.turn
         game.state = 'russian_desertions'
         game.russian_desertions_remaining = 4
     }
@@ -7322,7 +7317,6 @@ events.alberich = {
     apply() {
     },
     play() {
-        game.events.alberich = game.turn
         log(`${card_name(ALBERICH)} cancels the attack`)
 
         // Return any combat cards the Allies played in this attack
@@ -7573,7 +7567,6 @@ events.cloak_and_dagger = {
     },
     play() {
         clear_undo()
-        game.events.cloak_and_dagger = game.turn
         log(`${card_name(CLOAK_AND_DAGGER)} reveals the contents of the CP hand:`)
         for (let c of game.cp.hand) {
             log(`${card_name(c)}`)
@@ -7765,7 +7758,6 @@ events.yanks_and_tanks = {
         return true
     },
     play() {
-        game.events.yanks_and_tanks = game.turn
         game.ops = data.cards[YANKS_AND_TANKS].ops
         game.state = 'activate_spaces'
         game.combat_cards.push(YANKS_AND_TANKS)
@@ -7870,7 +7862,6 @@ events.kerensky_offensive = {
         return game.events.fall_of_the_tsar > 0 && !game.events.bolshevik_revolution > 0
     },
     play() {
-        game.events.kerensky_offensive = game.turn
         game.ops = data.cards[KERENSKY_OFFENSIVE].ops
         game.action_state.kerensky_available = true
         game.state = 'activate_spaces'
@@ -7908,7 +7899,6 @@ events.brusilov_offensive = {
         return true
     },
     play() {
-        game.events.brusilov_offensive = game.turn
         game.ops = data.cards[BRUSILOV_OFFENSIVE].ops
         game.action_state.brusilov_active = true
         game.action_state.brusilov_available = true
@@ -7971,7 +7961,6 @@ events.royal_tank_corps = {
         game.attack.trenches_canceled = true
     },
     play() {
-        game.events.royal_tank_corps = game.turn
     }
 }
 
@@ -8213,7 +8202,6 @@ events.the_sixtus_affair = {
         return true
     },
     play() {
-        game.events.the_sixtus_affair = game.turn
         roll_peace_terms(AP, 0)
         goto_end_event()
     }
