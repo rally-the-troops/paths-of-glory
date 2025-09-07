@@ -4075,8 +4075,8 @@ states.withdrawal_negate_step_loss = {
         // Restore the step that was previously lost, restoring the piece to the attack location on the map and
         //  removing it from the eliminated pieces area if necessary
         log(`${card_name(game.attack.attacker === CP ? WITHDRAWAL_AP : WITHDRAWAL_CP)} negates step loss for ${piece_name(p)}`)
-        if (game.removed.includes(p) || is_unit_eliminated(p)) {
-            array_remove_item(game.removed, p)
+        if (set_has(game.removed, p) || is_unit_eliminated(p)) {
+            set_delete(game.removed, p)
             set_add(game.reduced, p)
 
             // If the piece was replaced, move the replacement back to the reserve box
@@ -4118,9 +4118,15 @@ states.withdrawal_negate_step_loss_confirm = {
 }
 
 function eliminate_piece(p, force_permanent_elimination) {
-    if (data.pieces[p].type === CORPS && !data.pieces[p].notreplaceable) {
-        log(`Eliminated ${piece_name(p)} in ${space_name(game.location[p])}`)
-        send_to_eliminated_box(p)
+    if (data.pieces[p].type === CORPS) {
+        if (data.pieces[p].notreplaceable) {
+            log(`Permanently eliminated ${piece_name(p)} in ${space_name(game.location[p])}`)
+            set_add(game.removed, p)
+            game.location[p] = 0
+        } else {
+            log(`Eliminated ${piece_name(p)} in ${space_name(game.location[p])}`)
+            send_to_eliminated_box(p)
+        }
         return []
     }
 
@@ -4129,7 +4135,7 @@ function eliminate_piece(p, force_permanent_elimination) {
     if (force_permanent_elimination || replacement_options.length === 0 || data.pieces[p].notreplaceable || !is_unit_supplied(p)) {
         // Permanently eliminate piece
         log(`Permanently eliminated ${piece_name(p)} in ${space_name(game.location[p])}`)
-        game.removed.push(p)
+        set_add(game.removed, p)
         game.location[p] = 0
         return replacement_options
     } else {
@@ -5199,7 +5205,7 @@ states.attrition_phase = {
         log(`Removed ${piece_name(p)} from ${space_name(game.location[p])} due to attrition`)
         if (data.pieces[p].type === ARMY) {
             game.location[p] = 0
-            game.removed.push(p)
+            set_add(game.removed, p)
         } else {
             send_to_eliminated_box(p)
         }
@@ -6807,7 +6813,7 @@ states.war_in_africa = {
         const space = game.location[p]
         logi(`Permanently removed ${piece_name(p)} (${space_name(space)})`)
         game.location[p] = 0
-        game.removed.push(p)
+        set_add(game.removed, p)
         game.war_in_africa_removed = p
         update_siege(space)
     },
@@ -8153,7 +8159,7 @@ events.czech_legion = {
             const piece_data = data.pieces[p]
             if (is_unit_eliminated(p) && piece_data.nation === AUSTRIA_HUNGARY && piece_data.type === CORPS) {
                 game.location[p] = 0
-                game.removed.push(p)
+                set_add(game.removed, p)
                 break
             }
         }
