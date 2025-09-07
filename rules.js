@@ -2068,7 +2068,7 @@ states.place_reinforcements = {
 
         if (neareast_armies.includes(p) && data.spaces[s].map !== 'neareast' && !is_mef_space(s)) {
             log(`${piece_name(p)} is a NE army placed outside the Near East, it will not be able to operate on the Near East map`)
-            game.ne_armies_placed_outside_neareast.push(p)
+            set_add(game.ne_armies_placed_outside_neareast, p)
         }
 
         if (is_mef_space(s)) {
@@ -2273,7 +2273,7 @@ function start_action_round() {
     game.retreated = []
     game.location.forEach((s, p) => {
         if (set_has(game.activated.attack, s)) {
-            game.eligible_attackers.push(p)
+            set_add(game.eligible_attackers, p)
         }
     })
     goto_next_activation()
@@ -2356,7 +2356,7 @@ function goto_end_action() {
         clear_undo()
         game.entrenching.forEach((p) => {
             const roll = roll_die(6)
-            const drm = failed_previously.includes(p) ? -1 : 0
+            const drm = set_has(failed_previously, p) ? -1 : 0
             log(`Entrench attempt in ${space_name(game.location[p])}`)
             log_event_for_rollback(`Entrench roll in ${space_name(game.location[p])}`)
             const success = roll+drm <= get_piece_lf(p)
@@ -2367,7 +2367,7 @@ function goto_end_action() {
             } else {
                 const nation = data.pieces[p].nation
                 if (game.options.failed_entrench && (nation === GERMANY || nation === BRITAIN || nation === FRANCE || nation === ITALY))
-                    game.failed_entrench.push(p)
+                    set_add(game.failed_entrench, p)
                 logi(`${fmt_roll(roll, drm)} -> Failure`)
             }
         })
@@ -2873,7 +2873,7 @@ function can_enter_neareast(pieces) {
     for (let p of pieces) {
         // if any pieces is an army and it's either not a neareast army or it's a neareast army that was initially
         // placed outside the neareast map, then the stack can't enter the neareast map
-        if (data.pieces[p].type === ARMY && (!neareast_armies.includes(p) || game.ne_armies_placed_outside_neareast.includes(p))) {
+        if (data.pieces[p].type === ARMY && (!neareast_armies.includes(p) || set_has(game.ne_armies_placed_outside_neareast, p))) {
             return false
         }
 
@@ -3029,7 +3029,7 @@ states.choose_attackers = {
         // Don't show this if any attackers are attacking out of a besieged space because then the calculation of whether
         // they can join the attack might depend on which other pieces have already joined from the besieged space, so
         // the participants must be chosen one at a time.
-        const attacking_from_siege = game.eligible_attackers.find((p) => is_besieged(game.location[p])) !== undefined
+        const attacking_from_siege = game.eligible_attackers.some((p) => is_besieged(game.location[p]))
         if (!attacking_from_siege && game.attack.pieces.length === 0 && get_attackable_spaces(game.eligible_attackers).length > 0) {
             gen_action('select_all')
         }
@@ -3049,7 +3049,7 @@ states.choose_attackers = {
     space(s) {
         push_undo()
         game.attack.space = s
-        game.attacked.push(s)
+        set_add(game.attacked, s)
         game.state = 'confirm_attack'
     },
     select_all() {
@@ -3099,7 +3099,7 @@ states.confirm_attack = {
 
 function goto_attack() {
     game.attack.pieces.forEach((p) => {
-        array_remove_item(game.eligible_attackers, p)
+        set_delete(game.eligible_attackers, p)
     })
 
     let attack_sources = []
@@ -3336,7 +3336,7 @@ function get_attackable_spaces(attackers) {
     }
 
     // Remove spaces that have already been attacked this action round
-    eligible_spaces = eligible_spaces.filter((s) => game.attacked.includes(s) === false )
+    eligible_spaces = eligible_spaces.filter((s) => set_has(game.attacked, s) === false )
 
     // TODO: Units in London may conduct a Combat only if the Combat also involves friendly units located in a
     //  space in either France or Belgium. Italian units may attack across the Taranto–Valona dotted line without
@@ -3950,7 +3950,7 @@ states.eliminate_retreated_units = {
         push_undo()
         // Pieces eliminated in this condition are sent to the eliminated box and not replaced (12.5.6)
         send_to_eliminated_box(p)
-        array_remove_item(game.retreated, p)
+        set_delete(game.retreated, p)
     },
     done() {
         game.state = 'apply_defender_losses'
@@ -3982,7 +3982,7 @@ states.apply_defender_losses = {
     piece(p) {
         push_undo()
         game.attack.defender_losses_taken += get_piece_lf(p)
-        game.attack.defender_loss_pieces.push(p)
+        set_add(game.attack.defender_loss_pieces, p)
         if (is_unit_reduced(p)) {
             const location = game.location[p]
             let replacement_options = eliminate_piece(p)
@@ -4062,7 +4062,7 @@ states.withdrawal_negate_step_loss = {
     prompt() {
         view.prompt = 'Withdrawal: Choose a step loss to negate.'
 
-        const has_corps_option = game.attack.defender_loss_pieces.find((p) => data.pieces[p].type === CORPS) !== undefined
+        const has_corps_option = game.attack.defender_loss_pieces.some((p) => data.pieces[p].type === CORPS)
         game.attack.defender_loss_pieces.forEach((p) => {
             if (data.pieces[p].type === CORPS || !has_corps_option)
                 gen_action_piece(p)
@@ -5147,7 +5147,7 @@ function goto_attrition_phase() {
         if (game.location[p] === MEDINA && data.pieces[p].nation === TURKEY) {
             // Turkish units in Medina do not suffer attrition, even though they may be OOS
         } else {
-            game.attrition[faction].pieces.push(p)
+            set_add(game.attrition[faction].pieces, p)
         }
     })
 
@@ -5173,7 +5173,7 @@ function goto_attrition_phase() {
         if (controlling_faction === CP && game.location[TURKISH_SN_CORPS] === s) // SN corps keeps its space safe from attrition per 11.1.16
             continue
         if (!is_space_supplied(controlling_faction, s)) {
-            game.attrition[controlling_faction].spaces.push(s)
+            set_add(game.attrition[controlling_faction].spaces, s)
         }
     }
 
@@ -5201,7 +5201,7 @@ states.attrition_phase = {
     },
     piece(p) {
         let loc = game.location[p]
-        array_remove_item(game.attrition[active_faction()].pieces, p)
+        set_delete(game.attrition[active_faction()].pieces, p)
         log(`Removed ${piece_name(p)} from ${space_name(game.location[p])} due to attrition`)
         if (data.pieces[p].type === ARMY) {
             game.location[p] = 0
@@ -5222,7 +5222,7 @@ states.attrition_phase = {
         }
     },
     space(s) {
-        array_remove_item(game.attrition[active_faction()].spaces, s)
+        set_delete(game.attrition[active_faction()].spaces, s)
         log(`Flipped control of ${space_name(s)} due to attrition`)
         set_control(s, other_faction(active_faction()))
         if (game.attrition[active_faction()].spaces.length === 0 && game.attrition[active_faction()].pieces.length === 0) {
