@@ -18,8 +18,8 @@ body.Central_Powers header.your_turn { background-color: lightsteelblue; }
 #log .ap { background-color: lightpink; }
 #log .cp { background-color: lightblue; }
 
-.checked::before { content: "\2714  " }
-.unchecked::before { content: "\2714  "; color:transparent; }
+.checked:before { content: "\2714  " }
+.unchecked:before { content: "\2714  "; color:transparent; }
 
 @media (max-width: 600px) {
     #stack_menu { display: none }
@@ -347,7 +347,7 @@ body.shift .highlight {
     border-radius: 18px;
 }
 
-X.space.fort::before {
+X.space.fort:before {
 	position: absolute;
 	inset: -4px;
 	content: "";
@@ -356,9 +356,9 @@ X.space.fort::before {
 	border-style: solid;
 	border-color: transparent;
 }
-.space.fort.highlight::before { border-color: yellow; box-shadow: 0 0 3px black, inset 0 0 3px black; }
-.space.fort.selected::before { border-color: cyan; box-shadow: 0 0 3px black, inset 0 0 3px black; }
-.space.fort.warning::before { border-color: orangered; box-shadow: 0 0 3px black, inset 0 0 3px black; }
+.space.fort.highlight:before { border-color: yellow; box-shadow: 0 0 3px black, inset 0 0 3px black; }
+.space.fort.selected:before { border-color: cyan; box-shadow: 0 0 3px black, inset 0 0 3px black; }
+.space.fort.warning:before { border-color: orangered; box-shadow: 0 0 3px black, inset 0 0 3px black; }
 
 .space.highlight {
     border-color: yellow;

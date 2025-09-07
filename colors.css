@@ -44,6 +44,8 @@ body.bevel .unit.corps_tu { background-color: #f3c576; border-color: #fff7a7 #bb
 body.bevel .unit.army_it { background-color: #fff9b8; border-color: #ffffc1 #bfb97b #bfb97b #ffffc1; box-shadow: 0 0 0 1px #1c1400; }
 body.bevel .unit.corps_it { background-color: #fff9b8; border-color: #ffffc1 #bfb97b #bfb97b #ffffc1; box-shadow: 0 0 0 1px #1c1400; }
 body.bevel .marker.neutral { background-color: #9e9e9e; border-color: #cacaca #747474 #747474 #cacaca; box-shadow: 0 0 0 1px #090909; }
+body.bevel .marker.cp-marker { background-color: #e3ecf1; border-color: #f8ffff #a7afb4 #a7afb4 #f8ffff; box-shadow: 0 0 0 1px #0e1418; }
+body.bevel .marker.ap-marker { background-color: #efebe0; border-color: #fffff4 #b2aea4 #b2aea4 #fffff4; box-shadow: 0 0 0 1px #16130c; }
 body.flat .marker { background-color: #f0f0f0; }
 body.flat .marker.action.cp { background-color: #f0f0f0; }
 body.flat .marker.action.ap { background-color: #f0f0f0; }
@@ -90,3 +92,5 @@ body.flat .unit.corps_tu { background-color: #f3c576; }
 body.flat .unit.army_it { background-color: #fff9b8; }
 body.flat .unit.corps_it { background-color: #fff9b8; }
 body.flat .marker.neutral { background-color: #9e9e9e; }
+body.flat .marker.cp-marker { background-color: #e3ecf1; }
+body.flat .marker.ap-marker { background-color: #efebe0; }

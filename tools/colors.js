@@ -70,6 +70,8 @@ var data = `
 #fff9b8 .unit.army_it
 #fff9b8 .unit.corps_it
 #9e9e9e .marker.neutral
+#e3ecf1 .marker.cp-marker
+#efebe0 .marker.ap-marker
 `
 
 data.trim().split("\n").map(line=>line.split(" ")).map(([c,s])=>bevel("body.bevel " + s,c))
