@@ -5353,11 +5353,11 @@ function goto_war_status_phase() {
 
     // E.2. Determine if either player has won an Automatic Victory.
     if (game.vp <= 0) {
-        goto_game_over(AP, get_result_message("Automatic Victory: ", AP))
+        goto_game_over(faction_name(AP), get_result_message("Automatic Victory: ", AP))
         return
     }
     else if (game.vp >= 20) {
-        goto_game_over(CP, get_result_message("Automatic Victory: ", CP))
+        goto_game_over(faction_name(CP), get_result_message("Automatic Victory: ", CP))
         return
     }
     // E.3. Determine winner if an Armistice has been declared.
@@ -5402,9 +5402,9 @@ function get_game_result_by_vp() {
     let cp_threshold = game.events.treaty_of_brest_litovsk > 0 ? 11 : 13
     let ap_threshold = 9
     if (game.vp >= cp_threshold) {
-        return CP
+        return faction_name(CP)
     } else if (game.scenario === HISTORICAL || game.vp <= ap_threshold) {
-        return AP
+        return faction_name(AP)
     } else {
         return DRAW // Historical scenario draws go to the Allies, so this is future-proofing for other scenarios
     }
