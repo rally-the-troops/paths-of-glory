@@ -90,6 +90,7 @@
 .marker.michael:before { content:"Michael"; }
 .marker.blucher:before { content:"Blucher"; }
 .marker.peace_offensive:before { content:"Peace Offensive"; }
+.marker.uboats_unleashed:before { content:"U-Boats Unleashed"; }
 
 /* VASSAL NE MARKERS */
 .marker.ne_limit { background-size: 45px 45px; }
