@@ -498,51 +498,51 @@ const marker_info = {
         ap: {name: "AP OOS", type: "ap_oos", counter: "marker ap oos", size: 45},
         cp: {name: "CP OOS", type: "cp_oos", counter: "marker cp oos", size: 45}
     },
-    vp: {name: "VP", type: "vp", counter: "marker vp ", size: 45},
+    vp: {name: "VP", type: "vp", counter: "marker vp", size: 45},
 
     // War status markers
-    ap_war_status: {name: "AP War Status", type: "ap_war_status", counter: "marker ap war_status ", size: 45},
-    cp_war_status: {name: "CP War Status", type: "cp_war_status", counter: "marker cp war_status ", size: 45},
+    ap_war_status: {name: "AP War Status", type: "ap_war_status", counter: "marker ap war_status", size: 45},
+    cp_war_status: {name: "CP War Status", type: "cp_war_status", counter: "marker cp war_status", size: 45},
     combined_war_status: {
         name: "Combined War Status",
         type: "combined_war_status",
-        counter: "marker ap combined_war_status ",
+        counter: "marker ap combined_war_status",
         size: 45
     },
 
     // Replacement points markers
-    ge_rp: {name: "German Replacements", type: "ge_rp", counter: "marker ge_rp ", size: 45},
-    ge_rp_back: {name: "German Replacements Rathenau", type: "ge_rp_back", counter: "marker ge_rp back ", size: 45},
-    ah_rp: {name: "Austria-Hungary Replacements", type: "ah_rp", counter: "marker ah_rp ", size: 45},
-    fr_rp: {name: "French Replacements", type: "fr_rp", counter: "marker fr_rp ", size: 45},
-    br_rp: {name: "British Replacements", type: "br_rp", counter: "marker br_rp ", size: 45},
-    ru_rp: {name: "Russian Replacements", type: "ru_rp", counter: "marker ru_rp ", size: 45},
-    allied_rp: {name: "Allied Replacements", type: "allied_rp", counter: "marker allied_rp ", size: 45},
-    bu_rp: {name: "Bulgarian Replacements", type: "bu_rp", counter: "marker bu_rp ", size: 45},
-    tu_rp: {name: "Turkish Replacements", type: "tu_rp", counter: "marker tu_rp ", size: 45},
-    it_rp: {name: "Italian Replacements", type: "it_rp", counter: "marker it_rp ", size: 45},
-    us_rp: {name: "United States Replacements", type: "us_rp", counter: "marker us_rp ", size: 45},
+    ge_rp: {name: "German Replacements", type: "ge_rp", counter: "marker ge_rp", size: 45},
+    ge_rp_back: {name: "German Replacements Rathenau", type: "ge_rp_back", counter: "marker ge_rp back", size: 45},
+    ah_rp: {name: "Austria-Hungary Replacements", type: "ah_rp", counter: "marker ah_rp", size: 45},
+    fr_rp: {name: "French Replacements", type: "fr_rp", counter: "marker fr_rp", size: 45},
+    br_rp: {name: "British Replacements", type: "br_rp", counter: "marker br_rp", size: 45},
+    ru_rp: {name: "Russian Replacements", type: "ru_rp", counter: "marker ru_rp", size: 45},
+    allied_rp: {name: "Allied Replacements", type: "allied_rp", counter: "marker allied_rp", size: 45},
+    bu_rp: {name: "Bulgarian Replacements", type: "bu_rp", counter: "marker bu_rp", size: 45},
+    tu_rp: {name: "Turkish Replacements", type: "tu_rp", counter: "marker tu_rp", size: 45},
+    it_rp: {name: "Italian Replacements", type: "it_rp", counter: "marker it_rp", size: 45},
+    us_rp: {name: "United States Replacements", type: "us_rp", counter: "marker us_rp", size: 45},
 
     current_cp_russian_vp: {
         name: "CP Russian VP",
         type: "current_cp_russian_vp",
-        counter: "marker small current_cp_russian_vp ",
+        counter: "marker small current_cp_russian_vp",
         size: 36
     },
     tsar_fell_cp_russian_vp: {
         name: "Tsar Fell CP Russian VP",
         type: "tsar_fell_cp_russian_vp",
-        counter: "marker small tsar_fell_cp_russian_vp ",
+        counter: "marker small tsar_fell_cp_russian_vp",
         size: 36
     },
-    action: {name: "Action", counter: "marker small action ", size: 36},
-    fort_destroyed: {name: "Destroyed Fort", counter: "marker fort_destroyed ", size: 45},
-    fort_destroyed_mini: {name: "Destroyed Fort Mini", counter: "marker mini fort_destroyed ", size: 18},
-    fort_besieged: {name: "Besieged Fort", counter: "marker fort_besieged ", size: 45},
-    turn: {name: "Turn", counter: "marker small game_turn ", size: 36},
-    ap_missed_mo: {name: "AP Missed Mandatory Offensive", counter: "marker ap_missed_mo ", size: 45},
-    cp_missed_mo: {name: "CP Missed Mandatory Offensive", counter: "marker cp_missed_mo ", size: 45},
-    failed_entrench: {name: "Failed Entrench", counter: "marker small trench_attempt ", size: 36},
+    action: {name: "Action", counter: "marker small action", size: 36},
+    fort_destroyed: {name: "Destroyed Fort", counter: "marker fort_destroyed", size: 45},
+    fort_destroyed_mini: {name: "Destroyed Fort Mini", counter: "marker mini fort_destroyed", size: 18},
+    fort_besieged: {name: "Besieged Fort", counter: "marker fort_besieged", size: 45},
+    turn: {name: "Turn", counter: "marker small game_turn", size: 36},
+    ap_missed_mo: {name: "AP Missed Mandatory Offensive", counter: "marker ap_missed_mo", size: 45},
+    cp_missed_mo: {name: "CP Missed Mandatory Offensive", counter: "marker cp_missed_mo", size: 45},
+    failed_entrench: {name: "Failed Entrench", counter: "marker small trench_attempt", size: 36},
     mef_beachhead: {name: "MEF Beachhead", counter: "marker mef_beachhead", size: 45, cardIndex: 31 },
 
     // small event markers
