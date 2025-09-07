@@ -8457,11 +8457,13 @@ function base64_decode(ascii) {
 function compress_state(state) {
     if (typeof state !== "string")
         return base64_encode(lz4.compressBlob(JSON.stringify(state)))
+    return state
 }
 
 function decompress_state(state_str) {
     if (typeof state_str === "string")
         return JSON.parse(textdec.decode(lz4.uncompressBlob(base64_decode(state_str))))
+    return state_str
 }
 
 function save_rollback_point() {
@@ -8536,13 +8538,22 @@ function restore_rollback(index) {
     let save_rollback = game.rollback
     let save_seed = game.seed
     let save_log = game.log
-    game = rollback_state[index]
+
+    // we need to make a copy here, because we keep the rollback point!
+    game = object_copy(rollback_state[index])
+
     save_log.length = game.log
     game.log = save_log
-    game.undo = [] // Rollback always wipes out the undo stack
-    game.rollback = save_rollback.slice(0, index+1) // Keep older (and restored) rollback points
-    game.rollback_state = compress_state(rollback_state.slice(0, index+1))
+
+    // Rollback always wipes out the undo stack
+    game.undo = []
+
+    // We do NOT want to restore the random seed!
     game.seed = save_seed
+
+    // keep older rollback points, as well as the one we restored
+    game.rollback = save_rollback.slice(0, index+1)
+    game.rollback_state = compress_state(rollback_state.slice(0, index+1))
 }
 
 function goto_propose_rollback(rollback_index) {
