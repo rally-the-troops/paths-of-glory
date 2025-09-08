@@ -2636,7 +2636,7 @@ function get_eligible_spaces_to_move() {
         }
         connections.forEach((conn) => {
             const blocked_end_space = is_last_space && !can_end_move(conn)
-            if (can_move_to(conn, game.move.pieces) && !blocked_end_space)
+            if (!blocked_end_space && can_move_to(conn, game.move.pieces))
                 spaces.push(conn)
         })
     }
@@ -2694,7 +2694,16 @@ states.move_stack = {
     space(s) {
         push_undo()
         move_stack_to_space(s)
-        // TODO + FIXME: stop automatically if it is impossible to continue
+
+        let to_stop = game.move.pieces.filter(p => get_piece_mf(p) === game.move.spaces_moved)
+        for (let p of to_stop) {
+            log_piece_move(p)
+            set_delete(game.move.pieces, p)
+            set_add(game.moved, p)
+        }
+
+        if (game.move.pieces.length === 0)
+            end_move_stack()
     },
     piece(p) {
         push_undo()
