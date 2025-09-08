@@ -67,33 +67,32 @@
 
 /* TEMP: For markers that are missing images, use CSS to insert some text */
 .marker { line-height: 10px; font-family: var(--font-small); font-size: 8px; text-align: center; }
-.marker:before { position: absolute; inset: 3px; padding: 4px 0px 0px 0px; }
+.marker::before { position: absolute; inset: 3px; padding: 4px 0px 0px 0px; }
 
-.marker.guns_of_august:before { content:"Guns of August"; }
-.marker.falkenhayn:before { content:"Falken\ad hayn"; }
-.marker.salonika:before { content:"Salonika"; }
-.marker.h_l_take_command:before { content:"H-L Take Command"; }
-.marker.zeppelin_raids:before { content:"Zeppelin Raids"; }
-.marker.hoffmann:before { content:"Hoffmann"; }
-.marker.race_to_the_sea:before { content:"Race to the Sea"; }
-.marker.moltke:before { content:"Moltke"; }
-.marker.oberost:before { content:"Oberost"; }
-.marker.great_retreat:before { content:"Great Retreat"; }
-.marker.landships:before { content:"Land\ad ships"; }
-.marker.entrench:before { content:"Entrench"; }
-.marker.reichstag_truce:before { content:"Reichstag Truce +1\a0 VP"; }
-.marker.high_seas_fleet:before { content:"High Seas Fleet +1\a0 VP"; }
-.marker.polish_restoration:before { content:"Polish Restor. \2212 1\a0 VP"; }
-.marker.rape_of_belgium:before { content:"Rape of Belgium \2212 1\a0 VP"; }
-.marker.convoy:before { content:"Convoy \2212 1\a0 VP"; }
-.marker.independent_air_force:before { content:"Indep. Air Force"; }
-.marker.michael:before { content:"Michael"; }
-.marker.blucher:before { content:"Blucher"; }
-.marker.peace_offensive:before { content:"Peace Offensive"; }
-.marker.uboats_unleashed:before { content:"U-Boats Unleashed"; }
-.marker.everyone_into_battle:before { content:"Everyone into Battle"; }
-.marker.lloyd_george:before { content:"Lloyd George"; }
-
+.marker.guns_of_august::before { content:"Guns of August"; }
+.marker.falkenhayn::before { content:"Falken\ad hayn"; }
+.marker.salonika::before { content:"Salonika"; }
+.marker.h_l_take_command::before { content:"H-L Take Command"; }
+.marker.zeppelin_raids::before { content:"Zeppelin Raids"; }
+.marker.hoffmann::before { content:"Hoffmann"; }
+.marker.race_to_the_sea::before { content:"Race to the Sea"; }
+.marker.moltke::before { content:"Moltke"; }
+.marker.oberost::before { content:"Oberost"; }
+.marker.great_retreat::before { content:"Great Retreat"; }
+.marker.landships::before { content:"Land\ad ships"; }
+.marker.entrench::before { content:"Entrench"; }
+.marker.reichstag_truce::before { content:"Reichstag Truce +1\a0 VP"; }
+.marker.high_seas_fleet::before { content:"High Seas Fleet +1\a0 VP"; }
+.marker.polish_restoration::before { content:"Polish Restor. \2212 1\a0 VP"; }
+.marker.rape_of_belgium::before { content:"Rape of Belgium \2212 1\a0 VP"; }
+.marker.convoy::before { content:"Convoy \2212 1\a0 VP"; }
+.marker.independent_air_force::before { content:"Indep. Air Force"; }
+.marker.michael::before { content:"Michael"; }
+.marker.blucher::before { content:"Blucher"; }
+.marker.peace_offensive::before { content:"Peace Offensive"; }
+.marker.uboats_unleashed::before { content:"U-Boats Unleashed"; }
+.marker.everyone_into_battle::before { content:"Everyone into Battle"; }
+.marker.lloyd_george::before { content:"Lloyd George"; }
 
 /* VASSAL NE MARKERS */
 .marker.ne_limit { background-size: 45px 45px; }
