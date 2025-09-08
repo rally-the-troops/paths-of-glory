@@ -441,10 +441,10 @@ function show_score_summary() {
 
         // Score events
         const score_events = view.score_events || []
-        const event_total = score_events.reduce((total, score_event) => { return total + score_event.vp }, 0)
+        const event_total = score_events.reduce((total, score_event) => { return total + score_event[1] }, 0)
         append_header(`Score Events (${event_total>0?'+':''}${event_total})`)
         score_events.forEach((score_event) => {
-            append_score(`Turn ${score_event.t}: ${score_event.c > 0 ? sub_card_name('', score_event.c) : ''}`, score_event.vp)
+            append_score(`Turn ${score_event[0]}: ${score_event.length > 2 ? sub_card_name('', score_event[2]) : ''}`, score_event[1])
         })
 
         // Bid

@@ -803,11 +803,10 @@ function create_empty_game_state(seed, scenario, options) {
 function record_score_event(vp, card) {
     if (!game.score_events)
         game.score_events = []
-    game.score_events.push({
-        t: game.turn,
-        vp: vp,
-        c: card || 0
-    })
+    if (card)
+        game.score_events.push([ game.turn, vp, card ])
+    else
+        game.score_events.push([ game.turn, vp ])
 }
 
 function is_optional_card(c) {
