@@ -3848,7 +3848,7 @@ function resolve_attackers_fire() {
         logi(`Attackers in Sinai: -3 DRM`)
     }
 
-    log(`Attacker's fire (${attacker_cf} cf):`)
+    log(`Attacker's fire (${attacker_cf} CF):`)
 
     let attacker_shifts = 0
 
@@ -3907,7 +3907,7 @@ function resolve_defenders_fire() {
         defender_cf += space_data.fort
     }
 
-    log(`Defender's fire (${defender_cf} cf):`)
+    log(`Defender's fire (${defender_cf} CF):`)
 
     game.attack.combat_cards.forEach((c) => {
         if (data.cards[c].faction === defender) {
@@ -4004,7 +4004,7 @@ states.apply_defender_losses = {
                 replace_defender_unit(p, location, replacement_options[0])
             }
         } else {
-            reduce_piece(p)
+            reduce_piece_defender(p)
         }
     },
     space(s) {
@@ -4064,7 +4064,7 @@ states.choose_defender_replacement = {
 function replace_defender_unit(unit, location, replacement) {
     game.location[replacement] = location
     game.attack.defender_replacements[unit] = replacement
-    log(`${piece_name(unit, true)} in ${space_name(location)} breaks to ${piece_name(replacement)}${log_corps(replacement)}`)
+    log(`${piece_name(unit, true)} breaks to ${piece_name(replacement)}${log_corps(replacement)}`)
 }
 
 states.withdrawal_negate_step_loss = {
@@ -4157,6 +4157,11 @@ function eliminate_piece(p, force_permanent_elimination) {
 
 function reduce_piece(p) {
     log(`Flipped ${piece_name(p)} in ${space_name(game.location[p])}`)
+    set_add(game.reduced, p)
+}
+
+function reduce_piece_defender(p) {
+    log(`Flipped ${piece_name(p)}`)
     set_add(game.reduced, p)
 }
 
@@ -4618,7 +4623,7 @@ states.cancel_retreat = {
                 replace_retreat_canceling_unit(p, location, replacement_options[0])
             }
         } else {
-            reduce_piece(p)
+            reduce_piece_defender(p)
         }
         game.state = "cancel_retreat_confirm"
     },
