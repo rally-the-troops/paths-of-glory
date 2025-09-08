@@ -541,7 +541,7 @@ exports.view = function(state, current) {
 exports.setup = function (seed, scenario, options) {
     scenario = HISTORICAL
 
-    game = create_empty_game_state(seed, scenario, options)
+    game = create_empty_game_state(seed, scenario)
 
     // Current control of each space
     for (let i = 0; i < data.spaces.length; ++i)
@@ -669,24 +669,23 @@ exports.setup = function (seed, scenario, options) {
 
     if (game.scenario === HISTORICAL) {
         game.options.hand_size = 8
-        game.options.start_with_guns_of_august = 1
-        game.options.failed_entrench = 1
+        game.failed_entrench = []
+        setup_initial_decks(true)
     } else {
         game.options.hand_size = 7
+        setup_initial_decks(false)
     }
-
-    setup_initial_decks()
 
     goto_start_turn()
 
     return game
 }
 
-function create_empty_game_state(seed, scenario, options) {
+function create_empty_game_state(seed, scenario) {
     return {
         seed: seed,
         scenario: scenario,
-        options: object_copy(options),
+        options: {},
         log: [],
         undo: [],
 
@@ -730,7 +729,7 @@ function create_empty_game_state(seed, scenario, options) {
         reduced: [],
         removed: [],
         entrenching: [], // Units that are entrenching this turn
-        failed_entrench: [], // Units that failed to entrench this turn
+        failed_entrench: undefined, // Units that failed to entrench this turn (if using 11.2.10 optional rule)
 
         // Spaces
         activated: {
@@ -813,11 +812,11 @@ function is_optional_card(c) {
     return (c >= 56 && c <= 65) || (c >= 56+65 && c <= 65+65)
 }
 
-function setup_initial_decks() {
+function setup_initial_decks(start_with_guns_of_august) {
     const include_optional_cards = game.options.optional_cards
 
     for (let i = 1; i < data.cards.length; i++) {
-        if (i === GUNS_OF_AUGUST && game.options.start_with_guns_of_august) {
+        if (i === GUNS_OF_AUGUST && start_with_guns_of_august) {
             game.cp.hand.push(i)
         } else if (data.cards[i].commitment === COMMITMENT_MOBILIZATION) {
             if (include_optional_cards || !is_optional_card(i)) {
@@ -2360,8 +2359,10 @@ function goto_end_action() {
 
     clear_undo()
 
-    const failed_previously = game.failed_entrench
-    game.failed_entrench = failed_previously.filter((p) => data.pieces[p].faction !== active_faction())
+    const failed_previously = game.failed_entrench ?? []
+    if (game.failed_entrench)
+        game.failed_entrench = failed_previously.filter((p) => data.pieces[p].faction !== active_faction())
+
     if (game.entrenching.length > 0) {
         clear_undo()
         game.entrenching.forEach((p) => {
@@ -2376,7 +2377,7 @@ function goto_end_action() {
                 set_trench_level(game.location[p], lvl+1, active_faction())
             } else {
                 const nation = data.pieces[p].nation
-                if (game.options.failed_entrench && (nation === GERMANY || nation === BRITAIN || nation === FRANCE || nation === ITALY))
+                if (game.failed_entrench && (nation === GERMANY || nation === BRITAIN || nation === FRANCE || nation === ITALY))
                     set_add(game.failed_entrench, p)
                 logi(`${fmt_roll(roll, drm)} -> Failure`)
             }
