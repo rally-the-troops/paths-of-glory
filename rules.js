@@ -7,6 +7,8 @@ let _assert_push_undo
 
 let game, view
 
+let supply_cache = null
+
 let states = {}
 let events = {}
 
@@ -333,7 +335,7 @@ exports.scenarios = [ HISTORICAL ]
 
 exports.action = function (state, current, action, arg) {
     _assert_push_undo = 0
-
+    invalidate_supply_cache()
     game = state
     if (action in states[game.state]) {
         states[game.state][action](arg, current)
@@ -351,6 +353,7 @@ exports.action = function (state, current, action, arg) {
 }
 
 exports.resign = function (state, current) {
+    invalidate_supply_cache()
     game = state
     if (game.state !== "game_over") {
         log_br()
@@ -366,10 +369,12 @@ exports.resign = function (state, current) {
 
 exports.query = function (state, current, q) {
     if (q === 'cp_supply') {
+        invalidate_supply_cache()
         game = state
         return { spaces: query_supply([ESSEN, BRESLAU, SOFIA, CONSTANTINOPLE]) }
     }
     if (q === 'ap_supply')  {
+        invalidate_supply_cache()
         game = state
         return {
             western: query_supply([LONDON]),
@@ -1056,7 +1061,7 @@ function set_nation_at_war(nation) {
         }
     }
 
-    update_supply()
+    invalidate_supply_cache()
 }
 
 // === MANDATED OFFENSIVES ===
@@ -2746,7 +2751,8 @@ function set_control(s, faction) {
     }
 
     game.control[s] = new_control
-    update_supply()
+
+    invalidate_supply_cache()
 
     update_russian_capitulation()
 }
@@ -2962,7 +2968,7 @@ function end_move_stack() {
     if (!is_controlled_by(game.move.current, active_faction()) && has_undestroyed_fort(game.move.current, other_faction(active_faction()))) {
         if (can_besiege(game.move.current, get_pieces_in_space(game.move.current)))
             set_add(game.forts.besieged, game.move.current)
-        update_supply()
+        invalidate_supply_cache()
     }
 
     for (let p of game.move.pieces)
@@ -4880,7 +4886,7 @@ states.attacker_advance = {
             logi(piece_name(p) + " -> " + space_name(end_space))
             if (has_undestroyed_fort(end_space, other_faction(game.attack.attacker))) {
                 set_add(game.forts.besieged, end_space)
-                update_supply()
+                invalidate_supply_cache()
             }
             set_delete(game.attack.advancing_pieces, p)
             if (game.attack.advancing_pieces.length === 0)
@@ -4904,7 +4910,7 @@ states.attacker_advance = {
         if (has_undestroyed_fort(s, other_faction(active_faction()))) {
             if (can_besiege(s, get_pieces_in_space(s))) {
                 set_add(game.forts.besieged, s)
-                update_supply()
+                invalidate_supply_cache()
             }
         } else {
             set_control(s, game.attack.attacker)
@@ -4924,7 +4930,7 @@ states.attacker_advance = {
         logi(piece_list(game.attack.advancing_pieces) + " -> " + space_name(end_space))
         if (has_undestroyed_fort(end_space, other_faction(game.attack.attacker))) {
             set_add(game.forts.besieged, end_space)
-            update_supply()
+            invalidate_supply_cache()
         }
         game.attack.advancing_pieces.length = 0
         game.attack.advance_length = 0
@@ -5029,7 +5035,7 @@ function update_siege(space) {
     let pieces_in_space = get_pieces_in_space(space)
     if (!can_besiege(space, pieces_in_space)) {
         set_delete(game.forts.besieged, space)
-        update_supply()
+        invalidate_supply_cache()
     }
 }
 
@@ -5158,7 +5164,6 @@ function goto_attrition_phase() {
     //  tracing to Taranto even while Italy is still Neutral.
 
     // Get all OOS pieces that should suffer attrition
-    update_supply()
     get_oos_pieces().forEach((p) => {
         const faction = data.pieces[p].faction
         if (game.location[p] === MEDINA && data.pieces[p].nation === TURKEY) {
@@ -6117,6 +6122,10 @@ function is_italian_space(s) {
     return data.spaces[s].nation === ITALY
 }
 
+function invalidate_supply_cache() {
+    supply_cache = null
+}
+
 function update_supply() {
     let cp_sources = [ESSEN, BRESLAU]
     if (nation_at_war(BULGARIA))
@@ -6124,19 +6133,19 @@ function update_supply() {
     if (nation_at_war(TURKEY))
         cp_sources.push(CONSTANTINOPLE)
 
-    game.supply_cache = data.spaces.map((s) => 0)
+    supply_cache = data.spaces.map((s) => 0)
 
     // Supply for CP, western, and eastern units is saved in the same cache, kept distinct by the separate supply sources
-    fill_supply_cache(CP, game.supply_cache, cp_sources, { use_ports:true, national_connections: TURKEY }) // Not all CP supply can follow Turkish connections, but this only applied to Medina, so it's easier to add a special check for non-Turkish units in Medina
-    fill_supply_cache(AP, game.supply_cache, [PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE], { national_connections: RUSSIA })
-    fill_supply_cache(AP, game.supply_cache, [LONDON], { use_ports: true, set_nonitalian_path: true, set_nonmef_path: true })
+    fill_supply_cache(CP, supply_cache, cp_sources, { use_ports:true, national_connections: TURKEY }) // Not all CP supply can follow Turkish connections, but this only applied to Medina, so it's easier to add a special check for non-Turkish units in Medina
+    fill_supply_cache(AP, supply_cache, [PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE], { national_connections: RUSSIA })
+    fill_supply_cache(AP, supply_cache, [LONDON], { use_ports: true, set_nonitalian_path: true, set_nonmef_path: true })
 
     // Special mask applied when searching spaces using Italian connections
-    fill_supply_cache(AP, game.supply_cache, [LONDON], { use_ports: true, national_connections: ITALY, override_mask: SUPPLY_MASK.London_Italian })
+    fill_supply_cache(AP, supply_cache, [LONDON], { use_ports: true, national_connections: ITALY, override_mask: SUPPLY_MASK.London_Italian })
 
     // These are also special cases, but don't need a separate mask because they use separate sources
-    fill_supply_cache(AP, game.supply_cache, [SALONIKA])
-    fill_supply_cache(AP, game.supply_cache, [BASRA], { national_connections: BRITAIN })
+    fill_supply_cache(AP, supply_cache, [SALONIKA])
+    fill_supply_cache(AP, supply_cache, [BASRA], { national_connections: BRITAIN })
 
     game.oos_pieces = get_oos_pieces()
 }
@@ -6159,7 +6168,7 @@ function is_unit_supplied(p) {
     if (nation === GREECE && !nation_at_war(GREECE) && game.events.salonika > 0) // Limited Greek entry
         return true
 
-    if (!game.supply_cache) update_supply()
+    if (!supply_cache) update_supply()
 
     // CP can only trace supply to Medina over a Turkish connection, so non-Turkish CP units in Medina are OOS
     if (location === MEDINA && data.pieces[p].faction === CP && nation !== TURKEY)
@@ -6168,14 +6177,14 @@ function is_unit_supplied(p) {
     if (nation === SERBIA) {
         if (data.spaces[location].nation === SERBIA)
             return true // Serbian units are always in supply in Serbia
-        else if (is_controlled_by(SALONIKA, AP) && check_supply_cache(game.supply_cache, location, [SALONIKA]))
+        else if (is_controlled_by(SALONIKA, AP) && check_supply_cache(supply_cache, location, [SALONIKA]))
             return true // Serbian units can trace supply to Salonika if it is friendly controlled
     }
 
     if (nation === ITALY)
-        return game.supply_cache[location] & SUPPLY_MASK.London_Italian
+        return supply_cache[location] & SUPPLY_MASK.London_Italian
 
-    return check_supply_cache(game.supply_cache, location, get_supply_sources_for_piece(p))
+    return check_supply_cache(supply_cache, location, get_supply_sources_for_piece(p))
 }
 
 function check_supply_cache(cache, location, sources) {
@@ -6207,12 +6216,12 @@ function get_supply_sources_for_piece(p) {
 }
 
 function is_unit_supplied_through_italy(p) {
-    if (!game.supply_cache) update_supply()
+    if (!supply_cache) update_supply()
 
     if (!is_unit_supplied(p))
         return false
 
-    return !(game.supply_cache[game.location[p]] & SUPPLY_MASK.NonItalianPath)
+    return !(supply_cache[game.location[p]] & SUPPLY_MASK.NonItalianPath)
 }
 
 function can_unit_trace_supply_to_basra(p) {
@@ -6239,22 +6248,22 @@ function can_unit_trace_supply_to_basra(p) {
 }
 
 function is_space_supplied_through_mef(s) {
-    if (!game.supply_cache) update_supply()
+    if (!supply_cache) update_supply()
 
     if (!is_space_supplied(AP, s))
         return false
 
-    return !(game.supply_cache[s] & SUPPLY_MASK.NonMEFPath)
+    return !(supply_cache[s] & SUPPLY_MASK.NonMEFPath)
 }
 
 function is_space_supplied(faction, s) {
-    if (!game.supply_cache) update_supply()
+    if (!supply_cache) update_supply()
     if (faction === CP) {
         if (game.location[TURKISH_SN_CORPS] === s && data.spaces[s].map === 'neareast') {
             return true // Turkish SN Corps in Neareast space is always in supply
         }
 
-        return check_supply_cache(game.supply_cache, s, [ESSEN, BRESLAU, SOFIA, CONSTANTINOPLE])
+        return check_supply_cache(supply_cache, s, [ESSEN, BRESLAU, SOFIA, CONSTANTINOPLE])
     } else {
         if (s === CETINJE) // Montenegro is always in supply
             return true
@@ -6271,8 +6280,8 @@ function is_space_supplied(faction, s) {
             }
         }
 
-        return (check_supply_cache(game.supply_cache, s, [LONDON, PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE])
-            || (is_controlled_by(SALONIKA, AP) && check_supply_cache(game.supply_cache, s, [SALONIKA])))
+        return (check_supply_cache(supply_cache, s, [LONDON, PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE])
+            || (is_controlled_by(SALONIKA, AP) && check_supply_cache(supply_cache, s, [SALONIKA])))
     }
 }
 
@@ -6285,26 +6294,26 @@ function is_space_supplied_for_reserve_box_sr(s, p) {
     let nation = data.pieces[p].nation
 
     if (nation === GERMANY || nation === AUSTRIA_HUNGARY) {
-        is_supplied = check_supply_cache(game.supply_cache, s, [ESSEN, BRESLAU])
+        is_supplied = check_supply_cache(supply_cache, s, [ESSEN, BRESLAU])
     } else if (nation === TURKEY) {
-        is_supplied = check_supply_cache(game.supply_cache, s, [CONSTANTINOPLE])
+        is_supplied = check_supply_cache(supply_cache, s, [CONSTANTINOPLE])
     } else if (nation === BULGARIA) {
-        is_supplied = check_supply_cache(game.supply_cache, s, [SOFIA])
+        is_supplied = check_supply_cache(supply_cache, s, [SOFIA])
     } else if (nation === RUSSIA || nation === ROMANIA) {
-        is_supplied = check_supply_cache(game.supply_cache, s, [PETROGRAD, MOSCOW, KHARKOV, CAUCASUS])
+        is_supplied = check_supply_cache(supply_cache, s, [PETROGRAD, MOSCOW, KHARKOV, CAUCASUS])
     }
 
     return is_supplied
 }
 
 function query_supply(sources) {
-    if (!game.supply_cache) update_supply()
+    if (!supply_cache) update_supply()
     let mask = 0
     for (let source of sources)
         mask |= get_supply_mask(source)
-    let spaces = data.spaces.map((s) => 0)
+    let spaces = [ 0 ]
     for (let i = 1; i < spaces.length; ++i) {
-        spaces[i] = (game.supply_cache[i] & mask) ? 1 : 0
+        spaces[i] = (supply_cache[i] & mask) ? 1 : 0
     }
     return spaces
 }
@@ -8429,6 +8438,8 @@ function push_undo() {
 }
 
 function pop_undo() {
+    invalidate_supply_cache()
+
     let save_log = game.log
     let save_undo = game.undo
     let save_rollback = game.rollback
@@ -8544,6 +8555,8 @@ function save_rollback_point() {
 function restore_rollback(index) {
     if (!game.rollback || game.rollback.length <= index || index < 0)
         return
+
+    invalidate_supply_cache()
 
     let rollback_state = decompress_state(game.rollback_state) || []
 
@@ -8803,6 +8816,7 @@ function assert_reinforcement_rules() {
 }
 
 exports.assert_state = function(state) {
+    invalidate_supply_cache()
     game = state
     assert_stacking_limits()
     assert_opposing_sides_not_stacked()
