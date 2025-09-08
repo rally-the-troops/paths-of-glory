@@ -37,6 +37,22 @@ function check_menu(id, x) {
 
 const HIGHEST_AP_CARD = 65
 
+function map_get(map, key, missing) {
+	var a = 0
+	var b = (map.length >> 1) - 1
+	while (a <= b) {
+		var m = (a + b) >> 1
+		var x = map[m<<1]
+		if (key < x)
+			b = m - 1
+		else if (key > x)
+			a = m + 1
+		else
+			return map[(m<<1)+1]
+	}
+	return missing
+}
+
 // LAYOUT AND STYLE OPTIONS
 
 let style = "bevel"
@@ -1432,14 +1448,14 @@ function update_space(s) {
         destroy_fort_besieged_marker(s)
     }
 
-    if (view.ap.trenches[s] !== undefined && view.ap.trenches[s] > 0) {
-        push_stack(stack, build_trench_marker(s, view.ap.trenches[s], AP))
+    if (map_get(view.ap.trenches, s, 0)) {
+        push_stack(stack, build_trench_marker(s, map_get(view.ap.trenches, s, 0), AP))
     } else {
         destroy_trench_marker(s, AP)
     }
 
-    if (view.cp.trenches[s] !== undefined && view.cp.trenches[s] > 0) {
-        push_stack(stack, build_trench_marker(s, view.cp.trenches[s], CP))
+    if (map_get(view.cp.trenches, s, 0)) {
+        push_stack(stack, build_trench_marker(s, map_get(view.cp.trenches, s, 0), CP))
     } else {
         destroy_trench_marker(s, CP)
     }

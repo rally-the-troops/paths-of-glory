@@ -755,7 +755,7 @@ function create_empty_game_state(seed, scenario, options) {
             ws: 0, // War status level
             actions: [], // Actions played this turn, tracked for display on the action round tracker and to limit which actions are available
             shuffle: false, // Should the deck be shuffled before the next draw
-            trenches: {}, // Trench levels per space
+            trenches: [], // Trench levels per space
             missed_mo: [] // Turns on which AP missed their MO
         },
 
@@ -771,7 +771,7 @@ function create_empty_game_state(seed, scenario, options) {
             ru_vp: 0,
             actions: [],
             shuffle: false,
-            trenches: {},
+            trenches: [],
             missed_mo: []
         },
 
@@ -1417,16 +1417,16 @@ function can_play_neutral_entry() {
 function set_trench_level(s, level, faction) {
     if (faction === undefined)
         faction = is_controlled_by(s, AP) ? AP : CP
-
-    game[faction].trenches[s] = level
+    if (level)
+        map_set(game[faction].trenches, s, level)
+    else
+        map_delete(game[faction].trenches, s)
 }
 
 function get_trench_level(s, faction) {
     if (faction === undefined)
         faction = is_controlled_by(s, AP) ? AP : CP
-
-    let level = game[faction].trenches[s]
-    return level ?? 0
+    return map_get(game[faction].trenches, s, 0)
 }
 
 function get_trench_level_for_attack(s, faction) {
@@ -8331,8 +8331,20 @@ function array_remove_item(array, item) {
         array_remove(array, i)
 }
 
-function set_clear(set) {
-    set.length = 0
+function array_delete_pair(array, index) {
+	var i, n = array.length
+	for (i = index + 2; i < n; ++i)
+		array[i - 2] = array[i]
+	array.length = n - 2
+}
+
+function array_insert_pair(array, index, key, value) {
+	for (var i = array.length; i > index; i -= 2) {
+		array[i] = array[i-2]
+		array[i+1] = array[i-1]
+	}
+	array[index] = key
+	array[index+1] = value
 }
 
 function set_has(set, item) {
@@ -8399,6 +8411,56 @@ function set_toggle(set, item) {
     return array_insert(set, a, item)
 }
 
+function map_get(map, key, missing) {
+	var a = 0
+	var b = (map.length >> 1) - 1
+	while (a <= b) {
+		var m = (a + b) >> 1
+		var x = map[m<<1]
+		if (key < x)
+			b = m - 1
+		else if (key > x)
+			a = m + 1
+		else
+			return map[(m<<1)+1]
+	}
+	return missing
+}
+
+function map_set(map, key, value) {
+	var a = 0
+	var b = (map.length >> 1) - 1
+	while (a <= b) {
+		var m = (a + b) >> 1
+		var x = map[m<<1]
+		if (key < x)
+			b = m - 1
+		else if (key > x)
+			a = m + 1
+		else {
+			map[(m<<1)+1] = value
+			return
+		}
+	}
+	array_insert_pair(map, a<<1, key, value)
+}
+
+function map_delete(map, key) {
+	var a = 0
+	var b = (map.length >> 1) - 1
+	while (a <= b) {
+		var m = (a + b) >> 1
+		var x = map[m<<1]
+		if (key < x)
+			b = m - 1
+		else if (key > x)
+			a = m + 1
+		else {
+			array_delete_pair(map, m<<1)
+			return
+		}
+	}
+}
 
 // Fast deep copy for objects without cycles
 function object_copy(original) {
