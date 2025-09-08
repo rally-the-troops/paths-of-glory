@@ -5465,6 +5465,7 @@ function apply_replacement_phase_events() {
     if (game.turn === game.events.zeppelin_raids) {
         game.rp.br = Math.max(game.rp.br - 4, 0)
         log(`${card_name(ZEPPELIN_RAIDS)} subtracts 4 British RP`)
+        delete game.events.zeppelin_raids
     }
 
     // 5.7.3 The CP receives 1 German RP each turn during Total War (i.e., after it has drawn TW cards) if it controls
