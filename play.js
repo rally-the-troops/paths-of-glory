@@ -376,6 +376,16 @@ function on_reply(q, params) {
         show_card_list("cp_card_dialog", params)
 }
 
+function get_control_bit(i) {
+    var word = i >> 5
+    var bit = i & 31
+    return (view.control[word] >>> bit) & 1
+}
+
+function get_control(i) {
+    return get_control_bit(i) ? CP : AP
+}
+
 function show_score_summary() {
     show_dialog("score", (body) => {
         let dl = document.createElement("dl")
@@ -396,10 +406,10 @@ function show_score_summary() {
         // Captured spaces
         let ap_captured = []
         let cp_captured = []
-        for (let s = 1; s < view.control.length; s++) {
-            if (view.control[s] === 1 && spaces[s].faction === AP && spaces[s].vp > 0)
+        for (let s = 1; s < spaces.length; s++) {
+            if (get_control(s) === CP && spaces[s].faction === AP && spaces[s].vp > 0)
                 cp_captured.push(s)
-            if (view.control[s] === 0 && spaces[s].faction === CP && spaces[s].vp > 0)
+            if (get_control(s) === AP && spaces[s].faction === CP && spaces[s].vp > 0)
                 ap_captured.push(s)
         }
         append_header(`CP Captured (+${cp_captured.length})`)
@@ -1387,14 +1397,14 @@ function update_space(s) {
     }
 
     if (space.faction === AP) {
-        if (view.control[s])
+        if (get_control(s) === CP)
             push_stack(stack, build_control_marker(s, CP))
         else
             destroy_control_marker(s, CP)
     }
 
     if (space.faction === CP) {
-        if (!view.control[s])
+        if (get_control(s) === AP)
             push_stack(stack, build_control_marker(s, AP))
         else
             destroy_control_marker(s, AP)

@@ -543,6 +543,10 @@ exports.setup = function (seed, scenario, options) {
 
     game = create_empty_game_state(seed, scenario, options)
 
+    // Current control of each space
+    for (let i = 0; i < data.spaces.length; ++i)
+        set_control_bit(i, data.spaces[i].faction === CP ? 1 : 0)
+
     log_h1("Paths of Glory")
 
     setup_piece('ge', 'GE 1', 'Aachen')
@@ -722,7 +726,7 @@ function create_empty_game_state(seed, scenario, options) {
         },
 
         // Units
-        location: data.pieces.map(() => 0),
+        location: Array(data.pieces.length).fill(0),
         reduced: [],
         removed: [],
         entrenching: [], // Units that are entrenching this turn
@@ -733,7 +737,7 @@ function create_empty_game_state(seed, scenario, options) {
             move: [], // Spaces activated for movement
             attack: [] // Spaces activated for attack
         },
-        control: data.spaces.map((s) => s.faction === CP ? 1 : 0), // Current control of each space
+        control: Array(Math.floor((data.spaces.length + 7) / 8)).fill(0),
         forts: { // data for spaces tells you strength of forts per space
             destroyed: [], // Spaces with destroyed forts
             besieged: [] // Spaces with besieged forts
@@ -2727,9 +2731,24 @@ states.move_stack = {
     }
 }
 
+function set_control_bit(i, x) {
+    var word = i >> 5
+    var bit = i & 31
+    if (x)
+        game.control[word] |= (1 << bit)
+    else
+        game.control[word] &= ~(1 << bit)
+}
+
+function get_control_bit(i) {
+    var word = i >> 5
+    var bit = i & 31
+    return (game.control[word] >>> bit) & 1
+}
+
 function set_control(s, faction) {
     const new_control = faction === CP ? 1 : 0
-    if (game.control[s] === new_control)
+    if (get_control_bit(s) === new_control)
         return
 
     if (data.spaces[s].vp) {
@@ -2750,7 +2769,7 @@ function set_control(s, faction) {
         game.mef_beachhead_captured = true
     }
 
-    game.control[s] = new_control
+    set_control_bit(s, new_control)
 
     invalidate_supply_cache()
 
@@ -2773,7 +2792,7 @@ function is_controlled_by(s, faction) {
     // leaves such a space it reverts back to CP control. The ANA has no effect on spaces converted by other Allied
     // units—these remain Allied after the ANA exits.
 
-    let controlling_faction = game.control[s] === 1 ? CP : AP
+    let controlling_faction = get_control_bit(s) ? CP : AP
     if (game.location[BRITISH_ANA_CORPS] === s) {
         controlling_faction = AP
     }
