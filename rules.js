@@ -2303,8 +2303,10 @@ function start_attack_activation() {
 }
 
 function end_move_activation() {
-    set_delete(game.activated.move, game.move.initial)
-    game.move = null
+    if (game.move) {
+        set_delete(game.activated.move, game.move.initial)
+        game.move = null
+    }
     if (game.activated.move.length === 0) {
         if (check_rule_violations().length > 0)
             game.state = 'confirm_move_violations'
