@@ -8365,6 +8365,11 @@ function set_has(set, item) {
 function set_add(set, item) {
     let a = 0
     let b = set.length - 1
+    // optimize fast case of appending items in order
+    if (item > set[b]) {
+        set[b+1] = item
+        return
+    }
     while (a <= b) {
         let m = (a + b) >> 1
         let x = set[m]
