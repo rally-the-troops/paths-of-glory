@@ -3487,22 +3487,23 @@ function get_attackable_spaces_for_piece(p) {
 }
 
 function can_be_attacked(s) {
-    let retval = false
-
     // Check if space has an attackable fort
     if (has_undestroyed_fort(s, other_faction(active_faction())) && is_controlled_by(s, other_faction(active_faction())) && !is_besieged(s)) {
         return true
     }
 
-    for (let p = 0; p < game.location.length; ++p) {
-        if (game.location[p] === s && data.pieces[p].faction !== active_faction()) {
-            retval = true
-            break
-        }
+    // Can't have only units that retreated this round
+    const defending_pieces = get_pieces_in_space(s).filter((p) => data.pieces[p].faction !== active_faction())
+    if (defending_pieces.length > 0 && defending_pieces.every((p) => set_has(game.retreated, p))) {
+        return false
     }
 
-    // TODO: Can't have only units that retreated this round
-    return retval
+    for (let p = 0; p < game.location.length; ++p) {
+        if (game.location[p] === s && data.pieces[p].faction !== active_faction()) {
+            return true
+        }
+    }
+    return false
 }
 
 const TRENCH_NEGATING_CARDS = [ROYAL_TANK_CORPS, VON_BELOW, VON_HUTIER, MICHAEL, BLUCHER, PEACE_OFFENSIVE]
