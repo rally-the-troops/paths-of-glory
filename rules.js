@@ -6355,7 +6355,7 @@ function query_supply(sources) {
     for (let source of sources)
         mask |= get_supply_mask(source)
     let spaces = [ 0 ]
-    for (let i = 1; i < spaces.length; ++i) {
+    for (let i = 1; i < data.spaces.length; ++i) {
         spaces[i] = (supply_cache[i] & mask) ? 1 : 0
     }
     return spaces
