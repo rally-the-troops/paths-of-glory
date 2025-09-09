@@ -1806,38 +1806,45 @@ function get_sr_destinations(unit) {
     const is_neareast_start = is_neareast_space(start)
     const all_destinations = [...destinations]
     for (let d of all_destinations) {
-        if (is_neareast_space(d) !== is_neareast_start) {
-            // No more than one CP Corps may SR to or from the Near East map per turn. Exception: Turkish Corps do not count against this limit.
-            if (game.ne_restrictions.cp_sr && data.pieces[unit].faction === CP && nation !== TURKEY) {
-                set_delete(destinations, d)
-                continue
-            }
+        // No special restrictions when SR is entirely within or entirely outside the Near East map
+        if (is_neareast_space(d) === is_neareast_start) {
+            continue
+        }
 
-            // No more than one Russian Corps (never an Army) may SR to or from the Near East map per turn.
-            if (game.ne_restrictions.ru_sr && data.pieces[unit].nation === RUSSIA) {
-                set_delete(destinations, d)
-                continue
-            }
+        // No more than one CP Corps may SR to or from the Near East map per turn. Exception: Turkish Corps do not count against this limit.
+        if (game.ne_restrictions.cp_sr && data.pieces[unit].faction === CP && nation !== TURKEY) {
+            set_delete(destinations, d)
+            continue
+        }
 
+        // No more than one Russian Corps (never an Army) may SR to or from the Near East map per turn.
+        if (game.ne_restrictions.ru_sr && data.pieces[unit].nation === RUSSIA) {
+            set_delete(destinations, d)
+            continue
+        }
 
-            if (!set_has(overland_destinations, d)) {
-                // No more than one British Corps (including the AUS Corps, but not including the CND, PT, or BEF Corps)
-                // may use Reserve Box SR to or from Near East or SR by sea to or from the Near East per turn.
-                const name = data.pieces[unit].name
-                if (data.pieces[unit].nation === BRITAIN) {
-                    if (game.ne_restrictions.br_sr) {
-                        set_delete(destinations, d)
-                        continue
-                    } else if (name.startsWith('BR BEF') || name.startsWith('CND') || name.startsWith('PT')) {
-                        set_delete(destinations, d)
-                    }
-                }
+        if (data.pieces[unit].nation === RUSSIA && data.pieces[unit].type === ARMY) {
+            set_delete(destinations, d)
+            continue
+        }
 
-                // It is not permitted to use Sea or Reserve Box SR of FR Corps, IT Corps, GR Corps, RO Corps, SB Corps,
-                // US Corps, BE Corps, CND, PT, or BEF corps to or from the NE.
-                if ([ITALY, FRANCE, GREECE, ROMANIA, SERBIA, US, BELGIUM].includes(data.pieces[unit].nation))
+        if (!set_has(overland_destinations, d)) {
+            // No more than one British Corps (including the AUS Corps, but not including the CND, PT, or BEF Corps)
+            // may use Reserve Box SR to or from Near East or SR by sea to or from the Near East per turn.
+            const name = data.pieces[unit].name
+            if (data.pieces[unit].nation === BRITAIN) {
+                if (game.ne_restrictions.br_sr) {
                     set_delete(destinations, d)
+                    continue
+                } else if (name.startsWith('BR BEF') || name.startsWith('CND') || name.startsWith('PT')) {
+                    set_delete(destinations, d)
+                }
             }
+
+            // It is not permitted to use Sea or Reserve Box SR of FR Corps, IT Corps, GR Corps, RO Corps, SB Corps,
+            // US Corps, BE Corps, CND, PT, or BEF corps to or from the NE.
+            if ([ITALY, FRANCE, GREECE, ROMANIA, SERBIA, US, BELGIUM].includes(data.pieces[unit].nation))
+                set_delete(destinations, d)
         }
     }
 
@@ -4843,9 +4850,6 @@ function get_retreat_options(pieces, from, length_retreated) {
         })
     }
 
-    // TODO: if any enemy spaces would result in the retreating unit being in supply, remove enemy spaces that would
-    //  leave the retreating unit oos
-
     // Remove any spaces that would violate the Russian NE (non-SR) restriction or stacking limits
     const all_options = [...options]
     all_options.forEach((s) => {
@@ -4942,7 +4946,6 @@ states.attacker_advance = {
         }
         capture_trench(s, game.attack.attacker)
 
-        // TODO: Double-check the rules to see if it's even allowed to advance out of a space and leave an insufficient besieging force
         leaving_spaces.forEach(update_siege) // Update any forts in the spaces left by the advancing pieces
 
         // stop automatically
@@ -5182,11 +5185,6 @@ function goto_attrition_phase() {
             pieces: []
         }
     }
-
-    // TODO: Pieces in Albania can trace supply from Italy even when Italy is still neutral
-    //  11.1.12 Albania: Units may always enter Albania. Albanian spaces are considered Allied Controlled at Start
-    //  for SR purposes. Albanian spaces check Attrition supply by tracing normally to an Allied supply source or
-    //  tracing to Taranto even while Italy is still Neutral.
 
     // Get all OOS pieces that should suffer attrition
     get_oos_pieces().forEach((p) => {
