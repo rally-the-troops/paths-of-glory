@@ -1823,20 +1823,20 @@ function get_sr_destinations(unit) {
             if (!set_has(overland_destinations, d)) {
                 // No more than one British Corps (including the AUS Corps, but not including the CND, PT, or BEF Corps)
                 // may use Reserve Box SR to or from Near East or SR by sea to or from the Near East per turn.
+                const name = data.pieces[unit].name
                 if (data.pieces[unit].nation === BRITAIN) {
                     if (game.ne_restrictions.br_sr) {
                         set_delete(destinations, d)
                         continue
-                    } else if (!data.pieces[unit].name.startsWith('BR') && !data.pieces[unit].name.startsWith('AUS')) {
+                    } else if (name.startsWith('BR BEF') || name.startsWith('CND') || name.startsWith('PT')) {
                         set_delete(destinations, d)
                     }
                 }
 
                 // It is not permitted to use Sea or Reserve Box SR of FR Corps, IT Corps, GR Corps, RO Corps, SB Corps,
                 // US Corps, BE Corps, CND, PT, or BEF corps to or from the NE.
-                if ([ITALY, FRANCE, GREECE, ROMANIA, SERBIA, US, BELGIUM].includes(data.pieces[unit].nation)) {
+                if ([ITALY, FRANCE, GREECE, ROMANIA, SERBIA, US, BELGIUM].includes(data.pieces[unit].nation))
                     set_delete(destinations, d)
-                }
             }
         }
     }
