@@ -977,7 +977,7 @@ function setup_reserve_corps(nation, quantity) {
             break
         case GERMANY:
             unit = 'GEc'
-            space - 'CP Reserve Box'
+            space = 'CP Reserve Box'
             break
     }
     for (let i = 0; i < quantity; ++i) {
