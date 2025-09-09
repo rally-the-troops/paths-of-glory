@@ -2854,10 +2854,6 @@ function can_move_to(s, moving_pieces) {
         }
     }
 
-    // TODO: Units may always enter Albania. Albanian spaces are considered Allied Controlled at Start for SR purposes.
-    //  Albanian spaces check Attrition supply by tracing normally to an Allied supply source or tracing to Taranto
-    //  even while Italy is still Neutral.
-
     // Neither the BEF Corps nor Army may move in or attack into any space outside Britain, France, Belgium, and Germany.
     if (moving_pieces.includes(find_piece(BRITAIN, 'BR BEFc')) || moving_pieces.includes(find_piece(BRITAIN, 'BR BEF'))) {
         if (data.spaces[s].nation !== BRITAIN && data.spaces[s].nation !== FRANCE && data.spaces[s].nation !== BELGIUM && data.spaces[s].nation !== GERMANY) {
@@ -3374,12 +3370,21 @@ function get_attackable_spaces(attackers) {
     // Remove spaces that have already been attacked this action round
     eligible_spaces = eligible_spaces.filter((s) => set_has(game.attacked, s) === false )
 
-    // TODO: Units in London may conduct a Combat only if the Combat also involves friendly units located in a
-    //  space in either France or Belgium. Italian units may attack across the Taranto–Valona dotted line without
-    //  friendly units located in Albania or Greece.
-
     if (is_invalid_multinational_attack(attackers)) {
         return []
+    }
+
+    // Units in London may conduct a Combat only if the Combat also involves friendly units located in a space in
+    // either France or Belgium.
+    const attacking_from_london = attackers.some(p => game.location[p] === LONDON)
+    if (attacking_from_london) {
+        const attacking_from_france_belgium = attackers.some(p => {
+            const loc = game.location[p]
+            return data.spaces[loc].nation === FRANCE || data.spaces[loc].nation === BELGIUM
+        })
+        if (!attacking_from_france_belgium) {
+            return []
+        }
     }
 
     // Limited Greek entry
