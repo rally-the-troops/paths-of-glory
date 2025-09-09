@@ -530,7 +530,7 @@ exports.view = function(state, current) {
             view.actions.propose_rollback = view.rollback.map((r, i) => i)
 
         // Flag supply warnings
-        if (!globalThis.RTT_FUZZER)
+        if (!globalThis.RTT_FUZZER && game.state !== "flag_supply_warnings")
             view.actions.flag_supply_warnings = 1
     }
 
