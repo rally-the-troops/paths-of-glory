@@ -570,7 +570,7 @@ body.bevel .unit.tip { box-shadow: 0 0 0 1px #000, 0 0 0 4px yellow !important }
 .marker.neutral { position: absolute; width: 100px; height: 80px; border-style: none; z-index: 200; }
 .marker.neutral.it { left: 720px; top: 1020px; }
 .marker.neutral.bu { left: 1500px; top: 1150px; }
-.marker.neutral.gr { left: 1350px; top: 1370px; }
+.marker.neutral.gr { left: 1340px; top: 1410px; }
 .marker.neutral.ro { left: 1550px; top: 970px; }
 .marker.neutral.tu { left: 2000px; top: 1100px; }
 
