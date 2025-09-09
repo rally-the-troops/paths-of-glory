@@ -2332,8 +2332,6 @@ function end_move_activation() {
     if (game.activated.move.length === 0) {
         if (check_rule_violations().length > 0)
             game.state = 'confirm_move_violations'
-        else if (game.activated.attack.length === 0)
-            game.state = 'confirm_move'
         else
             goto_next_activation()
     } else {
@@ -2359,8 +2357,19 @@ function goto_next_activation() {
     } else if (game.activated.attack.length > 0) {
         start_attack_activation()
     } else {
-        goto_end_action()
+        game.state = "end_operations"
     }
+}
+
+states.end_operations = {
+    inactive: 'end operations',
+    prompt() {
+        view.prompt = "Operations: Done."
+        gen_action("end_action")
+    },
+    end_action() {
+        goto_end_action()
+    },
 }
 
 function goto_end_action() {
@@ -3048,17 +3057,6 @@ states.confirm_move_violations = {
     reset_phase() {
         pop_all_undo()
     },
-}
-
-states.confirm_move = {
-    inactive: 'move',
-    prompt() {
-        view.prompt = `Operations: Done.`
-        gen_action("end_action")
-    },
-    end_action() {
-        goto_next_activation()
-    }
 }
 
 // === ATTACK STATES ===
