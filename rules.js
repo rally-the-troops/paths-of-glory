@@ -4966,9 +4966,16 @@ states.attacker_advance = {
 
         leaving_spaces.forEach(update_siege) // Update any forts in the spaces left by the advancing pieces
 
-        // stop automatically
         const remaining_length = game.attack.retreat_length - game.attack.advance_length
-        if (remaining_length === 0 || get_possible_advance_spaces(game.attack.advancing_pieces).length === 0)
+        let terrain = data.spaces[s].terrain
+        if (
+            terrain === MOUNTAIN ||
+            terrain === SWAMP ||
+            terrain === FOREST ||
+            terrain === DESERT ||
+            remaining_length === 0 ||
+            get_possible_advance_spaces(game.attack.advancing_pieces).length === 0
+        )
             this.stop()
     },
     stop() {
