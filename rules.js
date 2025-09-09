@@ -324,7 +324,7 @@ function faction_name(faction) {
 }
 
 const all_pieces = Array.from(data.pieces, (p,ix) => ix)
-const all_pieces_by_nation = Object.groupBy(all_pieces, p => data.pieces[p].nation)
+const all_pieces_by_nation = object_group_by(all_pieces, p => data.pieces[p].nation)
 
 // === VIEW & QUERY ===
 
@@ -8515,6 +8515,29 @@ function object_copy(original) {
         }
         return copy
     }
+}
+
+function object_group_by(items, callback) {
+	var item, key
+	var groups = {}
+	if (typeof callback === "function") {
+		for (item of items) {
+			key = callback(item)
+			if (key in groups)
+				groups[key].push(item)
+			else
+				groups[key] = [ item ]
+		}
+	} else {
+		for (item of items) {
+			key = item[callback]
+			if (key in groups)
+				groups[key].push(item)
+			else
+				groups[key] = [ item ]
+		}
+	}
+	return groups
 }
 
 function clear_undo() {
