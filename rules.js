@@ -413,6 +413,7 @@ function query_cards(state, faction) {
 }
 
 exports.view = function(state, current) {
+    invalidate_supply_cache()
     game = state
 
     view = {
