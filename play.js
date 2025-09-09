@@ -677,8 +677,8 @@ function on_click_space(evt) {
     if (evt.button === 0) {
         let space = evt.target.space
         if (view.actions && view.actions.space && view.actions.space.includes(space)) {
-            event.stopPropagation()
-            send_action('space', space)
+            if (send_action('space', space))
+                event.stopPropagation()
         } else if (view.actions && (view.actions.activate_move || view.actions.activate_attack || view.actions.deactivate)) {
             let options = activation_menu_options.filter((option) => {
                 return view.actions[option] && view.actions[option].includes(space)
@@ -838,7 +838,7 @@ function on_blur_card(evt) {
 
 // CARD MENU
 
-let card_action_menu = Array.from(document.getElementById("popup").querySelectorAll("li[data-action]")).map(e => e.dataset.action)
+let card_action_menu = Array.from(document.getElementById("card_popup").querySelectorAll("li[data-action]")).map(e => e.dataset.action)
 
 function show_popup_menu(evt, menu_id, target_id, title) {
     let menu = document.getElementById(menu_id)
@@ -889,8 +889,8 @@ function show_popup_menu(evt, menu_id, target_id, title) {
 }
 
 function hide_popup_menu() {
-    document.getElementById("popup").style.display = "none"
     document.getElementById("activation_popup").style.display = "none"
+    document.getElementById("card_popup").style.display = "none"
 }
 
 function is_card_enabled(card) {
@@ -912,7 +912,7 @@ function on_click_card(evt) {
     if (is_action('card', card)) {
         send_action('card', card)
     } else {
-        show_popup_menu(evt, "popup", card, cards[card].name)
+        show_popup_menu(evt, "card_popup", card, cards[card].name)
     }
 }
 
@@ -1124,7 +1124,7 @@ function build_space(id) {
     elt.style.top = y + "px"
     elt.style.width = w + "px"
     elt.style.height = h + "px"
-    elt.addEventListener("mousedown", on_click_space)
+    elt.addEventListener("click", on_click_space)
     elt.addEventListener("mouseenter", on_focus_space)
     elt.addEventListener("mouseleave", on_blur_space)
 
@@ -1159,7 +1159,7 @@ function build_eliminated_box(id) {
     elt.style.top = y + "px"
     elt.style.width = w + "px"
     elt.style.height = h + "px"
-    elt.addEventListener("mousedown", on_click_space)
+    elt.addEventListener("click", on_click_space)
     elt.addEventListener("mouseenter", on_focus_space)
     elt.addEventListener("mouseleave", on_blur_space)
 
@@ -1193,7 +1193,7 @@ function build_reserve_box(id) {
     elt.style.top = y + "px"
     elt.style.width = w + "px"
     elt.style.height = h + "px"
-    elt.addEventListener("mousedown", on_click_space)
+    elt.addEventListener("click", on_click_space)
     elt.addEventListener("mouseenter", on_focus_space)
     elt.addEventListener("mouseleave", on_blur_space)
 
