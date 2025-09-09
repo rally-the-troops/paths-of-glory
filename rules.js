@@ -1303,6 +1303,13 @@ function get_pieces_in_space(s) {
     return pieces
 }
 
+function has_unmoved_pieces_in_space(s) {
+    for (let p = 1; p < data.pieces.length; ++p)
+        if (game.location[p] === s && !set_has(game.moved, p))
+            return true
+    return false
+}
+
 // === GAME UTILITIES ===
 
 // Checks for game state that violates the game rules. In some cases, the game should allow players to get into a state
@@ -2603,15 +2610,27 @@ states.choose_pieces_to_move = {
             }
         })
 
-        if (game.move.pieces.length > 0)
-            get_eligible_spaces_to_move().forEach(gen_action_space)
-        else
+        if (game.move.pieces.length > 0) {
+            let spaces = get_eligible_spaces_to_move()
+            // A player should usually not get into a state where they
+            // have activated a space for movement where they cannot move;
+            // but the fuzzer will!
+            if (spaces.length === 0)
+                gen_action("stop")
+            else
+                spaces.forEach(gen_action_space)
+        } else {
             view.actions.done = 1
+        }
     },
     piece(p) {
         if (game.move.pieces.length === 0)
             push_undo()
         set_add(game.move.pieces, p)
+    },
+    stop() {
+        log_piece_move(game.move.pieces)
+        end_move_stack()
     },
     space(s) {
         push_undo()
@@ -2997,7 +3016,7 @@ function end_move_stack() {
     for (let p of game.move.pieces)
         set_add(game.moved, p)
 
-    if (get_pieces_in_space(game.move.initial).length > 0) {
+    if (has_unmoved_pieces_in_space(game.move.initial)) {
         game.move.current = game.move.initial
         game.move.spaces_moved = 0
         game.move.pieces = []
