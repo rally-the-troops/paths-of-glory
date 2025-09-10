@@ -4842,6 +4842,9 @@ function get_retreat_options(pieces, from, length_retreated) {
         if (contains_piece_of_faction(conn, inactive_faction()))
             return
 
+        if (!nation_at_war(data.spaces[conn].nation))
+            return
+
         if (is_controlled_by(conn, active_faction()))
             has_friendly_option = true
 
