@@ -2231,7 +2231,7 @@ states.activate_spaces = {
             if (set_has(game.activated.move, s) || set_has(game.activated.attack, s)) {
                 // already chosen
             } else {
-                if (is_space_supplied(active_faction(), s)) {
+                if (is_space_supplied_or_has_supplied_unit(s, active_faction())) {
                     if (!nation_at_war(GREECE) && game.events.salonika > 0) {
                         // Limited Greek entry: prevent activating spaces with Greek units
                         if (contains_piece_of_nation(s, GREECE))
@@ -6350,6 +6350,18 @@ function is_space_supplied(faction, s) {
         return (check_supply_cache(supply_cache, s, [LONDON, PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE])
             || (is_controlled_by(SALONIKA, AP) && check_supply_cache(supply_cache, s, [SALONIKA])))
     }
+}
+
+function is_space_supplied_or_has_supplied_unit(s, faction) {
+    if (is_space_supplied(faction, s)) {
+        return true
+    }
+    const pieces = get_pieces_in_space(s)
+    for (const piece of pieces) {
+        if (data.pieces[piece].faction === faction && is_unit_supplied(piece))
+            return true
+    }
+    return false
 }
 
 // Units may not SR to or from the Reserve box under the following conditions: German and Austrian
