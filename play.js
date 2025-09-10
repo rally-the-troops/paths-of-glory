@@ -1367,7 +1367,9 @@ function update_space(s) {
     let full_corps = []
     let reduced_corps = []
 
+    let count_pieces = 0
     for_each_piece_in_space(s, p => {
+        count_pieces++
         let is_corps = pieces[p].type === CORPS
         let is_reduced = view.reduced.includes(p)
 
@@ -1412,18 +1414,11 @@ function update_space(s) {
         destroy_marker(markers.mef_beachhead, e => e.space_id === s)
     }
 
-    if (space.faction === AP) {
-        if (get_control(s) === CP)
-            push_stack(stack, build_control_marker(s, CP))
-        else
-            destroy_control_marker(s, CP)
-    }
-
-    if (space.faction === CP) {
-        if (get_control(s) === AP)
-            push_stack(stack, build_control_marker(s, AP))
-        else
-            destroy_control_marker(s, AP)
+    if (space.faction !== get_control(s) && count_pieces === 0)
+        push_stack(stack, build_control_marker(s, get_control(s)))
+    else {
+        destroy_control_marker(s, AP)
+        destroy_control_marker(s, CP)
     }
 
     if (s === SINAI && view.events.sinai_pipeline > 0) {
