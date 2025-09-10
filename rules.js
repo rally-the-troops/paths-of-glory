@@ -4226,7 +4226,6 @@ function reduce_piece_defender(p) {
 states.apply_attacker_losses = {
     inactive: 'take losses',
     prompt() {
-
         let loss_options = []
         if (game.attack.attacker_losses - game.attack.attacker_losses_taken > 0)
             loss_options = get_loss_options(false,game.attack.attacker_losses - game.attack.attacker_losses_taken, game.attack.pieces, 0)
@@ -4636,10 +4635,10 @@ function determine_combat_winner() {
 
 function defender_can_cancel_retreat() {
     const terrain = data.spaces[game.attack.space].terrain
-    if (terrain === MOUNTAIN || 
-        terrain === SWAMP || 
-        terrain === DESERT || 
-        terrain === FOREST || 
+    if (terrain === MOUNTAIN ||
+        terrain === SWAMP ||
+        terrain === DESERT ||
+        terrain === FOREST ||
         (get_trench_level_for_attack(game.attack.space, other_faction(game.attack.attacker)) > 0 && !game.attack.trenches_canceled)) {
         let step_count = 0
         for_each_piece_in_space(game.attack.space, (p) => {
@@ -4805,11 +4804,11 @@ states.defender_retreat = {
         }
     },
     _next() {
-            logi(piece_list(game.attack.retreating_pieces) + " -> " + space_list(game.attack.retreat_path))
-            if (game.attack.retreat_path.length > 0)
-                game.attack.retreat_paths.push(game.attack.retreat_path)
-            game.attack.retreat_path = []
-            game.attack.retreating_pieces.length = 0
+        logi(piece_list(game.attack.retreating_pieces) + " -> " + space_list(game.attack.retreat_path))
+        if (game.attack.retreat_path.length > 0)
+            game.attack.retreat_paths.push(game.attack.retreat_path)
+        game.attack.retreat_path = []
+        game.attack.retreating_pieces.length = 0
     },
     done() {
         clear_undo()
@@ -5216,14 +5215,14 @@ function goto_attrition_phase() {
     }
 
     // Get all OOS pieces that should suffer attrition
-    get_oos_pieces().forEach((p) => {
+    for (let p of game.oos_pieces) {
         const faction = data.pieces[p].faction
         if (game.location[p] === MEDINA && data.pieces[p].nation === TURKEY) {
             // Turkish units in Medina do not suffer attrition, even though they may be OOS
         } else {
             set_add(game.attrition[faction].pieces, p)
         }
-    })
+    }
 
     // Get all OOS spaces that should flip control
     for (let s = 1; s < data.spaces.length; ++s) {
@@ -5446,8 +5445,8 @@ function goto_war_status_phase() {
         goto_game_over(result, get_result_message("Armistice Declared: ", result))
     }
     else {
-    apply_replacement_phase_events()
-    goto_replacement_phase()
+        apply_replacement_phase_events()
+        goto_replacement_phase()
     }
 }
 
@@ -5843,7 +5842,7 @@ states.draw_cards_phase = {
                 }
             }
             game.discarded_ccs = []
-            
+
             if (game.ap.shuffle) {
                 // Shuffle required because new cards added, but must be delayed until now to pick up CC discards, according to 2018 rules change
                 reshuffle_discard(game.ap.deck)
@@ -6826,11 +6825,12 @@ events.alpenkorps = {
     can_play() {
         if (!game.attack)
             return false
-
         if (game.attack.attacker === CP &&
-            game.attack.pieces.some(p => data.pieces[p].nation === GERMANY &&
-            (data.spaces[game.location[p]].terrain === MOUNTAIN || 
-            data.spaces[game.attack.space].terrain === MOUNTAIN))) {
+            game.attack.pieces.some(p =>
+                data.pieces[p].nation === GERMANY &&
+                (data.spaces[game.location[p]].terrain === MOUNTAIN || data.spaces[game.attack.space].terrain === MOUNTAIN)
+            )
+        ) {
             return true
         }
     },
@@ -8392,19 +8392,19 @@ function array_remove_item(array, item) {
 }
 
 function array_delete_pair(array, index) {
-	var i, n = array.length
-	for (i = index + 2; i < n; ++i)
-		array[i - 2] = array[i]
-	array.length = n - 2
+    var i, n = array.length
+    for (i = index + 2; i < n; ++i)
+        array[i - 2] = array[i]
+    array.length = n - 2
 }
 
 function array_insert_pair(array, index, key, value) {
-	for (var i = array.length; i > index; i -= 2) {
-		array[i] = array[i-2]
-		array[i+1] = array[i-1]
-	}
-	array[index] = key
-	array[index+1] = value
+    for (var i = array.length; i > index; i -= 2) {
+        array[i] = array[i-2]
+        array[i+1] = array[i-1]
+    }
+    array[index] = key
+    array[index+1] = value
 }
 
 function set_has(set, item) {
@@ -8477,54 +8477,54 @@ function set_toggle(set, item) {
 }
 
 function map_get(map, key, missing) {
-	var a = 0
-	var b = (map.length >> 1) - 1
-	while (a <= b) {
-		var m = (a + b) >> 1
-		var x = map[m<<1]
-		if (key < x)
-			b = m - 1
-		else if (key > x)
-			a = m + 1
-		else
-			return map[(m<<1)+1]
-	}
-	return missing
+    var a = 0
+    var b = (map.length >> 1) - 1
+    while (a <= b) {
+        var m = (a + b) >> 1
+        var x = map[m<<1]
+        if (key < x)
+            b = m - 1
+        else if (key > x)
+            a = m + 1
+        else
+            return map[(m<<1)+1]
+    }
+    return missing
 }
 
 function map_set(map, key, value) {
-	var a = 0
-	var b = (map.length >> 1) - 1
-	while (a <= b) {
-		var m = (a + b) >> 1
-		var x = map[m<<1]
-		if (key < x)
-			b = m - 1
-		else if (key > x)
-			a = m + 1
-		else {
-			map[(m<<1)+1] = value
-			return
-		}
-	}
-	array_insert_pair(map, a<<1, key, value)
+    var a = 0
+    var b = (map.length >> 1) - 1
+    while (a <= b) {
+        var m = (a + b) >> 1
+        var x = map[m<<1]
+        if (key < x)
+            b = m - 1
+        else if (key > x)
+            a = m + 1
+        else {
+            map[(m<<1)+1] = value
+            return
+        }
+    }
+    array_insert_pair(map, a<<1, key, value)
 }
 
 function map_delete(map, key) {
-	var a = 0
-	var b = (map.length >> 1) - 1
-	while (a <= b) {
-		var m = (a + b) >> 1
-		var x = map[m<<1]
-		if (key < x)
-			b = m - 1
-		else if (key > x)
-			a = m + 1
-		else {
-			array_delete_pair(map, m<<1)
-			return
-		}
-	}
+    var a = 0
+    var b = (map.length >> 1) - 1
+    while (a <= b) {
+        var m = (a + b) >> 1
+        var x = map[m<<1]
+        if (key < x)
+            b = m - 1
+        else if (key > x)
+            a = m + 1
+        else {
+            array_delete_pair(map, m<<1)
+            return
+        }
+    }
 }
 
 // Fast deep copy for objects without cycles
@@ -8554,26 +8554,26 @@ function object_copy(original) {
 }
 
 function object_group_by(items, callback) {
-	var item, key
-	var groups = {}
-	if (typeof callback === "function") {
-		for (item of items) {
-			key = callback(item)
-			if (key in groups)
-				groups[key].push(item)
-			else
-				groups[key] = [ item ]
-		}
-	} else {
-		for (item of items) {
-			key = item[callback]
-			if (key in groups)
-				groups[key].push(item)
-			else
-				groups[key] = [ item ]
-		}
-	}
-	return groups
+    var item, key
+    var groups = {}
+    if (typeof callback === "function") {
+        for (item of items) {
+            key = callback(item)
+            if (key in groups)
+                groups[key].push(item)
+            else
+                groups[key] = [ item ]
+        }
+    } else {
+        for (item of items) {
+            key = item[callback]
+            if (key in groups)
+                groups[key].push(item)
+            else
+                groups[key] = [ item ]
+        }
+    }
+    return groups
 }
 
 function clear_undo() {
