@@ -2625,7 +2625,8 @@ states.choose_pieces_to_move = {
             // A player should usually not get into a state where they
             // have activated a space for movement where they cannot move;
             // but the fuzzer will!
-            if (spaces.length === 0)
+            // If armies in space have been chosen to entrench, you may not want to move the remaining corps.
+            if (spaces.length === 0 || game.entrenching.some(p => game.location[p] === game.move.initial))
                 gen_action("stop")
             else
                 spaces.forEach(gen_action_space)
