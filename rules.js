@@ -2628,8 +2628,7 @@ states.choose_pieces_to_move = {
             // If armies in space have been chosen to entrench, you may not want to move the remaining corps.
             if (spaces.length === 0 || game.entrenching.some(p => game.location[p] === game.move.initial))
                 gen_action("stop")
-            else
-                spaces.forEach(gen_action_space)
+            spaces.forEach(gen_action_space)
         } else {
             view.actions.done = 1
         }
