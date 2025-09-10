@@ -1787,7 +1787,7 @@ function get_sr_destinations(unit) {
                     return
                 set_add(destinations, n)
                 set_add(overland_destinations, n)
-                set_add(frontier, n)
+                frontier.push(n)
             }
         })
     }
@@ -1900,7 +1900,7 @@ function set_ne_restriction_flags_for_sr(p, start, destination) {
                 && is_space_supplied(active_faction(), n)
                 && (is_controlled_by(n, active_faction()) || is_besieged(n))) {
                 set_add(destinations, n)
-                set_add(frontier, n)
+                frontier.push(n)
             }
         })
     }
@@ -6053,6 +6053,10 @@ function get_supply_mask(source) {
 // - override_mask: a mask to override the default supply mask for the source
 // - set_nonitalian_path: whether to set the NonItalianPath mask for spaces reachable without passing through Italy
 // - set_nonmef_path: whether to set the NonMEFPath mask for spaces reachable without passing through the MEF
+
+let blocked_spaces = new Array(data.spaces.length).fill(0) // allocate once and re-use
+let visited = new Array(data.spaces.length).fill(0) // allocate once and re-use
+
 function fill_supply_cache(faction, cache, sources, options) {
     options = options || {}
     const use_ports = options.use_ports || false
@@ -6061,13 +6065,14 @@ function fill_supply_cache(faction, cache, sources, options) {
     const set_nonitalian_path = options.set_nonitalian_path || false
     const set_nonmef_path = options.set_nonmef_path || false
 
-    let blocked_spaces = []
     let friendly_ports = []
+
+    blocked_spaces.fill(0)
 
     // Block spaces containing an enemy unit
     for (let p = 1; p < data.pieces.length; ++p) {
         if (game.location[p] !== 0 && data.pieces[p].faction !== faction) {
-            set_add(blocked_spaces, game.location[p])
+            blocked_spaces[game.location[p]] = 1
         }
     }
 
@@ -6079,9 +6084,9 @@ function fill_supply_cache(faction, cache, sources, options) {
                 // Limited Greek entry (9.5.2.4): Greek units are on the map and they block move/supply, but empty
                 // Greek spaces do not block supply
                 if (contains_piece_of_nation(s, GREECE))
-                    set_add(blocked_spaces, s)
+                    blocked_spaces[s] = 1
             } else {
-                set_add(blocked_spaces, s)
+                blocked_spaces[s] = 1
             }
         }
     }
@@ -6098,7 +6103,7 @@ function fill_supply_cache(faction, cache, sources, options) {
     }
     for (let s = 1; s < data.spaces.length; ++s) {
         if (!is_controlled_by(s, faction) && !set_has(occupied_forts, s)) {
-            set_add(blocked_spaces, s)
+            blocked_spaces[s] = 1
         } else if (use_ports) {
             // If this type of supply can use ports, build a set of friendly port spaces
             if (is_port(s, faction)) {
@@ -6108,77 +6113,91 @@ function fill_supply_cache(faction, cache, sources, options) {
     }
 
     // For each supply source, populate the set of supplied spaces
-    sources.forEach((source) => {
+    for (let source of sources) {
         let mask = override_mask || get_supply_mask(source)
         let frontier = [source]
+        visited.fill(0)
+        visited[source] = 0
         while (frontier.length > 0) {
             let current = frontier.pop()
-            if (!set_has(blocked_spaces, current)) {
+            if (!blocked_spaces[current]) {
                 cache[current] |= mask
-                get_connected_spaces(current, national_connections).forEach((conn) => {
-                    if (!(cache[conn] & mask)) {
-                        set_add(frontier, conn)
+                for (let conn of get_connected_spaces(current, national_connections))  {
+                    if (!visited[conn]) {
+                        frontier.push(conn)
+                        visited[conn] = 1
                     }
-                })
+                }
                 if (set_has(friendly_ports, current)) {
-                    friendly_ports.forEach((port) => {
-                        if (!(cache[port] & mask)) {
-                            set_add(frontier, port)
+                    for (let port of friendly_ports) {
+                        if (!visited[port]) {
+                            frontier.push(port)
+                            visited[port] = 1
                         }
-                    })
+                    }
                 }
             }
         }
-    })
+    }
 
     if (set_nonitalian_path) {
         // Now mark the set of spaces that can be reached without passing through Italy
-        sources.forEach((source) => {
+        let mask = SUPPLY_MASK.NonItalianPath
+        for (let source of sources) {
             let frontier = [source]
-            let visited = []
+            visited.fill(0)
+            visited[source] = 1
             while (frontier.length > 0) {
                 let current = frontier.pop()
-                if (!set_has(visited, current)) {
-                    set_add(visited, current)
-                    if (!is_italian_space(current) && !set_has(blocked_spaces, current)) {
-                        cache[current] |= SUPPLY_MASK.NonItalianPath
-                        get_connected_spaces(current, national_connections).forEach((conn) => {
-                            set_add(frontier, conn)
-                        })
-                        if (set_has(friendly_ports, current)) {
-                            friendly_ports.forEach((port) => {
-                                set_add(frontier, port)
-                            })
+                if (!is_italian_space(current) && !blocked_spaces[current]) {
+                    cache[current] |= mask
+                    for (let conn of get_connected_spaces(current, national_connections)) {
+                        if (!visited[conn]) {
+                            frontier.push(conn)
+                            visited[conn] = 1
+                        }
+                    }
+                    if (set_has(friendly_ports, current)) {
+                        for (let port of friendly_ports) {
+                            if (!visited[port]) {
+                                frontier.push(port)
+                                visited[port] = 1
+                            }
                         }
                     }
                 }
             }
-        })
+        }
     }
 
     if (set_nonmef_path) {
         // Mark the set of spaces that can be reached without passing through the MEF
-        sources.forEach((source) => {
+        let mask = SUPPLY_MASK.NonMEFPath
+        for (let source of sources) {
             let frontier = [source]
-            let visited = []
+            visited.fill(0)
+            visited[source] = 1
             while (frontier.length > 0) {
                 let current = frontier.pop()
-                if (!set_has(visited, current)) {
-                    set_add(visited, current)
-                    if (!is_mef_space(current) && !set_has(blocked_spaces, current)) {
-                        cache[current] |= SUPPLY_MASK.NonMEFPath
-                        get_connected_spaces(current, national_connections).forEach((conn) => {
-                            set_add(frontier, conn)
-                        })
-                        if (set_has(friendly_ports, current)) {
-                            friendly_ports.forEach((port) => {
-                                set_add(frontier, port)
-                            })
+                if (!is_mef_space(current) && !blocked_spaces[current]) {
+                    cache[current] |= mask
+                    for (let conn of get_connected_spaces(current, national_connections)) {
+                        if (!visited[conn]) {
+                            frontier.push(conn)
+                            visited[conn] = 1
+                        }
+                    }
+                    if (set_has(friendly_ports, current)) {
+                        for (let port of friendly_ports) {
+                            if (!visited[port]) {
+                                frontier.push(port)
+                                visited[port] = 1
+                            }
                         }
                     }
                 }
             }
-        })
+        }
     }
 }
 
@@ -6299,7 +6318,7 @@ function can_unit_trace_supply_to_basra(p) {
                 && (is_controlled_by(n, active_faction()) || is_besieged(n))) {
                 set_add(destinations, n)
                 set_add(overland_destinations, n)
-                set_add(frontier, n)
+                frontier.push(n)
             }
         })
     }
