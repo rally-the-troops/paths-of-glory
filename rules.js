@@ -4843,6 +4843,16 @@ function get_retreat_options(pieces, from, length_retreated) {
         if (contains_piece_of_faction(conn, inactive_faction()))
             return
 
+        const nation = data.spaces[conn].nation
+        if (!nation_at_war(nation)) {
+            if (nation !== GREECE)
+                return // Block all neutral country spaces, except Greece
+
+            // Neutral Greek spaces are blocked if Salonika has not been played or if there's a Greek unit in them
+            if (!game.events.salonika || contains_piece_of_nation(s, GREECE))
+                return
+        }
+
         if (is_controlled_by(conn, active_faction()))
             has_friendly_option = true
 
