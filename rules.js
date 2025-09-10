@@ -5732,7 +5732,7 @@ function get_replaceable_units() {
             continue
 
         if (piece_data.type === ARMY) {
-            if (get_army_replacement_spaces(i).length === 0)
+            if ((game.location[i] === AP_ELIMINATED_BOX || game.location[i] === CP_ELIMINATED_BOX) && get_army_replacement_spaces(i).length === 0)
                 continue
             if (rps_available < 1)
                 continue
