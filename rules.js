@@ -3963,7 +3963,7 @@ function resolve_defenders_fire() {
     })
 
     const space_data = data.spaces[game.attack.space]
-    if (space_data.fort > 0 && !set_has(game.forts.destroyed, game.attack.space)) {
+    if (space_data.fort > 0 && !set_has(game.forts.destroyed, game.attack.space) && !is_besieged(game.attack.space)) {
         defender_cf += space_data.fort
     }
 
