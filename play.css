@@ -45,6 +45,22 @@ body.Central_Powers header.your_turn { background-color: lightsteelblue; }
 
 #turn_info {
     white-space: normal;
+    padding: 0;
+}
+
+#ap_deck_size { padding: 4px 0 0 8px; }
+#cp_deck_size { padding: 0 0 4px 8px; }
+
+#violations:empty {
+	display: none
+}
+
+#violations {
+	border-top: 1px solid black;
+	padding: 4px 8px;
+	background-color: wheat;
+	font-style: normal;
+	color: black;
 }
 
 .cardtip, .spacetip, .piecetip { cursor: pointer }
@@ -201,7 +217,6 @@ summary.dialog_header {
 #score { top: 100px; left: 60px; }
 #cp_card_dialog { top: 160px; left: 120px; }
 #ap_card_dialog { top: 220px; left: 180px; }
-#violations { top: 55px; right: 240px; }
 
 .dialog h3 {
     font-weight: bold;
