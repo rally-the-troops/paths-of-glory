@@ -521,6 +521,7 @@ body.flat .marker {
 
 body.flat .unit.highlight { box-shadow: 0 0 0 3px lime; border-color: #000; }
 body.flat .unit.selected { box-shadow: 0 0 0 3px cyan; border-color: #000; }
+body.flat .unit.entrenching { box-shadow: 0 0 0 3px chocolate; border-color: #000; }
 body.flat .unit.tip { box-shadow: 0 0 0 3px yellow; border-color: #000; }
 
 /* BEVEL STYLE ( top right bottom left ) */
@@ -534,6 +535,7 @@ body.bevel .marker {
 
 body.bevel .unit.highlight { box-shadow: 0 0 0 1px #000, 0 0 0 4px lime !important }
 body.bevel .unit.selected { box-shadow: 0 0 0 1px #000, 0 0 0 4px cyan !important }
+body.bevel .unit.entrenching { box-shadow: 0 0 0 1px #000, 0 0 0 4px chocolate !important }
 body.bevel .unit.tip { box-shadow: 0 0 0 1px #000, 0 0 0 4px yellow !important }
 
 /* Russian Capitulation */

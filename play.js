@@ -1727,6 +1727,7 @@ function update_piece(id) {
                 (view.who === id)
             ) && !is_action("piece", id)
         )
+	piece.element.classList.toggle("entrenching", !!(view.entrenching && view.entrenching.includes(id)))
 }
 
 let turn_track_stacks = new Array(20)
