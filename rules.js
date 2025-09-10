@@ -416,6 +416,8 @@ exports.view = function(state, current) {
     invalidate_supply_cache()
     game = state
 
+    update_supply()
+
     view = {
         active: game.active,
         log: game.log,
