@@ -4948,7 +4948,7 @@ states.attacker_advance = {
     },
     space(s) {
         let leaving_spaces = []
-
+        update_siege(s) // Remove besiege marke if space is friendly
         game.attack.did_advance = true
         game.attack.advancing_pieces.forEach((p) => {
             set_add(leaving_spaces, game.location[p])
@@ -5074,6 +5074,9 @@ function is_besieged(space) {
 function can_besiege(space, units) {
     let count_corps = 0
     for (let p of units) {
+        if (data.pieces[p].faction === data.spaces[space].faction) {
+            return false
+        }
         if (data.pieces[p].type === ARMY) {
             return true
         } else {
