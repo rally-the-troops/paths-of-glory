@@ -6230,11 +6230,11 @@ function is_unit_supplied(p) {
     if (nation === GREECE && !nation_at_war(GREECE) && game.events.salonika > 0) // Limited Greek entry
         return true
 
-    if (!supply_cache) update_supply()
-
     // CP can only trace supply to Medina over a Turkish connection, so non-Turkish CP units in Medina are OOS
     if (location === MEDINA && data.pieces[p].faction === CP && nation !== TURKEY)
         return false
+
+    if (!supply_cache) update_supply()
 
     if (nation === SERBIA) {
         if (data.spaces[location].nation === SERBIA)
@@ -6249,15 +6249,12 @@ function is_unit_supplied(p) {
     return check_supply_cache(supply_cache, location, get_supply_sources_for_piece(p))
 }
 
-function check_supply_cache(cache, location, sources) {
-    if (sources) {
-        sources = [ESSEN, BRESLAU, SOFIA, CONSTANTINOPLE, PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE, LONDON]
-    }
-    let source_mask = 0
-    for (let source of sources) {
-        source_mask |= get_supply_mask(source)
-    }
+const all_supply_sources = [ESSEN, BRESLAU, SOFIA, CONSTANTINOPLE, PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE, LONDON]
 
+function check_supply_cache(cache, location, sources = all_supply_sources) {
+    let source_mask = 0
+    for (let source of sources)
+        source_mask |= get_supply_mask(source)
     return !!(cache[location] & source_mask)
 }
 
