@@ -1460,7 +1460,7 @@ function goto_action_phase() {
 }
 
 states.action_phase = {
-    inactive: "take one action",
+    inactive: "play a card",
     prompt() {
         let player_hand = game[active_faction()].hand
         let player_actions = game[active_faction()].actions
