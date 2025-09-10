@@ -4807,6 +4807,7 @@ states.defender_retreat = {
             game.attack.retreat_paths.push(game.attack.retreat_path)
         game.attack.retreat_path = []
         game.attack.retreating_pieces.length = 0
+        update_supply()
     },
     done() {
         clear_undo()
@@ -8996,9 +8997,21 @@ function assert_reinforcement_rules() {
     })
 }
 
+function assert_supply() {
+    var old_supply = game.supply
+    if (old_supply) {
+        var old_supply_str = JSON.stringify(game.supply)
+        update_supply()
+        var new_supply_str = JSON.stringify(game.supply)
+        if (old_supply_str !== new_supply_str)
+            throw new Error("supply changed without invalidation!")
+        game.supply = old_supply
+    }
+}
+
 exports.assert_state = function(state) {
     game = state
-    update_supply_if_missing()
+    assert_supply()
     assert_stacking_limits()
     assert_opposing_sides_not_stacked()
     assert_trench_level()
