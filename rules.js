@@ -125,6 +125,7 @@ const ACHTUNG_PANZER = 127
 const RUSSIAN_DESERTIONS = 128
 const ALBERICH = 129
 const PRINCE_MAX = 130
+
 // Allied powers
 const BRITISH_REINFORCEMENTS_1 = 1
 const BLOCKADE = 2
@@ -321,7 +322,7 @@ function faction_name(faction) {
     }
 }
 
-const all_pieces = Array.from(data.pieces, (p,ix) => ix)
+const all_pieces = Array.from(data.pieces, (_,ix) => ix)
 const all_pieces_by_nation = object_group_by(all_pieces, p => data.pieces[p].nation)
 
 // === VIEW & QUERY ===
@@ -365,7 +366,7 @@ exports.resign = function (state, current) {
     return game
 }
 
-exports.query = function (state, current, q) {
+exports.query = function (state, _current, q) {
     if (q === 'cp_supply') {
         game = state
         update_supply_if_missing()
@@ -525,7 +526,7 @@ exports.view = function(state, current) {
             game.rollback_proposal === undefined &&
             game.rollback &&
             game.rollback.length > 0)
-            view.actions.propose_rollback = view.rollback.map((r, i) => i)
+            view.actions.propose_rollback = view.rollback.map((_, i) => i)
 
         // Flag supply warnings
         if (!globalThis.RTT_FUZZER && game.state !== "flag_supply_warnings")
@@ -1510,9 +1511,9 @@ function gen_card_menu(card, event_only) {
         if (can_play_event(card))
             gen_action('play_event', card)
         gen_action('play_ops', card)
-        if (can_play_sr(card))
+        if (can_play_sr())
             gen_action('play_sr', card)
-        if (can_play_rps(card))
+        if (can_play_rps())
             gen_action('play_rps', card)
     }
 }
@@ -1540,12 +1541,12 @@ function can_play_event(card) {
     return (evt !== undefined && evt.can_play())
 }
 
-function can_play_sr(card) {
+function can_play_sr() {
     let action = get_last_action()
     return action === undefined || action.type !== ACTION_SR
 }
 
-function can_play_rps(card) {
+function can_play_rps() {
     if (game.turn === game.events.influenza)
         return false
 
@@ -2989,7 +2990,7 @@ function would_overstack(s, pieces, faction) {
 }
 
 function get_all_overstacked_spaces() {
-    let stacks = data.spaces.map((s) => 0)
+    let stacks = new Array(data.spaces.length).fill(0)
     for (let p = 1; p < data.pieces.length; ++p) {
         stacks[game.location[p]]++
     }
@@ -3614,7 +3615,7 @@ states.play_wireless_intercepts = {
 function get_flanking_spaces(attack_spaces, defending_space, attacker) {
     let flanking_spaces = []
     for (let s of attack_spaces) {
-        if (adds_flanking_drm(s, game.attack.attacker, game.attack.space)) {
+        if (adds_flanking_drm(s, attacker, defending_space)) {
             flanking_spaces.push(s)
         }
     }
@@ -3628,9 +3629,8 @@ function get_flanking_spaces(attack_spaces, defending_space, attacker) {
 
 function get_attack_spaces(pieces) {
     let attack_spaces = []
-    game.attack.pieces.forEach((p) => {
+    for (let p of pieces)
         set_add(attack_spaces, game.location[p])
-    })
     return attack_spaces
 }
 
@@ -4501,7 +4501,6 @@ function get_replacement_options(unit, available_replacements) {
 
     if (full_options.length > 1) {
         let names = []
-        const first_option_name = data.pieces[full_options[0]].name
         // Filter out duplicate units by name
         full_options = full_options.filter((p) => {
             if (set_has(names, data.pieces[p].name))
@@ -4515,7 +4514,6 @@ function get_replacement_options(unit, available_replacements) {
 
     if (reduced_options.length > 1) {
         let names = []
-        const first_option_name = data.pieces[reduced_options[0]].name
         reduced_options = reduced_options.filter((p) => {
             if (set_has(names, data.pieces[p].name))
                 return false
@@ -5485,7 +5483,7 @@ function get_game_result_by_vp() {
     } else if (game.scenario === HISTORICAL || game.vp <= ap_threshold) {
         return faction_name(AP)
     } else {
-        return DRAW // Historical scenario draws go to the Allies, so this is future-proofing for other scenarios
+        return "Draw" // Historical scenario draws go to the Allies, so this is future-proofing for other scenarios
     }
 }
 
@@ -5494,7 +5492,7 @@ function get_result_message(prefix, result) {
         return `${prefix}${faction_name(AP)} win`
     if (result === CP)
         return `${prefix}${faction_name(CP)} win`
-    if (result === DRAW)
+    if (result === "Draw")
         return `${prefix}Game ends in a draw`
     return `${prefix}Game result unknown`
 }
@@ -6420,7 +6418,6 @@ states.confirm_event = {
         view.prompt = `execute "${current_card_name()}"`
     },
     prompt() {
-        let c = game.last_card
         view.prompt = current_card_name() + ": Done."
         view.actions.end_action = 1
     },
@@ -8994,11 +8991,5 @@ exports.assert_state = function(state) {
     assert_trench_level()
     assert_reinforcement_rules()
 }
-
-;(function(){
-    for (let key in states)
-        if (!states[key].inactive)
-            console.log("MISSING INACTIVE FOR: " + key)
-})()
 
 /* vim:set sts=4 sw=4 expandtab: */
