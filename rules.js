@@ -3047,7 +3047,7 @@ function piece_can_join_attack_without_breaking_siege(piece) {
             pieces_remaining.push(p)
     })
 
-    return pieces_remaining.length === 0 || can_besiege(game.location[piece], pieces_remaining)
+    return can_besiege(game.location[piece], pieces_remaining)
 }
 
 states.confirm_move_violations = {
