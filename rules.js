@@ -5801,8 +5801,10 @@ function goto_draw_cards_phase() {
         game[data.cards[c].faction].discard.push(c)
     })
     game.combat_cards.length = 0
+    log_h2(`Draw Strategy Cards Phase`)
     game.state = 'draw_cards_phase'
     set_active_faction(AP)
+    game.discarded_ccs = []
 }
 
 states.draw_cards_phase = {
@@ -5825,10 +5827,19 @@ states.draw_cards_phase = {
         push_undo()
         array_remove_item(game[active_faction()].hand, c)
         game[active_faction()].discard.push(c)
+        game.discarded_ccs.push(c)
     },
     done() {
         clear_undo()
         if (active_faction() === AP) {
+            if (game.discarded_ccs.length > 0) {
+                log(`${faction_name(AP)} discarded:`)
+                for (let c of game.discarded_ccs) {
+                    logi(`${card_name(c)}`)
+                }
+            }
+            game.discarded_ccs = []
+            
             if (game.ap.shuffle) {
                 // Shuffle required because new cards added, but must be delayed until now to pick up CC discards, according to 2018 rules change
                 reshuffle_discard(game.ap.deck)
@@ -5837,6 +5848,14 @@ states.draw_cards_phase = {
             deal_ap_cards()
             set_active_faction(CP)
         } else {
+            if (game.discarded_ccs.length > 0) {
+                log(`${faction_name(CP)} discarded:`)
+                for (let c of game.discarded_ccs) {
+                    logi(`${card_name(c)}`)
+                }
+            }
+            delete game.discarded_ccs
+
             if (game.cp.shuffle) { // Same as AP shuffle above
                 reshuffle_discard(game.cp.deck)
                 game.cp.shuffle = false
