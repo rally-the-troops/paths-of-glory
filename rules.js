@@ -2189,8 +2189,8 @@ function get_available_reinforcement_spaces(p) {
     if (nation === FRANCE &&
         is_fully_stacked(PARIS, active_faction()) &&
         is_controlled_by(PARIS, active_faction()) &&
-        is_controlled_by(ORLEANS, active_faction() &&
-        is_space_supplied(active_faction(), ORLEANS))) {
+        is_controlled_by(ORLEANS, active_faction()) &&
+        is_space_supplied(active_faction(), ORLEANS)) {
         spaces.push(ORLEANS)
     }
 
