@@ -1,6 +1,8 @@
 "use strict"
 
-/* globals spaces pieces cards layout */
+/* globals data layout */
+
+const { cards, spaces, pieces } = data
 
 const DEBUG_SPACES = false
 const DEBUG_CONNECTIONS = false

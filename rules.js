@@ -4823,6 +4823,10 @@ states.defender_retreat = {
 function get_retreat_options(pieces, from, length_retreated) {
     let retreating_pieces = pieces || game.attack.retreating_pieces
     let origin = from || game.attack.space
+
+    if (retreating_pieces.length === 0)
+        return []
+
     let p = retreating_pieces[0]
     let options = []
     let s = game.location[p]
@@ -5948,18 +5952,9 @@ function get_connected_spaces_for_pieces(s, pieces) {
 }
 
 function get_connected_spaces(s, nation) {
-    // (TOR) can we cache or precompute these?
-
-    let connections = []
-    let space_data = data.spaces[s]
-    if (!space_data || s === 0)
-        return connections
-
-    connections = connections.concat(space_data.connections)
-
-    if (nation !== undefined && space_data.limited_connections && space_data.limited_connections.hasOwnProperty(nation))
-        connections = connections.concat(space_data.limited_connections[nation])
-    return connections
+    if (nation === undefined)
+        return data.spaces[s].connections
+    return data.spaces[s].limited_connections[nation] ?? data.spaces[s].connections
 }
 
 function is_port(s, faction) {

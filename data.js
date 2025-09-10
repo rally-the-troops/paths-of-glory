@@ -1,5 +1,6 @@
+const data = {}
 
-const cards = [
+data.cards = [
     {},
     {
         "num": 1,
@@ -1963,7 +1964,7 @@ const cards = [
     }
 ]
 
-const pieces = [
+data.pieces = [
     {},
     {
         "faction": "cp",
@@ -4675,7 +4676,7 @@ const pieces = [
     }
 ]
 
-const spaces = [
+data.spaces = [
     {},
     {
         "id": 1,
@@ -8841,22 +8842,36 @@ const edges = [
     }
 ]
 
-for (let i = 1; i < spaces.length; i++) {
-    spaces[i].connections = []
-    spaces[i].limited_connections = { br: [], it: [], ru: [], mef: [], ana: [], tu: [] }
+for (let i = 1; i < data.spaces.length; i++) {
+    data.spaces[i].connections = []
+    data.spaces[i].limited_connections = { br: [], it: [], ru: [], mef: [], ana: [], tu: [] }
 }
 
 for (let i = 0; i < edges.length; i++) {
     let edge = edges[i]
     if (edge.nations) {
         edge.nations.split('|').forEach(nation => {
-            spaces[edge.a].limited_connections[nation].push(edge.b)
-            spaces[edge.b].limited_connections[nation].push(edge.a)
+            data.spaces[edge.a].limited_connections[nation].push(edge.b)
+            data.spaces[edge.b].limited_connections[nation].push(edge.a)
         })
     } else {
-        spaces[edge.a].connections.push(edge.b)
-        spaces[edge.b].connections.push(edge.a)
+        data.spaces[edge.a].connections.push(edge.b)
+        data.spaces[edge.b].connections.push(edge.a)
     }
 }
 
-if (typeof module !== 'undefined') module.exports = {cards,pieces,spaces}
+let lim_con_nations = [ "br", "it", "ru", "mef", "ana", "tu" ]
+
+for (let i = 1; i < data.spaces.length; ++i) {
+    let con = data.spaces[i].connections
+    let lim_con = data.spaces[i].limited_connections
+    for (let nation of lim_con_nations) {
+        if (lim_con[nation].length === 0)
+            delete lim_con[nation]
+        else
+            lim_con[nation] = con.concat(lim_con[nation]).sort((a,b)=>a-b)
+    }
+    con.sort((a,b)=>a-b)
+}
+
+if (typeof module !== 'undefined') module.exports = data
