@@ -466,7 +466,7 @@ exports.view = function(state, current) {
         mef_beachhead: game.mef_beachhead_captured ? null : game.mef_beachhead,
         tsar_fell_cp_russian_vp: game.tsar_fell_cp_russian_vp,
 
-        oos_pieces: game.oos_pieces,
+        oos_pieces: get_oos_pieces(),
 
         ne_limits: game.ne_restrictions,
 
@@ -6215,8 +6215,6 @@ function update_supply() {
     // These are also special cases, but don't need a separate mask because they use separate sources
     fill_supply_cache(AP, supply_cache, [SALONIKA])
     fill_supply_cache(AP, supply_cache, [BASRA], { national_connections: BRITAIN })
-
-    game.oos_pieces = get_oos_pieces()
 }
 
 function is_unit_supplied(p) {
