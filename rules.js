@@ -839,6 +839,8 @@ function goto_start_turn() {
     game.state = 'confirm_mo'
     game.active = CP_ROLE
 
+    update_supply()
+
     log_br()
     log_h1(`Turn ${game.turn} -- ${turn_season_and_year(game.turn)}`)
     log_br()
@@ -1064,8 +1066,6 @@ function set_nation_at_war(nation) {
             setup_piece(GREECE, 'GRc', 'Larisa')
         }
     }
-
-    update_supply()
 }
 
 // === MANDATED OFFENSIVES ===
@@ -2337,6 +2337,7 @@ function start_move_activation() {
 }
 
 function start_attack_activation() {
+    update_supply()
     game.attack = {
         pieces: [],
         space: 0,
@@ -2350,6 +2351,9 @@ function start_attack_activation() {
 }
 
 function end_move_activation() {
+    // update supply after each move (except the last, as the attack/end-action will update for us)
+    if (game.activated.move.length + game.entrenching.length > 0)
+        update_supply() // TODO -- move to after each stack moves instead for more granularity?
     if (game.move) {
         set_delete(game.activated.move, game.move.initial)
         game.move = null
@@ -2448,6 +2452,8 @@ function goto_end_action() {
     delete game.attacked
     delete game.retreated
     delete game.sud_army_space
+
+    update_supply()
 
     game.action_state = {} // Reset any state that lasts for the action round
 
@@ -2843,8 +2849,6 @@ function set_control(s, faction) {
 
     set_control_bit(s, new_control)
 
-    update_supply()
-
     update_russian_capitulation()
 }
 
@@ -3055,7 +3059,6 @@ function end_move_stack() {
     if (!is_controlled_by(game.move.current, active_faction()) && has_undestroyed_fort(game.move.current, other_faction(active_faction()))) {
         if (can_besiege(game.move.current, get_pieces_in_space(game.move.current)))
             set_add(game.forts.besieged, game.move.current)
-        update_supply()
     }
 
     for (let p of game.move.pieces)
@@ -4848,7 +4851,8 @@ states.defender_retreat = {
 
         game.attack.retreat_path = []
         game.attack.retreating_pieces.length = 0
-        update_supply()
+
+        update_supply() // to warn if retreating OOS
     },
     done() {
         clear_undo()
@@ -4972,7 +4976,6 @@ states.attacker_advance = {
             logi(piece_name(p) + " -> " + space_name(end_space))
             if (has_undestroyed_fort(end_space, other_faction(game.attack.attacker))) {
                 set_add(game.forts.besieged, end_space)
-                update_supply()
             }
             set_delete(game.attack.advancing_pieces, p)
             if (game.attack.advancing_pieces.length === 0)
@@ -4996,7 +4999,6 @@ states.attacker_advance = {
         if (has_undestroyed_fort(s, other_faction(active_faction()))) {
             if (can_besiege(s, get_pieces_in_space(s))) {
                 set_add(game.forts.besieged, s)
-                update_supply()
             }
         } else {
             set_control(s, game.attack.attacker)
@@ -5016,13 +5018,14 @@ states.attacker_advance = {
             get_possible_advance_spaces(game.attack.advancing_pieces).length === 0
         )
             this.stop()
+
+        update_supply() // to warn if advancing OOS
     },
     stop() {
         const end_space = game.location[game.attack.advancing_pieces[0]]
         logi(piece_list(game.attack.advancing_pieces) + " -> " + space_name(end_space))
         if (has_undestroyed_fort(end_space, other_faction(game.attack.attacker))) {
             set_add(game.forts.besieged, end_space)
-            update_supply()
         }
         game.attack.advancing_pieces.length = 0
         game.attack.advance_length = 0
@@ -5138,7 +5141,6 @@ function update_siege(space) {
     let pieces_in_space = get_pieces_in_space(space)
     if (!can_besiege(space, pieces_in_space)) {
         set_delete(game.forts.besieged, space)
-        update_supply()
     }
 }
 
@@ -8651,8 +8653,6 @@ function push_undo() {
             continue
         else if (k === "log")
             v = v.length
-        else if (k === "supply")
-            continue
         else if (typeof v === "object" && v !== null)
             v = object_copy(v)
         copy[k] = v
@@ -8674,9 +8674,6 @@ function pop_undo() {
     // so it should be impossible to undo past a rollback point
     game.rollback = save_rollback
     game.rollback_state = save_rollback_state
-
-    // and update the supply (which is not saved with undo state)
-    update_supply()
 }
 
 function pop_all_undo() {
@@ -8733,8 +8730,6 @@ function save_rollback_point() {
             continue
         else if (k === "log")
             v = v.length
-        else if (k === "supply")
-            continue
         else if (typeof v === "object" && v !== null)
             v = object_copy(v)
         copy[k] = v
@@ -8801,9 +8796,6 @@ function restore_rollback(index) {
     // keep older rollback points, as well as the one we restored
     game.rollback = save_rollback.slice(0, index+1)
     game.rollback_state = compress_state(rollback_state.slice(0, index+1))
-
-    // and update the supply (which is not saved with rollback state)
-    update_supply()
 }
 
 function goto_propose_rollback(rollback_index) {
@@ -9044,21 +9036,8 @@ function assert_reinforcement_rules() {
     })
 }
 
-function assert_supply() {
-    var old_supply = game.supply
-    if (old_supply) {
-        var old_supply_str = JSON.stringify(game.supply)
-        update_supply()
-        var new_supply_str = JSON.stringify(game.supply)
-        if (old_supply_str !== new_supply_str)
-            throw new Error("supply changed without invalidation!")
-        game.supply = old_supply
-    }
-}
-
 exports.assert_state = function(state) {
     game = state
-    assert_supply()
     assert_stacking_limits()
     assert_opposing_sides_not_stacked()
     assert_trench_level()
