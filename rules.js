@@ -1306,7 +1306,7 @@ function get_pieces_in_space(s) {
 
 function has_unmoved_pieces_in_space(s) {
     for (let p = 1; p < data.pieces.length; ++p)
-        if (game.location[p] === s && !set_has(game.moved, p))
+        if (game.location[p] === s && !set_has(game.moved, p) && !set_has(game.entrenching, p))
             return true
     return false
 }
@@ -2438,7 +2438,7 @@ function goto_end_action() {
 }
 
 function can_entrench() {
-    return game.activated.move.length > 0 && game.events.entrench > 0
+    return game.events.entrench > 0
 }
 
 function update_us_entry() {
@@ -2487,25 +2487,23 @@ function update_russian_capitulation() {
 states.choose_move_space = {
     inactive: 'move',
     prompt() {
-        view.prompt = `Move units in spaces activated for movement.`
+        if (can_entrench())
+            view.prompt = `Move units (or entrench) in spaces activated for movement.`
+        else
+            view.prompt = `Move units in spaces activated for movement.`
 
-        let space_eligible_to_move = false
+        let can_move = false
         game.activated.move.forEach((s) => {
             for_each_piece_in_space(s, (p) => {
                 if (get_piece_mf(p) > 0 && !set_has(game.entrenching, p) && !set_has(game.moved, p)) {
                     gen_action_piece(p)
-                    space_eligible_to_move = true
+                    can_move = true
                 }
             })
         })
 
-        if (can_entrench() && get_units_eligible_to_entrench().length > 0) {
-            view.prompt = `Move units (or entrench) in spaces activated for movement.`
-            gen_action('entrench')
-        }
-
-        if (!space_eligible_to_move) { // This can happen if all spaces are entrenching, for example
-            if (game.activated.attack.length > 0)
+        if (!can_move) {
+            if (game.activated.attack.length + game.entrenching.length > 0)
                 gen_action_done()
             else
                 gen_action("end_action")
@@ -2520,10 +2518,6 @@ states.choose_move_space = {
         game.move.pieces = [ p ]
         game.state = "choose_pieces_to_move"
     },
-    entrench() {
-        push_undo()
-        game.state = 'choose_entrench_units'
-    },
     done() {
         push_undo()
         game.activated.move.length = 0
@@ -2534,47 +2528,6 @@ states.choose_move_space = {
         game.activated.move.length = 0
         end_move_activation()
     },
-}
-
-function get_units_eligible_to_entrench() {
-    let units = []
-    let entrenching_spaces = game.entrenching.map((p) => game.location[p])
-    game.activated.move.forEach((s) => {
-        let trench_lvl = get_trench_level(s, active_faction())
-        if (is_controlled_by(s, active_faction()) && trench_lvl < 2 && !entrenching_spaces.includes(s)) {
-            for_each_piece_in_space(s, (p) => {
-                if (data.pieces[p].type === ARMY && !set_has(game.moved, p)) {
-                    units.push(p)
-                }
-            })
-        }
-    })
-    return units
-}
-
-states.choose_entrench_units = {
-    inactive: 'entrench units',
-    prompt() {
-        view.prompt = `Choose armies that will attempt to entrench.`
-
-        get_units_eligible_to_entrench().forEach((p) => {
-            gen_action_piece(p)
-        })
-        gen_action_done()
-    },
-    piece(p) {
-        push_undo()
-        log(`>${piece_name(p)} will attempt to entrench`)
-        set_add(game.entrenching, p)
-        // If there are no pieces left to move, deactivate the space
-        if (get_pieces_in_space(game.location[p]).every((piece) => set_has(game.entrenching, piece) || set_has(game.moved, piece)))
-            set_delete(game.activated.move, game.location[p])
-    },
-    done() {
-        push_undo()
-
-        game.state = 'choose_move_space'
-    }
 }
 
 states.place_event_trench = {
@@ -2612,6 +2565,21 @@ states.place_event_trench = {
     }
 }
 
+function can_entrench_with_selected() {
+        if (!can_entrench())
+            return false
+        if (game.move.spaces_moved > 0 || game.move.pieces.length !== 1)
+            return false
+        let s = game.move.initial
+        let p = game.move.pieces[0]
+        return (
+            data.pieces[p].type === ARMY &&
+            is_controlled_by(s, active_faction()) &&
+            get_trench_level(s, active_faction()) < 2 &&
+            game.entrenching.every(pp => game.location[pp] !== s)
+        )
+}
+
 states.choose_pieces_to_move = {
     inactive: 'move',
     prompt() {
@@ -2625,13 +2593,18 @@ states.choose_pieces_to_move = {
             }
         })
 
+        if (can_entrench_with_selected()) {
+            view.prompt = `Move ${piece_name(game.move.pieces[0])} from ${space_name(game.move.initial)} or attempt to entrench.`
+            gen_action("entrench")
+        }
+
         if (game.move.pieces.length > 0) {
             let spaces = get_eligible_spaces_to_move()
             // A player should usually not get into a state where they
             // have activated a space for movement where they cannot move;
             // but the fuzzer will!
             // If armies in space have been chosen to entrench, you may not want to move the remaining corps.
-            if (spaces.length === 0 || game.entrenching.some(p => game.location[p] === game.move.initial))
+            if (spaces.length === 0)
                 gen_action("stop")
             spaces.forEach(gen_action_space)
         } else {
@@ -2642,6 +2615,15 @@ states.choose_pieces_to_move = {
         if (game.move.pieces.length === 0)
             push_undo()
         set_add(game.move.pieces, p)
+    },
+    entrench() {
+        push_undo()
+        let p = game.move.pieces.pop()
+        log(`>${piece_name(p)} entrench`)
+        set_add(game.entrenching, p)
+        // If there are no pieces left to move, deactivate the space
+        if (get_pieces_in_space(game.location[p]).every((piece) => set_has(game.entrenching, piece) || set_has(game.moved, piece)))
+            end_move_activation()
     },
     stop() {
         log_piece_move(game.move.pieces)
