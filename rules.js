@@ -8939,8 +8939,12 @@ function die_color(faction) {
 function fmt_roll(roll, drm, faction) {
     faction = faction || active_faction()
     let s = '' + die_color(faction) + roll
-    if (drm !== undefined && drm !== 0)
-        s = s + ` + ${drm} = ${roll + drm}`
+    if (drm !== undefined && drm !== 0) {
+        if (drm > 0)
+            s = s + ` + ${drm} = ${roll + drm}`
+        else
+            s = s + ` - ${-drm} = ${roll + drm}`
+    }
     return s
 }
 
