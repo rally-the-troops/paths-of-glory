@@ -1709,6 +1709,7 @@ states.choose_sr_destination = {
             log(`${piece_name(game.sr.unit)} SR\n${space_name(from)} -> ${space_name(s)}`)
         game.sr.unit = 0
         game.state = 'choose_sr_unit'
+        update_siege(from)
     },
     skip() {
         set_add(game.sr.done, game.sr.unit)
@@ -7752,6 +7753,7 @@ states.great_retreat = {
         log(`Retreat ${piece_name(game.attack.great_retreat)} to ${space_name(s)}`)
         game.location[game.attack.great_retreat] = s
         game.attack.great_retreat = 0
+        update_siege(game.attack.space)
     },
     done() {
         clear_undo()
