@@ -3411,10 +3411,18 @@ function get_attackable_spaces(attackers) {
         }
     }
 
-    // Limited Greek entry
-    if (!nation_at_war(GREECE) && game.events.salonika > 0) {
-        eligible_spaces = eligible_spaces.filter((s) => data.spaces[s].nation !== GREECE || !contains_piece_of_nation(s, GREECE))
-    }
+    // Neutral nations
+    eligible_spaces = eligible_spaces.filter((s) => {
+        const nation = data.spaces[s].nation
+        if (!nation_at_war(nation)) {
+            // Limited Greek entry
+            if (nation === GREECE && game.events.salonika > 0)
+                return !contains_piece_of_nation(s, GREECE)
+            else
+                return false
+        }
+        return true
+    })
 
     const russian_attacker = attackers.some((p) => data.pieces[p].nation === RUSSIA)
     const german_attacker = attackers.some((p) => data.pieces[p].nation === GERMANY)
@@ -3448,8 +3456,6 @@ function get_attackable_spaces(attackers) {
     if (game.turn === game.events.stavka_timidity && attackers.some((p) => data.pieces[p].nation === RUSSIA)) {
         eligible_spaces = eligible_spaces.filter((s) => !(get_trench_level(s, CP) > 0 && contains_only_pieces_of_nation(s, GERMANY)))
     }
-
-    eligible_spaces = eligible_spaces.filter((s) => nation_at_war(data.spaces[s].nation))
 
     return eligible_spaces
 }
