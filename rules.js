@@ -5680,12 +5680,12 @@ states.replacement_phase = {
             const replaceable_units = get_replaceable_units()
             if (has_rps(active_faction()) && replaceable_units.length > 0) {
                 view.prompt = `Replacement Phase: Spend RPs to rebuild or flip units (${summarize_rps(active_faction())}).`
+                replaceable_units.forEach(gen_action_piece)
+                gen_action("confirm_end_rp")
             } else {
                 view.prompt = `Replacement Phase: Done.`
+                gen_action("end_rp")
             }
-
-            replaceable_units.forEach(gen_action_piece)
-            gen_action_done()
         }
     },
     piece(p) {
@@ -5724,13 +5724,19 @@ states.replacement_phase = {
         delete game.army_to_rebuild
     },
     done() {
+        this.end_rp()
+    },
+    confirm_end_rp() {
+        this.end_rp()
+    },
+    end_rp() {
         remove_rps(active_faction())
         if (active_faction() === AP) {
             set_active_faction(CP)
         }
         delete game.army_to_rebuild
         goto_replacement_phase()
-    }
+    },
 }
 
 function get_replaceable_units() {

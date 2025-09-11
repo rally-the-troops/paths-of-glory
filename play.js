@@ -2245,15 +2245,21 @@ function update_map() {
 
     action_button("end_action", "End Action")
 
+    action_button("end_rp", "End Replacement Phase")
+    confirm_action_button("confirm_end_rp", "End Replacement Phase",
+        "You still have replacement points left to spend!\nDo you still want to END the replacement phase?"
+    )
+
     action_button("reset_phase", "Reset Phase")
     confirm_action_button("confirm_pass_attack", "Pass",
-        "You still have units eligible to attack!\n\Do you still want to PASS?"
+        "You still have units eligible to attack!\nDo you still want to PASS?"
     )
+
     action_button("pass_w_turn", "Pass Turn")
     action_button("pass", "Pass")
+
     action_button("skip", "Skip")
     action_button("next", "Next")
-    action_button("end_round", "end_round")
     action_button("done", "Done")
     action_button("undo", "Undo")
 }
