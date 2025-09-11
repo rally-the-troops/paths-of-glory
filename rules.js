@@ -2763,8 +2763,14 @@ states.move_stack = {
         push_undo()
         log_piece_move(p)
         set_delete(game.move.pieces, p)
-        set_add(game.moved, p)
-        if (game.move.pieces.length === 0)
+        set_add(game.moved, p)         
+        if (game.move.pieces.length > 0)  {
+            if (!is_controlled_by(game.move.current, active_faction()) && has_undestroyed_fort(game.move.current, other_faction(active_faction()))) {
+                if (can_besiege(game.move.current, get_pieces_in_space(game.move.current)))
+                    set_add(game.forts.besieged, game.move.current)
+            }
+        }
+        else 
             end_move_stack()
     },
     stop() {
