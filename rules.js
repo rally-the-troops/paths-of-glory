@@ -2677,7 +2677,10 @@ states.choose_pieces_to_move = {
     space(s) {
         push_undo()
         move_stack_to_space(s)
-        game.state = 'move_stack'
+        if (must_stop_moving(s))
+            end_move_stack()
+        else
+            game.state = 'move_stack'
     },
     done() {
         push_undo()
@@ -2754,10 +2757,24 @@ function move_stack_to_space(s) {
     }
 
     capture_trench(s, active_faction())
-    
+
     if (!has_undestroyed_fort(s, other_faction(active_faction()))) {
         set_control(s, active_faction())
     }
+}
+
+function drop_off_moving_piece(p) {
+    log_piece_move(p)
+    set_delete(game.move.pieces, p)
+    set_add(game.moved, p)
+}
+
+function must_stop_moving() {
+    return (
+        !is_controlled_by(game.move.current, active_faction()) &&
+        has_undestroyed_fort(game.move.current, other_faction(active_faction())) &&
+        !is_besieged(game.move.current)
+    )
 }
 
 states.move_stack = {
@@ -2778,28 +2795,22 @@ states.move_stack = {
         push_undo()
         move_stack_to_space(s)
 
-        let to_stop = game.move.pieces.filter(p => get_piece_mf(p) === game.move.spaces_moved)
-        for (let p of to_stop) {
-            log_piece_move(p)
-            set_delete(game.move.pieces, p)
-            set_add(game.moved, p)
+        if (must_stop_moving()) {
+            end_move_stack()
+            return
         }
+
+        let to_stop = game.move.pieces.filter(p => get_piece_mf(p) === game.move.spaces_moved)
+        for (let p of to_stop)
+            drop_off_moving_piece(p)
 
         if (game.move.pieces.length === 0)
             end_move_stack()
     },
     piece(p) {
         push_undo()
-        log_piece_move(p)
-        set_delete(game.move.pieces, p)
-        set_add(game.moved, p)         
-        if (game.move.pieces.length > 0)  {
-            if (!is_controlled_by(game.move.current, active_faction()) && has_undestroyed_fort(game.move.current, other_faction(active_faction()))) {
-                if (can_besiege(game.move.current, get_pieces_in_space(game.move.current)))
-                    set_add(game.forts.besieged, game.move.current)
-            }
-        }
-        else 
+        drop_off_moving_piece(p)
+        if (game.move.pieces.length === 0)
             end_move_stack()
     },
     stop() {
