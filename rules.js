@@ -2584,7 +2584,8 @@ states.place_event_trench = {
                 data.pieces[p].faction === active_faction() &&
                 data.pieces[p].type === ARMY &&
                 get_trench_level(game.location[p], active_faction()) === 0 &&
-                is_unit_supplied(p)) {
+                is_unit_supplied(p) &&
+                is_controlled_by(game.location[p], active_faction())) {
                 set_add(spaces, game.location[p])
             }
         }
