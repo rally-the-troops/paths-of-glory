@@ -6767,6 +6767,9 @@ events.place_of_execution = {
     apply() {
         log(`${card_name(PLACE_OF_EXECUTION)} adds +2 DRM`)
         game.attack.attacker_drm += 2
+        const card_data = data.cards[PLACE_OF_EXECUTION]
+        game.cp.ws += card_data.ws // War status is not automatically added when this is used as a combat card
+        logi(`War Status +${card_data.ws} to ${game.cp.ws} (${game.ap.ws + game.cp.ws})`)
     },
     play() {
         if (!game.attack)
