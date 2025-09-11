@@ -4799,11 +4799,17 @@ states.defender_retreat = {
         }
     },
     _next() {
+        const end_space = game.attack.retreat_path[game.attack.retreat_path.length - 1]
+        if (!is_controlled_by(end_space, active_faction()) && !has_undestroyed_fort(end_space, game.attack.attacker)) {
+            set_control(end_space, active_faction())
+        }
+
         logi(piece_list(game.attack.retreating_pieces) + " -> " + space_list(game.attack.retreat_path))
         if (game.attack.retreat_path.length > 0)
             game.attack.retreat_paths.push(game.attack.retreat_path)
         game.attack.retreat_path = []
         game.attack.retreating_pieces.length = 0
+        update_siege(end_space)
         update_supply()
     },
     done() {
@@ -4828,9 +4834,6 @@ function get_retreat_options(pieces, from, spaces_to_retreat = 1) {
             return
 
         if (spaces_to_retreat === 1 && would_overstack(conn, pieces, active_faction()))
-            return
-
-        if (spaces_to_retreat === 1 && !is_controlled_by(conn, active_faction()))
             return
 
         if (contains_piece_of_faction(conn, inactive_faction()))
