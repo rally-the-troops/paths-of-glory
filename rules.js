@@ -1479,6 +1479,7 @@ states.action_phase = {
         // If not playing the Historical scenario, add an action here for offering peace terms
     },
     play_event(card) {
+        remove_failed_entrench_markers()
         if (data.cards[card].reinfnation) {
             goto_play_reinf(card)
         } else {
@@ -1489,9 +1490,11 @@ states.action_phase = {
         goto_play_ops(card)
     },
     play_sr(card) {
+        remove_failed_entrench_markers()
         goto_play_sr(card)
     },
     play_rps(card) {
+        remove_failed_entrench_markers()
         goto_play_rps(card)
     },
     single_op() {
@@ -2368,6 +2371,10 @@ function end_attack_activation() {
     next_attack_activation()
 }
 
+function remove_failed_entrench_markers() {
+    game.failed_entrench = game.failed_entrench.filter(p => data.pieces[p].faction !== active_faction())
+}
+
 function goto_trench_rolls() {
     if (game.failed_entrench) {
         // remove expiring failed attempt markers (where we won't be rolling again)
@@ -2406,9 +2413,8 @@ states.trench_rolls = {
             logi(`${fmt_roll(roll, drm)} -> Success`)
             let lvl = get_trench_level(game.location[p], active_faction())
             set_trench_level(game.location[p], lvl+1, active_faction())
-            if (game.failed_entrench) {
+            if (game.failed_entrench)
                 set_delete(game.failed_entrench, p)
-            }
         } else {
             logi(`${fmt_roll(roll, drm)} -> Failure`)
             if (game.failed_entrench) {
