@@ -2300,7 +2300,27 @@ function start_action_round() {
             set_add(game.eligible_attackers, p)
         }
     })
-    goto_next_activation()
+    next_move_activation()
+}
+
+function next_move_activation() {
+    if (game.activated.move.length > 0) {
+        start_move_activation()
+    } else {
+        if (check_rule_violations().length > 0) {
+            game.state = 'confirm_move_violations'
+        } else {
+            goto_trench_rolls()
+        }
+    }
+}
+
+function next_attack_activation() {
+    if (game.activated.attack.length > 0) {
+        start_attack_activation()
+    } else {
+        game.state = "end_operations"
+    }
 }
 
 function start_move_activation() {
@@ -2331,14 +2351,7 @@ function end_move_activation() {
         set_delete(game.activated.move, game.move.initial)
         game.move = null
     }
-    if (game.activated.move.length === 0) {
-        if (check_rule_violations().length > 0)
-            game.state = 'confirm_move_violations'
-        else
-            goto_next_activation()
-    } else {
-        start_move_activation()
-    }
+    next_move_activation()
 }
 
 function end_attack_activation() {
@@ -2351,29 +2364,41 @@ function end_attack_activation() {
     if (game.eligible_attackers.length === 0)
         game.activated.attack = []
     game.attack = null
+
+    next_attack_activation()
 }
 
-function goto_next_activation() {
-    if (game.activated.move.length > 0) {
-        start_move_activation()
-    } else if (game.entrenching.length > 0) {
-        roll_trench_rolls()
-    } else if (game.activated.attack.length > 0) {
-        start_attack_activation()
-    } else {
-        game.state = "end_operations"
+function goto_trench_rolls() {
+    if (game.failed_entrench) {
+        // remove expiring failed attempt markers (where we won't be rolling again)
+        game.failed_entrench = game.failed_entrench.filter(p =>
+            data.pieces[p].faction !== active_faction() || set_has(game.entrenching, p)
+        )
     }
+    if (game.entrenching.length > 0)
+        game.state = "trench_rolls"
+    else
+        next_attack_activation()
 }
 
-function roll_trench_rolls() {
-    const failed_previously = game.failed_entrench ?? []
-    if (game.failed_entrench)
-        game.failed_entrench = failed_previously.filter((p) => data.pieces[p].faction !== active_faction())
-
-    clear_undo()
-    game.entrenching.forEach((p) => {
+states.trench_rolls = {
+    inactive: "entrench",
+    prompt() {
+        view.prompt = "Roll for entrench attempts."
+        for (let p of game.entrenching)
+            gen_action_space(game.location[p])
+    },
+    space(s) {
+        this.piece(game.entrenching.find(p => game.location[p] === s))
+    },
+    piece(p) {
+        clear_undo()
         const roll = roll_die(6)
-        const drm = set_has(failed_previously, p) ? -1 : 0
+        let drm = 0
+        if (game.failed_entrench) {
+            if (set_has(game.failed_entrench, p))
+                drm = -1
+        }
         log(`Entrench attempt in ${space_name(game.location[p])}`)
         log_event_for_rollback(`Entrench roll in ${space_name(game.location[p])}`)
         const success = roll+drm <= get_piece_lf(p)
@@ -2381,15 +2406,23 @@ function roll_trench_rolls() {
             logi(`${fmt_roll(roll, drm)} -> Success`)
             let lvl = get_trench_level(game.location[p], active_faction())
             set_trench_level(game.location[p], lvl+1, active_faction())
+            if (game.failed_entrench) {
+                set_delete(game.failed_entrench, p)
+            }
         } else {
-            const nation = data.pieces[p].nation
-            if (game.failed_entrench && (nation === GERMANY || nation === BRITAIN || nation === FRANCE || nation === ITALY))
-                set_add(game.failed_entrench, p)
             logi(`${fmt_roll(roll, drm)} -> Failure`)
+            if (game.failed_entrench) {
+                const nation = data.pieces[p].nation
+                if (nation === GERMANY || nation === BRITAIN || nation === FRANCE || nation === ITALY) {
+                    set_add(game.failed_entrench, p)
+                }
+            }
         }
-    })
-    game.entrenching.length = 0
-    goto_next_activation()
+
+        set_delete(game.entrenching, p)
+        if (game.entrenching.length === 0)
+            next_attack_activation()
+    },
 }
 
 states.end_operations = {
@@ -3103,7 +3136,6 @@ states.choose_attackers = {
         push_undo()
         game.eligible_attackers = []
         end_attack_activation()
-        goto_next_activation()
     }
 }
 
@@ -3116,7 +3148,6 @@ states.confirm_pass_attack = {
     pass() {
         game.eligible_attackers = []
         end_attack_activation()
-        goto_next_activation()
     }
 }
 
@@ -4579,13 +4610,11 @@ function determine_combat_winner() {
         defender_pieces.some((p) => data.pieces[p].nation === GERMANY)) {
         log(`${card_name(HAIG)} cancels the retreat`)
         end_attack_activation()
-        goto_next_activation()
         return
     }
 
     if (game.attack.retreat_canceled && defender_pieces.length > 0) {
         end_attack_activation()
-        goto_next_activation()
         return
     }
 
@@ -4617,7 +4646,6 @@ function determine_combat_winner() {
         goto_attacker_advance()
     } else {
         end_attack_activation()
-        goto_next_activation()
     }
 }
 
@@ -4690,7 +4718,6 @@ states.cancel_retreat_confirm = {
         clear_undo()
         switch_active_faction()
         end_attack_activation()
-        goto_next_activation()
     },
 }
 
@@ -4705,7 +4732,6 @@ states.choose_retreat_canceling_replacement = {
         replace_retreat_canceling_unit(game.attack.replacement.p, game.attack.replacement.s, p)
         delete game.attack.replacement
         end_attack_activation()
-        goto_next_activation()
     }
 }
 
@@ -4890,7 +4916,6 @@ function goto_attacker_advance() {
         game.state = 'attacker_advance'
     } else {
         end_attack_activation()
-        goto_next_activation()
     }
 }
 
@@ -4992,7 +5017,6 @@ states.attacker_advance = {
     done() {
         push_undo()
         end_attack_activation()
-        goto_next_activation()
     },
 }
 
@@ -7448,7 +7472,6 @@ events.alberich = {
 
         // Cancel the attack
         end_attack_activation()
-        goto_next_activation()
     }
 }
 
@@ -7784,7 +7807,6 @@ states.great_retreat = {
             } else {
                 // If no full strength attackers, end the attack
                 end_attack_activation()
-                goto_next_activation()
             }
         }
     }
