@@ -2730,6 +2730,8 @@ function move_stack_to_space(s) {
     update_russian_ne_restriction_flag(game.move.pieces, game.move.current, s)
 
     game.move.pieces.forEach((p) => {
+        if (game.failed_entrench)
+            set_delete(game.failed_entrench, p)
         game.location[p] = s
     })
     game.move.spaces_moved++
@@ -4209,6 +4211,9 @@ states.withdrawal_negate_step_loss_confirm = {
 }
 
 function eliminate_piece(p, force_permanent_elimination) {
+    if (game.failed_entrench)
+        set_delete(game.failed_entrench, p)
+
     if (data.pieces[p].type === CORPS) {
         if (data.pieces[p].notreplaceable) {
             log(`Permanently eliminated ${piece_name(p)} in ${space_name(game.location[p])}`)
@@ -4811,6 +4816,8 @@ states.defender_retreat = {
             if (set_has(game.broken_sieges, game.location[p]))
                 set_delete(game.broken_sieges, game.location[p])
             game.location[p] = s
+            if (game.failed_entrench)
+                set_delete(game.failed_entrench, p)
         }
 
         if (game.attack.retreat_path.length === game.attack.retreat_length) {
