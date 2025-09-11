@@ -3356,7 +3356,7 @@ function defender_can_withdraw() {
         return false
     }
 
-    const withdrawal_spaces = get_retreat_options(get_defenders_pieces(), game.attack.space)
+    const withdrawal_spaces = get_retreat_options(get_defenders_pieces(), game.attack.space, 1)
     if (withdrawal_spaces.length === 0)
         return false
 
@@ -4748,7 +4748,7 @@ states.defender_retreat = {
         }
 
         if (game.attack.retreating_pieces.length > 0) {
-            let options = get_retreat_options()
+            let options = get_retreat_options(game.attack.retreating_pieces, game.attack.space, game.attack.retreat_length - game.attack.retreat_path.length)
             if (options.length > 0)
                 options.forEach(gen_action_space)
             else
@@ -4816,31 +4816,31 @@ states.defender_retreat = {
     },
 }
 
-function get_retreat_options(pieces, from, length_retreated) {
-    let retreating_pieces = pieces || game.attack.retreating_pieces
-    let origin = from || game.attack.space
-
-    if (retreating_pieces.length === 0)
+function get_retreat_options(pieces, from, spaces_to_retreat = 1) {
+    if (pieces.length === 0 || spaces_to_retreat === 0)
         return []
 
-    let p = retreating_pieces[0]
+    let p = pieces[0]
     let options = []
     let s = game.location[p]
-    length_retreated = length_retreated || 0
     let has_friendly_option = false
     let has_in_supply_option = false
 
-    get_connected_spaces_for_pieces(s, retreating_pieces).forEach((conn) => {
-        if (conn === origin)
+    get_connected_spaces_for_pieces(s, pieces).forEach((conn) => {
+        if (conn === from)
             return
 
-        if (length_retreated === 1 && would_overstack(conn, retreating_pieces, active_faction()))
+        if (spaces_to_retreat === 1 && would_overstack(conn, pieces, active_faction()))
             return
 
-        if (length_retreated === 1 && !is_controlled_by(conn, active_faction()))
+        if (spaces_to_retreat === 1 && !is_controlled_by(conn, active_faction()))
             return
 
         if (contains_piece_of_faction(conn, inactive_faction()))
+            return
+
+        // Remove any spaces that would violate the Russian NE (non-SR) restriction
+        if (!check_russian_ne_restriction(pieces, conn))
             return
 
         const nation = data.spaces[conn].nation
@@ -4879,16 +4879,6 @@ function get_retreat_options(pieces, from, length_retreated) {
                 set_delete(options, s)
         })
     }
-
-    // Remove any spaces that would violate the Russian NE (non-SR) restriction or stacking limits
-    const all_options = [...options]
-    all_options.forEach((s) => {
-        if (!check_russian_ne_restriction(retreating_pieces, s))
-            set_delete(options, s)
-
-        if (would_overstack(s, retreating_pieces, active_faction()))
-            set_delete(options, s)
-    })
 
     return options
 }
@@ -7731,7 +7721,7 @@ states.great_retreat = {
     prompt() {
         if (game.attack.great_retreat !== 0) {
             view.who = game.attack.great_retreat
-            let options = get_retreat_options([game.attack.great_retreat], game.attack.space, 0)
+            let options = get_retreat_options([game.attack.great_retreat], game.attack.space, 1)
             if (options.length > 0) {
                 view.prompt = `Great Retreat: Retreat ${piece_name(game.attack.great_retreat)}.`
                 options.forEach(gen_action_space)
