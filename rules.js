@@ -2723,9 +2723,10 @@ function move_stack_to_space(s) {
         set_delete(game.broken_sieges, s)
     }
 
+    capture_trench(s, active_faction())
+    
     if (!has_undestroyed_fort(s, other_faction(active_faction()))) {
         set_control(s, active_faction())
-        capture_trench(s, active_faction())
     }
 }
 
