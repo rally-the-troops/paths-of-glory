@@ -5785,11 +5785,11 @@ function get_army_replacement_spaces(p) {
         //  1914.)
         const belgian_spaces = [BRUSSELS, ANTWERP, OSTEND]
         for (let s of belgian_spaces) {
-            if (is_controlled_by(s, AP) && is_space_supplied(AP, s))
+            if (is_controlled_by(s, AP) && is_space_supplied(AP, s) && !is_fully_stacked(s, AP))
                 spaces.push(s)
         }
         if (spaces.length === 0) {
-            if (is_controlled_by(CALAIS, AP) && is_space_supplied(AP, CALAIS))
+            if (is_controlled_by(CALAIS, AP) && is_space_supplied(AP, CALAIS) && !is_fully_stacked(CALAIS, AP))
                 spaces.push(CALAIS)
         }
         return spaces
