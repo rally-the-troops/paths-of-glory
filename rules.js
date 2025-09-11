@@ -2355,11 +2355,40 @@ function end_attack_activation() {
 function goto_next_activation() {
     if (game.activated.move.length > 0) {
         start_move_activation()
+    } else if (game.entrenching.length > 0) {
+        roll_trench_rolls()
     } else if (game.activated.attack.length > 0) {
         start_attack_activation()
     } else {
         game.state = "end_operations"
     }
+}
+
+function roll_trench_rolls() {
+    const failed_previously = game.failed_entrench ?? []
+    if (game.failed_entrench)
+        game.failed_entrench = failed_previously.filter((p) => data.pieces[p].faction !== active_faction())
+
+    clear_undo()
+    game.entrenching.forEach((p) => {
+        const roll = roll_die(6)
+        const drm = set_has(failed_previously, p) ? -1 : 0
+        log(`Entrench attempt in ${space_name(game.location[p])}`)
+        log_event_for_rollback(`Entrench roll in ${space_name(game.location[p])}`)
+        const success = roll+drm <= get_piece_lf(p)
+        if (success) {
+            logi(`${fmt_roll(roll, drm)} -> Success`)
+            let lvl = get_trench_level(game.location[p], active_faction())
+            set_trench_level(game.location[p], lvl+1, active_faction())
+        } else {
+            const nation = data.pieces[p].nation
+            if (game.failed_entrench && (nation === GERMANY || nation === BRITAIN || nation === FRANCE || nation === ITALY))
+                set_add(game.failed_entrench, p)
+            logi(`${fmt_roll(roll, drm)} -> Failure`)
+        }
+    })
+    game.entrenching.length = 0
+    goto_next_activation()
 }
 
 states.end_operations = {
@@ -2383,32 +2412,6 @@ function goto_end_action() {
     game.action_state = {} // Reset any state that lasts for the action round
 
     clear_undo()
-
-    const failed_previously = game.failed_entrench ?? []
-    if (game.failed_entrench)
-        game.failed_entrench = failed_previously.filter((p) => data.pieces[p].faction !== active_faction())
-
-    if (game.entrenching.length > 0) {
-        clear_undo()
-        game.entrenching.forEach((p) => {
-            const roll = roll_die(6)
-            const drm = set_has(failed_previously, p) ? -1 : 0
-            log(`Entrench attempt in ${space_name(game.location[p])}`)
-            log_event_for_rollback(`Entrench roll in ${space_name(game.location[p])}`)
-            const success = roll+drm <= get_piece_lf(p)
-            if (success) {
-                logi(`${fmt_roll(roll, drm)} -> Success`)
-                let lvl = get_trench_level(game.location[p], active_faction())
-                set_trench_level(game.location[p], lvl+1, active_faction())
-            } else {
-                const nation = data.pieces[p].nation
-                if (game.failed_entrench && (nation === GERMANY || nation === BRITAIN || nation === FRANCE || nation === ITALY))
-                    set_add(game.failed_entrench, p)
-                logi(`${fmt_roll(roll, drm)} -> Failure`)
-            }
-        })
-        game.entrenching.length = 0
-    }
 
     if (active_faction() === AP && game.events.high_seas_fleet > 0) {
         log(`${faction_name(AP)} did not play ${card_name(GRAND_FLEET)} this action round, ${card_name(HIGH_SEAS_FLEET)} +1 VP`)
