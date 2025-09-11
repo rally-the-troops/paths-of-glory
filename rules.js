@@ -5074,8 +5074,17 @@ function can_advance_into(space, units) {
     if (contains_piece_of_faction(space, other_faction(game.attack.attacker)))
         return false
 
+    // Cannot advance into neutral nations
     const nation = data.spaces[space].nation
-    return nation_at_war(nation)
+    if (!nation_at_war(nation)) {
+        // Except for limited Greek entry
+        if (nation === GREECE && game.events.salonika > 0)
+            return !contains_piece_of_nation(space, GREECE)
+        else
+            return false
+    }
+
+    return true
 }
 
 // === FORTS AND SIEGES ===
