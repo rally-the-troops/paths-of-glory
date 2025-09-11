@@ -370,9 +370,14 @@ X.space.fort::before {
 	border-style: solid;
 	border-color: transparent;
 }
+.space.fort.warning::before { border-color: orangered; box-shadow: 0 0 3px black, inset 0 0 3px black; }
 .space.fort.highlight::before { border-color: yellow; box-shadow: 0 0 3px black, inset 0 0 3px black; }
 .space.fort.selected::before { border-color: cyan; box-shadow: 0 0 3px black, inset 0 0 3px black; }
-.space.fort.warning::before { border-color: orangered; box-shadow: 0 0 3px black, inset 0 0 3px black; }
+
+.space.warning {
+    border-color: orangered;
+    box-shadow: 0 0 3px black, inset 0 0 3px black;
+}
 
 .space.highlight {
     border-color: yellow;
@@ -381,11 +386,6 @@ X.space.fort::before {
 
 .space.selected {
     border-color: cyan;
-    box-shadow: 0 0 3px black, inset 0 0 3px black;
-}
-
-.space.warning {
-    border-color: orangered;
     box-shadow: 0 0 3px black, inset 0 0 3px black;
 }
 
