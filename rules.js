@@ -3036,19 +3036,6 @@ function end_move_stack() {
     }
 }
 
-function piece_can_join_attack_without_breaking_siege(piece) {
-    if (!is_besieged(game.location[piece]))
-        return true
-
-    let pieces_remaining = []
-    for_each_piece_in_space(game.location[piece], (p) => {
-        if (piece !== p && !set_has(game.attack.pieces, p))
-            pieces_remaining.push(p)
-    })
-
-    return can_besiege(game.location[piece], pieces_remaining)
-}
-
 states.confirm_move_violations = {
     inactive: 'move',
     prompt() {
@@ -3076,7 +3063,7 @@ states.choose_attackers = {
         view.prompt = `Choose units and a space to attack.`
 
         for (let p of game.eligible_attackers)
-            if (!set_has(game.attack.pieces, p) && piece_can_join_attack_without_breaking_siege(p))
+            if (!set_has(game.attack.pieces, p))
                 if (get_attackable_spaces([p, ...game.attack.pieces]).length > 0)
                     gen_action_piece(p)
 
@@ -3390,7 +3377,12 @@ function get_attackable_spaces(attackers) {
 
     // 15.1.3 If all the attackers are besieging a space, then they can attack the space they are besieging
     if (is_besieged(game.location[attackers[0]]) && attackers.every((p) => game.location[p] === game.location[attackers[0]])) {
-        eligible_spaces.push(game.location[attackers[0]])
+        const siege_space = game.location[attackers[0]]
+        const remaining_besieging_pieces = get_pieces_in_space(siege_space).filter((p) => !attackers.includes(p))
+        if (can_besiege(siege_space, remaining_besieging_pieces))
+            eligible_spaces.push(siege_space) // Sufficient besieging force is not part of the attack, so add the siege space to the eligible targets
+        else
+            return [siege_space] // Insufficient force remains to maintain the siege, so the only eligible target is the besieged space
     }
 
     // Remove spaces that have already been attacked this action round
