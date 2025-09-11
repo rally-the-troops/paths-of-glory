@@ -4957,10 +4957,12 @@ states.attacker_advance = {
             gen_action_done()
 
         if (game.attack.advancing_pieces.length > 0) {
-            if (remaining_length > 1)
+            if (spaces.length === 0)
+                view.prompt = `Advance with ${piece_list(game.attack.advancing_pieces)} is not possible.`
+            else if (remaining_length > 1)
                 view.prompt = `Advance with ${piece_list(game.attack.advancing_pieces)} up to ${remaining_length} spaces.`
             else
-                view.prompt = `Advance with ${piece_list(game.attack.advancing_pieces)} into ${space_name(spaces[0])}.`
+                view.prompt = `Advance with ${piece_list(game.attack.advancing_pieces)} into ${space_list(spaces)}.`
         } else if (game.attack.to_advance.length === 0) {
             view.prompt = `Advance: Done.`
         } else {
@@ -4979,7 +4981,12 @@ states.attacker_advance = {
             gen_action("stop")
         }
 
-        spaces.forEach(gen_action_space)
+        if (game.attack.advancing_pieces.length > 0) {
+            if (spaces.length > 0)
+                spaces.forEach(gen_action_space)
+            else
+                gen_action("stop")
+        }
     },
     piece(p) {
         if (set_has(game.attack.advancing_pieces, p)) {
