@@ -23,7 +23,6 @@ body.Central_Powers header.your_turn { background-color: lightsteelblue; }
 
 @media (max-width: 600px) {
     #stack_menu { display: none }
-    #piece_button { display: none }
 }
 
 /* LOG */
