@@ -53,11 +53,6 @@
 	<div class="dialog_body"></div>
 </div>
 
-<details id="violations" class="dialog hide" open>
-	<summary class="dialog_header">Rule Violations</summary>
-	<div class="dialog_body"></div>
-</details>
-
 <header>
 	<div id="toolbar">
 		<details>
@@ -114,10 +109,11 @@
 			<div class="role_stat" id="cp_hand"></div>
 			<div class="role_user">-</div>
 		</div>
-		<div id="turn_info">
-			<div id="ap_deck_size" onclick="send_query('ap_cards')"></div>
-			<div id="cp_deck_size" onclick="send_query('cp_cards')"></div>
-		</div>
+	</div>
+	<div id="turn_info">
+		<div id="ap_deck_size" onclick="send_query('ap_cards')"></div>
+		<div id="cp_deck_size" onclick="send_query('cp_cards')"></div>
+		<div id="violations"></div>
 	</div>
 	<div id="log"></div>
 </aside>

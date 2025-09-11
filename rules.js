@@ -7,8 +7,6 @@ let _assert_push_undo
 
 let game, view
 
-let supply_cache = null
-
 let states = {}
 let events = {}
 
@@ -127,6 +125,7 @@ const ACHTUNG_PANZER = 127
 const RUSSIAN_DESERTIONS = 128
 const ALBERICH = 129
 const PRINCE_MAX = 130
+
 // Allied powers
 const BRITISH_REINFORCEMENTS_1 = 1
 const BLOCKADE = 2
@@ -323,7 +322,7 @@ function faction_name(faction) {
     }
 }
 
-const all_pieces = Array.from(data.pieces, (p,ix) => ix)
+const all_pieces = Array.from(data.pieces, (_,ix) => ix)
 const all_pieces_by_nation = object_group_by(all_pieces, p => data.pieces[p].nation)
 
 // === VIEW & QUERY ===
@@ -335,8 +334,8 @@ exports.scenarios = [ HISTORICAL ]
 
 exports.action = function (state, current, action, arg) {
     _assert_push_undo = 0
-    invalidate_supply_cache()
     game = state
+    update_supply_if_missing()
     if (action in states[game.state]) {
         states[game.state][action](arg, current)
     } else {
@@ -353,8 +352,8 @@ exports.action = function (state, current, action, arg) {
 }
 
 exports.resign = function (state, current) {
-    invalidate_supply_cache()
     game = state
+    update_supply_if_missing()
     if (game.state !== "game_over") {
         log_br()
         log(`${current} resigned.`)
@@ -367,15 +366,15 @@ exports.resign = function (state, current) {
     return game
 }
 
-exports.query = function (state, current, q) {
+exports.query = function (state, _current, q) {
     if (q === 'cp_supply') {
-        invalidate_supply_cache()
         game = state
+        update_supply_if_missing()
         return { spaces: query_supply([ESSEN, BRESLAU, SOFIA, CONSTANTINOPLE]) }
     }
     if (q === 'ap_supply')  {
-        invalidate_supply_cache()
         game = state
+        update_supply_if_missing()
         return {
             western: query_supply([LONDON]),
             eastern: query_supply([PETROGRAD, MOSCOW, CAUCASUS, KHARKOV, BELGRADE])
@@ -413,8 +412,8 @@ function query_cards(state, faction) {
 }
 
 exports.view = function(state, current) {
-    invalidate_supply_cache()
     game = state
+    update_supply_if_missing()
 
     update_supply()
 
@@ -529,7 +528,7 @@ exports.view = function(state, current) {
             game.rollback_proposal === undefined &&
             game.rollback &&
             game.rollback.length > 0)
-            view.actions.propose_rollback = view.rollback.map((r, i) => i)
+            view.actions.propose_rollback = view.rollback.map((_, i) => i)
 
         // Flag supply warnings
         if (!globalThis.RTT_FUZZER && game.state !== "flag_supply_warnings")
@@ -656,6 +655,8 @@ exports.setup = function (seed, scenario, options) {
     set_trench_level(find_space('Cracow'), 1, CP)
     set_trench_level(find_space('Konigsberg'), 1, CP)
     set_trench_level(find_space('Giresun'), 1, CP)
+    set_trench_level(find_space('Gaza'), 1, CP)
+    set_trench_level(find_space('Baghdad'), 1, CP)
     set_trench_level(find_space('Verona'), 1, AP)
     set_trench_level(find_space('Asiago'), 1, AP)
     set_trench_level(find_space('Maggiore'), 1, AP)
@@ -1066,7 +1067,7 @@ function set_nation_at_war(nation) {
         }
     }
 
-    invalidate_supply_cache()
+    update_supply()
 }
 
 // === MANDATED OFFENSIVES ===
@@ -1461,7 +1462,7 @@ function goto_action_phase() {
 }
 
 states.action_phase = {
-    inactive: "take one action",
+    inactive: "play a card",
     prompt() {
         let player_hand = game[active_faction()].hand
         let player_actions = game[active_faction()].actions
@@ -1512,9 +1513,9 @@ function gen_card_menu(card, event_only) {
         if (can_play_event(card))
             gen_action('play_event', card)
         gen_action('play_ops', card)
-        if (can_play_sr(card))
+        if (can_play_sr())
             gen_action('play_sr', card)
-        if (can_play_rps(card))
+        if (can_play_rps())
             gen_action('play_rps', card)
     }
 }
@@ -1542,12 +1543,12 @@ function can_play_event(card) {
     return (evt !== undefined && evt.can_play())
 }
 
-function can_play_sr(card) {
+function can_play_sr() {
     let action = get_last_action()
     return action === undefined || action.type !== ACTION_SR
 }
 
-function can_play_rps(card) {
+function can_play_rps() {
     if (game.turn === game.events.influenza)
         return false
 
@@ -1787,7 +1788,7 @@ function get_sr_destinations(unit) {
                     return
                 set_add(destinations, n)
                 set_add(overland_destinations, n)
-                set_add(frontier, n)
+                frontier.push(n)
             }
         })
     }
@@ -1900,7 +1901,7 @@ function set_ne_restriction_flags_for_sr(p, start, destination) {
                 && is_space_supplied(active_faction(), n)
                 && (is_controlled_by(n, active_faction()) || is_besieged(n))) {
                 set_add(destinations, n)
-                set_add(frontier, n)
+                frontier.push(n)
             }
         })
     }
@@ -2626,10 +2627,10 @@ states.choose_pieces_to_move = {
             // A player should usually not get into a state where they
             // have activated a space for movement where they cannot move;
             // but the fuzzer will!
-            if (spaces.length === 0)
+            // If armies in space have been chosen to entrench, you may not want to move the remaining corps.
+            if (spaces.length === 0 || game.entrenching.some(p => game.location[p] === game.move.initial))
                 gen_action("stop")
-            else
-                spaces.forEach(gen_action_space)
+            spaces.forEach(gen_action_space)
         } else {
             view.actions.done = 1
         }
@@ -2809,7 +2810,7 @@ function set_control(s, faction) {
 
     set_control_bit(s, new_control)
 
-    invalidate_supply_cache()
+    update_supply()
 
     update_russian_capitulation()
 }
@@ -2991,7 +2992,7 @@ function would_overstack(s, pieces, faction) {
 }
 
 function get_all_overstacked_spaces() {
-    let stacks = data.spaces.map((s) => 0)
+    let stacks = new Array(data.spaces.length).fill(0)
     for (let p = 1; p < data.pieces.length; ++p) {
         stacks[game.location[p]]++
     }
@@ -3021,7 +3022,7 @@ function end_move_stack() {
     if (!is_controlled_by(game.move.current, active_faction()) && has_undestroyed_fort(game.move.current, other_faction(active_faction()))) {
         if (can_besiege(game.move.current, get_pieces_in_space(game.move.current)))
             set_add(game.forts.besieged, game.move.current)
-        invalidate_supply_cache()
+        update_supply()
     }
 
     for (let p of game.move.pieces)
@@ -3047,7 +3048,7 @@ function piece_can_join_attack_without_breaking_siege(piece) {
             pieces_remaining.push(p)
     })
 
-    return pieces_remaining.length === 0 || can_besiege(game.location[piece], pieces_remaining)
+    return can_besiege(game.location[piece], pieces_remaining)
 }
 
 states.confirm_move_violations = {
@@ -3357,7 +3358,7 @@ function defender_can_withdraw() {
         return false
     }
 
-    const withdrawal_spaces = get_retreat_options(get_defenders_pieces(), game.attack.space)
+    const withdrawal_spaces = get_retreat_options(get_defenders_pieces(), game.attack.space, 1)
     if (withdrawal_spaces.length === 0)
         return false
 
@@ -3616,7 +3617,7 @@ states.play_wireless_intercepts = {
 function get_flanking_spaces(attack_spaces, defending_space, attacker) {
     let flanking_spaces = []
     for (let s of attack_spaces) {
-        if (adds_flanking_drm(s, game.attack.attacker, game.attack.space)) {
+        if (adds_flanking_drm(s, attacker, defending_space)) {
             flanking_spaces.push(s)
         }
     }
@@ -3630,9 +3631,8 @@ function get_flanking_spaces(attack_spaces, defending_space, attacker) {
 
 function get_attack_spaces(pieces) {
     let attack_spaces = []
-    game.attack.pieces.forEach((p) => {
+    for (let p of pieces)
         set_add(attack_spaces, game.location[p])
-    })
     return attack_spaces
 }
 
@@ -3963,7 +3963,7 @@ function resolve_defenders_fire() {
     })
 
     const space_data = data.spaces[game.attack.space]
-    if (space_data.fort > 0 && !set_has(game.forts.destroyed, game.attack.space)) {
+    if (space_data.fort > 0 && !set_has(game.forts.destroyed, game.attack.space) && !is_besieged(game.attack.space)) {
         defender_cf += space_data.fort
     }
 
@@ -4228,7 +4228,6 @@ function reduce_piece_defender(p) {
 states.apply_attacker_losses = {
     inactive: 'take losses',
     prompt() {
-
         let loss_options = []
         if (game.attack.attacker_losses - game.attack.attacker_losses_taken > 0)
             loss_options = get_loss_options(false,game.attack.attacker_losses - game.attack.attacker_losses_taken, game.attack.pieces, 0)
@@ -4504,7 +4503,6 @@ function get_replacement_options(unit, available_replacements) {
 
     if (full_options.length > 1) {
         let names = []
-        const first_option_name = data.pieces[full_options[0]].name
         // Filter out duplicate units by name
         full_options = full_options.filter((p) => {
             if (set_has(names, data.pieces[p].name))
@@ -4518,7 +4516,6 @@ function get_replacement_options(unit, available_replacements) {
 
     if (reduced_options.length > 1) {
         let names = []
-        const first_option_name = data.pieces[reduced_options[0]].name
         reduced_options = reduced_options.filter((p) => {
             if (set_has(names, data.pieces[p].name))
                 return false
@@ -4638,10 +4635,10 @@ function determine_combat_winner() {
 
 function defender_can_cancel_retreat() {
     const terrain = data.spaces[game.attack.space].terrain
-    if (terrain === MOUNTAIN || 
-        terrain === SWAMP || 
-        terrain === DESERT || 
-        terrain === FOREST || 
+    if (terrain === MOUNTAIN ||
+        terrain === SWAMP ||
+        terrain === DESERT ||
+        terrain === FOREST ||
         (get_trench_level_for_attack(game.attack.space, other_faction(game.attack.attacker)) > 0 && !game.attack.trenches_canceled)) {
         let step_count = 0
         for_each_piece_in_space(game.attack.space, (p) => {
@@ -4753,7 +4750,7 @@ states.defender_retreat = {
         }
 
         if (game.attack.retreating_pieces.length > 0) {
-            let options = get_retreat_options()
+            let options = get_retreat_options(game.attack.retreating_pieces, game.attack.space, game.attack.retreat_length - game.attack.retreat_path.length)
             if (options.length > 0)
                 options.forEach(gen_action_space)
             else
@@ -4807,11 +4804,12 @@ states.defender_retreat = {
         }
     },
     _next() {
-            logi(piece_list(game.attack.retreating_pieces) + " -> " + space_list(game.attack.retreat_path))
-            if (game.attack.retreat_path.length > 0)
-                game.attack.retreat_paths.push(game.attack.retreat_path)
-            game.attack.retreat_path = []
-            game.attack.retreating_pieces.length = 0
+        logi(piece_list(game.attack.retreating_pieces) + " -> " + space_list(game.attack.retreat_path))
+        if (game.attack.retreat_path.length > 0)
+            game.attack.retreat_paths.push(game.attack.retreat_path)
+        game.attack.retreat_path = []
+        game.attack.retreating_pieces.length = 0
+        update_supply()
     },
     done() {
         clear_undo()
@@ -4820,28 +4818,42 @@ states.defender_retreat = {
     },
 }
 
-function get_retreat_options(pieces, from, length_retreated) {
-    let retreating_pieces = pieces || game.attack.retreating_pieces
-    let origin = from || game.attack.space
-    let p = retreating_pieces[0]
+function get_retreat_options(pieces, from, spaces_to_retreat = 1) {
+    if (pieces.length === 0 || spaces_to_retreat === 0)
+        return []
+
+    let p = pieces[0]
     let options = []
     let s = game.location[p]
-    length_retreated = length_retreated || 0
     let has_friendly_option = false
     let has_in_supply_option = false
 
-    get_connected_spaces_for_pieces(s, retreating_pieces).forEach((conn) => {
-        if (conn === origin)
+    get_connected_spaces_for_pieces(s, pieces).forEach((conn) => {
+        if (conn === from)
             return
 
-        if (length_retreated === 1 && would_overstack(conn, retreating_pieces, active_faction()))
+        if (spaces_to_retreat === 1 && would_overstack(conn, pieces, active_faction()))
             return
 
-        if (length_retreated === 1 && !is_controlled_by(conn, active_faction()))
+        if (spaces_to_retreat === 1 && !is_controlled_by(conn, active_faction()))
             return
 
         if (contains_piece_of_faction(conn, inactive_faction()))
             return
+
+        // Remove any spaces that would violate the Russian NE (non-SR) restriction
+        if (!check_russian_ne_restriction(pieces, conn))
+            return
+
+        const nation = data.spaces[conn].nation
+        if (!nation_at_war(nation)) {
+            if (nation !== GREECE)
+                return // Block all neutral country spaces, except Greece
+
+            // Neutral Greek spaces are blocked if Salonika has not been played or if there's a Greek unit in them
+            if (!game.events.salonika || contains_piece_of_nation(s, GREECE))
+                return
+        }
 
         if (is_controlled_by(conn, active_faction()))
             has_friendly_option = true
@@ -4869,16 +4881,6 @@ function get_retreat_options(pieces, from, length_retreated) {
                 set_delete(options, s)
         })
     }
-
-    // Remove any spaces that would violate the Russian NE (non-SR) restriction or stacking limits
-    const all_options = [...options]
-    all_options.forEach((s) => {
-        if (!check_russian_ne_restriction(retreating_pieces, s))
-            set_delete(options, s)
-
-        if (would_overstack(s, retreating_pieces, active_faction()))
-            set_delete(options, s)
-    })
 
     return options
 }
@@ -4935,7 +4937,7 @@ states.attacker_advance = {
             logi(piece_name(p) + " -> " + space_name(end_space))
             if (has_undestroyed_fort(end_space, other_faction(game.attack.attacker))) {
                 set_add(game.forts.besieged, end_space)
-                invalidate_supply_cache()
+                update_supply()
             }
             set_delete(game.attack.advancing_pieces, p)
             if (game.attack.advancing_pieces.length === 0)
@@ -4949,7 +4951,7 @@ states.attacker_advance = {
     },
     space(s) {
         let leaving_spaces = []
-
+        update_siege(s) // Remove besiege marke if space is friendly
         game.attack.did_advance = true
         game.attack.advancing_pieces.forEach((p) => {
             set_add(leaving_spaces, game.location[p])
@@ -4959,7 +4961,7 @@ states.attacker_advance = {
         if (has_undestroyed_fort(s, other_faction(active_faction()))) {
             if (can_besiege(s, get_pieces_in_space(s))) {
                 set_add(game.forts.besieged, s)
-                invalidate_supply_cache()
+                update_supply()
             }
         } else {
             set_control(s, game.attack.attacker)
@@ -4985,7 +4987,7 @@ states.attacker_advance = {
         logi(piece_list(game.attack.advancing_pieces) + " -> " + space_name(end_space))
         if (has_undestroyed_fort(end_space, other_faction(game.attack.attacker))) {
             set_add(game.forts.besieged, end_space)
-            invalidate_supply_cache()
+            update_supply()
         }
         game.attack.advancing_pieces.length = 0
         game.attack.advance_length = 0
@@ -5075,6 +5077,9 @@ function is_besieged(space) {
 function can_besiege(space, units) {
     let count_corps = 0
     for (let p of units) {
+        if (data.pieces[p].faction === data.spaces[space].faction) {
+            return false
+        }
         if (data.pieces[p].type === ARMY) {
             return true
         } else {
@@ -5090,7 +5095,7 @@ function update_siege(space) {
     let pieces_in_space = get_pieces_in_space(space)
     if (!can_besiege(space, pieces_in_space)) {
         set_delete(game.forts.besieged, space)
-        invalidate_supply_cache()
+        update_supply()
     }
 }
 
@@ -5214,14 +5219,14 @@ function goto_attrition_phase() {
     }
 
     // Get all OOS pieces that should suffer attrition
-    get_oos_pieces().forEach((p) => {
+    for (let p of game.oos_pieces) {
         const faction = data.pieces[p].faction
         if (game.location[p] === MEDINA && data.pieces[p].nation === TURKEY) {
             // Turkish units in Medina do not suffer attrition, even though they may be OOS
         } else {
             set_add(game.attrition[faction].pieces, p)
         }
-    })
+    }
 
     // Get all OOS spaces that should flip control
     for (let s = 1; s < data.spaces.length; ++s) {
@@ -5444,8 +5449,8 @@ function goto_war_status_phase() {
         goto_game_over(result, get_result_message("Armistice Declared: ", result))
     }
     else {
-    apply_replacement_phase_events()
-    goto_replacement_phase()
+        apply_replacement_phase_events()
+        goto_replacement_phase()
     }
 }
 
@@ -5484,7 +5489,7 @@ function get_game_result_by_vp() {
     } else if (game.scenario === HISTORICAL || game.vp <= ap_threshold) {
         return faction_name(AP)
     } else {
-        return DRAW // Historical scenario draws go to the Allies, so this is future-proofing for other scenarios
+        return "Draw" // Historical scenario draws go to the Allies, so this is future-proofing for other scenarios
     }
 }
 
@@ -5493,7 +5498,7 @@ function get_result_message(prefix, result) {
         return `${prefix}${faction_name(AP)} win`
     if (result === CP)
         return `${prefix}${faction_name(CP)} win`
-    if (result === DRAW)
+    if (result === "Draw")
         return `${prefix}Game ends in a draw`
     return `${prefix}Game result unknown`
 }
@@ -5729,7 +5734,7 @@ function get_replaceable_units() {
             continue
 
         if (piece_data.type === ARMY) {
-            if (get_army_replacement_spaces(i).length === 0)
+            if ((game.location[i] === AP_ELIMINATED_BOX || game.location[i] === CP_ELIMINATED_BOX) && get_army_replacement_spaces(i).length === 0)
                 continue
             if (rps_available < 1)
                 continue
@@ -5803,8 +5808,10 @@ function goto_draw_cards_phase() {
         game[data.cards[c].faction].discard.push(c)
     })
     game.combat_cards.length = 0
+    log_h2(`Draw Strategy Cards Phase`)
     game.state = 'draw_cards_phase'
     set_active_faction(AP)
+    game.discarded_ccs = []
 }
 
 states.draw_cards_phase = {
@@ -5827,10 +5834,19 @@ states.draw_cards_phase = {
         push_undo()
         array_remove_item(game[active_faction()].hand, c)
         game[active_faction()].discard.push(c)
+        game.discarded_ccs.push(c)
     },
     done() {
         clear_undo()
         if (active_faction() === AP) {
+            if (game.discarded_ccs.length > 0) {
+                log(`${faction_name(AP)} discarded:`)
+                for (let c of game.discarded_ccs) {
+                    logi(`${card_name(c)}`)
+                }
+            }
+            game.discarded_ccs = []
+
             if (game.ap.shuffle) {
                 // Shuffle required because new cards added, but must be delayed until now to pick up CC discards, according to 2018 rules change
                 reshuffle_discard(game.ap.deck)
@@ -5839,6 +5855,14 @@ states.draw_cards_phase = {
             deal_ap_cards()
             set_active_faction(CP)
         } else {
+            if (game.discarded_ccs.length > 0) {
+                log(`${faction_name(CP)} discarded:`)
+                for (let c of game.discarded_ccs) {
+                    logi(`${card_name(c)}`)
+                }
+            }
+            delete game.discarded_ccs
+
             if (game.cp.shuffle) { // Same as AP shuffle above
                 reshuffle_discard(game.cp.deck)
                 game.cp.shuffle = false
@@ -5929,18 +5953,9 @@ function get_connected_spaces_for_pieces(s, pieces) {
 }
 
 function get_connected_spaces(s, nation) {
-    // (TOR) can we cache or precompute these?
-
-    let connections = []
-    let space_data = data.spaces[s]
-    if (!space_data || s === 0)
-        return connections
-
-    connections = connections.concat(space_data.connections)
-
-    if (nation !== undefined && space_data.limited_connections && space_data.limited_connections.hasOwnProperty(nation))
-        connections = connections.concat(space_data.limited_connections[nation])
-    return connections
+    if (nation === undefined)
+        return data.spaces[s].connections
+    return data.spaces[s].limited_connections[nation] ?? data.spaces[s].connections
 }
 
 function is_port(s, faction) {
@@ -6039,6 +6054,10 @@ function get_supply_mask(source) {
 // - override_mask: a mask to override the default supply mask for the source
 // - set_nonitalian_path: whether to set the NonItalianPath mask for spaces reachable without passing through Italy
 // - set_nonmef_path: whether to set the NonMEFPath mask for spaces reachable without passing through the MEF
+
+let blocked_spaces = new Array(data.spaces.length).fill(0) // allocate once and re-use
+let visited = new Array(data.spaces.length).fill(0) // allocate once and re-use
+
 function fill_supply_cache(faction, cache, sources, options) {
     options = options || {}
     const use_ports = options.use_ports || false
@@ -6047,13 +6066,14 @@ function fill_supply_cache(faction, cache, sources, options) {
     const set_nonitalian_path = options.set_nonitalian_path || false
     const set_nonmef_path = options.set_nonmef_path || false
 
-    let blocked_spaces = []
     let friendly_ports = []
+
+    blocked_spaces.fill(0)
 
     // Block spaces containing an enemy unit
     for (let p = 1; p < data.pieces.length; ++p) {
         if (game.location[p] !== 0 && data.pieces[p].faction !== faction) {
-            set_add(blocked_spaces, game.location[p])
+            blocked_spaces[game.location[p]] = 1
         }
     }
 
@@ -6065,9 +6085,9 @@ function fill_supply_cache(faction, cache, sources, options) {
                 // Limited Greek entry (9.5.2.4): Greek units are on the map and they block move/supply, but empty
                 // Greek spaces do not block supply
                 if (contains_piece_of_nation(s, GREECE))
-                    set_add(blocked_spaces, s)
+                    blocked_spaces[s] = 1
             } else {
-                set_add(blocked_spaces, s)
+                blocked_spaces[s] = 1
             }
         }
     }
@@ -6084,7 +6104,7 @@ function fill_supply_cache(faction, cache, sources, options) {
     }
     for (let s = 1; s < data.spaces.length; ++s) {
         if (!is_controlled_by(s, faction) && !set_has(occupied_forts, s)) {
-            set_add(blocked_spaces, s)
+            blocked_spaces[s] = 1
         } else if (use_ports) {
             // If this type of supply can use ports, build a set of friendly port spaces
             if (is_port(s, faction)) {
@@ -6094,77 +6114,91 @@ function fill_supply_cache(faction, cache, sources, options) {
     }
 
     // For each supply source, populate the set of supplied spaces
-    sources.forEach((source) => {
+    for (let source of sources) {
         let mask = override_mask || get_supply_mask(source)
         let frontier = [source]
+        visited.fill(0)
+        visited[source] = 0
         while (frontier.length > 0) {
             let current = frontier.pop()
-            if (!set_has(blocked_spaces, current)) {
+            if (!blocked_spaces[current]) {
                 cache[current] |= mask
-                get_connected_spaces(current, national_connections).forEach((conn) => {
-                    if (!(cache[conn] & mask)) {
-                        set_add(frontier, conn)
+                for (let conn of get_connected_spaces(current, national_connections))  {
+                    if (!visited[conn]) {
+                        frontier.push(conn)
+                        visited[conn] = 1
                     }
-                })
+                }
                 if (set_has(friendly_ports, current)) {
-                    friendly_ports.forEach((port) => {
-                        if (!(cache[port] & mask)) {
-                            set_add(frontier, port)
+                    for (let port of friendly_ports) {
+                        if (!visited[port]) {
+                            frontier.push(port)
+                            visited[port] = 1
                         }
-                    })
+                    }
                 }
             }
         }
-    })
+    }
 
     if (set_nonitalian_path) {
         // Now mark the set of spaces that can be reached without passing through Italy
-        sources.forEach((source) => {
+        let mask = SUPPLY_MASK.NonItalianPath
+        for (let source of sources) {
             let frontier = [source]
-            let visited = []
+            visited.fill(0)
+            visited[source] = 1
             while (frontier.length > 0) {
                 let current = frontier.pop()
-                if (!set_has(visited, current)) {
-                    set_add(visited, current)
-                    if (!is_italian_space(current) && !set_has(blocked_spaces, current)) {
-                        cache[current] |= SUPPLY_MASK.NonItalianPath
-                        get_connected_spaces(current, national_connections).forEach((conn) => {
-                            set_add(frontier, conn)
-                        })
-                        if (set_has(friendly_ports, current)) {
-                            friendly_ports.forEach((port) => {
-                                set_add(frontier, port)
-                            })
+                if (!is_italian_space(current) && !blocked_spaces[current]) {
+                    cache[current] |= mask
+                    for (let conn of get_connected_spaces(current, national_connections)) {
+                        if (!visited[conn]) {
+                            frontier.push(conn)
+                            visited[conn] = 1
+                        }
+                    }
+                    if (set_has(friendly_ports, current)) {
+                        for (let port of friendly_ports) {
+                            if (!visited[port]) {
+                                frontier.push(port)
+                                visited[port] = 1
+                            }
                         }
                     }
                 }
             }
-        })
+        }
     }
 
     if (set_nonmef_path) {
         // Mark the set of spaces that can be reached without passing through the MEF
-        sources.forEach((source) => {
+        let mask = SUPPLY_MASK.NonMEFPath
+        for (let source of sources) {
             let frontier = [source]
-            let visited = []
+            visited.fill(0)
+            visited[source] = 1
             while (frontier.length > 0) {
                 let current = frontier.pop()
-                if (!set_has(visited, current)) {
-                    set_add(visited, current)
-                    if (!is_mef_space(current) && !set_has(blocked_spaces, current)) {
-                        cache[current] |= SUPPLY_MASK.NonMEFPath
-                        get_connected_spaces(current, national_connections).forEach((conn) => {
-                            set_add(frontier, conn)
-                        })
-                        if (set_has(friendly_ports, current)) {
-                            friendly_ports.forEach((port) => {
-                                set_add(frontier, port)
-                            })
+                if (!is_mef_space(current) && !blocked_spaces[current]) {
+                    cache[current] |= mask
+                    for (let conn of get_connected_spaces(current, national_connections)) {
+                        if (!visited[conn]) {
+                            frontier.push(conn)
+                            visited[conn] = 1
+                        }
+                    }
+                    if (set_has(friendly_ports, current)) {
+                        for (let port of friendly_ports) {
+                            if (!visited[port]) {
+                                frontier.push(port)
+                                visited[port] = 1
+                            }
                         }
                     }
                 }
             }
-        })
+        }
     }
 }
 
@@ -6172,8 +6206,9 @@ function is_italian_space(s) {
     return data.spaces[s].nation === ITALY
 }
 
-function invalidate_supply_cache() {
-    supply_cache = null
+function update_supply_if_missing() {
+    if (!game.supply)
+        update_supply()
 }
 
 function update_supply() {
@@ -6183,21 +6218,21 @@ function update_supply() {
     if (nation_at_war(TURKEY))
         cp_sources.push(CONSTANTINOPLE)
 
-    supply_cache = data.spaces.map((s) => 0)
+    game.supply = new Array(data.spaces.length).fill(0)
 
     // Supply for CP, western, and eastern units is saved in the same cache, kept distinct by the separate supply sources
-    fill_supply_cache(CP, supply_cache, cp_sources, { use_ports:true, national_connections: TURKEY }) // Not all CP supply can follow Turkish connections, but this only applied to Medina, so it's easier to add a special check for non-Turkish units in Medina
-    fill_supply_cache(AP, supply_cache, [PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE], { national_connections: RUSSIA })
-    fill_supply_cache(AP, supply_cache, [LONDON], { use_ports: true, set_nonitalian_path: true, set_nonmef_path: true })
+    fill_supply_cache(CP, game.supply, cp_sources, { use_ports:true, national_connections: TURKEY }) // Not all CP supply can follow Turkish connections, but this only applied to Medina, so it's easier to add a special check for non-Turkish units in Medina
+    fill_supply_cache(AP, game.supply, [PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE], { national_connections: RUSSIA })
+    fill_supply_cache(AP, game.supply, [LONDON], { use_ports: true, set_nonitalian_path: true, set_nonmef_path: true })
 
     // Special mask applied when searching spaces using Italian connections
-    fill_supply_cache(AP, supply_cache, [LONDON], { use_ports: true, national_connections: ITALY, override_mask: SUPPLY_MASK.London_Italian })
+    fill_supply_cache(AP, game.supply, [LONDON], { use_ports: true, national_connections: ITALY, override_mask: SUPPLY_MASK.London_Italian })
 
     // These are also special cases, but don't need a separate mask because they use separate sources
-    fill_supply_cache(AP, supply_cache, [SALONIKA])
-    fill_supply_cache(AP, supply_cache, [BASRA], { national_connections: BRITAIN })
+    fill_supply_cache(AP, game.supply, [SALONIKA])
+    fill_supply_cache(AP, game.supply, [BASRA], { national_connections: BRITAIN })
 
-    game.oos_pieces = get_oos_pieces()
+    update_oos_pieces()
 }
 
 function is_unit_supplied(p) {
@@ -6218,8 +6253,6 @@ function is_unit_supplied(p) {
     if (nation === GREECE && !nation_at_war(GREECE) && game.events.salonika > 0) // Limited Greek entry
         return true
 
-    if (!supply_cache) update_supply()
-
     // CP can only trace supply to Medina over a Turkish connection, so non-Turkish CP units in Medina are OOS
     if (location === MEDINA && data.pieces[p].faction === CP && nation !== TURKEY)
         return false
@@ -6227,25 +6260,22 @@ function is_unit_supplied(p) {
     if (nation === SERBIA) {
         if (data.spaces[location].nation === SERBIA)
             return true // Serbian units are always in supply in Serbia
-        else if (is_controlled_by(SALONIKA, AP) && check_supply_cache(supply_cache, location, [SALONIKA]))
+        else if (is_controlled_by(SALONIKA, AP) && check_supply_cache(game.supply, location, [SALONIKA]))
             return true // Serbian units can trace supply to Salonika if it is friendly controlled
     }
 
     if (nation === ITALY)
-        return supply_cache[location] & SUPPLY_MASK.London_Italian
+        return game.supply[location] & SUPPLY_MASK.London_Italian
 
-    return check_supply_cache(supply_cache, location, get_supply_sources_for_piece(p))
+    return check_supply_cache(game.supply, location, get_supply_sources_for_piece(p))
 }
 
-function check_supply_cache(cache, location, sources) {
-    if (!sources) {
-        sources = [ESSEN, BRESLAU, SOFIA, CONSTANTINOPLE, PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE, LONDON]
-    }
-    let source_mask = 0
-    for (let source of sources) {
-        source_mask |= get_supply_mask(source)
-    }
+const all_supply_sources = [ESSEN, BRESLAU, SOFIA, CONSTANTINOPLE, PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE, LONDON]
 
+function check_supply_cache(cache, location, sources = all_supply_sources) {
+    let source_mask = 0
+    for (let source of sources)
+        source_mask |= get_supply_mask(source)
     return !!(cache[location] & source_mask)
 }
 
@@ -6266,16 +6296,12 @@ function get_supply_sources_for_piece(p) {
 }
 
 function is_unit_supplied_through_italy(p) {
-    if (!supply_cache) update_supply()
-
     if (!is_unit_supplied(p))
         return false
-
-    return !(supply_cache[game.location[p]] & SUPPLY_MASK.NonItalianPath)
+    return !(game.supply[game.location[p]] & SUPPLY_MASK.NonItalianPath)
 }
 
 function can_unit_trace_supply_to_basra(p) {
-    
     if (!is_unit_supplied(p))
         return false
     let destinations = []
@@ -6290,7 +6316,7 @@ function can_unit_trace_supply_to_basra(p) {
                 && (is_controlled_by(n, active_faction()) || is_besieged(n))) {
                 set_add(destinations, n)
                 set_add(overland_destinations, n)
-                set_add(frontier, n)
+                frontier.push(n)
             }
         })
     }
@@ -6298,22 +6324,18 @@ function can_unit_trace_supply_to_basra(p) {
 }
 
 function is_space_supplied_through_mef(s) {
-    if (!supply_cache) update_supply()
-
     if (!is_space_supplied(AP, s))
         return false
 
-    return !(supply_cache[s] & SUPPLY_MASK.NonMEFPath)
+    return !(game.supply[s] & SUPPLY_MASK.NonMEFPath)
 }
 
 function is_space_supplied(faction, s) {
-    if (!supply_cache) update_supply()
     if (faction === CP) {
         if (game.location[TURKISH_SN_CORPS] === s && data.spaces[s].map === 'neareast') {
             return true // Turkish SN Corps in Neareast space is always in supply
         }
-
-        return check_supply_cache(supply_cache, s, [ESSEN, BRESLAU, SOFIA, CONSTANTINOPLE])
+        return check_supply_cache(game.supply, s, [ESSEN, BRESLAU, SOFIA, CONSTANTINOPLE])
     } else {
         if (s === CETINJE) // Montenegro is always in supply
             return true
@@ -6330,9 +6352,21 @@ function is_space_supplied(faction, s) {
             }
         }
 
-        return (check_supply_cache(supply_cache, s, [LONDON, PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE])
-            || (is_controlled_by(SALONIKA, AP) && check_supply_cache(supply_cache, s, [SALONIKA])))
+        return (check_supply_cache(game.supply, s, [LONDON, PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE])
+            || (is_controlled_by(SALONIKA, AP) && check_supply_cache(game.supply, s, [SALONIKA])))
     }
+}
+
+function is_space_supplied_or_has_supplied_unit(s, faction) {
+    if (is_space_supplied(faction, s)) {
+        return true
+    }
+    const pieces = get_pieces_in_space(s)
+    for (const piece of pieces) {
+        if (data.pieces[piece].faction === faction && is_unit_supplied(piece))
+            return true
+    }
+    return false
 }
 
 function is_space_supplied_or_has_supplied_unit(s, faction) {
@@ -6356,41 +6390,39 @@ function is_space_supplied_for_reserve_box_sr(s, p) {
     let nation = data.pieces[p].nation
 
     if (nation === GERMANY || nation === AUSTRIA_HUNGARY) {
-        is_supplied = check_supply_cache(supply_cache, s, [ESSEN, BRESLAU])
+        is_supplied = check_supply_cache(game.supply, s, [ESSEN, BRESLAU])
     } else if (nation === TURKEY) {
-        is_supplied = check_supply_cache(supply_cache, s, [CONSTANTINOPLE])
+        is_supplied = check_supply_cache(game.supply, s, [CONSTANTINOPLE])
     } else if (nation === BULGARIA) {
-        is_supplied = check_supply_cache(supply_cache, s, [SOFIA])
+        is_supplied = check_supply_cache(game.supply, s, [SOFIA])
     } else if (nation === RUSSIA || nation === ROMANIA) {
-        is_supplied = check_supply_cache(supply_cache, s, [PETROGRAD, MOSCOW, KHARKOV, CAUCASUS])
+        is_supplied = check_supply_cache(game.supply, s, [PETROGRAD, MOSCOW, KHARKOV, CAUCASUS])
     }
 
     return is_supplied
 }
 
 function query_supply(sources) {
-    if (!supply_cache) update_supply()
     let mask = 0
     for (let source of sources)
         mask |= get_supply_mask(source)
     let spaces = [ 0 ]
     for (let i = 1; i < data.spaces.length; ++i) {
-        spaces[i] = (supply_cache[i] & mask) ? 1 : 0
+        spaces[i] = (game.supply[i] & mask) ? 1 : 0
     }
     return spaces
 }
 
-function get_oos_pieces() {
-    let oos_pieces = []
+function update_oos_pieces() {
+    game.oos_pieces = []
     const moving_pieces = game.move ? game.move.pieces : []
     for (let p = 1; p < data.pieces.length; ++p) {
         if (!nation_at_war(data.pieces[p].nation))
             continue
         if (game.location[p] !== 0 && game.location[p] < AP_RESERVE_BOX && !is_unit_supplied(p) && !set_has(moving_pieces, p)) {
-            oos_pieces.push(p)
+            game.oos_pieces.push(p)
         }
     }
-    return oos_pieces
 }
 
 // === CARD EVENTS ===
@@ -6404,7 +6436,6 @@ states.confirm_event = {
         view.prompt = `execute "${current_card_name()}"`
     },
     prompt() {
-        let c = game.last_card
         view.prompt = current_card_name() + ": Done."
         view.actions.end_action = 1
     },
@@ -6809,11 +6840,12 @@ events.alpenkorps = {
     can_play() {
         if (!game.attack)
             return false
-
         if (game.attack.attacker === CP &&
-            game.attack.pieces.some(p => data.pieces[p].nation === GERMANY &&
-            (data.spaces[game.location[p]].terrain === MOUNTAIN || 
-            data.spaces[game.attack.space].terrain === MOUNTAIN))) {
+            game.attack.pieces.some(p =>
+                data.pieces[p].nation === GERMANY &&
+                (data.spaces[game.location[p]].terrain === MOUNTAIN || data.spaces[game.attack.space].terrain === MOUNTAIN)
+            )
+        ) {
             return true
         }
     },
@@ -7703,7 +7735,7 @@ states.great_retreat = {
     prompt() {
         if (game.attack.great_retreat !== 0) {
             view.who = game.attack.great_retreat
-            let options = get_retreat_options([game.attack.great_retreat], game.attack.space, 0)
+            let options = get_retreat_options([game.attack.great_retreat], game.attack.space, 1)
             if (options.length > 0) {
                 view.prompt = `Great Retreat: Retreat ${piece_name(game.attack.great_retreat)}.`
                 options.forEach(gen_action_space)
@@ -8375,19 +8407,19 @@ function array_remove_item(array, item) {
 }
 
 function array_delete_pair(array, index) {
-	var i, n = array.length
-	for (i = index + 2; i < n; ++i)
-		array[i - 2] = array[i]
-	array.length = n - 2
+    var i, n = array.length
+    for (i = index + 2; i < n; ++i)
+        array[i - 2] = array[i]
+    array.length = n - 2
 }
 
 function array_insert_pair(array, index, key, value) {
-	for (var i = array.length; i > index; i -= 2) {
-		array[i] = array[i-2]
-		array[i+1] = array[i-1]
-	}
-	array[index] = key
-	array[index+1] = value
+    for (var i = array.length; i > index; i -= 2) {
+        array[i] = array[i-2]
+        array[i+1] = array[i-1]
+    }
+    array[index] = key
+    array[index+1] = value
 }
 
 function set_has(set, item) {
@@ -8460,54 +8492,54 @@ function set_toggle(set, item) {
 }
 
 function map_get(map, key, missing) {
-	var a = 0
-	var b = (map.length >> 1) - 1
-	while (a <= b) {
-		var m = (a + b) >> 1
-		var x = map[m<<1]
-		if (key < x)
-			b = m - 1
-		else if (key > x)
-			a = m + 1
-		else
-			return map[(m<<1)+1]
-	}
-	return missing
+    var a = 0
+    var b = (map.length >> 1) - 1
+    while (a <= b) {
+        var m = (a + b) >> 1
+        var x = map[m<<1]
+        if (key < x)
+            b = m - 1
+        else if (key > x)
+            a = m + 1
+        else
+            return map[(m<<1)+1]
+    }
+    return missing
 }
 
 function map_set(map, key, value) {
-	var a = 0
-	var b = (map.length >> 1) - 1
-	while (a <= b) {
-		var m = (a + b) >> 1
-		var x = map[m<<1]
-		if (key < x)
-			b = m - 1
-		else if (key > x)
-			a = m + 1
-		else {
-			map[(m<<1)+1] = value
-			return
-		}
-	}
-	array_insert_pair(map, a<<1, key, value)
+    var a = 0
+    var b = (map.length >> 1) - 1
+    while (a <= b) {
+        var m = (a + b) >> 1
+        var x = map[m<<1]
+        if (key < x)
+            b = m - 1
+        else if (key > x)
+            a = m + 1
+        else {
+            map[(m<<1)+1] = value
+            return
+        }
+    }
+    array_insert_pair(map, a<<1, key, value)
 }
 
 function map_delete(map, key) {
-	var a = 0
-	var b = (map.length >> 1) - 1
-	while (a <= b) {
-		var m = (a + b) >> 1
-		var x = map[m<<1]
-		if (key < x)
-			b = m - 1
-		else if (key > x)
-			a = m + 1
-		else {
-			array_delete_pair(map, m<<1)
-			return
-		}
-	}
+    var a = 0
+    var b = (map.length >> 1) - 1
+    while (a <= b) {
+        var m = (a + b) >> 1
+        var x = map[m<<1]
+        if (key < x)
+            b = m - 1
+        else if (key > x)
+            a = m + 1
+        else {
+            array_delete_pair(map, m<<1)
+            return
+        }
+    }
 }
 
 // Fast deep copy for objects without cycles
@@ -8537,26 +8569,26 @@ function object_copy(original) {
 }
 
 function object_group_by(items, callback) {
-	var item, key
-	var groups = {}
-	if (typeof callback === "function") {
-		for (item of items) {
-			key = callback(item)
-			if (key in groups)
-				groups[key].push(item)
-			else
-				groups[key] = [ item ]
-		}
-	} else {
-		for (item of items) {
-			key = item[callback]
-			if (key in groups)
-				groups[key].push(item)
-			else
-				groups[key] = [ item ]
-		}
-	}
-	return groups
+    var item, key
+    var groups = {}
+    if (typeof callback === "function") {
+        for (item of items) {
+            key = callback(item)
+            if (key in groups)
+                groups[key].push(item)
+            else
+                groups[key] = [ item ]
+        }
+    } else {
+        for (item of items) {
+            key = item[callback]
+            if (key in groups)
+                groups[key].push(item)
+            else
+                groups[key] = [ item ]
+        }
+    }
+    return groups
 }
 
 function clear_undo() {
@@ -8590,8 +8622,6 @@ function push_undo() {
 }
 
 function pop_undo() {
-    invalidate_supply_cache()
-
     let save_log = game.log
     let save_undo = game.undo
     let save_rollback = game.rollback
@@ -8605,6 +8635,9 @@ function pop_undo() {
     // so it should be impossible to undo past a rollback point
     game.rollback = save_rollback
     game.rollback_state = save_rollback_state
+
+    // and update the supply (which is not saved with undo state)
+    update_supply()
 }
 
 function pop_all_undo() {
@@ -8708,8 +8741,6 @@ function restore_rollback(index) {
     if (!game.rollback || game.rollback.length <= index || index < 0)
         return
 
-    invalidate_supply_cache()
-
     let rollback_state = decompress_state(game.rollback_state) || []
 
     let save_rollback = game.rollback
@@ -8731,6 +8762,9 @@ function restore_rollback(index) {
     // keep older rollback points, as well as the one we restored
     game.rollback = save_rollback.slice(0, index+1)
     game.rollback_state = compress_state(rollback_state.slice(0, index+1))
+
+    // and update the supply (which is not saved with rollback state)
+    update_supply()
 }
 
 function goto_propose_rollback(rollback_index) {
@@ -8967,19 +9001,25 @@ function assert_reinforcement_rules() {
     })
 }
 
+function assert_supply() {
+    var old_supply = game.supply
+    if (old_supply) {
+        var old_supply_str = JSON.stringify(game.supply)
+        update_supply()
+        var new_supply_str = JSON.stringify(game.supply)
+        if (old_supply_str !== new_supply_str)
+            throw new Error("supply changed without invalidation!")
+        game.supply = old_supply
+    }
+}
+
 exports.assert_state = function(state) {
-    invalidate_supply_cache()
     game = state
+    assert_supply()
     assert_stacking_limits()
     assert_opposing_sides_not_stacked()
     assert_trench_level()
     assert_reinforcement_rules()
 }
-
-;(function(){
-    for (let key in states)
-        if (!states[key].inactive)
-            console.log("MISSING INACTIVE FOR: " + key)
-})()
 
 /* vim:set sts=4 sw=4 expandtab: */

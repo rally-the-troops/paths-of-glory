@@ -1,6 +1,8 @@
 "use strict"
 
-/* globals spaces pieces cards layout */
+/* globals data layout */
+
+const { cards, spaces, pieces } = data
 
 const DEBUG_SPACES = false
 const DEBUG_CONNECTIONS = false
@@ -1367,7 +1369,9 @@ function update_space(s) {
     let full_corps = []
     let reduced_corps = []
 
+    let count_pieces = 0
     for_each_piece_in_space(s, p => {
+        count_pieces++
         let is_corps = pieces[p].type === CORPS
         let is_reduced = view.reduced.includes(p)
 
@@ -1412,18 +1416,11 @@ function update_space(s) {
         destroy_marker(markers.mef_beachhead, e => e.space_id === s)
     }
 
-    if (space.faction === AP) {
-        if (get_control(s) === CP)
-            push_stack(stack, build_control_marker(s, CP))
-        else
-            destroy_control_marker(s, CP)
-    }
-
-    if (space.faction === CP) {
-        if (get_control(s) === AP)
-            push_stack(stack, build_control_marker(s, AP))
-        else
-            destroy_control_marker(s, AP)
+    if (space.faction !== get_control(s) && count_pieces === 0)
+        push_stack(stack, build_control_marker(s, get_control(s)))
+    else {
+        destroy_control_marker(s, AP)
+        destroy_control_marker(s, CP)
     }
 
     if (s === SINAI && view.events.sinai_pipeline > 0) {
@@ -1679,28 +1676,12 @@ function update_eliminated_boxes() {
 
 function update_space_highlight(s) {
     let space = spaces[s]
-    if (should_highlight_space(s))
-        space.element.classList.add("highlight")
-    else
-        space.element.classList.remove("highlight")
-
-    if (view.where === s)
-        space.element.classList.add("selected")
-    else
-        space.element.classList.remove("selected")
-
-    if (view.violations.find(v => v.space === s) !== undefined) {
-        space.element.classList.add("warning")
-    } else {
-        space.element.classList.remove("warning")
-    }
-
-    // TODO: Decide how to actually display these warnings
-    if (view.supply_warnings && view.supply_warnings.includes(s)) {
-        space.element.classList.add("warning")
-    } else {
-        space.element.classList.remove("warning")
-    }
+    space.element.classList.toggle("highlight", should_highlight_space(s))
+    space.element.classList.toggle("selected", view.where === s)
+    space.element.classList.toggle("warning",
+        view.violations.some(v => v.space === s) ||
+        !!(view.supply_warnings && view.supply_warnings.includes(s))
+    )
 }
 
 function should_highlight_space(s) {
@@ -1746,6 +1727,7 @@ function update_piece(id) {
                 (view.who === id)
             ) && !is_action("piece", id)
         )
+	piece.element.classList.toggle("entrenching", !!(view.entrenching && view.entrenching.includes(id)))
 }
 
 let turn_track_stacks = new Array(20)
@@ -2010,23 +1992,22 @@ function update_action_round_tracks() {
 
 function update_violations() {
     if (view.violations.length > 0) {
-        show_dialog('violations', (body) => {
-            for (let v of view.violations) {
-                let p = document.createElement("div")
-                p.className = "violation"
-
-                let prefix = v.space !== 0 ? `s${v.space}: ` : v.piece !== 0 ? `P${v.piece}: ` : ''
-                let text = `${prefix}${v.rule}`
-                text = text.replace(/s(\d+)/g, sub_space_name)
-                text = text.replace(/p(\d+)/g, sub_piece_name_reduced)
-                text = text.replace(/P(\d+)/g, sub_piece_name)
-                text = text.replace(/c(\d+)/g, sub_card_name)
-                p.innerHTML = text
-                body.appendChild(p)
-            }
-        })
+        ui.violations.replaceChildren()
+        let p = document.createElement("div")
+        p.innerHTML = "<u><b>Rule Violations:</b></u>"
+        ui.violations.appendChild(p)
+        for (let v of view.violations) {
+            let p = document.createElement("div")
+            if (v.space > 0)
+                p.innerHTML = escape_text(`s${v.space}: ${v.rule}`)
+            else if (v.piece > 0)
+                p.innerHTML = escape_text(`P${v.piece}: ${v.rule}`)
+            else
+                p.innerHTML = escape_text(v.rule)
+            ui.violations.appendChild(p)
+        }
     } else {
-        hide_dialog('violations')
+        ui.violations.replaceChildren()
     }
 }
 
