@@ -4800,17 +4800,21 @@ states.defender_retreat = {
         }
     },
     _next() {
-        const end_space = game.attack.retreat_path[game.attack.retreat_path.length - 1]
-        if (!is_controlled_by(end_space, active_faction()) && !has_undestroyed_fort(end_space, game.attack.attacker)) {
-            set_control(end_space, active_faction())
+        if (game.attack.retreat_path.length > 0) {
+            const end_space = game.attack.retreat_path[game.attack.retreat_path.length - 1]
+            if (!is_controlled_by(end_space, active_faction()) && !has_undestroyed_fort(end_space, game.attack.attacker)) {
+                set_control(end_space, active_faction())
+            }
+            update_siege(end_space)
+
+            game.attack.retreat_paths.push(game.attack.retreat_path)
         }
 
         logi(piece_list(game.attack.retreating_pieces) + " -> " + space_list(game.attack.retreat_path))
         if (game.attack.retreat_path.length > 0)
-            game.attack.retreat_paths.push(game.attack.retreat_path)
+
         game.attack.retreat_path = []
         game.attack.retreating_pieces.length = 0
-        update_siege(end_space)
         update_supply()
     },
     done() {
