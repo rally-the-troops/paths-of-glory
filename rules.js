@@ -5338,7 +5338,7 @@ function goto_attrition_phase() {
         }
         if (controlling_faction === CP && game.location[TURKISH_SN_CORPS] === s) // SN corps keeps its space safe from attrition per 11.1.16
             continue
-        if (!is_space_supplied(controlling_faction, s)) {
+        if (!is_space_supplied_or_has_supplied_unit(s, controlling_faction)) {
             set_add(game.attrition[controlling_faction].spaces, s)
         }
     }
@@ -6386,7 +6386,7 @@ function is_unit_supplied_in(p, s) {
     return check_supply_cache(game.supply, s, get_supply_sources_for_piece(p))
 }
 
-function is_space_supplied(faction, s) {
+function is_space_supplied(s, faction) {
     if (faction === CP) {
         return check_supply_cache(game.supply, s, [ESSEN, BRESLAU, SOFIA, CONSTANTINOPLE])
     } else {
@@ -6457,14 +6457,13 @@ function can_unit_trace_supply_to_basra(p) {
 }
 
 function is_space_supplied_through_mef(s) {
-    if (!is_space_supplied(AP, s))
+    if (!is_space_supplied(s, AP))
         return false
-
     return !(game.supply[s] & SUPPLY_MASK.NonMEFPath)
 }
 
 function is_space_supplied_or_has_supplied_unit(s, faction) {
-    if (is_space_supplied(faction, s))
+    if (is_space_supplied(s, faction))
         return true
     for (let p of all_pieces_by_faction[faction])
         if (game.location[p] === s)
@@ -6478,7 +6477,7 @@ function is_space_supplied_or_has_supplied_unit(s, faction) {
 //  Bulgarian units tracing supply to Essen, Breslau or Constantinople, and Russian and Romanian units tracing
 //  supply to Belgrade.
 function is_space_supplied_for_reserve_box_sr(s, p) {
-    let is_supplied = is_space_supplied(data.pieces[p].faction, s)
+    let is_supplied = is_space_supplied(s, data.pieces[p].faction)
     let nation = data.pieces[p].nation
 
     if (nation === GERMANY || nation === AUSTRIA_HUNGARY) {
@@ -6615,7 +6614,7 @@ events.cp_severe_weather = {
 // CP #5
 events.landwehr = {
     can_play() {
-        return (is_space_supplied(CP, BERLIN) && is_controlled_by(BERLIN, CP))
+        return (is_space_supplied(BERLIN, CP) && is_controlled_by(BERLIN, CP))
     },
     play() {
         game.landwehr_pieces = []
@@ -9072,7 +9071,7 @@ function assert_reinforcement_rules() {
     spaces.forEach((s) => {
         if (first_piece_data.name === 'BR MEF' && is_mef_space(s))
             return
-        if (!is_space_supplied(active_faction(), s)) {
+        if (!is_space_supplied(s, active_faction())) {
             throw new Error(`Rule violation by allowing reinforcement of ${piece_name(first_piece)} in S${s} ${space_name(s)}: ${rule_text}`)
         }
     })
