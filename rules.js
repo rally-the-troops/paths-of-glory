@@ -279,6 +279,7 @@ const PT_CORPS = find_piece(BRITAIN, 'PTc')
 const CAU_ARMY = find_piece(RUSSIA, 'RU CAU')
 const BRITISH_ANA_CORPS = find_piece('ana', 'BR ANAc')
 const TURKISH_SN_CORPS = find_piece('sn', 'TU SNc')
+const MONTENEGRIN_CORPS = find_piece('mn', 'MNc')
 
 function is_minor_british_nation(piece) {
     return piece === AUS_CORPS || piece === CND_CORPS || piece === PT_CORPS || piece === BRITISH_ANA_CORPS
@@ -324,6 +325,7 @@ function faction_name(faction) {
 
 const all_pieces = Array.from(data.pieces, (_,ix) => ix)
 const all_pieces_by_nation = object_group_by(all_pieces, p => data.pieces[p].nation)
+const all_pieces_by_faction = object_group_by(all_pieces, p => data.pieces[p].faction)
 
 // === VIEW & QUERY ===
 
@@ -1752,14 +1754,14 @@ function get_sr_destinations(unit) {
         // Add all capitals and supply sources in the nation, as long as they are in supply
         for (let s = 1; s < data.spaces.length; s++) {
             if (data.spaces[s].nation === nation &&
-                is_space_supplied(active_faction(), s) &&
+                is_unit_supplied_in(unit, s) &&
                 (data.spaces[s].capital || data.spaces[s].supply)) {
                 set_add(destinations, s)
             }
         }
 
         // If the nation is Serbia, add Salonika, when it is controlled by the allies and in supply
-        if (nation === SERBIA && is_space_supplied(AP, SALONIKA) && is_controlled_by(SALONIKA, AP)) {
+        if (nation === SERBIA && is_unit_supplied_in(unit, SALONIKA) && is_controlled_by(SALONIKA, AP)) {
             set_add(destinations, SALONIKA)
         }
 
@@ -1795,7 +1797,7 @@ function get_sr_destinations(unit) {
         let current = frontier.pop()
         get_connected_spaces(current, nation).forEach((n) => {
             if (!set_has(destinations, n)
-                && is_space_supplied(active_faction(), n)
+                && is_unit_supplied_in(unit, n)
                 && (is_controlled_by(n, active_faction()) || is_besieged(n))) {
                 if (nation === RUSSIA && data.spaces[n].nation !== RUSSIA)
                     return
@@ -1911,7 +1913,7 @@ function set_ne_restriction_flags_for_sr(p, start, destination) {
         }
         get_connected_spaces(current, nation).forEach((n) => {
             if (!set_has(destinations, n)
-                && is_space_supplied(active_faction(), n)
+                && is_unit_supplied_in(p, n)
                 && (is_controlled_by(n, active_faction()) || is_besieged(n))) {
                 set_add(destinations, n)
                 frontier.push(n)
@@ -2164,7 +2166,7 @@ function get_available_reinforcement_spaces(p) {
     } else if (piece_data.name === 'RU CAU') {
         // any supplied space in Russia on the NE map
         for (let s = 1; s < data.spaces.length; s++) {
-            if (data.spaces[s].nation === RUSSIA && data.spaces[s].map === 'neareast' && is_space_supplied(AP, s) && !is_fully_stacked(s, AP))
+            if (data.spaces[s].nation === RUSSIA && data.spaces[s].map === 'neareast' && is_unit_supplied_in(p, s) && !is_fully_stacked(s, AP))
                 spaces.push(s)
         }
     } else if (piece_data.name === 'BR MEF' && !game.events.salonika) {
@@ -2188,7 +2190,7 @@ function get_available_reinforcement_spaces(p) {
     // Friendly-controlled capitals can receive armies
     const capitals = get_capitals(nation)
     for (let c of capitals) {
-        if (is_controlled_by(c, active_faction()) && is_space_supplied(active_faction(), c) && !is_fully_stacked(c, active_faction())) {
+        if (is_controlled_by(c, active_faction()) && is_unit_supplied_in(p, c) && !is_fully_stacked(c, active_faction())) {
             spaces.push(c)
         }
     }
@@ -2196,7 +2198,7 @@ function get_available_reinforcement_spaces(p) {
     // Friendly supply sources in the right nation can receive armies
     for (let s = 1; s < data.spaces.length; s++) {
         const space = data.spaces[s]
-        if (space.nation === nation && space.supply && is_controlled_by(s, active_faction()) && is_space_supplied(active_faction(), s) && !is_fully_stacked(s, active_faction())) {
+        if (space.nation === nation && space.supply && is_controlled_by(s, active_faction()) && is_unit_supplied_in(p, s) && !is_fully_stacked(s, active_faction())) {
             spaces.push(s)
         }
     }
@@ -2206,7 +2208,8 @@ function get_available_reinforcement_spaces(p) {
         is_fully_stacked(PARIS, active_faction()) &&
         is_controlled_by(PARIS, active_faction()) &&
         is_controlled_by(ORLEANS, active_faction()) &&
-        is_space_supplied(active_faction(), ORLEANS)) {
+        is_unit_supplied_in(p, ORLEANS)
+    ) {
         spaces.push(ORLEANS)
     }
 
@@ -4929,7 +4932,7 @@ function get_retreat_options(pieces, from, spaces_to_retreat = 1) {
         if (is_controlled_by(conn, active_faction()))
             has_friendly_option = true
 
-        if (is_space_supplied(active_faction(), conn))
+        if (is_every_unit_supplied_in(pieces, conn))
             has_in_supply_option = true
 
         set_add(options, conn)
@@ -4948,7 +4951,7 @@ function get_retreat_options(pieces, from, spaces_to_retreat = 1) {
     if (has_in_supply_option) {
         const all_options = [...options]
         all_options.forEach((s) => {
-            if (!is_space_supplied(active_faction(), s))
+            if (!is_every_unit_supplied_in(pieces, s))
                 set_delete(options, s)
         })
     }
@@ -5862,11 +5865,11 @@ function get_army_replacement_spaces(p) {
         //  1914.)
         const belgian_spaces = [BRUSSELS, ANTWERP, OSTEND]
         for (let s of belgian_spaces) {
-            if (is_controlled_by(s, AP) && is_space_supplied(AP, s) && !is_fully_stacked(s, AP))
+            if (is_controlled_by(s, AP) && is_unit_supplied_in(p, s) && !is_fully_stacked(s, AP))
                 spaces.push(s)
         }
         if (spaces.length === 0) {
-            if (is_controlled_by(CALAIS, AP) && is_space_supplied(AP, CALAIS) && !is_fully_stacked(CALAIS, AP))
+            if (is_controlled_by(CALAIS, AP) && is_unit_supplied_in(p, CALAIS) && !is_fully_stacked(CALAIS, AP))
                 spaces.push(CALAIS)
         }
         return spaces
@@ -5879,7 +5882,7 @@ function get_army_replacement_spaces(p) {
         //  Cards have been played and Salonika is under Allied control. They may also be recreated in Belgrade
         //  following normal reinforcement restrictions.
         if (game.events.salonika > 0 || game.events.greece_entry > 0) {
-            if (is_controlled_by(SALONIKA, AP) && is_space_supplied(AP, SALONIKA))
+            if (is_controlled_by(SALONIKA, AP) && is_unit_supplied_in(p, SALONIKA))
                 spaces.push(SALONIKA)
         }
 
@@ -6328,38 +6331,87 @@ function update_supply() {
 }
 
 function is_unit_supplied(p) {
-    let nation = data.pieces[p].nation
     let location = game.location[p]
     if (location === 0)
         return true
+    return is_unit_supplied_in(p, game.location[p])
+}
 
-    if (p === BRITISH_ANA_CORPS && data.spaces[location].map && data.spaces[location].map === "neareast")
+function is_every_unit_supplied_in(list, s) {
+    return list.every(p => is_unit_supplied_in(p, s))
+}
+
+function is_unit_supplied_in(p, s) {
+    if (p === BRITISH_ANA_CORPS && data.spaces[s].map && data.spaces[s].map === "neareast")
         return true
 
-    if (nation === MONTENEGRO)
+    if (p === TURKISH_SN_CORPS && data.spaces[s].map && data.spaces[s].map === "neareast")
         return true
 
-    if (nation === "sn" && data.spaces[location].map && data.spaces[location].map === "neareast")
+    if (p === MONTENEGRIN_CORPS && s === CETINJE)
         return true
+
+    let nation = data.pieces[p].nation
 
     if (nation === GREECE && !nation_at_war(GREECE) && game.events.salonika > 0) // Limited Greek entry
         return true
 
     // CP can only trace supply to Medina over a Turkish connection, so non-Turkish CP units in Medina are OOS
-    if (location === MEDINA && data.pieces[p].faction === CP && nation !== TURKEY)
+    if (s === MEDINA && data.pieces[p].faction === CP && nation !== TURKEY)
         return false
 
     if (nation === SERBIA) {
-        if (data.spaces[location].nation === SERBIA)
+        if (data.spaces[s].nation === SERBIA)
             return true // Serbian units are always in supply in Serbia
-        else if (is_controlled_by(SALONIKA, AP) && check_supply_cache(game.supply, location, [SALONIKA]))
+        if (check_supply_cache(game.supply, s, [SALONIKA]))
             return true // Serbian units can trace supply to Salonika if it is friendly controlled
     }
 
-    if (nation === ITALY)
-        return game.supply[location] & SUPPLY_MASK.London_Italian
+    if (data.spaces[s].nation === ALBANIA) {
+        // Albanian spaces check Attrition supply by tracing normally to an Allied supply source;
+        // or tracing to Taranto even while Italy is still Neutral.
+        if (data.pieces[p].faction === AP) {
+            if (is_controlled_by(TARANTO, AP)) {
+                if (s === VALONA)
+                    return true
+                if (s === TIRANA && is_controlled_by(VALONA, AP))
+                    return true
+            }
+        }
+    }
 
-    return check_supply_cache(game.supply, location, get_supply_sources_for_piece(p))
+    if (nation === ITALY)
+        return game.supply[s] & SUPPLY_MASK.London_Italian
+
+    return check_supply_cache(game.supply, s, get_supply_sources_for_piece(p))
+}
+
+function is_space_supplied(faction, s) {
+    // theoretically in the supply network -- whether empty or not
+    if (faction === CP) {
+        if (game.location[TURKISH_SN_CORPS] === s && data.spaces[s].map === 'neareast')
+            return true
+        return check_supply_cache(game.supply, s, [ESSEN, BRESLAU, SOFIA, CONSTANTINOPLE])
+    } else {
+        if (game.location[BRITISH_ANA_CORPS] === s && data.spaces[s].map === 'nearest')
+            return true
+        if (game.location[MONTENEGRIN_CORPS] === s && s === CETINJE)
+            return true
+
+        // albania exception
+        if (data.spaces[s].nation === ALBANIA) {
+            // Albanian spaces check Attrition supply by tracing normally to an Allied supply source or tracing to
+            // Taranto even while Italy is still Neutral.
+            if (is_controlled_by(TARANTO, AP)) {
+                if (s === VALONA)
+                    return true
+                if (s === TIRANA && is_controlled_by(VALONA, AP))
+                    return true
+            }
+        }
+
+        return check_supply_cache(game.supply, s, [LONDON, PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE, SALONIKA])
+    }
 }
 
 const all_supply_sources = [ESSEN, BRESLAU, SOFIA, CONSTANTINOPLE, PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE, LONDON]
@@ -6404,7 +6456,7 @@ function can_unit_trace_supply_to_basra(p) {
         let current = frontier.pop()
         get_connected_spaces(current, BRITAIN).forEach((n) => {
             if (!set_has(destinations, n)
-                && is_space_supplied(active_faction(), n)
+                && is_unit_supplied_in(p, n)
                 && (is_controlled_by(n, active_faction()) || is_besieged(n))) {
                 set_add(destinations, n)
                 set_add(overland_destinations, n)
@@ -6422,42 +6474,13 @@ function is_space_supplied_through_mef(s) {
     return !(game.supply[s] & SUPPLY_MASK.NonMEFPath)
 }
 
-function is_space_supplied(faction, s) {
-    if (faction === CP) {
-        if (game.location[TURKISH_SN_CORPS] === s && data.spaces[s].map === 'neareast') {
-            return true // Turkish SN Corps in Neareast space is always in supply
-        }
-        return check_supply_cache(game.supply, s, [ESSEN, BRESLAU, SOFIA, CONSTANTINOPLE])
-    } else {
-        if (s === CETINJE) // Montenegro is always in supply
-            return true
-
-        if (s === ARABIA_SPACE && game.location[BRITISH_ANA_CORPS] === ARABIA_SPACE)
-            return true
-
-        if (data.spaces[s].nation === ALBANIA) {
-            // Albanian spaces check Attrition supply by tracing normally to an Allied supply source or tracing to
-            // Taranto even while Italy is still Neutral.
-            if (is_controlled_by(TARANTO, AP)) {
-                if (s === VALONA) return true
-                if (s === TIRANA && is_controlled_by(VALONA, AP)) return true
-            }
-        }
-
-        return (check_supply_cache(game.supply, s, [LONDON, PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE])
-            || (is_controlled_by(SALONIKA, AP) && check_supply_cache(game.supply, s, [SALONIKA])))
-    }
-}
-
 function is_space_supplied_or_has_supplied_unit(s, faction) {
-    if (is_space_supplied(faction, s)) {
+    if (is_space_supplied(faction, s))
         return true
-    }
-    const pieces = get_pieces_in_space(s)
-    for (const piece of pieces) {
-        if (data.pieces[piece].faction === faction && is_unit_supplied(piece))
-            return true
-    }
+    for (let p of all_pieces_by_faction[faction])
+        if (game.location[p] === s)
+            if (is_unit_supplied_in(p, s))
+                return true
     return false
 }
 
