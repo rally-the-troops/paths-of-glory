@@ -6477,20 +6477,18 @@ function is_space_supplied_or_has_supplied_unit(s, faction) {
 //  Bulgarian units tracing supply to Essen, Breslau or Constantinople, and Russian and Romanian units tracing
 //  supply to Belgrade.
 function is_space_supplied_for_reserve_box_sr(s, p) {
-    let is_supplied = is_space_supplied(s, data.pieces[p].faction)
     let nation = data.pieces[p].nation
-
     if (nation === GERMANY || nation === AUSTRIA_HUNGARY) {
-        is_supplied = check_supply_cache(game.supply, s, [ESSEN, BRESLAU])
+        return check_supply_cache(game.supply, s, [ESSEN, BRESLAU])
     } else if (nation === TURKEY) {
-        is_supplied = check_supply_cache(game.supply, s, [CONSTANTINOPLE])
+        return check_supply_cache(game.supply, s, [CONSTANTINOPLE])
     } else if (nation === BULGARIA) {
-        is_supplied = check_supply_cache(game.supply, s, [SOFIA])
+        return check_supply_cache(game.supply, s, [SOFIA])
     } else if (nation === RUSSIA || nation === ROMANIA) {
-        is_supplied = check_supply_cache(game.supply, s, [PETROGRAD, MOSCOW, KHARKOV, CAUCASUS])
+        return check_supply_cache(game.supply, s, [PETROGRAD, MOSCOW, KHARKOV, CAUCASUS])
+    } else {
+        return is_unit_supplied_in(p, s)
     }
-
-    return is_supplied
 }
 
 function query_supply(sources) {
