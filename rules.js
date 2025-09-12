@@ -6341,15 +6341,43 @@ function is_every_unit_supplied_in(list, s) {
     return list.every(p => is_unit_supplied_in(p, s))
 }
 
+function is_supply_blocked_by_units(s, faction) {
+    let opp = other_faction(faction)
+    for (let p of all_pieces_by_faction[opp])
+        if (game.location[p] === s)
+            return true
+    return false
+}
+
+function is_supply_blocked_by_control(s, faction) {
+    let opp = other_faction(faction)
+    if (is_controlled_by(opp)) {
+            if (has_undestroyed_fort(s, other_faction(faction))) {
+                for (let p of all_pieces_by_faction[faction])
+                    if (game.location[p] === s)
+                        return false
+            }
+            return true
+    }
+    return false
+}
+
+function is_supply_not_blocked(s, faction) {
+    return (
+        !is_supply_blocked_by_control(s, faction) &&
+        !is_supply_blocked_by_units(s, faction)
+    )
+}
+
 function is_unit_supplied_in(p, s) {
     if (p === BRITISH_ANA_CORPS && data.spaces[s].map && data.spaces[s].map === "neareast")
-        return true
+        return !is_supply_blocked_by_units(s, AP)
 
     if (p === TURKISH_SN_CORPS && data.spaces[s].map && data.spaces[s].map === "neareast")
-        return true
+        return is_supply_not_blocked(s, CP)
 
     if (p === MONTENEGRIN_CORPS && s === CETINJE)
-        return true
+        return is_supply_not_blocked(s, AP)
 
     let nation = data.pieces[p].nation
 
@@ -6362,7 +6390,7 @@ function is_unit_supplied_in(p, s) {
 
     if (nation === SERBIA) {
         if (data.spaces[s].nation === SERBIA)
-            return true // Serbian units are always in supply in Serbia
+            return is_supply_not_blocked(s, AP) // Serbian units are always in supply in Serbia
         if (check_supply_cache(game.supply, s, [SALONIKA]))
             return true // Serbian units can trace supply to Salonika if it is friendly controlled
     }
