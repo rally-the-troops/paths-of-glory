@@ -5822,7 +5822,7 @@ function get_replaceable_units() {
         if (game.location[i] === 0)
             continue
 
-        if (all_capitals_occupied(piece_data.nation))
+        if (all_capitals_occupied(piece_data.nation) && piece_data.nation !== SERBIA)
             continue
 
         if (is_controlled_by(WARSAW, AP) && piece_data.name === 'PLc')
