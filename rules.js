@@ -6387,21 +6387,11 @@ function is_unit_supplied_in(p, s) {
 }
 
 function is_space_supplied(faction, s) {
-    // theoretically in the supply network -- whether empty or not
     if (faction === CP) {
-        if (game.location[TURKISH_SN_CORPS] === s && data.spaces[s].map === 'neareast')
-            return true
         return check_supply_cache(game.supply, s, [ESSEN, BRESLAU, SOFIA, CONSTANTINOPLE])
     } else {
-        if (game.location[BRITISH_ANA_CORPS] === s && data.spaces[s].map === 'nearest')
-            return true
-        if (game.location[MONTENEGRIN_CORPS] === s && s === CETINJE)
-            return true
-
-        // albania exception
         if (data.spaces[s].nation === ALBANIA) {
-            // Albanian spaces check Attrition supply by tracing normally to an Allied supply source or tracing to
-            // Taranto even while Italy is still Neutral.
+            // Albanian spaces may supply from Taranto even while Italy is neutral.
             if (is_controlled_by(TARANTO, AP)) {
                 if (s === VALONA)
                     return true
@@ -6409,7 +6399,6 @@ function is_space_supplied(faction, s) {
                     return true
             }
         }
-
         return check_supply_cache(game.supply, s, [LONDON, PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE, SALONIKA])
     }
 }
