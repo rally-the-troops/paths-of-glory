@@ -3299,7 +3299,7 @@ function goto_attack_step_combat_cards() {
     if (can_play_combat_cards()) {
         // Start with all eligible combat cards selected
         game.combat_cards.forEach((c) => {
-            if (could_apply_combat_card(c))
+            if (could_apply_combat_card(c) && !used_cc_this_round(c))
                 game.attack.combat_cards.push(c)
         })
 
@@ -3741,26 +3741,23 @@ states.choose_withdrawal = {
     },
 }
 
+function is_usable_combat_card(c) {
+    if (!data.cards[c].cc)
+        return false
+    const evt = events[data.cards[c].event]
+    return !!(evt && evt.can_apply() && !used_cc_this_round(c))
+}
+
 states.attacker_combat_cards = {
     inactive: 'play combat cards',
     prompt() {
         view.prompt = `You may play combat cards.`
-
-        game[active_faction()].hand.forEach((c) => {
-            if (data.cards[c].cc) {
-                let evt = events[data.cards[c].event]
-                if (evt && evt.can_play())
-                    gen_action_card(c)
-            }
-        })
-
-        game.combat_cards.forEach((c) => {
+        game[active_faction()].hand.filter(is_usable_combat_card).forEach(gen_action_card)
+        game.combat_cards.filter(is_usable_combat_card).forEach((c) => {
             let just_played = game.attack.new_combat_cards.includes(c)
-            let evt = events[data.cards[c].event]
-            if (!just_played && data.cards[c].faction === active_faction() && evt && evt.can_apply())
+            if (!just_played && data.cards[c].faction === active_faction())
                 gen_action_card(c)
         })
-
         gen_action_done()
     },
     card(c) {
@@ -3800,21 +3797,12 @@ states.defender_combat_cards = {
     inactive: 'play combat cards',
     prompt() {
         view.prompt = `You may play combat cards.`
-        game[active_faction()].hand.forEach((c) => {
-            if (data.cards[c].cc) {
-                let evt = events[data.cards[c].event]
-                if (evt && evt.can_play())
-                    gen_action_card(c)
-            }
-        })
-
-        game.combat_cards.forEach((c) => {
+        game[active_faction()].hand.filter(is_usable_combat_card).forEach(gen_action_card)
+        game.combat_cards.filter(is_usable_combat_card).forEach((c) => {
             let just_played = game.attack.new_combat_cards.includes(c)
-            let evt = events[data.cards[c].event]
-            if (!just_played && data.cards[c].faction === active_faction() && evt && evt.can_apply())
+            if (!just_played && data.cards[c].faction === active_faction())
                 gen_action_card(c)
         })
-
         gen_action_done()
     },
     card(c) {
@@ -3845,7 +3833,17 @@ states.defender_combat_cards = {
     }
 }
 
+function used_cc_this_round(c) {
+    return game.action_state.used_ccs !== undefined && set_has(game.action_state.used_ccs, c)
+}
+
 function begin_combat() {
+    if (game.attack.combat_cards.length > 0) {
+        if (game.action_state.used_ccs === undefined)
+            game.action_state.used_ccs = []
+        game.attack.combat_cards.forEach((c) => set_add(game.action_state.used_ccs, c))
+    }
+
     if (is_haig_active() &&
         get_trench_level(game.attack.space, CP) > 0 &&
         contains_piece_of_nation(game.attack.space, GERMANY) &&
