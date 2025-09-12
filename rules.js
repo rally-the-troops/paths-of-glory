@@ -2614,18 +2614,18 @@ states.place_event_trench = {
 }
 
 function can_entrench_with_selected() {
-        if (!can_entrench())
-            return false
-        if (game.move.spaces_moved > 0 || game.move.pieces.length !== 1)
-            return false
-        let s = game.move.initial
-        let p = game.move.pieces[0]
-        return (
-            data.pieces[p].type === ARMY &&
-            is_controlled_by(s, active_faction()) &&
-            get_trench_level(s, active_faction()) < 2 &&
-            game.entrenching.every(pp => game.location[pp] !== s)
-        )
+    if (!can_entrench())
+        return false
+    if (game.move.spaces_moved > 0 || game.move.pieces.length !== 1)
+        return false
+    let s = game.move.initial
+    let p = game.move.pieces[0]
+    return (
+        data.pieces[p].type === ARMY &&
+        is_controlled_by(s, active_faction()) &&
+        get_trench_level(s, active_faction()) < 2 &&
+        game.entrenching.every(pp => game.location[pp] !== s)
+    )
 }
 
 states.choose_pieces_to_move = {
