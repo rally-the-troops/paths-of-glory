@@ -1729,6 +1729,14 @@ function get_sr_destinations(unit) {
     const start = game.location[unit]
     const nation = data.pieces[unit].nation
 
+    if (unit === MONTENEGRIN_CORPS) {
+        if (start === AP_RESERVE_BOX && is_controlled_by(CETINJE, AP))
+            return [ CETINJE ]
+        if (start === CETINJE)
+            return [ AP_RESERVE_BOX ]
+        return []
+    }
+
     if (start === AP_RESERVE_BOX || start === CP_RESERVE_BOX) {
         // Add all spaces containing a supplied unit of the correct nationality, except ANA Corps and SN Corps
         for (let i = 0; i < game.location.length; i++) {
@@ -4809,6 +4817,11 @@ states.defender_retreat = {
         game.attack.to_retreat = []
     },
     piece(p) {
+        if (p === MONTENEGRIN_CORPS) {
+            push_undo()
+            eliminate_piece(p)
+            return
+        }
         if (game.attack.retreating_pieces.length === 0)
             push_undo()
         set_delete(game.attack.to_retreat, p)
@@ -4938,6 +4951,9 @@ function get_retreat_options(pieces, from, spaces_to_retreat = 1) {
 }
 
 function goto_attacker_advance() {
+    // MNc can never move!
+    set_delete(game.attack.to_advance, MONTENEGRIN_CORPS)
+
     if (game.attack.to_advance.length > 0) {
         log("Advance")
         game.attack.advancing_pieces = []
