@@ -3308,13 +3308,9 @@ function goto_attack_step_kerensky_offensive() {
 
 function goto_attack_step_combat_cards() {
     if (can_play_combat_cards()) {
-        // Start with all eligible combat cards selected
-        game.combat_cards.forEach((c) => {
-            if (could_apply_combat_card(c) && !used_cc_this_round(c))
-                game.attack.combat_cards.push(c)
-        })
+        // NOTE: Do NOT Start with all eligible combat cards selected
 
-        if (game.attack.combat_cards.length > 0 || could_have_usable_combat_card(game.attack.attacker, true))
+        if (could_have_usable_combat_card(game.attack.attacker, true))
             game.state = 'attacker_combat_cards'
         else if (could_have_usable_combat_card(other_faction(game.attack.attacker))) {
             clear_undo()
@@ -3338,7 +3334,7 @@ function could_apply_combat_card(c) {
 function could_have_usable_combat_card(faction, skip_deck) {
     // If there are any cards already in play that could apply, return true
     for (let c of game.combat_cards) {
-        if (could_apply_combat_card(c))
+        if (data.cards[c].faction === active_faction() && could_apply_combat_card(c))
             return true
     }
 
@@ -3593,13 +3589,17 @@ const TRENCH_NEGATING_CARDS = [ROYAL_TANK_CORPS, VON_BELOW, VON_HUTIER, MICHAEL,
 states.negate_trench = {
     inactive: 'play trench-negating combat cards',
     prompt() {
-        view.prompt = 'You may play trench-negating combat cards.'
 
         game[active_faction()].hand.forEach((c) => {
             if (TRENCH_NEGATING_CARDS.includes(c) && events[data.cards[c].event].can_play()) {
                 gen_action_card(c)
             }
         })
+
+        if (view.actions.card && view.actions.card.length > 0)
+            view.prompt = `You may play trench-negating combat cards: ${card_list(view.actions.card)}.`
+        else
+            view.prompt = `You may play trench-negating combat cards (none possible).`
 
         gen_action_next()
     },
@@ -3648,9 +3648,11 @@ function can_play_wireless_intercepts() {
 states.play_wireless_intercepts = {
     inactive: 'flank attack',
     prompt() {
-        view.prompt = 'You may play "Wireless Intercepts".'
         if (game[active_faction()].hand.includes(WIRELESS_INTERCEPTS)) {
+            view.prompt = `You may play ${card_name(WIRELESS_INTERCEPTS)}.`
             gen_action_card(WIRELESS_INTERCEPTS)
+        } else {
+            view.prompt = `You don't have "Wireless Intercepts".`
         }
         gen_action_pass()
     },
@@ -3715,18 +3717,17 @@ function roll_flank_attack() {
 }
 
 states.choose_withdrawal = {
-    inactive: 'play combat cards',
+    inactive: 'withdraw',
     prompt() {
-        view.prompt = 'You may play "Withdrawal".'
         const active_withdrawal_card = active_faction() === AP ? WITHDRAWAL_AP : WITHDRAWAL_CP
-        if (game.combat_cards.includes(active_withdrawal_card)) {
-            gen_action_done()
+        if (game[active_faction()].hand.includes(active_withdrawal_card)) {
+            view.prompt = `You may play ${card_name(active_withdrawal_card)}.`
+            gen_action_card(active_withdrawal_card)
         } else {
-            if (game[active_faction()].hand.includes(active_withdrawal_card))
-                gen_action_card(active_withdrawal_card)
-            gen_action_pass()
-            gen_action_pass_w_turn()
+            view.prompt = `You don't have "Withdrawal".`
         }
+        gen_action_pass()
+        gen_action_pass_w_turn()
     },
     card(c) {
         push_undo()
@@ -3759,45 +3760,66 @@ function is_usable_combat_card(c) {
     return !!(evt && evt.can_apply() && !used_cc_this_round(c))
 }
 
+function card_list(list) {
+    return list.map(c => card_name(c)).join(", ")
+}
+
+function prompt_combat_cards() {
+    for (let c of game[active_faction()].hand) {
+        if (is_usable_combat_card(c))
+            gen_action_card(c)
+    }
+
+    for (let c of game.combat_cards) {
+        if (data.cards[c].faction === active_faction() && !set_has(game.attack.combat_cards, c))
+            if (is_usable_combat_card(c))
+                gen_action_card(c)
+    }
+
+    if (view.actions.card && view.actions.card.length > 0)
+        view.prompt = `You may play combat cards: ${card_list(view.actions.card)}.`
+    else
+        view.prompt = `You may play combat cards (none possible).`
+
+    gen_action_done()
+}
+
+function play_combat_card(c) {
+    if (game.combat_cards.includes(c)) {
+        // This is a previously played combat card
+        game.attack.combat_cards.push(c)
+    } else {
+        // Card was not played yet, so add it to the played combat cards and make it active for this attack
+        array_remove_item(game[active_faction()].hand, c)
+        game.combat_cards.push(c)
+        game.attack.combat_cards.push(c)
+        game.attack.new_combat_cards.push(c)
+        let evt = events[data.cards[c].event]
+        if (evt && evt.play)
+            evt.play()
+    }
+}
+
 states.attacker_combat_cards = {
     inactive: 'play combat cards',
     prompt() {
-        view.prompt = `You may play combat cards.`
-        game[active_faction()].hand.filter(is_usable_combat_card).forEach(gen_action_card)
-        game.combat_cards.filter(is_usable_combat_card).forEach((c) => {
-            let just_played = game.attack.new_combat_cards.includes(c)
-            if (!just_played && data.cards[c].faction === active_faction())
-                gen_action_card(c)
-        })
-        gen_action_done()
+        prompt_combat_cards()
     },
     card(c) {
         push_undo()
-        if (game.combat_cards.includes(c)) {
-            // This is a played combat card, so toggle whether it is active in this attack
-            if (game.attack.combat_cards.includes(c)) {
-                array_remove_item(game.attack.combat_cards, c)
-                log(`${faction_name(active_faction())} chooses not to use ${card_name(c)}`)
-            } else {
-                game.attack.combat_cards.push(c)
-                log(`${faction_name(active_faction())} chooses to use ${card_name(c)}`)
-            }
-        } else {
-            // Card was not played yet, so add it to the played combat cards and make it active for this attack
-            array_remove_item(game[active_faction()].hand, c)
-            game.combat_cards.push(c)
-            game.attack.combat_cards.push(c)
-            game.attack.new_combat_cards.push(c)
-            log(`${faction_name(active_faction())} played ${card_name(c)}`)
-            let evt = events[data.cards[c].event]
-            if (evt && evt.play)
-                evt.play()
-        }
+        play_combat_card(c)
     },
     done() {
         clear_undo()
+        if (game.attack.combat_cards.length > 0) {
+            log("Attacker combat cards:")
+            for (let c of game.attack.combat_cards) {
+                if (data.cards[c].faction === active_faction())
+                    logi(`${card_name(c)}`)
+            }
+        }
         set_active_faction(other_faction(game.attack.attacker))
-        if (game.attack.combat_cards.length > 0 || could_have_usable_combat_card(active_faction()))
+        if (could_have_usable_combat_card(active_faction()))
             game.state = 'defender_combat_cards'
         else
             begin_combat()
@@ -3807,39 +3829,20 @@ states.attacker_combat_cards = {
 states.defender_combat_cards = {
     inactive: 'play combat cards',
     prompt() {
-        view.prompt = `You may play combat cards.`
-        game[active_faction()].hand.filter(is_usable_combat_card).forEach(gen_action_card)
-        game.combat_cards.filter(is_usable_combat_card).forEach((c) => {
-            let just_played = game.attack.new_combat_cards.includes(c)
-            if (!just_played && data.cards[c].faction === active_faction())
-                gen_action_card(c)
-        })
-        gen_action_done()
+        prompt_combat_cards()
     },
     card(c) {
         push_undo()
-        if (game.combat_cards.includes(c)) {
-            // This is a played combat card, so toggle whether it is active in this attack
-            if (game.attack.combat_cards.includes(c)) {
-                array_remove_item(game.attack.combat_cards, c)
-                log(`${faction_name(active_faction())} chooses not to use ${card_name(c)}`)
-            } else {
-                game.attack.combat_cards.push(c)
-                log(`${faction_name(active_faction())} chooses to use ${card_name(c)}`)
-            }
-        } else {
-            // Card was not played yet, so add it to the played combat cards and make it active for this attack
-            array_remove_item(game[active_faction()].hand, c)
-            game.combat_cards.push(c)
-            game.attack.combat_cards.push(c)
-            game.attack.new_combat_cards.push(c)
-            log(`${faction_name(active_faction())} played ${card_name(c)}`)
-            let evt = events[data.cards[c].event]
-            if (evt && evt.play)
-                evt.play()
-        }
+        play_combat_card(c)
     },
     done() {
+        if (game.attack.combat_cards.length > 0) {
+            log("Defender combat cards:")
+            for (let c of game.attack.combat_cards) {
+                if (data.cards[c].faction === active_faction())
+                    logi(`${card_name(c)}`)
+            }
+        }
         begin_combat()
     }
 }
@@ -4627,10 +4630,13 @@ function determine_combat_winner() {
     to_discard.forEach((c) => {
         array_remove_item(game.combat_cards, c)
         array_remove_item(game.attack.combat_cards, c)
-        if (data.cards[c].remove)
+        if (data.cards[c].remove) {
+            log("Removed " + card_name(c))
             game[data.cards[c].faction].removed.push(c)
-        else
+        } else {
+            log("Discarded " + card_name(c))
             game[data.cards[c].faction].discard.push(c)
+        }
     })
 
     // Check for a full strength attacker

@@ -73,6 +73,17 @@ body.Central_Powers header.your_turn { background-color: lightsteelblue; }
 
 /* CARDS */
 
+#cc-list {
+	max-width: 2550px;
+	margin: 0 auto;
+	display: grid;
+	grid-template-columns: auto auto;
+}
+
+#cc-list.hide {
+	display: none;
+}
+
 .panel-list {
 	max-width: 2550px;
 	margin: 0 auto;
@@ -101,8 +112,8 @@ body.Central_Powers header.your_turn { background-color: lightsteelblue; }
 	flex-wrap: wrap;
 	gap: 12px;
 	padding: 12px;
-	min-height: 350px;
-	min-width: 250px;
+	min-height: 352px;
+	min-width: 252px;
 }
 
 @media (max-width: 800px) {
@@ -129,14 +140,6 @@ body.Central_Powers header.your_turn { background-color: lightsteelblue; }
 
 .card.cp {
 	background-color: #e3ecf1;
-}
-
-.card.ap.active {
-    box-shadow: 0 0 0 3px brown;
-}
-
-.card.cp.active {
-    box-shadow: 0 0 0 3px navy;
 }
 
 .card.ap.highlight {

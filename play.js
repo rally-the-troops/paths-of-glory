@@ -138,6 +138,10 @@ function faction_card_number(card_number) {
     return `${faction}_${faction_card_number}`
 }
 
+function on_click_card_tip(c) {
+    scroll_into_view(cards[c].element)
+}
+
 function on_focus_card_tip(card_number) {
     document.getElementById("tooltip").className = `card show card_${faction_card_number(card_number)}`
 }
@@ -194,7 +198,7 @@ function sub_card_name(match, p1, offset, string) {
     let c = p1 | 0
     let card = cards[c]
     if (card) {
-        return `<span class="cardtip ${c <= HIGHEST_AP_CARD ? "ap-card" : "cp-card"}" onmouseenter="on_focus_card_tip(${c})" onmouseleave="on_blur_card_tip()">${card.name}</span>`
+        return `<span class="cardtip ${c <= HIGHEST_AP_CARD ? "ap-card" : "cp-card"}" onmouseenter="on_focus_card_tip(${c})" onmouseleave="on_blur_card_tip()" onclick="on_click_card_tip(${c})">${card.name}</span>`
     } else {
         return `Unknown Card`
     }
@@ -470,7 +474,9 @@ let ui = {
     markers: document.getElementById("markers"),
     pieces: document.getElementById("pieces"),
     cards: document.getElementById("cards"),
+    cc_list: document.getElementById("cc-list"),
     combat_cards: document.getElementById("combat_cards"),
+    unused_combat_cards: document.getElementById("unused_combat_cards"),
     last_card: document.getElementById("last_card"),
     ne_limits: {
         br_sr: document.getElementsByClassName("br_ne_sr")[0],
@@ -1707,7 +1713,6 @@ function update_card(id) {
     let elt = cards[id].element
     elt.classList.toggle("enabled", is_card_enabled(id))
     elt.classList.toggle("highlight", is_action("card", id) || is_action("play_event", id))
-    elt.classList.toggle("active", !!(view.attack && view.attack.combat_cards.includes(id)))
 }
 
 function update_piece(id) {
@@ -2160,9 +2165,17 @@ function update_map() {
             ui.cards.appendChild(cards[i].element)
 
     ui.combat_cards.replaceChildren()
-    if (view.combat_cards)
+    ui.unused_combat_cards.replaceChildren()
+    if (view.attack) {
+        ui.cc_list.classList.remove("hide")
         for (let i of view.combat_cards)
-            ui.combat_cards.appendChild(cards[i].element)
+            if (view.attack.combat_cards.includes(i))
+                ui.combat_cards.appendChild(cards[i].element)
+            else
+                ui.unused_combat_cards.appendChild(cards[i].element)
+    } else {
+        ui.cc_list.classList.add("hide")
+    }
 
     for (let i = 1; i < cards.length; ++i)
         update_card(i)
