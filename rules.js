@@ -543,6 +543,9 @@ exports.setup = function (seed, scenario, options) {
 
     game = create_empty_game_state(seed, scenario)
 
+    if (options.optional_cards)
+        game.options.optional_cards = 1
+
     // Current control of each space
     for (let i = 0; i < data.spaces.length; ++i)
         set_control_bit(i, data.spaces[i].faction === CP ? 1 : 0)
