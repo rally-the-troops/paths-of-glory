@@ -4903,7 +4903,7 @@ function get_retreat_options(pieces, from, spaces_to_retreat = 1) {
                 return // Block all neutral country spaces, except Greece
 
             // Neutral Greek spaces are blocked if Salonika has not been played or if there's a Greek unit in them
-            if (!game.events.salonika || contains_piece_of_nation(s, GREECE))
+            if (!game.events.salonika || contains_piece_of_nation(conn, GREECE))
                 return
         }
 
