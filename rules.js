@@ -4859,7 +4859,6 @@ states.defender_retreat = {
         }
 
         logi(piece_list(game.attack.retreating_pieces) + " -> " + space_list(game.attack.retreat_path))
-        if (game.attack.retreat_path.length > 0)
 
         game.attack.retreat_path = []
         game.attack.retreating_pieces.length = 0
