@@ -4307,6 +4307,7 @@ states.apply_attacker_losses = {
         }
     },
     done() {
+        push_undo()
         if (game.attack.failed_flank) {
             resolve_attackers_fire()
             goto_defender_losses()
