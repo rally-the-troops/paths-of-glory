@@ -1146,7 +1146,7 @@ function roll_mandated_offensives() {
         cp_mo = NONE
     }
 
-    if (cp_mo === AH_IT && !nation_at_war(ITALY)) {
+    if (cp_mo === AH_IT && (!nation_at_war(ITALY) || all_capitals_occupied(ITALY))) {
         cp_mo = AUSTRIA_HUNGARY
     }
 
