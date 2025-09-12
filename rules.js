@@ -8202,7 +8202,11 @@ events.over_there = {
 // AP #56
 events.paris_taxis = {
     can_play() {
-        return true
+        const spaces = [PARIS, AMIENS, ROUEN, CHATEAU_THIERRY, ORLEANS, MELUN]
+        for (let p of all_pieces_by_nation[FRANCE])
+            if (data.pieces[p].type === ARMY && is_unit_reduced(p) && spaces.includes(game.location[p]))
+                return true
+        return false
     },
     play() {
         game.state = 'paris_taxis'
@@ -8213,31 +8217,16 @@ states.paris_taxis = {
     inactive: 'execute "Paris Taxis"',
     prompt() {
         view.prompt = 'Paris Taxis: Flip a reduced French army in or adjacent to Paris.'
-        let has_eligible_army = false
         const spaces = [PARIS, AMIENS, ROUEN, CHATEAU_THIERRY, ORLEANS, MELUN]
-        for (let p = 1; p < data.pieces.length; ++p) {
-            if (data.pieces[p].nation === FRANCE && data.pieces[p].type === ARMY && is_unit_reduced(p) && spaces.includes(game.location[p])) {
-                has_eligible_army = true
+        for (let p of all_pieces_by_nation[FRANCE])
+            if (data.pieces[p].type === ARMY && is_unit_reduced(p) && spaces.includes(game.location[p]))
                 gen_action_piece(p)
-            }
-        }
-        if (!has_eligible_army) {
-            view.prompt = 'Paris Taxis: Done.'
-            gen_action_done()
-        } else {
-            gen_action_pass()
-        }
     },
     piece(p) {
         set_delete(game.reduced, p)
         log(`Flipped ${piece_name(p)} in ${space_name(game.location[p])} to full strength`)
-    },
-    pass() {
         goto_end_event()
     },
-    done() {
-        goto_end_event()
-    }
 }
 
 // AP #57
