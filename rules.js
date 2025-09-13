@@ -4145,6 +4145,7 @@ states.apply_defender_losses = {
         clear_undo()
 
         update_siege(game.attack.space)
+
         if (has_undestroyed_fort(game.attack.space, game.attack.attacker) && !is_besieged(game.attack.space)) {
             // Fort is no longer besieged due to losses, but the remaining pieces are allowed to continue occupying the space
             // until the player moves them out or moves another piece in, so we have to remember this space is a "broken siege". (15.2.4)
@@ -4891,6 +4892,8 @@ states.defender_retreat = {
 
         game.attack.retreat_path = []
         game.attack.retreating_pieces.length = 0
+
+        update_siege(game.attack.space)
 
         update_supply() // to warn if retreating OOS
     },
