@@ -3720,17 +3720,22 @@ function roll_flank_attack() {
 }
 
 states.choose_withdrawal = {
-    inactive: 'withdraw',
+    inactive: 'play Withdrawal combat card',
     prompt() {
         const active_withdrawal_card = active_faction() === AP ? WITHDRAWAL_AP : WITHDRAWAL_CP
         if (game[active_faction()].hand.includes(active_withdrawal_card)) {
             view.prompt = `You may play ${card_name(active_withdrawal_card)}.`
             gen_action_card(active_withdrawal_card)
+            gen_action_pass()
+            gen_action_pass_w_turn()
+        } else if (game.combat_cards.includes(active_withdrawal_card)) {
+            view.prompt = `Withdrawal: Done.`
+            gen_action_done()
         } else {
             view.prompt = `You don't have "Withdrawal".`
+            gen_action_pass()
+            gen_action_pass_w_turn()
         }
-        gen_action_pass()
-        gen_action_pass_w_turn()
     },
     card(c) {
         push_undo()
