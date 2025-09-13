@@ -3161,6 +3161,7 @@ states.choose_attackers = {
         game.state = 'confirm_attack'
     },
     select_all() {
+        push_undo()
         game.eligible_attackers.forEach((p) => {
             set_add(game.attack.pieces, p)
         })
@@ -4904,6 +4905,7 @@ function get_retreat_options(pieces, from, spaces_to_retreat = 1) {
     if (pieces.length === 0 || spaces_to_retreat === 0)
         return []
 
+    let faction = other_faction(game.attack.attacker)
     let p = pieces[0]
     let options = []
     let s = game.location[p]
@@ -4914,7 +4916,7 @@ function get_retreat_options(pieces, from, spaces_to_retreat = 1) {
         if (conn === from)
             return
 
-        if (spaces_to_retreat === 1 && would_overstack(conn, pieces, active_faction()))
+        if (spaces_to_retreat === 1 && would_overstack(conn, pieces, faction))
             return
 
         if (contains_piece_of_faction(conn, inactive_faction()))
@@ -4934,7 +4936,7 @@ function get_retreat_options(pieces, from, spaces_to_retreat = 1) {
                 return
         }
 
-        if (is_controlled_by(conn, active_faction()))
+        if (is_controlled_by(conn, faction))
             has_friendly_option = true
 
         if (is_every_unit_supplied_in(pieces, conn))
@@ -4947,7 +4949,7 @@ function get_retreat_options(pieces, from, spaces_to_retreat = 1) {
     if (has_friendly_option) {
         const all_options = [...options]
         all_options.forEach((s) => {
-            if (!is_controlled_by(s, active_faction()))
+            if (!is_controlled_by(s, faction))
                 set_delete(options, s)
         })
     }
