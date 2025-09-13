@@ -930,10 +930,6 @@ function goto_end_turn() {
 
     game.reinf_this_turn = {}
     clear_ne_restriction_flags()
-    if (game.ap.pass_w === 1)
-        delete game.ap.pass_w
-    if (game.cp.pass_w === 1)
-        delete game.cp.pass_w
 
     // Check for game end
     if (game.turn === 20) {
@@ -3287,17 +3283,6 @@ function goto_attack_step_flank() {
         // if attacker can flank, go to 'choose_flank_attack'
         game.state = 'choose_flank_attack'
     } else {
-        goto_attack_step_withdrawal()
-    }
-}
-
-function goto_attack_step_withdrawal() {
-    if (defender_can_withdraw() && !game[other_faction(game.active)].pass_w) {
-        // if defender can withdraw, go to 'choose_withdrawal'
-        clear_undo()
-        switch_active_faction()
-        game.state = 'choose_withdrawal'
-    } else {
         goto_attack_step_kerensky_offensive()
     }
 }
@@ -3394,18 +3379,8 @@ function attacker_can_flank() {
     return true
 }
 
-function defender_can_withdraw() {
-    let faction = other_faction(game.attack.attacker)
-    let withdrawal_card = faction === AP ? WITHDRAWAL_AP : WITHDRAWAL_CP
-    if (!game[faction].deck.includes(withdrawal_card) && !game[faction].hand.includes(withdrawal_card)) {
-        return false
-    }
-
-    const withdrawal_spaces = get_retreat_options(get_defenders_pieces(), game.attack.space, 1)
-    if (withdrawal_spaces.length === 0)
-        return false
-
-    return !attacking_unoccupied_fort()
+function can_withdraw() {
+    return get_retreat_options(get_defenders_pieces(), game.attack.space, 1).length > 0
 }
 
 function can_play_combat_cards() {
@@ -3639,7 +3614,7 @@ states.choose_flank_attack = {
             roll_flank_attack()
     },
     pass() {
-        goto_attack_step_withdrawal()
+        goto_attack_step_kerensky_offensive()
     }
 }
 
@@ -3667,7 +3642,7 @@ states.play_wireless_intercepts = {
         log(`${faction_name(active_faction())} played ${card_name(c)}`)
         log('Flank attack successful')
         game.attack.is_flank = true
-        goto_attack_step_withdrawal()
+        goto_attack_step_kerensky_offensive()
     },
     pass() {
         roll_flank_attack()
@@ -3717,49 +3692,7 @@ function roll_flank_attack() {
         clear_undo()
     }
 
-    goto_attack_step_withdrawal()
-}
-
-states.choose_withdrawal = {
-    inactive: 'play Withdrawal combat card',
-    prompt() {
-        const active_withdrawal_card = active_faction() === AP ? WITHDRAWAL_AP : WITHDRAWAL_CP
-        if (game[active_faction()].hand.includes(active_withdrawal_card)) {
-            view.prompt = `You may play ${card_name(active_withdrawal_card)}.`
-            gen_action_card(active_withdrawal_card)
-            gen_action_pass()
-            gen_action_pass_w_turn()
-        } else if (game.combat_cards.includes(active_withdrawal_card)) {
-            view.prompt = `Withdrawal: Done.`
-            gen_action_done()
-        } else {
-            view.prompt = `You don't have "Withdrawal".`
-            gen_action_pass()
-            gen_action_pass_w_turn()
-        }
-    },
-    card(c) {
-        push_undo()
-        array_remove_item(game[active_faction()].hand, c)
-        game.combat_cards.push(c)
-        game.attack.combat_cards.push(c)
-        log(`${faction_name(active_faction())} played ${card_name(c)}`)
-    },
-    pass_w_turn() {
-        if (game.active === AP)
-            game.ap.pass_w = 1
-        else
-            game.cp.pass_w = 1
-        this.pass()
-    },
-    pass() {
-        this.done()
-    },
-    done() {
-        clear_undo()
-        switch_active_faction()
-        goto_attack_step_kerensky_offensive()
-    },
+    goto_attack_step_kerensky_offensive()
 }
 
 function is_usable_combat_card(c) {
@@ -6000,10 +5933,6 @@ function gen_action_pass() {
     gen_action('pass')
 }
 
-function gen_action_pass_w_turn() {
-    gen_action('pass_w_turn')
-}
-
 function gen_action_space(s) {
     gen_action('space', s)
 }
@@ -7399,6 +7328,20 @@ function cancel_lloyd_george(card) {
     log(`${card_name(card)} cancels Lloyd George`)
 }
 
+// CP #56
+
+events.cp_withdrawal = {
+    can_play() {
+        return false
+    },
+    can_apply() {
+        return (game.attack.attacker !== CP) && can_withdraw()
+    },
+    apply() {
+        // nothing now
+    },
+}
+
 // CP #57
 events.kaisertreu = {
     can_play() {
@@ -7650,6 +7593,20 @@ events.putnik = {
         else
             game.attack.defender_drm += 1
     }
+}
+
+// AP #6 -- see CP #56
+
+events.ap_withdrawal = {
+    can_play() {
+        return false
+    },
+    can_apply() {
+        return (game.attack.attacker !== AP) && can_withdraw()
+    },
+    apply() {
+        // nothing now
+    },
 }
 
 // AP #7

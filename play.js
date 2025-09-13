@@ -2268,7 +2268,6 @@ function update_map() {
         "You still have units eligible to attack!\nDo you still want to PASS?"
     )
 
-    action_button("pass_w_turn", "Pass Turn")
     action_button("pass", "Pass")
 
     action_button("skip", "Skip")
