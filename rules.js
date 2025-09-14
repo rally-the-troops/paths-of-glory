@@ -1773,9 +1773,11 @@ function get_sr_destinations(unit) {
         }
 
         // Add all capitals and supply sources in the nation, as long as they are in supply
-        for (let s of all_supply_and_capitals_by_nation[nation]) {
-            if (is_unit_supplied_in(unit, s)) {
-                set_add(destinations, s)
+        if (all_supply_and_capitals_by_nation[nation] !== undefined) {
+            for (let s of all_supply_and_capitals_by_nation[nation]) {
+                if (is_unit_supplied_in(unit, s)) {
+                    set_add(destinations, s)
+                }
             }
         }
 
