@@ -547,7 +547,7 @@ exports.view = function(state, current) {
 }
 
 exports.dont_snap = function (state) {
-    return !!game.attack
+    return !!state.attack
 }
 
 // === SETUP ===
