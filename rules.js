@@ -4867,6 +4867,9 @@ function get_retreat_options(pieces, from, spaces_to_retreat = 1) {
         if (contains_piece_of_faction(conn, game.attack.attacker))
             return
 
+        if (has_undestroyed_fort(conn, game.attack.attacker) && !is_besieged(conn))
+            return
+
         // Remove any spaces that would violate the Russian NE (non-SR) restriction
         if (!check_russian_ne_restriction(pieces, conn))
             return
