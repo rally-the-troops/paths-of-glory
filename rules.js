@@ -5086,7 +5086,7 @@ function get_possible_advance_spaces(pieces) {
 
 function can_advance_into(space, units) {
     // Advance into a fort is only allowed if you have sufficient advancing units to besiege the fort (12.7.6)
-    if (has_undestroyed_fort(space, other_faction(game.attack.attacker)) && !can_besiege(space, units))
+    if (has_undestroyed_fort(space, other_faction(game.attack.attacker)) && !is_besieged(space) && !can_besiege(space, units))
         return false
 
     if (contains_piece_of_faction(space, other_faction(game.attack.attacker)))
