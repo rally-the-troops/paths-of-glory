@@ -6807,12 +6807,11 @@ events.high_seas_fleet = {
 // CP #26
 events.place_of_execution = {
     can_play() {
-        if (all_french_forts_destroyed() && !game.attack)
+        if (all_french_forts_destroyed())
             return true
-
-        if (!game.attack)
-            return false
-
+        return false
+    },
+    can_apply() {
         if (!game.events.falkenhayn)
             return false
 
@@ -6825,17 +6824,16 @@ events.place_of_execution = {
         const space_data = data.spaces[game.attack.space]
         return space_data.nation === FRANCE && space_data.fort > 0 && !game.forts.destroyed.includes(game.attack.space)
     },
-    can_apply() {
-        return this.can_play()
-    },
     apply() {
         log(`${card_name(PLACE_OF_EXECUTION)} adds +2 DRM`)
         game.attack.attacker_drm += 2
-        const card_data = data.cards[PLACE_OF_EXECUTION]
-        game.cp.ws += card_data.ws // War status is not automatically added when this is used as a combat card
-        logi(`War Status +${card_data.ws} to ${game.cp.ws} (${game.ap.ws + game.cp.ws})`)
     },
     play() {
+        // When played alone as an event for war status -- or as a combat card
+        const card_data = data.cards[PLACE_OF_EXECUTION]
+        game.cp.ws += card_data.ws
+        logi(`War Status +${card_data.ws} to ${game.cp.ws} (${game.ap.ws + game.cp.ws})`)
+
         if (!game.attack)
             goto_end_event()
     }
