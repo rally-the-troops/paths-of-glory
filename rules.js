@@ -4747,7 +4747,8 @@ states.defender_retreat = {
             view.prompt = `Retreat from ${space_name(game.attack.space)}.`
 
         if (game.attack.retreating_pieces.length > 0) {
-            let options = get_retreat_options(game.attack.retreating_pieces, game.attack.space, game.attack.retreat_length - game.attack.retreat_path.length)
+            let from = game.location[game.attack.retreating_pieces[0]]
+            let options = get_retreat_options(game.attack.retreating_pieces, from, game.attack.retreat_length - game.attack.retreat_path.length)
             if (options.length > 0)
                 options.forEach(gen_action_space)
             else
@@ -4780,7 +4781,7 @@ states.defender_retreat = {
         push_undo()
         let eliminated = []
         for (let p of game.attack.retreating_pieces) {
-            let options_for_piece = get_retreat_options([p], game.attack.space, game.attack.retreat_length - game.attack.retreat_path.length)
+            let options_for_piece = get_retreat_options([p], game.location[p], game.attack.retreat_length - game.attack.retreat_path.length)
             if (options_for_piece.length > 0)
                 continue // Only eliminate pieces that have no valid retreat options
             eliminate_piece(p, true)
@@ -4851,20 +4852,19 @@ function get_retreat_options(pieces, from, spaces_to_retreat = 1) {
         return []
 
     let faction = other_faction(game.attack.attacker)
-    let p = pieces[0]
     let options = []
-    let s = game.location[p]
-    let has_friendly_option = false
-    let has_in_supply_option = false
 
-    get_connected_spaces_for_pieces(s, pieces).forEach((conn) => {
+    get_connected_spaces_for_pieces(from, pieces).forEach((conn) => {
         if (conn === from)
+            return
+
+        if (conn === game.attack.space)
             return
 
         if (spaces_to_retreat === 1 && would_overstack(conn, pieces, faction))
             return
 
-        if (contains_piece_of_faction(conn, inactive_faction()))
+        if (contains_piece_of_faction(conn, game.attack.attacker))
             return
 
         // Remove any spaces that would violate the Russian NE (non-SR) restriction
@@ -4874,32 +4874,25 @@ function get_retreat_options(pieces, from, spaces_to_retreat = 1) {
         if (!is_space_at_war(conn))
             return
 
-        if (is_controlled_by(conn, faction))
-            has_friendly_option = true
-
-        if (is_every_unit_supplied_in(pieces, conn))
-            has_in_supply_option = true
-
         set_add(options, conn)
     })
 
-    // if any options are friendly controlled, remove all enemy-controlled options
-    if (has_friendly_option) {
-        const all_options = [...options]
-        all_options.forEach((s) => {
-            if (!is_controlled_by(s, faction))
-                set_delete(options, s)
-        })
+    // If retreat length is 2 and any spaces allow a second space, remove those that don't
+    if (spaces_to_retreat === 2) {
+        let has_second_space = options.filter((first) => get_retreat_options(pieces, first, 1).length > 0 )
+        if (has_second_space.length > 0)
+            options = has_second_space
     }
 
+    // if any options are friendly controlled, remove all enemy-controlled options
+    let friendly_options = options.filter((s) => is_controlled_by(s, faction))
+    if (friendly_options.length > 0)
+        options = friendly_options
+
     // if any spaces are in supply, remove all oos spaces
-    if (has_in_supply_option) {
-        const all_options = [...options]
-        all_options.forEach((s) => {
-            if (!is_every_unit_supplied_in(pieces, s))
-                set_delete(options, s)
-        })
-    }
+    let in_supply_options = options.filter((s) => is_every_unit_supplied_in(pieces, s))
+    if (in_supply_options.length > 0)
+        options = in_supply_options
 
     return options
 }
