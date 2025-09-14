@@ -1941,10 +1941,12 @@ function update_russian_ne_restriction_flag(units, source, destination) {
 function check_russian_ne_restriction(units, destination) {
     let ru_corps_crossing_count = 0
     for (let u of units) {
-        if (data.pieces[u].nation === RUSSIA && data.pieces[u].type === CORPS) {
-            if ((is_neareast_space(game.location[u]) && destination === CAUCASUS) ||
-                (is_neareast_space(destination) && game.location[u] === CAUCASUS))
-            {
+        if ((is_neareast_space(game.location[u]) && destination === CAUCASUS) ||
+            (is_neareast_space(destination) && game.location[u] === CAUCASUS)) {
+            if (data.pieces[u].type === ARMY) {
+                return false // Armies cannot cross the neareast/Russia boundary
+            }
+            if (data.pieces[u].nation === RUSSIA && data.pieces[u].type === CORPS) {
                 ru_corps_crossing_count++
             }
         }
@@ -4777,8 +4779,14 @@ states.defender_retreat = {
         set_add(game.attack.retreating_pieces, p)
     },
     eliminate() {
+        push_undo()
+        let eliminated = []
         for (let p of game.attack.retreating_pieces) {
+            let options_for_piece = get_retreat_options([p], game.attack.space, game.attack.retreat_length - game.attack.retreat_path.length)
+            if (options_for_piece.length > 0)
+                continue // Only eliminate pieces that have no valid retreat options
             eliminate_piece(p, true)
+            eliminated.push(p)
             // 12.4.7, section 2
             // When an army is replaced by a corps and then that corps cannot fulfill a mandatory retreat, the army is
             // permanently eliminated
@@ -4789,7 +4797,10 @@ states.defender_retreat = {
                 }
             }
         }
-        this._next()
+
+        eliminated.forEach((p) => { set_delete(game.attack.retreating_pieces, p) })
+        if (game.attack.retreating_pieces.length === 0)
+            this._next()
     },
     space(s) {
         update_russian_ne_restriction_flag(game.attack.retreating_pieces, game.location[game.attack.retreating_pieces[0]], s)
