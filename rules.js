@@ -545,6 +545,10 @@ exports.view = function(state, current) {
     return view
 }
 
+exports.dont_snap = function (state) {
+    return !!game.attack
+}
+
 // === SETUP ===
 
 exports.setup = function (seed, scenario, options) {
