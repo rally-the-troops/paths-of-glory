@@ -327,6 +327,13 @@ const all_pieces = Array.from(data.pieces, (_,ix) => ix)
 const all_pieces_by_nation = object_group_by(all_pieces, p => data.pieces[p].nation)
 const all_pieces_by_faction = object_group_by(all_pieces, p => data.pieces[p].faction)
 
+const all_spaces = Array.from(data.spaces, (_,ix) => ix)
+const all_spaces_by_nation = object_group_by(all_spaces, s => data.spaces[s].nation)
+const all_capitals = all_spaces.filter(s => data.spaces[s].capital)
+const all_capitals_by_nation = object_group_by(all_capitals, s => data.spaces[s].nation)
+const all_supply_and_capitals = all_spaces.filter(s => data.spaces[s].capital || data.spaces[s].supply)
+const all_supply_and_capitals_by_nation = object_group_by(all_supply_and_capitals, s => data.spaces[s].nation)
+
 // === VIEW & QUERY ===
 
 exports.roles = [ AP_ROLE, CP_ROLE ]
@@ -1160,13 +1167,7 @@ function roll_mandated_offensives() {
 }
 
 function get_capitals(nation) {
-    let capitals = []
-    for (let i = 1; i < data.spaces.length; i++) {
-        if (data.spaces[i].capital && data.spaces[i].nation === nation) {
-            capitals.push(i)
-        }
-    }
-    return capitals
+    return all_capitals_by_nation[nation] ?? []
 }
 
 function all_capitals_occupied(nation) {
@@ -1748,10 +1749,8 @@ function get_sr_destinations(unit) {
         }
 
         // Add all capitals and supply sources in the nation, as long as they are in supply
-        for (let s = 1; s < data.spaces.length; s++) {
-            if (data.spaces[s].nation === nation &&
-                is_unit_supplied_in(unit, s) &&
-                (data.spaces[s].capital || data.spaces[s].supply)) {
+        for (let s of all_supply_and_capitals_by_nation[nation]) {
+            if (is_unit_supplied_in(unit, s)) {
                 set_add(destinations, s)
             }
         }
@@ -1763,20 +1762,15 @@ function get_sr_destinations(unit) {
 
         // If the nation is the US, add all Allied-controlled ports in France
         if (nation === US) {
-            for (let s = 1; s < data.spaces.length; s++) {
-                if (data.spaces[s].nation === FRANCE &&
-                    is_controlled_by(s, AP) &&
-                    is_port(s, AP)) {
+            for (let s of all_spaces_by_nation[FRANCE]) {
+                if (is_controlled_by(s, AP) && is_port(s, AP)) {
                     set_add(destinations, s)
                 }
             }
         }
 
-        for (let s = 1; s < data.spaces.length; s++) {
-            if (set_has(destinations, s) && !is_space_supplied_for_reserve_box_sr(s, unit)) {
-                set_delete(destinations, s)
-            }
-        }
+        destinations = destinations.filter(s => is_space_supplied_for_reserve_box_sr(s, unit))
+
     } else if (data.pieces[unit].type === CORPS && is_space_supplied_for_reserve_box_sr(game.location[unit], unit)) {
         // Corps can SR to the reserve box
         if (active_faction() === AP) {
@@ -2161,8 +2155,8 @@ function get_available_reinforcement_spaces(p) {
         spaces.push(ALEXANDRIA)
     } else if (piece_data.name === 'RU CAU') {
         // any supplied space in Russia on the NE map
-        for (let s = 1; s < data.spaces.length; s++) {
-            if (data.spaces[s].nation === RUSSIA && data.spaces[s].map === 'neareast' && is_unit_supplied_in(p, s) && !is_fully_stacked(s, AP))
+        for (let s of all_spaces_by_nation[RUSSIA]) {
+            if (data.spaces[s].map === 'neareast' && is_unit_supplied_in(p, s) && !is_fully_stacked(s, AP))
                 spaces.push(s)
         }
     } else if (piece_data.name === 'BR MEF' && !game.events.salonika) {
@@ -2174,9 +2168,8 @@ function get_available_reinforcement_spaces(p) {
 
     // US Armies can only be placed at unbesieged ports in France
     if (nation === US) {
-        for (let s = 1; s < data.spaces.length; s++) {
-            const space = data.spaces[s]
-            if (space.nation === FRANCE && is_port(s, AP) && is_controlled_by(s, active_faction()) && !is_besieged(s) && !is_fully_stacked(s, AP)) {
+        for (let s of all_spaces_by_nation[FRANCE]) {
+            if (is_port(s, AP) && is_controlled_by(s, active_faction()) && !is_besieged(s) && !is_fully_stacked(s, AP)) {
                 spaces.push(s)
             }
         }
@@ -2192,9 +2185,8 @@ function get_available_reinforcement_spaces(p) {
     }
 
     // Friendly supply sources in the right nation can receive armies
-    for (let s = 1; s < data.spaces.length; s++) {
-        const space = data.spaces[s]
-        if (space.nation === nation && space.supply && is_controlled_by(s, active_faction()) && is_unit_supplied_in(p, s) && !is_fully_stacked(s, active_faction())) {
+    for (let s of all_spaces_by_nation[nation]) {
+        if (data.spaces[s].supply && is_controlled_by(s, active_faction()) && is_unit_supplied_in(p, s) && !is_fully_stacked(s, active_faction())) {
             spaces.push(s)
         }
     }
@@ -6015,10 +6007,8 @@ states.place_new_neutral_units = {
             view.prompt = `${current_card_name()}: Place ${game.units_to_place.length} new units.`
             let available_spaces = []
             const nation = data.pieces[game.units_to_place[0]].nation
-            for (let s = 1; s < data.spaces.length; ++s) {
-                if (data.spaces[s].nation === nation) {
-                    set_add(available_spaces, s)
-                }
+            for (let s of all_spaces_by_nation[nation]) {
+                set_add(available_spaces, s)
             }
             for (let i = 0; i < game.location.length; ++i) {
                 set_delete(available_spaces, game.location[i])
@@ -6852,8 +6842,8 @@ events.place_of_execution = {
 }
 
 function all_french_forts_destroyed() {
-    for (let s = 1; s < data.spaces.length; ++s) {
-        if (data.spaces[s].nation === FRANCE && data.spaces[s].fort > 0 && !game.forts.destroyed.includes(s)) {
+    for (let s of all_spaces_by_nation[FRANCE]) {
+        if (data.spaces[s].fort > 0 && !game.forts.destroyed.includes(s)) {
             return false
         }
     }
