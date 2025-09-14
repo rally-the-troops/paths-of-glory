@@ -1765,10 +1765,10 @@ function get_sr_destinations(unit) {
                 
                 // For Russian units, only allow destinations in Russian spaces
                 if (nation === RUSSIA && data.spaces[game.location[i]].nation !== RUSSIA) {
-                    continue;
+                    continue
                 }
                 
-                set_add(destinations, game.location[i]);
+                set_add(destinations, game.location[i])
             }
         }
 
@@ -6280,12 +6280,12 @@ function is_supply_blocked_by_units(s, faction) {
 function is_supply_blocked_by_control(s, faction) {
     let opp = other_faction(faction)
     if (is_controlled_by(opp)) {
-            if (has_undestroyed_fort(s, other_faction(faction))) {
-                for (let p of all_pieces_by_faction[faction])
-                    if (game.location[p] === s)
-                        return false
-            }
-            return true
+        if (has_undestroyed_fort(s, other_faction(faction))) {
+            for (let p of all_pieces_by_faction[faction])
+                if (game.location[p] === s)
+                    return false
+        }
+        return true
     }
     return false
 }
