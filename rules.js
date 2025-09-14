@@ -8146,7 +8146,7 @@ events.royal_tank_corps = {
         if (!game.attack.pieces.some(p => data.pieces[p].nation === BRITAIN))
             return false
         const nation = data.spaces[game.attack.space].nation
-        if (nation !== FRANCE && nation !== BELGIUM)
+        if (nation !== FRANCE && nation !== BELGIUM && nation !== GERMANY)
             return false
         return (!data.spaces[game.attack.space].terrain)
     },
