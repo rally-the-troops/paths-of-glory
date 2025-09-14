@@ -3734,6 +3734,14 @@ function play_combat_card(c) {
     } else {
         // Card was not played yet, so add it to the played combat cards and make it active for this attack
         array_remove_item(game[active_faction()].hand, c)
+
+        const card_data = data.cards[c]
+        if (card_data.ws) {
+            let active_player = game[active_faction()]
+            active_player.ws += card_data.ws
+            logi(`War Status +${card_data.ws} to ${active_player.ws} (${game.ap.ws + game.cp.ws})`)
+        }
+
         game.combat_cards.push(c)
         game.attack.combat_cards.push(c)
         game.attack.new_combat_cards.push(c)
@@ -6820,11 +6828,6 @@ events.place_of_execution = {
         game.attack.attacker_drm += 2
     },
     play() {
-        // When played alone as an event for war status -- or as a combat card
-        const card_data = data.cards[PLACE_OF_EXECUTION]
-        game.cp.ws += card_data.ws
-        logi(`War Status +${card_data.ws} to ${game.cp.ws} (${game.ap.ws + game.cp.ws})`)
-
         if (!game.attack)
             goto_end_event()
     }
