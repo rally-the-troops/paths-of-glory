@@ -4746,19 +4746,15 @@ states.defender_retreat = {
         else
             view.prompt = `Retreat from ${space_name(game.attack.space)}.`
 
-        if (game.attack.retreat_path.length === 0 && game.attack.to_retreat.length > 0) {
-            for (let p of game.attack.to_retreat)
-                gen_action_piece(p)
-            if (game.attack.retreating_pieces.length === 0)
-                gen_action("select_all")
-        }
-
         if (game.attack.retreating_pieces.length > 0) {
             let options = get_retreat_options(game.attack.retreating_pieces, game.attack.space, game.attack.retreat_length - game.attack.retreat_path.length)
             if (options.length > 0)
                 options.forEach(gen_action_space)
             else
                 gen_action("eliminate")
+        } else {
+            for (let p of game.attack.to_retreat)
+                gen_action_piece(p)
         }
 
         if (game.attack.retreating_pieces.length + game.attack.to_retreat.length === 0)
