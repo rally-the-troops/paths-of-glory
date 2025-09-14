@@ -5825,7 +5825,7 @@ function get_army_replacement_spaces(p) {
         //  Cards have been played and Salonika is under Allied control. They may also be recreated in Belgrade
         //  following normal reinforcement restrictions.
         if (game.events.salonika > 0 || game.events.greece_entry > 0) {
-            if (is_controlled_by(SALONIKA, AP) && is_unit_supplied_in(p, SALONIKA))
+            if (is_controlled_by(SALONIKA, AP) && is_unit_supplied_in(p, SALONIKA) && !is_fully_stacked(SALONIKA, AP))
                 spaces.push(SALONIKA)
         }
 
