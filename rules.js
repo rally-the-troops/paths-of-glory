@@ -220,6 +220,7 @@ const CETINJE = 111
 const TIRANA = 112
 const VALONA = 113
 const SALONIKA = 117
+const KAVALA = 119
 const NIS = 122
 const BELGRADE = 125
 const WARSAW = 134
@@ -1078,6 +1079,19 @@ function set_nation_at_war(nation) {
             setup_piece(GREECE, 'GRc', 'Larisa')
         }
     }
+}
+
+const limited_greek_entry_spaces = [SALONIKA, KAVALA]
+function is_space_at_war(space) {
+    let nation = data.spaces[space].nation
+    if (!nation_at_war(nation)) {
+        if (nation === GREECE && game.events.salonika > 0) {
+            return limited_greek_entry_spaces.includes(space)
+        }
+        return false
+    }
+
+    return true
 }
 
 // === MANDATED OFFENSIVES ===
@@ -2249,11 +2263,8 @@ states.activate_spaces = {
                 // already chosen
             } else {
                 if (is_space_supplied_or_has_supplied_unit(s, active_faction())) {
-                    if (!nation_at_war(GREECE) && game.events.salonika > 0) {
-                        // Limited Greek entry: prevent activating spaces with Greek units
-                        if (contains_piece_of_nation(s, GREECE))
-                            return
-                    }
+                    if (!is_space_at_war(s))
+                        return
 
                     if (game.ops >= cost_to_activate(s, MOVE))
                         gen_action('activate_move', s)
@@ -2946,14 +2957,8 @@ function can_move_to(s, moving_pieces) {
 
     // Units may not enter a space in a neutral nation, but all units may freely enter any nation immediately after it
     // enters the war.
-    if (!nation_at_war(data.spaces[s].nation)) {
-        if (data.spaces[s].nation === GREECE && game.events.salonika > 0) {
-            if (contains_piece_of_nation(s, GREECE))
-                return false
-        } else {
-            return false
-        }
-    }
+    if (!is_space_at_war(s))
+        return false
 
     // Neither the BEF Corps nor Army may move in or attack into any space outside Britain, France, Belgium, and Germany.
     if (moving_pieces.includes(find_piece(BRITAIN, 'BR BEFc')) || moving_pieces.includes(find_piece(BRITAIN, 'BR BEF'))) {
@@ -3443,17 +3448,7 @@ function get_attackable_spaces(attackers) {
     }
 
     // Neutral nations
-    eligible_spaces = eligible_spaces.filter((s) => {
-        const nation = data.spaces[s].nation
-        if (!nation_at_war(nation)) {
-            // Limited Greek entry
-            if (nation === GREECE && game.events.salonika > 0)
-                return !contains_piece_of_nation(s, GREECE)
-            else
-                return false
-        }
-        return true
-    })
+    eligible_spaces = eligible_spaces.filter((s) => is_space_at_war(s))
 
     const russian_attacker = attackers.some((p) => data.pieces[p].nation === RUSSIA)
     const german_attacker = attackers.some((p) => data.pieces[p].nation === GERMANY)
@@ -4871,15 +4866,8 @@ function get_retreat_options(pieces, from, spaces_to_retreat = 1) {
         if (!check_russian_ne_restriction(pieces, conn))
             return
 
-        const nation = data.spaces[conn].nation
-        if (!nation_at_war(nation)) {
-            if (nation !== GREECE)
-                return // Block all neutral country spaces, except Greece
-
-            // Neutral Greek spaces are blocked if Salonika has not been played or if there's a Greek unit in them
-            if (!game.events.salonika || contains_piece_of_nation(conn, GREECE))
-                return
-        }
+        if (!is_space_at_war(conn))
+            return
 
         if (is_controlled_by(conn, faction))
             has_friendly_option = true
@@ -5093,14 +5081,8 @@ function can_advance_into(space, units) {
         return false
 
     // Cannot advance into neutral nations
-    const nation = data.spaces[space].nation
-    if (!nation_at_war(nation)) {
-        // Except for limited Greek entry
-        if (nation === GREECE && game.events.salonika > 0)
-            return !contains_piece_of_nation(space, GREECE)
-        else
-            return false
-    }
+    if (!is_space_at_war(space))
+        return false
 
     return true
 }
@@ -5275,9 +5257,8 @@ function goto_attrition_phase() {
         if (controlling_faction === AP && data.spaces[s].nation === SERBIA) {
             continue // Under rule 14.1.5, Serbian spaces only convert when CP units enter the spaces.
         }
-        if (!nation_at_war(data.spaces[s].nation)) {
+        if (!is_space_at_war(s))
             continue
-        }
         if (s >= AP_RESERVE_BOX)
             continue
         if (is_mef_space(s)) {
@@ -6120,17 +6101,8 @@ function fill_supply_cache(faction, cache, sources, options) {
 
     // Block spaces that are in nations not yet at war
     for (let s = 1; s < data.spaces.length; ++s) {
-        let nation = data.spaces[s].nation
-        if (!nation_at_war(nation)) {
-            if (nation === GREECE && game.events.salonika > 0) {
-                // Limited Greek entry (9.5.2.4): Greek units are on the map and they block move/supply, but empty
-                // Greek spaces do not block supply
-                if (contains_piece_of_nation(s, GREECE))
-                    blocked_spaces[s] = 1
-            } else {
-                blocked_spaces[s] = 1
-            }
-        }
+        if (!is_space_at_war(s))
+            blocked_spaces[s] = 1
     }
 
     // Block enemy controlled spaces, unless occupying an enemy fort in the space
@@ -6327,7 +6299,7 @@ function is_unit_supplied_in(p, s) {
 
     let nation = data.pieces[p].nation
 
-    if (nation === GREECE && !nation_at_war(GREECE) && game.events.salonika > 0) // Limited Greek entry
+    if (nation === GREECE && !nation_at_war(GREECE)) // Limited Greek entry
         return true
 
     // CP can only trace supply to Medina over a Turkish connection, so non-Turkish CP units in Medina are OOS
