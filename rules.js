@@ -5463,6 +5463,7 @@ function goto_war_status_phase() {
             game.cp.commitment = COMMITMENT_TOTAL
             log_h3(`${faction_name(CP)} War Commitment Level rises to Total War`, CP)
             add_cards_to_deck(CP, COMMITMENT_TOTAL, game.cp.deck)
+            game.cp.first_totalwar = true //in this turn cp will not gain +1rp bonus
             game.cp.shuffle = true
         }
     }
@@ -5566,18 +5567,22 @@ function apply_replacement_phase_events() {
     // 5.7.3 The CP receives 1 German RP each turn during Total War (i.e., after it has drawn TW cards) if it controls
     // Sedan and two additional French or Belgian spaces during the RP interphase.
     if (game.cp.commitment === COMMITMENT_TOTAL && is_controlled_by(SEDAN, CP)) {
-        let cp_controlled_french_and_belgian_spaces = 0
-        for (let s = 1; s < data.spaces.length; ++s) {
-            if (is_controlled_by(s, CP) && (data.spaces[s].nation === FRANCE || data.spaces[s].nation === BELGIUM)) {
-                cp_controlled_french_and_belgian_spaces++
-                if (cp_controlled_french_and_belgian_spaces >= 3) {
-                    break
+        if(game.cp.first_totalwar===true)
+            game.cp.first_totalwar=false
+        else {
+            let cp_controlled_french_and_belgian_spaces = 0
+            for (let s = 1; s < data.spaces.length; ++s) {
+                if (is_controlled_by(s, CP) && (data.spaces[s].nation === FRANCE || data.spaces[s].nation === BELGIUM)) {
+                    cp_controlled_french_and_belgian_spaces++
+                    if (cp_controlled_french_and_belgian_spaces >= 3) {
+                        break
+                    }
                 }
             }
-        }
-        if (cp_controlled_french_and_belgian_spaces >= 3) {
-            game.rp.ge++
-            log(`${faction_name(CP)} gains 1 German RP for controlling Sedan and 2 other French/Belgian spaces`)
+            if (cp_controlled_french_and_belgian_spaces >= 3) {
+                game.rp.ge++
+                log(`${faction_name(CP)} gains 1 German RP for controlling Sedan and 2 other French/Belgian spaces`)
+            }
         }
     }
 
