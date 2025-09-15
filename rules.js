@@ -3271,8 +3271,7 @@ function goto_attack_step_brusilov_offensive() {
 }
 
 function goto_attack_step_trench_negation() {
-    if (can_play_combat_cards() &&
-        get_trench_level_for_attack(game.attack.space, other_faction(game.attack.attacker)) > 0 &&
+    if (get_trench_level_for_attack(game.attack.space, other_faction(game.attack.attacker)) > 0 &&
         has_trench_negating_card_in_hand(game.attack.attacker)) {
         // if defending space has a trench, go to 'negate_trench'
         game.state = 'negate_trench'
@@ -3308,17 +3307,12 @@ function goto_attack_step_kerensky_offensive() {
 }
 
 function goto_attack_step_combat_cards() {
-    if (can_play_combat_cards()) {
-        // NOTE: Do NOT Start with all eligible combat cards selected
-
-        if (could_have_usable_combat_card(game.attack.attacker, true))
-            game.state = 'attacker_combat_cards'
-        else if (could_have_usable_combat_card(other_faction(game.attack.attacker))) {
-            clear_undo()
-            set_active_faction(other_faction(game.attack.attacker))
-            game.state = 'defender_combat_cards'
-        } else
-            begin_combat()
+    if (could_have_usable_combat_card(game.attack.attacker, true)) {
+        game.state = 'attacker_combat_cards'
+    } else if (could_have_usable_combat_card(other_faction(game.attack.attacker))) {
+        clear_undo()
+        set_active_faction(other_faction(game.attack.attacker))
+        game.state = 'defender_combat_cards'
     } else {
         begin_combat()
     }
@@ -3393,10 +3387,6 @@ function attacker_can_flank() {
 
 function can_withdraw() {
     return get_retreat_options(get_defenders_pieces(), game.attack.space, 1).length > 0
-}
-
-function can_play_combat_cards() {
-    return !attacking_unoccupied_fort()
 }
 
 function get_attackable_spaces(attackers) {
