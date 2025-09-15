@@ -1608,6 +1608,7 @@ function goto_play_ops(card) {
     push_undo()
     if (card === undefined) {
         record_action(ACTION_1_OP, card)
+        log(`Automatic Operation (1)`)
         game.ops = 1
     } else {
         record_action(ACTION_OP, card)
