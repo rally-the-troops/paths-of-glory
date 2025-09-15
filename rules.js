@@ -5419,7 +5419,7 @@ function goto_war_status_phase() {
     }
 
     // If French unit attacked without US support after French Mutiny, when FR MO, +1 VP
-    if (french_mutiny_active && game.french_attacked_without_us_support) {
+    if (game.events.french_mutiny > 0 && game.french_attacked_without_us_support) {
         game.vp += 1
         record_score_event(1, FRENCH_MUTINY)
         log(`+1 VP -- French unit attacked without US support after French Mutiny`)
