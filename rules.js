@@ -1201,7 +1201,10 @@ function all_capitals_occupied(nation) {
 }
 
 function any_capitals_occupied(nation) {
-    const capitals = get_capitals(nation)
+    const capitals = all_capitals_by_nation[nation]
+    if (!capitals)
+        return false
+    
     const faction = data.spaces[capitals[0]].faction
     for (let c of capitals) {
         if (!is_controlled_by(c, faction)) {
@@ -3969,7 +3972,7 @@ function resolve_attackers_fire() {
     }
 
     // Trench shifts
-    if (!attacking_unoccupied_fort() && !game.attack.trenches_canceled) {
+    if (!attacking_unoccupied_fort() && !(game.attack.trenches_canceled || game.attack.trench_shift_canceled)) {
         if (get_trench_level_for_attack(game.attack.space, other_faction(game.attack.attacker)) === 2) {
             attacker_shifts -= 2
             logi(`Trenches: shift 2L`)
@@ -4024,7 +4027,8 @@ function resolve_defenders_fire() {
     })
 
     let defender_shifts = 0
-    if (get_trench_level_for_attack(game.attack.space, defender) > 0 && !game.attack.trenches_canceled && !attacking_unoccupied_fort()) {
+    let trench_shift_canceled = game.attack.trenches_canceled || game.attack.trench_shift_canceled
+    if (get_trench_level_for_attack(game.attack.space, defender) > 0 && !trench_shift_canceled && !attacking_unoccupied_fort()) {
         defender_shifts += 1
         logi(`Trenches: shift 1R`)
     }
@@ -5510,6 +5514,7 @@ function goto_war_status_phase() {
             game.cp.commitment = COMMITMENT_TOTAL
             log_h3(`${faction_name(CP)} War Commitment Level rises to Total War`, CP)
             add_cards_to_deck(CP, COMMITMENT_TOTAL, game.cp.deck)
+            game.cp.first_total_war = true // First turn at Total War CP is not eligible for the Sedan bonus RP
             game.cp.shuffle = true
         }
     }
@@ -5612,20 +5617,16 @@ function apply_replacement_phase_events() {
 
     // 5.7.3 The CP receives 1 German RP each turn during Total War (i.e., after it has drawn TW cards) if it controls
     // Sedan and two additional French or Belgian spaces during the RP interphase.
-    if (game.cp.commitment === COMMITMENT_TOTAL && is_controlled_by(SEDAN, CP)) {
-        let cp_controlled_french_and_belgian_spaces = 0
-        for (let s = 1; s < data.spaces.length; ++s) {
-            if (is_controlled_by(s, CP) && (data.spaces[s].nation === FRANCE || data.spaces[s].nation === BELGIUM)) {
-                cp_controlled_french_and_belgian_spaces++
-                if (cp_controlled_french_and_belgian_spaces >= 3) {
-                    break
-                }
-            }
-        }
-        if (cp_controlled_french_and_belgian_spaces >= 3) {
+    if (game.cp.commitment === COMMITMENT_TOTAL && is_controlled_by(SEDAN, CP) && !game.cp.first_total_war) {
+        let cp_fr_be_spaces = 0
+        cp_fr_be_spaces += all_spaces_by_nation[FRANCE].filter((s => is_controlled_by(s, CP))).length
+        cp_fr_be_spaces += all_spaces_by_nation[BELGIUM].filter((s => is_controlled_by(s, CP))).length
+        if (cp_fr_be_spaces >= 3) {
             game.rp.ge++
             log(`${faction_name(CP)} gains 1 German RP for controlling Sedan and 2 other French/Belgian spaces`)
         }
+    } else {
+        delete game.cp.first_total_war
     }
 
     if (game.events.walter_rathenau > 0 && !game.events.independent_air_force) {
@@ -5812,8 +5813,8 @@ function get_replaceable_units() {
 
         if (game.location[i] === 0)
             continue
-
-        if (all_capitals_occupied(piece_data.nation) && piece_data.nation !== SERBIA)
+        // If any capital been occupied, the nation cannot use rps
+        if (any_capitals_occupied(piece_data.nation) && piece_data.nation !== SERBIA)
             continue
 
         if (is_controlled_by(WARSAW, AP) && piece_data.name === 'PLc')
@@ -8177,7 +8178,8 @@ events.royal_tank_corps = {
     },
     apply() {
         log(`${card_name(ROYAL_TANK_CORPS)} cancels trenches`)
-        game.attack.trenches_canceled = true
+        // Ignore CRT shift but not other trench effects
+        game.attack.trench_shift_canceled = true
     },
     play() {
     }
