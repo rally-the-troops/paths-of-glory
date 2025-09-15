@@ -1147,10 +1147,10 @@ function roll_mandated_offensives() {
     }
 
     let cp_roll = roll_die(6)
-    if (game.events.hoffmann > 0) {
-        cp_roll++
-    }
-    let cp_index = cp_roll > 6 ? 6 : cp_roll
+    let cp_drm = 0
+    if (game.events.hoffmann > 0)
+        cp_drm = 1
+    let cp_index = cp_roll + cp_drm > 6 ? 6 : cp_roll + cp_drm
     let cp_mo = CP_MO_TABLE[cp_index]
 
     if ((cp_mo === AUSTRIA_HUNGARY || cp_mo === AH_IT) && all_capitals_occupied(AUSTRIA_HUNGARY)) {
@@ -1176,7 +1176,7 @@ function roll_mandated_offensives() {
     }
 
     log(`Mandated offensives:`)
-    log(`CP: B${cp_index} -> ${nation_name(cp_mo)}`)
+    log(`CP: fmt_roll(cp_roll, cp_drm) -> ${nation_name(cp_mo)}`)
     log(`AP: W${ap_roll} -> ${nation_name(ap_mo)}`)
     log_event_for_rollback("Rolled Mandated Offensives")
 
