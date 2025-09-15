@@ -1479,6 +1479,25 @@ function goto_action_phase() {
     save_rollback_point()
 }
 
+function is_ops_event_card(c) {
+    // Take ops and yellow stripe event cards.
+    return (
+        /* cp events */
+        c === MATA_HARI ||
+        c === TSAR_TAKES_COMMAND ||
+        c === FALL_OF_THE_TSAR ||
+        c === BOLSHEVIK_REVOLUTION ||
+        /* ap events */
+        c === CLOAK_AND_DAGGER ||
+        c === LANDSHIPS ||
+        c === YANKS_AND_TANKS ||
+        c === KERENSKY_OFFENSIVE ||
+        c === BRUSILOV_OFFENSIVE ||
+        c === ZIMMERMANN_TELEGRAM ||
+        c === OVER_THERE
+    )
+}
+
 states.action_phase = {
     inactive: "play a card",
     prompt() {
@@ -1499,7 +1518,8 @@ states.action_phase = {
         // If not playing the Historical scenario, add an action here for offering peace terms
     },
     play_event(card) {
-        remove_failed_entrench_markers()
+        if (!is_ops_event_card(card))
+            remove_failed_entrench_markers()
         if (data.cards[card].reinfnation) {
             goto_play_reinf(card)
         } else {
