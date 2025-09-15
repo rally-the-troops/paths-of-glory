@@ -6381,28 +6381,6 @@ function is_unit_supplied_through_italy(p) {
     return !(game.supply[game.location[p]] & SUPPLY_MASK.NonItalianPath)
 }
 
-function can_unit_trace_supply_to_basra(p) {
-    if (!is_unit_supplied(p))
-        return false
-    let destinations = []
-    let start = game.location[p]
-    let overland_destinations = []
-    let frontier = [start]
-    while (frontier.length > 0) {
-        let current = frontier.pop()
-        get_connected_spaces(current, BRITAIN).forEach((n) => {
-            if (!set_has(destinations, n)
-                && is_unit_supplied_in(p, n)
-                && (is_controlled_by(n, active_faction()) || is_besieged(n))) {
-                set_add(destinations, n)
-                set_add(overland_destinations, n)
-                frontier.push(n)
-            }
-        })
-    }
-    return set_has(overland_destinations, BASRA)
-}
-
 function is_space_supplied_through_mef(s) {
     if (!is_space_supplied(s, AP))
         return false
@@ -8350,15 +8328,7 @@ events.maude = {
         if (attacking_british_pieces.length === 0)
             return false
 
-        let supplied_from_basra = false
-        for (let p of attacking_british_pieces) {
-            if (can_unit_trace_supply_to_basra(p)) {
-                supplied_from_basra = true
-                break
-            }
-        }
-
-        return supplied_from_basra
+        return can_trace_ap_supply_through_basra(attacking_british_pieces)
     },
     can_apply() {
         return this.can_play()
@@ -8367,6 +8337,40 @@ events.maude = {
         log(`${card_name(MAUDE)} -- attacker fires on the Army table`)
         game.attack.attacker_table = ARMY
     }
+}
+
+function can_trace_ap_supply_through_basra(list) {
+    // Check if all units are supplied
+    if (list.some(p => !is_unit_supplied(p)))
+        return false
+
+    // Check if Basra is supplied
+    if (!is_space_supplied(BASRA, AP))
+        return false
+
+    let spaces = []
+    list.forEach(p => set_add(spaces, game.location[p]))
+
+    let visited = []
+    let frontier = [...spaces]
+    let found_basra = false
+    while (frontier.length > 0 && !found_basra) {
+        let current = frontier.pop()
+        let connected = get_connected_spaces(current, BRITAIN)
+        for (let conn of connected) {
+            if (set_has(visited, conn))
+                continue
+            if (!is_controlled_by(conn, AP) && !is_besieged(conn))
+                continue
+            if (conn === BASRA) {
+                found_basra = true
+                break
+            }
+            set_add(visited, conn)
+            frontier.push(conn)
+        }
+    }
+    return found_basra
 }
 
 // AP #62
