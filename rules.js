@@ -3715,7 +3715,7 @@ function prompt_combat_cards() {
     }
 
     for (let c of game.combat_cards) {
-        if (data.cards[c].faction === active_faction() && !set_has(game.attack.combat_cards, c))
+        if (data.cards[c].faction === active_faction() && !game.attack.combat_cards.includes(c))
             if (is_usable_combat_card(c))
                 gen_action_card(c)
     }
