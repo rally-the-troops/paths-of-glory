@@ -2269,46 +2269,68 @@ function roll_peace_terms(faction_offering, combined_war_status) {
     log_event_for_rollback("Rolled peace terms")
 }
 
+function is_still_valid_attack_activation(s) {
+    for (let p of all_pieces_by_faction[active_faction()]) {
+        if (game.location[p] !== s)
+            continue
+        if (set_has(game.oos_pieces, p))
+            continue
+        if (get_attackable_spaces([p]).length > 0)
+            return true
+    }
+    return false
+}
+
 states.activate_spaces = {
     inactive: "activate spaces",
     prompt() {
         view.prompt = `Activate spaces for movement or combat: ${game.ops} ops left.`
-        let spaces = []
-        game.location.forEach((loc, p) => {
-            if (loc !== 0 && data.pieces[p].faction === active_faction()) {
-                set_add(spaces, loc)
+
+        const used_ne_activation = game.activated.attack.some(
+            (s) => is_neareast_space(s) && !is_mef_space(s) && s !== game.location[BRITISH_NE_ARMY]
+        )
+
+        let move_spaces = []
+        let attack_spaces = []
+
+        for (let p of all_pieces_by_faction[active_faction()]) {
+            if (set_has(game.oos_pieces, p))
+                continue
+
+            let s = game.location[p]
+            if (s === 0 || s >= AP_RESERVE_BOX || !is_space_at_war(s))
+                continue
+            if (set_has(game.activated.move, s) || set_has(game.activated.attack, s))
+                continue
+
+            if (!set_has(move_spaces, s)) {
+                if (game.ops >= cost_to_activate(s, MOVE))
+                    set_add(move_spaces, s)
             }
-        })
 
-        const used_ne_activation = game.activated.attack.some((s) => is_neareast_space(s) && !is_mef_space(s) && s !== game.location[BRITISH_NE_ARMY])
-        spaces.forEach((s) => {
-            if (set_has(game.activated.move, s) || set_has(game.activated.attack, s)) {
-                // already chosen
-            } else {
-                if (is_space_supplied_or_has_supplied_unit(s, active_faction())) {
-                    if (!is_space_at_war(s))
-                        return
-
-                    if (game.ops >= cost_to_activate(s, MOVE))
-                        gen_action('activate_move', s)
-
-                    // TODO: check if any attacks are actually possible
-                    if (game.ops >= cost_to_activate(s, ATTACK)) {
-                        if (active_faction() === AP && used_ne_activation && is_neareast_space(s)) {
-                            // The Allied player may Activate only one space per Action Round for combat on the Near East
-                            // map. This applies to spaces actually on the NE map. Units in spaces not on the NE map may
-                            // still attack into the NE map. (e.g., Adrianople, Gallipoli, Balikesir.) Exceptions: The MEF
-                            // Beachhead space and the space containing the British NE Army do not count against this limit.
-                            if (is_mef_space(s) || game.location[BRITISH_NE_ARMY] === s) {
-                                gen_action('activate_attack', s)
-                            }
-                        } else {
-                            gen_action('activate_attack', s)
+            if (!set_has(attack_spaces, s)) {
+                if (game.ops >= cost_to_activate(s, ATTACK)) {
+                    if (active_faction() === AP && used_ne_activation && is_neareast_space(s)) {
+                        // The Allied player may Activate only one space per Action Round for combat on the Near East
+                        // map. This applies to spaces actually on the NE map. Units in spaces not on the NE map may
+                        // still attack into the NE map. (e.g., Adrianople, Gallipoli, Balikesir.) Exceptions: The MEF
+                        // Beachhead space and the space containing the British NE Army do not count against this limit.
+                        if (is_mef_space(s) || game.location[BRITISH_NE_ARMY] === s) {
+                            if (get_attackable_spaces([p]).length > 0)
+                                set_add(attack_spaces, s)
                         }
+                    } else {
+                        if (get_attackable_spaces([p]).length > 0)
+                            set_add(attack_spaces, s)
                     }
                 }
             }
-        })
+        }
+
+        for (let s of move_spaces)
+            gen_action("activate_move", s)
+        for (let s of attack_spaces)
+            gen_action("activate_attack", s)
 
         gen_action_skip()
     },
@@ -2367,6 +2389,8 @@ function next_move_activation() {
 }
 
 function next_attack_activation() {
+    // filter attack spaces that have remaining legal attacks
+    game.activated.attack = game.activated.attack.filter(s => is_still_valid_attack_activation(s))
     if (game.activated.attack.length > 0) {
         start_attack_activation()
     } else {
@@ -3441,7 +3465,9 @@ function get_attackable_spaces(attackers) {
     }
 
     // Remove spaces that have already been attacked this action round
-    eligible_spaces = eligible_spaces.filter((s) => set_has(game.attacked, s) === false )
+    if (game.attacked) {
+        eligible_spaces = eligible_spaces.filter((s) => set_has(game.attacked, s) === false )
+    }
 
     if (is_invalid_multinational_attack(attackers)) {
         return []
@@ -3562,9 +3588,11 @@ function can_be_attacked(s) {
     }
 
     // Can't have only units that retreated this round
-    const defending_pieces = get_pieces_in_space(s).filter((p) => data.pieces[p].faction !== active_faction())
-    if (defending_pieces.length > 0 && defending_pieces.every((p) => set_has(game.retreated, p))) {
-        return false
+    if (game.retreated) {
+        const defending_pieces = get_pieces_in_space(s).filter((p) => data.pieces[p].faction !== active_faction())
+        if (defending_pieces.length > 0 && defending_pieces.every((p) => set_has(game.retreated, p))) {
+            return false
+        }
     }
 
     for (let p = 0; p < game.location.length; ++p) {
@@ -7503,7 +7531,7 @@ states.alberich = {
     done() {
         switch_active_faction()
         next_attack_activation()
-        }
+    }
 }
 
 // CP #65
