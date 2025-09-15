@@ -5279,6 +5279,9 @@ function cost_to_activate(space, type) {
 // === ATTRITION PHASE ===
 
 function goto_attrition_phase() {
+
+    log_h2("Attrition Phase")
+
     game.attrition = {
         ap: {
             spaces: [],
@@ -5350,7 +5353,7 @@ states.attrition_phase = {
     piece(p) {
         let loc = game.location[p]
         set_delete(game.attrition[active_faction()].pieces, p)
-        log(`Removed ${piece_name(p)} from ${space_name(game.location[p])} due to attrition`)
+        log(`Removed ${piece_name(p)} from ${space_name(game.location[p])}`)
         if (data.pieces[p].type === ARMY) {
             game.location[p] = 0
             set_add(game.removed, p)
@@ -5371,8 +5374,14 @@ states.attrition_phase = {
     },
     space(s) {
         set_delete(game.attrition[active_faction()].spaces, s)
-        log(`Flipped control of ${space_name(s)} due to attrition`)
+        log(`Flipped control of ${space_name(s)}`)
         set_control(s, other_faction(active_faction()))
+
+        if (get_trench_level(s, active_faction()) > 0) {
+            log(`Removed trench in ${space_name(s)}`)
+            set_trench_level(s, 0, active_faction())
+        }
+
         if (game.attrition[active_faction()].spaces.length === 0 && game.attrition[active_faction()].pieces.length === 0) {
             if (game.attrition[other_faction(active_faction())].spaces.length > 0 || game.attrition[other_faction(active_faction())].pieces.length > 0) {
                 clear_undo()
