@@ -7492,6 +7492,17 @@ events.alberich = {
         game.cp.removed.push(ALBERICH)
 
         // Cancel the attack
+        game.state = "alberich"
+    }
+}
+
+states.alberich = {
+    inactive: 'play combat cards',
+    prompt() {
+        view.prompt = 'Alberich: Cancel the attack.'
+        gen_action_done()
+    },
+    done() {
         switch_active_faction()
         next_attack_activation()
         }
