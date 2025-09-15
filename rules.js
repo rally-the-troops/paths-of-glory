@@ -3986,7 +3986,7 @@ function resolve_defenders_fire() {
     })
 
     let defender_shifts = 0
-    if (get_trench_level_for_attack(game.attack.space, defender) > 0 && !game.attack.trenches_canceled) {
+    if (get_trench_level_for_attack(game.attack.space, defender) > 0 && !game.attack.trenches_canceled && !attacking_unoccupied_fort()) {
         defender_shifts += 1
         logi(`Trenches: shift 1R`)
     }
