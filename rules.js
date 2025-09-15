@@ -7119,6 +7119,8 @@ events.von_hutier = {
             return false
         return true
     },
+    play() {
+    },
     can_apply() {
         return this.can_play() && !game.attack.trenches_canceled
     },
