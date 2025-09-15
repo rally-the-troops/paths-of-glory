@@ -3931,7 +3931,7 @@ function resolve_attackers_fire() {
     }
 
     // Trench shifts
-    if (!attacking_unoccupied_fort() && !game.attack.trenches_canceled) {
+    if (!attacking_unoccupied_fort() && !(game.attack.trenches_canceled||game.attack.trenches_shift_canceled)) {
         if (get_trench_level_for_attack(game.attack.space, other_faction(game.attack.attacker)) === 2) {
             attacker_shifts -= 2
             logi(`Trenches: shift 2L`)
@@ -3986,7 +3986,7 @@ function resolve_defenders_fire() {
     })
 
     let defender_shifts = 0
-    if (get_trench_level_for_attack(game.attack.space, defender) > 0 && !game.attack.trenches_canceled) {
+    if (get_trench_level_for_attack(game.attack.space, defender) > 0 && !(game.attack.trenches_canceled||game.attack.trenches_shift_canceled)) {
         defender_shifts += 1
         logi(`Trenches: shift 1R`)
     }
@@ -5765,8 +5765,8 @@ function get_replaceable_units() {
 
         if (game.location[i] === 0)
             continue
-
-        if (all_capitals_occupied(piece_data.nation) && piece_data.nation !== SERBIA)
+        //any one capital been occupied will cause no rps
+        if (any_capitals_occupied(piece_data.nation) && piece_data.nation !== SERBIA)
             continue
 
         if (is_controlled_by(WARSAW, AP) && piece_data.name === 'PLc')
@@ -8138,7 +8138,8 @@ events.royal_tank_corps = {
     },
     apply() {
         log(`${card_name(ROYAL_TANK_CORPS)} cancels trenches`)
-        game.attack.trenches_canceled = true
+        //royal tank corps can only ignore crt shift
+        game.attack.trenches_shift_canceled = true
     },
     play() {
     }
