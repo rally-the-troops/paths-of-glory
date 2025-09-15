@@ -4141,12 +4141,16 @@ states.withdrawal_negate_step_loss = {
         view.prompt = 'Withdrawal: Choose a step loss to negate.'
 
         const has_corps_option = game.attack.defender_loss_pieces.some((p) => data.pieces[p].type === CORPS)
+        let can_negate = false
         game.attack.defender_loss_pieces.forEach((p) => {
-            if (data.pieces[p].type === CORPS || !has_corps_option)
+            if (data.pieces[p].type === CORPS || !has_corps_option) {
+                can_negate = true
                 gen_action_piece(p)
+            }
         })
 
-        gen_action_pass()
+        if (!can_negate)
+            gen_action_pass()
     },
     piece(p) {
         push_undo()
