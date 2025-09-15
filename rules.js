@@ -7492,8 +7492,9 @@ events.alberich = {
         game.cp.removed.push(ALBERICH)
 
         // Cancel the attack
-        end_attack_activation()
-    }
+        switch_active_faction()
+        next_attack_activation()
+        }
 }
 
 // CP #65
