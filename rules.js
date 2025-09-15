@@ -1176,7 +1176,7 @@ function roll_mandated_offensives() {
     }
 
     log(`Mandated offensives:`)
-    log(`CP: fmt_roll(cp_roll, cp_drm) -> ${nation_name(cp_mo)}`)
+    log(`CP: ${fmt_roll(cp_roll, cp_drm)} -> ${nation_name(cp_mo)}`)
     log(`AP: W${ap_roll} -> ${nation_name(ap_mo)}`)
     log_event_for_rollback("Rolled Mandated Offensives")
 
