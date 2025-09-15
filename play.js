@@ -1855,7 +1855,7 @@ function update_general_record(type, value, remove = false) {
 function update_general_records_track() {
     general_records_stacks.forEach((stack) => stack.length = 0)
 
-    update_general_record("vp", view.vp)
+    update_general_record("vp", Math.max(0, Math.min(40, view.vp)))
 
     update_general_record("combined_war_status", view.cp.ws + view.ap.ws)
     update_general_record("ap_war_status", view.ap.ws)
