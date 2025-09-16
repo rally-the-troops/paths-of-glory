@@ -2953,7 +2953,7 @@ function is_controlled_by(s, faction) {
     // units—these remain Allied after the ANA exits.
 
     let controlling_faction = get_control_bit(s) ? CP : AP
-    if (game.location[BRITISH_ANA_CORPS] === s) {
+    if (game.location[BRITISH_ANA_CORPS] === s && !has_undestroyed_fort(s, CP)) {
         controlling_faction = AP
     }
     return faction === controlling_faction
