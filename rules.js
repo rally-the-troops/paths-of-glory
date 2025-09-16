@@ -2266,7 +2266,7 @@ function is_still_valid_attack_activation(s) {
             continue
         if (set_has(game.oos_pieces, p))
             continue
-        if (get_attackable_spaces([p]).length > 0)
+        if (s === LONDON || get_attackable_spaces([p]).length > 0)
             return true
     }
     return false
@@ -2311,7 +2311,9 @@ states.activate_spaces = {
                                 set_add(attack_spaces, s)
                         }
                     } else {
-                        if (get_attackable_spaces([p]).length > 0)
+                        // London must be exempt from this filtering based on attackable spaces, because it never has
+                        // an attackable space on its own, only in combination with units in France or Belgium.
+                        if (s === LONDON || get_attackable_spaces([p]).length > 0)
                             set_add(attack_spaces, s)
                     }
                 }
@@ -3287,7 +3289,7 @@ function goto_attack() {
         game[active_faction()].mo = NONE
         log(`${faction_name(game.attack.attacker)} satisfy Mandated Offensive`)
     }
-
+    
     goto_attack_step_great_retreat()
 }
 
