@@ -3490,11 +3490,6 @@ function get_attackable_spaces(attackers) {
         }
     }
 
-    // Remove spaces that have already been attacked this action round
-    if (game.attacked) {
-        eligible_spaces = eligible_spaces.filter((s) => set_has(game.attacked, s) === false )
-    }
-
     if (is_invalid_multinational_attack(attackers)) {
         return []
     }
@@ -3512,19 +3507,26 @@ function get_attackable_spaces(attackers) {
         }
     }
 
-    // Neutral nations
-    eligible_spaces = eligible_spaces.filter((s) => is_space_at_war(s))
-
-    // Until AP is at Total War, only Italian and Austrian units may attack into Italian spaces
-    eligible_spaces = eligible_spaces.filter((s) => !is_blocked_italian_space(s, attackers))
-
     const russian_attacker = attackers.some((p) => data.pieces[p].nation === RUSSIA)
     const german_attacker = attackers.some((p) => data.pieces[p].nation === GERMANY)
+    const lloyd_george = is_lloyd_george_active() && attackers.some((p) => data.pieces[p].nation === BRITAIN)
+    const stavka_timidity = game.turn === game.events.stavka_timidity && russian_attacker
     eligible_spaces = eligible_spaces.filter((s) => {
-        //  15.1.12 Russian units may not attack, enter, or besiege a German fort space during the August 1914 turn.
-        if (game.turn === 1 && russian_attacker && data.spaces[s].nation === GERMANY && has_undestroyed_fort(s, CP)) {
+        // Neutral nations
+        if (!is_space_at_war(s))
             return false
-        }
+
+        // Already attacked this turn
+        if (game.attacked && set_has(game.attacked, s))
+            return false
+
+        // Until AP is at Total War, only Italian and Austrian units may attack into Italian spaces
+        if (is_blocked_italian_space(s, attackers))
+            return false
+
+        //  15.1.12 Russian units may not attack, enter, or besiege a German fort space during the August 1914 turn.
+        if (game.turn === 1 && russian_attacker && data.spaces[s].nation === GERMANY && has_undestroyed_fort(s, CP))
+            return false
 
         // 15.1.11 Russian Forts: German units may not attack spaces containing Russian forts until the OberOst Event
         // Card is played or the Central Powers War Status is 4 or higher. German units may, however, besiege unoccupied
@@ -3534,22 +3536,19 @@ function get_attackable_spaces(attackers) {
                 return false
         }
 
-        if (!check_russian_ne_restriction(attackers, s)) {
+        if (!check_russian_ne_restriction(attackers, s))
             return false
-        }
+
+        // Lloyd George prevents attacks against German defenders with level 2 trenches while active
+        if (lloyd_george && get_trench_level(s, CP) === 2 && contains_piece_of_nation(s, GERMANY))
+            return false
+
+        // Stavka Timidity prevents Russian attacks against entrenched German defenders for the turn it is played
+        if (stavka_timidity && get_trench_level(s, CP) > 0 && contains_only_pieces_of_nation(s, GERMANY))
+            return false
 
         return true
     })
-
-    // Lloyd George prevents attacks against German defenders with level 2 trenches while active
-    if (is_lloyd_george_active() && attackers.some((p) => data.pieces[p].nation === BRITAIN)) {
-        eligible_spaces = eligible_spaces.filter((s) => !(get_trench_level(s, CP) === 2 && contains_piece_of_nation(s, GERMANY)))
-    }
-
-    // Stavka Timidity prevents Russian attacks against entrenched German defenders for the turn it is played
-    if (game.turn === game.events.stavka_timidity && attackers.some((p) => data.pieces[p].nation === RUSSIA)) {
-        eligible_spaces = eligible_spaces.filter((s) => !(get_trench_level(s, CP) > 0 && contains_only_pieces_of_nation(s, GERMANY)))
-    }
 
     return eligible_spaces
 }
