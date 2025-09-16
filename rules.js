@@ -3441,17 +3441,10 @@ function get_attackable_spaces(attackers) {
     for (let i = 0; i < attackers.length; ++i) {
         let attacker = attackers[i]
         let attackable_spaces = get_attackable_spaces_for_piece(attacker)
-        if (i === 0) { // First attacker's spaces are all eligible
+        if (i === 0) // First attacker's spaces are all eligible
             eligible_spaces.push(...attackable_spaces)
-        } else { // Subsequent attackers subtract ineligible spaces
-            let to_remove = []
-            eligible_spaces.forEach((s) => {
-                if (!attackable_spaces.includes(s)) {
-                    to_remove.push(s)
-                }
-            })
-            to_remove.forEach((s) => { array_remove_item(eligible_spaces, s) })
-        }
+        else // Subsequent attackers subtract ineligible spaces
+            eligible_spaces = eligible_spaces.filter((s) => attackable_spaces.includes(s))
     }
 
     // 15.1.3 If all the attackers are besieging a space, then they can attack the space they are besieging
@@ -3461,7 +3454,19 @@ function get_attackable_spaces(attackers) {
         if (can_besiege(siege_space, remaining_besieging_pieces))
             eligible_spaces.push(siege_space) // Sufficient besieging force is not part of the attack, so add the siege space to the eligible targets
         else
-            return [siege_space] // Insufficient force remains to maintain the siege, so the only eligible target is the besieged space
+            eligible_spaces = [siege_space] // Insufficient force remains to maintain the siege, so the only eligible target is the besieged space
+    }
+
+    // If some attackers are in a besieged space and won't leave sufficient force to maintain the siege, then they
+    // can only attack the besieged space
+    let besieged_spaces = attackers.map((p) => game.location[p]).filter((s) => is_besieged(s))
+    for (let besieged_space of besieged_spaces) {
+        const remaining_besieging_pieces = get_pieces_in_space(besieged_space).filter((p) => !attackers.includes(p))
+        if (!can_besiege(besieged_space, remaining_besieging_pieces)) {
+            // If any attacker is attacking out of a besieged space, and the remaining pieces in that space cannot
+            // maintain the siege, then remove other spaces from the eligible targets
+            eligible_spaces = eligible_spaces.filter((s) => s === besieged_space)
+        }
     }
 
     // Remove spaces that have already been attacked this action round
