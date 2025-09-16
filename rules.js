@@ -4820,11 +4820,6 @@ states.defender_retreat = {
         game.attack.to_retreat = []
     },
     piece(p) {
-        if (p === MONTENEGRIN_CORPS) {
-            push_undo()
-            eliminate_piece(p)
-            return
-        }
         if (game.attack.retreating_pieces.length === 0)
             push_undo()
         set_delete(game.attack.to_retreat, p)
@@ -4906,6 +4901,9 @@ function get_retreat_options(pieces, from, spaces_to_retreat = 1) {
 
     let faction = other_faction(game.attack.attacker)
     let options = []
+
+    if (pieces.includes(MONTENEGRIN_CORPS))
+        return [] // MNC cannot retreat (also prevents play of Withdrawal)
 
     get_connected_spaces_for_pieces(from, pieces).forEach((conn) => {
         if (conn === from)
