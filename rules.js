@@ -3287,7 +3287,7 @@ function goto_attack() {
         game[active_faction()].mo = NONE
         log(`${faction_name(game.attack.attacker)} satisfy Mandated Offensive`)
     }
-
+    
     goto_attack_step_great_retreat()
 }
 
