@@ -1278,11 +1278,19 @@ const style_dims = {
         border: 1,
         gap: 3,
         padding: 7,
+        stack_dx: 9,
+        stack_dy: 9,
+        stack_dx_tight: 3,
+        stack_dy_tight: 3,
     },
     bevel: {
         border: 2,
         gap: 5,
         padding: 7,
+        stack_dx: 9,
+        stack_dy: 9,
+        stack_dx_tight: 3,
+        stack_dy_tight: 3,
     },
 }
 
@@ -1296,6 +1304,9 @@ function layout_stack(stack, start_x, start_y) {
 
     let dim = style_dims[style]
     let z = (stack === focus) ? 101 : 1
+
+    let dx = stack.length > 5 ? dim.stack_dx_tight : dim.stack_dx
+    let dy = stack.length > 5 ? dim.stack_dx_tight : dim.stack_dy
 
     // Lose focus if stack is small.
     if (stack === focus && is_small_stack(stack))
@@ -1339,8 +1350,8 @@ function layout_stack(stack, start_x, start_y) {
             elt.style.left = ex + "px"
             elt.style.top = ey + "px"
             elt.style.zIndex = z++
-            x += 9
-            y -= 9
+            x += dx
+            y -= dy
             if (y < MINY)
                 y = MINY
         }
