@@ -2791,6 +2791,13 @@ function get_eligible_spaces_to_move() {
     return spaces
 }
 
+function can_take_control(pieces) {
+    /* ANAc cannot take control */
+    if (pieces.length === 1 && pieces[0] === BRITISH_ANA_CORPS)
+        return false
+    return true
+}
+
 function move_stack_to_space(s) {
     if (is_besieged(game.move.current)) {
         let pieces_remaining = []
@@ -2824,7 +2831,8 @@ function move_stack_to_space(s) {
     capture_trench(s, active_faction())
 
     if (!has_undestroyed_fort(s, other_faction(active_faction()))) {
-        set_control(s, active_faction())
+        if (can_take_control(game.move.pieces))
+            set_control(s, active_faction())
     }
 }
 
@@ -4870,7 +4878,8 @@ states.defender_retreat = {
         if (game.attack.retreat_path.length > 0) {
             const end_space = game.attack.retreat_path[game.attack.retreat_path.length - 1]
             if (!is_controlled_by(end_space, active_faction()) && !has_undestroyed_fort(end_space, game.attack.attacker)) {
-                set_control(end_space, active_faction())
+                if (can_take_control(game.attack.retreating_pieces))
+                    set_control(end_space, active_faction())
             }
             update_siege(end_space)
 
@@ -5035,7 +5044,8 @@ states.attacker_advance = {
                 set_add(game.forts.besieged, s)
             }
         } else {
-            set_control(s, game.attack.attacker)
+            if (can_take_control(game.attack.advancing_pieces))
+                set_control(s, game.attack.attacker)
         }
         capture_trench(s, game.attack.attacker)
 
