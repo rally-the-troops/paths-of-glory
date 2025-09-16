@@ -1345,18 +1345,6 @@ function check_rule_violations() {
         }
     }
 
-    // Check for GE armies in Trent, Villach, or Trieste before AP reaches Total War
-    if (game.ap.commitment !== COMMITMENT_TOTAL) {
-        [TRENT, VILLACH, TRIESTE].forEach((s) => {
-            let pieces = get_pieces_in_space(s)
-            for (let p of pieces) {
-                if (data.pieces[p].nation === GERMANY && data.pieces[p].type === ARMY) {
-                    violations.push({ space: s, piece: p, rule: `(5.7.4) ${piece_name(p)} in ${space_name(s)} before Allies are at Total War` })
-                }
-            }
-        })
-    }
-
     return violations
 }
 
@@ -1829,6 +1817,10 @@ function get_sr_destinations(unit) {
                 && (is_controlled_by(n, active_faction()) || is_besieged(n))) {
                 if (nation === RUSSIA && data.spaces[n].nation !== RUSSIA)
                     return
+
+                if (is_blocked_italian_space(n, [unit]) || is_blocked_italian_border_space(n, [unit]))
+                    return
+
                 set_add(destinations, n)
                 set_add(overland_destinations, n)
                 frontier.push(n)
@@ -1900,13 +1892,6 @@ function get_sr_destinations(unit) {
             if ([ITALY, FRANCE, GREECE, ROMANIA, SERBIA, US, BELGIUM].includes(data.pieces[unit].nation))
                 set_delete(destinations, d)
         }
-    }
-
-    // 5.7.4 - If the Allies are not at Total War, no German Armies may SR to Trent, Villach, or Trieste
-    if (game.ap.commitment !== COMMITMENT_TOTAL && data.pieces[unit].nation === GERMANY && data.pieces[unit].type === ARMY) {
-        set_delete(destinations, TRENT)
-        set_delete(destinations, VILLACH)
-        set_delete(destinations, TRIESTE)
     }
 
     set_delete(destinations, start)
@@ -2784,7 +2769,7 @@ function get_eligible_spaces_to_move() {
             connections = get_connected_spaces(game.move.current)
         }
         connections.forEach((conn) => {
-            const blocked_end_space = is_last_space && !can_end_move(conn)
+            const blocked_end_space = is_last_space && !can_end_move(conn, game.move.pieces)
             if (!blocked_end_space && can_move_to(conn, game.move.pieces))
                 spaces.push(conn)
         })
@@ -2858,7 +2843,7 @@ states.move_stack = {
 
         get_eligible_spaces_to_move().forEach(gen_action_space)
 
-        if (can_end_move(game.move.current)) {
+        if (can_end_move(game.move.current, game.move.pieces)) {
             game.move.pieces.forEach((p) => {
                 gen_action_piece(p)
             })
@@ -3123,15 +3108,45 @@ function get_all_overstacked_spaces() {
     return overstacked
 }
 
-function can_end_move(s) {
+function can_end_move(s, pieces) {
     if (set_has(game.activated.attack, s))
         return false
 
-    if (active_faction() === CP && !game.events.race_to_the_sea && (s === AMIENS || s === CALAIS || s === OSTEND) && game.cp.ws < 4) {
+    if (active_faction() === CP && !game.events.race_to_the_sea && (s === AMIENS || s === CALAIS || s === OSTEND) && game.cp.ws < 4)
         return false
-    }
+
+
+    if (is_blocked_italian_space(s, pieces))
+        return false
+
+    if (is_blocked_italian_border_space(s, pieces))
+        return false
 
     return true
+}
+
+
+function is_blocked_italian_space(s, pieces) {
+    if (game.ap.commitment === COMMITMENT_TOTAL)
+        return false // Once AP is at Total War, there are no restrictions
+
+    const space_nation = data.spaces[s].nation
+    if (space_nation === ITALY) {
+        // Only Italian and Austrian pieces may enter Italian spaces
+        return pieces.some((p) => data.pieces[p].nation !== ITALY && data.pieces[p].nation !== AUSTRIA_HUNGARY)
+    }
+
+    return false
+}
+
+const italian_border_spaces = [TRENT, VILLACH, TRIESTE]
+function is_blocked_italian_border_space(s, pieces) {
+    if (game.ap.commitment === COMMITMENT_TOTAL)
+        return false // Once AP is at Total War, there are no restrictions
+
+    // German armies cannot move or SR to the three Italian border spaces until AP is at total war
+    const has_german_army = pieces.some((p) => { return data.pieces[p].nation === GERMANY && data.pieces[p].type === ARMY })
+    return has_german_army && italian_border_spaces.includes(s)
 }
 
 function end_move_stack() {
@@ -3499,6 +3514,9 @@ function get_attackable_spaces(attackers) {
 
     // Neutral nations
     eligible_spaces = eligible_spaces.filter((s) => is_space_at_war(s))
+
+    // Until AP is at Total War, only Italian and Austrian units may attack into Italian spaces
+    eligible_spaces = eligible_spaces.filter((s) => !is_blocked_italian_space(s, attackers))
 
     const russian_attacker = attackers.some((p) => data.pieces[p].nation === RUSSIA)
     const german_attacker = attackers.some((p) => data.pieces[p].nation === GERMANY)
@@ -5115,6 +5133,9 @@ function get_possible_advance_spaces(pieces) {
         if (can_advance_into(path[0], pieces))
             set_add(spaces, path[0]) // Add the first retreat space from each retreated path
     }
+
+    // Block advance into Italian spaces until AP is at Total War
+    spaces = spaces.filter(s => !is_blocked_italian_space(s, pieces))
 
     // 12.7.7 Central Powers units may advance into Amiens, Calais, or Ostend only if one of the following applies:
     // • if it was the defending space in the Combat.
@@ -9124,12 +9145,29 @@ function assert_reinforcement_rules() {
     })
 }
 
+function assert_italian_operation() {
+    const rule_text = "5.7.4 part 6, until AP is at Total War only Austrian and Italian armies may operate in Italy"
+
+    if (game.ap.commitment === COMMITMENT_TOTAL)
+        return
+
+    for (let p = 1; p < data.pieces.length; ++p) {
+        let space_data = data.spaces[game.location[p]]
+        if (space_data &&
+            space_data.nation === ITALY &&
+            data.pieces[p].nation !== ITALY &&
+            data.pieces[p].nation !== AUSTRIA_HUNGARY)
+            throw new Error(`Rule violation by ${piece_name(p)} in S${game.location[p]} ${space_name(game.location[p])}: ${rule_text}`)
+    }
+}
+
 exports.assert_state = function(state) {
     game = state
     assert_stacking_limits()
     assert_opposing_sides_not_stacked()
     assert_trench_level()
     assert_reinforcement_rules()
+    assert_italian_operation()
 }
 
 /* vim:set sts=4 sw=4 expandtab: */
