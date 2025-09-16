@@ -2198,7 +2198,7 @@ function get_available_reinforcement_spaces(p) {
     }
 
     // Special placement options for French Orient Army, British NE Army, Russian CAU Army, and British MEF Army
-    if (piece_data.name === 'FR Orient' && !is_fully_stacked(SALONIKA, active_faction())) {
+    if (piece_data.name === 'FR Orient' && is_space_at_war(SALONIKA) && !is_fully_stacked(SALONIKA, active_faction())) {
         spaces.push(SALONIKA)
     } else if (piece_data.name === 'BR NE' && game.events.sinai_pipeline > 0 && !is_fully_stacked(ALEXANDRIA, active_faction())) {
         spaces.push(ALEXANDRIA)
