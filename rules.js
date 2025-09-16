@@ -2136,7 +2136,7 @@ states.place_reinforcements = {
         set_delete(game.reduced, p)
         log(`${piece_name(p)}${log_corps(p)} placed in ${space_name(s)}`)
 
-        if (neareast_armies.includes(p) && data.spaces[s].map !== 'neareast' && !is_mef_space(s)) {
+        if (neareast_armies.includes(p) && data.spaces[s].map !== 'neareast' && !is_mef_space(s) && s !== SALONIKA) {
             log(`${piece_name(p)} is a NE army placed outside the Near East, it will not be able to operate on the Near East map`)
             set_add(game.ne_armies_placed_outside_neareast, p)
         }
