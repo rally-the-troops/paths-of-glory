@@ -1497,8 +1497,10 @@ states.action_phase = {
             view.prompt += ` You must play "Guns of August"!`
             gen_card_menu(GUNS_OF_AUGUST, true)
         } else {
-            if (player_actions.length === 5 && game[active_faction()].mo !== NONE)
+            const french_mutiny_active = (game.events.french_mutiny > 0 && game[active_faction()].mo === FRANCE)
+            if (player_actions.length === 5 && game[active_faction()].mo !== NONE && !french_mutiny_active)
                 view.prompt += ` Final round for ${nation_name(game[active_faction()].mo)} mandated offensive!`
+
             for(let card of player_hand) {
                 gen_card_menu(card)
             }
@@ -3268,18 +3270,22 @@ function goto_attack() {
         logi(`Fort (${space_name(game.attack.space)})`)
     }
 
+    if (game.events.french_mutiny > 0 && game.attack.attacker === AP && game.ap.mo === FRANCE) {
+        const french_attacking = game.attack.pieces.some((p) => data.pieces[p].nation === FRANCE)
+        const us_supporting = game.attack.pieces.some((p) => data.pieces[p].nation === US)
+        const nation = data.spaces[game.attack.space].nation
+        if (!game.awarded_fr_mutiny_vp && french_attacking && !us_supporting && (nation === FRANCE || nation === BELGIUM || nation === GERMANY)) {
+            game.vp += 1
+            record_score_event(1, FRENCH_MUTINY)
+            log(`+1 VP -- French unit attacked without US support after French Mutiny`)
+            game.awarded_fr_mutiny_vp = true
+        }
+    }
+
     const mo = active_faction() === AP ? game.ap.mo : game.cp.mo
     if (mo !== NONE && satisfies_mo(mo, game.attack.pieces, get_defenders_pieces(), game.attack.space)) {
         game[active_faction()].mo = NONE
         log(`${faction_name(game.attack.attacker)} satisfy Mandated Offensive`)
-    }
-
-    if (game.events.french_mutiny > 0 && game.attack.attacker === AP) {
-        const french_attacking = game.attack.pieces.some((p) => data.pieces[p].nation === FRANCE)
-        const us_supporting = game.attack.pieces.some((p) => data.pieces[p].nation === US)
-        if (french_attacking && !us_supporting) {
-            game.french_attacked_without_us_support = true // Set a flag to track this for the French Mutiny event, which will update the VP at end of turn
-        }
     }
 
     goto_attack_step_great_retreat()
@@ -5467,14 +5473,7 @@ function goto_war_status_phase() {
         game.ap.missed_mo.push(game.turn)
         log(`+1 VP -- ${faction_name(AP)} failed to conduct their mandated offensive (${nation_name(game.ap.mo)})`)
     }
-
-    // If French unit attacked without US support after French Mutiny, when FR MO, +1 VP
-    if (game.events.french_mutiny > 0 && game.french_attacked_without_us_support) {
-        game.vp += 1
-        record_score_event(1, FRENCH_MUTINY)
-        log(`+1 VP -- French unit attacked without US support after French Mutiny`)
-    }
-    delete game.french_attacked_without_us_support
+    delete game.awarded_fr_mutiny_vp
 
     // E.4. Each player determines if his War Commitment Level has increased. This is not checked on the August 1914
     // turn (turn 1). If the appropriate War Status conditions are met, Limited War or Total War cards may be added
