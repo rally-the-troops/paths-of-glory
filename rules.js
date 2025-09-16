@@ -5511,11 +5511,11 @@ function goto_war_status_phase() {
 
     // E.2. Determine if either player has won an Automatic Victory.
     if (game.vp <= 0) {
-        goto_game_over(faction_name(AP), get_result_message("Automatic Victory: ", AP))
+        goto_game_over(AP, get_result_message("Automatic Victory: ", AP))
         return
     }
     else if (game.vp >= 20) {
-        goto_game_over(faction_name(CP), get_result_message("Automatic Victory: ", CP))
+        goto_game_over(CP, get_result_message("Automatic Victory: ", CP))
         return
     }
     // E.3. Determine winner if an Armistice has been declared.
@@ -5560,9 +5560,9 @@ function get_game_result_by_vp() {
     let cp_threshold = game.events.treaty_of_brest_litovsk > 0 ? 11 : 13
     let ap_threshold = 9
     if (game.vp >= cp_threshold) {
-        return faction_name(CP)
+        return CP
     } else if (game.scenario === HISTORICAL || game.vp <= ap_threshold) {
-        return faction_name(AP)
+        return AP
     } else {
         return "Draw" // Historical scenario draws go to the Allies, so this is future-proofing for other scenarios
     }
@@ -5570,12 +5570,12 @@ function get_game_result_by_vp() {
 
 function get_result_message(prefix, result) {
     if (result === AP)
-        return `${prefix}${faction_name(AP)} win`
+        return `${prefix}${faction_name(AP)} won.`
     if (result === CP)
-        return `${prefix}${faction_name(CP)} win`
+        return `${prefix}${faction_name(CP)} won.`
     if (result === "Draw")
-        return `${prefix}Game ends in a draw`
-    return `${prefix}Game result unknown`
+        return `${prefix}Game ended in a draw.`
+    return `${prefix}Game result unknown.`
 }
 
 function goto_game_over(result, victory) {
@@ -5583,7 +5583,7 @@ function goto_game_over(result, victory) {
     log(victory)
     game.state = 'game_over'
     game.active = 'None'
-    game.result = result
+    game.result = faction_name(result)
     game.victory = victory
 }
 
