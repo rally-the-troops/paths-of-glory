@@ -1774,12 +1774,12 @@ function get_sr_destinations(unit) {
                 is_unit_supplied(i) &&
                 i !== BRITISH_ANA_CORPS &&
                 i !== TURKISH_SN_CORPS) {
-                
+
                 // For Russian units, only allow destinations in Russian spaces
                 if (nation === RUSSIA && data.spaces[game.location[i]].nation !== RUSSIA) {
                     continue
                 }
-                
+
                 set_add(destinations, game.location[i])
             }
         }
@@ -3289,7 +3289,7 @@ function goto_attack() {
         game[active_faction()].mo = NONE
         log(`${faction_name(game.attack.attacker)} satisfy Mandated Offensive`)
     }
-    
+
     goto_attack_step_great_retreat()
 }
 
@@ -5098,7 +5098,6 @@ function get_possible_advance_spaces(pieces) {
     // If the terrain prevents a second advance
     if (!terrain_allows_advance)
         return []
-
 
     let spaces = []
     for (let path of game.attack.retreat_paths) {
