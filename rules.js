@@ -5304,10 +5304,12 @@ function goto_attrition_phase() {
     }
 
     // Get all OOS pieces that should suffer attrition
+    let turkish_units_in_medina = false
     for (let p of game.oos_pieces) {
         const faction = data.pieces[p].faction
         if (game.location[p] === MEDINA && data.pieces[p].nation === TURKEY) {
             // Turkish units in Medina do not suffer attrition, even though they may be OOS
+            turkish_units_in_medina = true
         } else {
             set_add(game.attrition[faction].pieces, p)
         }
@@ -5327,6 +5329,8 @@ function goto_attrition_phase() {
             continue // MEF spaces do not flip control
         }
         if (s === ARABIA_SPACE)
+            continue
+        if (s === MEDINA && turkish_units_in_medina)
             continue
         if (has_undestroyed_fort(s, controlling_faction)) {
             continue // Under rule 14.3.6, spaces with undestroyed forts do not flip control
