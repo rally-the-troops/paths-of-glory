@@ -1200,20 +1200,6 @@ function all_capitals_occupied(nation) {
     return true
 }
 
-function any_capitals_occupied(nation) {
-    const capitals = all_capitals_by_nation[nation]
-    if (!capitals)
-        return false
-    
-    const faction = data.spaces[capitals[0]].faction
-    for (let c of capitals) {
-        if (!is_controlled_by(c, faction)) {
-            return true
-        }
-    }
-    return false
-}
-
 function satisfies_mo(mo, attackers, defenders, space) {
     let attacker_nation = mo === AH_IT ? AUSTRIA_HUNGARY : mo
     let valid_attacker = attackers.find((a) => {
@@ -5814,7 +5800,7 @@ function get_replaceable_units() {
         if (game.location[i] === 0)
             continue
         // If any capital been occupied, the nation cannot use rps
-        if (any_capitals_occupied(piece_data.nation) && piece_data.nation !== SERBIA)
+        if (any_capital_occupied_or_besieged(piece_data.nation) && piece_data.nation !== SERBIA)
             continue
 
         if (is_controlled_by(WARSAW, AP) && piece_data.name === 'PLc')
