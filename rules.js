@@ -2979,10 +2979,8 @@ function can_move_to(s, moving_pieces) {
     if (contains_enemy)
         return false
 
-    // TEMP
-    //if (!is_controlled_by(s, active_faction()) && has_undestroyed_fort(s, other_faction(active_faction())) && !is_besieged(s) && !can_besiege(s, moving_pieces)) {
-    //    return false
-    //}
+    if (is_blocked_italian_space(s, moving_pieces))
+        return false
 
     // No units may enter a MEF space unless the MEF Beachhead marker is in the space.
     if (is_mef_space(s) && game.mef_beachhead !== s) {
@@ -3113,10 +3111,6 @@ function can_end_move(s, pieces) {
         return false
 
     if (active_faction() === CP && !game.events.race_to_the_sea && (s === AMIENS || s === CALAIS || s === OSTEND) && game.cp.ws < 4)
-        return false
-
-
-    if (is_blocked_italian_space(s, pieces))
         return false
 
     if (is_blocked_italian_border_space(s, pieces))
