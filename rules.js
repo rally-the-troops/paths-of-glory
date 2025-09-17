@@ -3132,8 +3132,8 @@ function is_blocked_italian_space(s, pieces) {
 
     const space_nation = data.spaces[s].nation
     if (space_nation === ITALY) {
-        // Only Italian and Austrian pieces may enter Italian spaces
-        return pieces.some((p) => data.pieces[p].nation !== ITALY && data.pieces[p].nation !== AUSTRIA_HUNGARY)
+        // Only Italian and Austrian armies may enter Italian spaces
+        return pieces.some((p) => data.pieces[p].type === ARMY && data.pieces[p].nation !== ITALY && data.pieces[p].nation !== AUSTRIA_HUNGARY)
     }
 
     return false
