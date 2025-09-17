@@ -2236,7 +2236,8 @@ function get_available_reinforcement_spaces(p) {
         is_fully_stacked(PARIS, active_faction()) &&
         is_controlled_by(PARIS, active_faction()) &&
         is_controlled_by(ORLEANS, active_faction()) &&
-        is_unit_supplied_in(p, ORLEANS)
+        is_unit_supplied_in(p, ORLEANS) &&
+        !is_fully_stacked(ORLEANS, active_faction())
     ) {
         spaces.push(ORLEANS)
     }
