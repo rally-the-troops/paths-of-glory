@@ -244,6 +244,7 @@ const MEF4 = 260
 const BASRA = 269
 const ARABIA_SPACE = 271
 const MEDINA = 272
+const AQABA = 273
 const SINAI = 277
 const ALEXANDRIA = 280
 const LIBYA = 281
@@ -4933,6 +4934,9 @@ function get_retreat_options(pieces, from, spaces_to_retreat = 1) {
             return
 
         if (spaces_to_retreat === 1 && would_overstack(conn, pieces, faction))
+            return
+
+        if (is_blocked_italian_space(conn, pieces))
             return
 
         if (contains_piece_of_faction(conn, game.attack.attacker))
