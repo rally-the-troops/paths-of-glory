@@ -6441,6 +6441,13 @@ function is_space_supplied(s, faction) {
                     return true
             }
         }
+
+        if (s === MEDINA) {
+            // AP supply in Medina is complicated by the connections being ANA-only, so just check if either of the
+            // neighbors have AP supply. The only AP unit that can be supplied in Medina is the ANA corps, which
+            // already has its own exception in is_unit_supplied_in().
+            return (is_space_supplied(ARABIA_SPACE, AP) || is_space_supplied(AQABA, AP))
+        }
         return check_supply_cache(game.supply, s, [LONDON, PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE, SALONIKA])
     }
 }
