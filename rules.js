@@ -6421,7 +6421,7 @@ function is_unit_supplied_in(p, s, for_rp = false) {
 }
 
 function is_unit_supplied_for_rp_in(p, s) {
-    return is_unit_supplied(p, s, true)
+    return is_unit_supplied_in(p, s, true)
 }
 
 function is_space_supplied(s, faction) {
