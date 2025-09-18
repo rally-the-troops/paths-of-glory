@@ -2722,7 +2722,6 @@ states.choose_pieces_to_move = {
             end_move_activation()
     },
     stop() {
-        log_piece_move(game.move.pieces)
         end_move_stack()
     },
     space(s) {
@@ -2874,7 +2873,6 @@ states.move_stack = {
     },
     stop() {
         push_undo()
-        log_piece_move(game.move.pieces)
         end_move_stack()
     }
 }
@@ -3144,6 +3142,9 @@ function is_blocked_italian_border_space(s, pieces) {
 }
 
 function end_move_stack() {
+    if (game.move.pieces.length > 0)
+        log_piece_move(game.move.pieces)
+
     if (!is_controlled_by(game.move.current, active_faction()) && has_undestroyed_fort(game.move.current, other_faction(active_faction()))) {
         if (can_besiege(game.move.current, get_pieces_in_space(game.move.current)))
             set_add(game.forts.besieged, game.move.current)
