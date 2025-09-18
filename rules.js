@@ -5818,6 +5818,7 @@ states.replacement_phase = {
 function get_replaceable_units() {
     let units = []
     for (let i = 1; i < data.pieces.length; ++i) {
+        let s = game.location[i]
         const piece_data = data.pieces[i]
         if (piece_data.faction !== active_faction())
             continue
@@ -5830,8 +5831,9 @@ function get_replaceable_units() {
         if (rps_available === 0)
             continue
 
-        if (game.location[i] === 0)
+        if (s === 0)
             continue
+
         // If any capital been occupied, the nation cannot use rps
         if (any_capital_occupied_or_besieged(piece_data.nation) && piece_data.nation !== SERBIA)
             continue
@@ -5840,7 +5842,7 @@ function get_replaceable_units() {
             continue
 
         if (piece_data.type === ARMY) {
-            if ((game.location[i] === AP_ELIMINATED_BOX || game.location[i] === CP_ELIMINATED_BOX) && get_army_replacement_spaces(i).length === 0)
+            if ((s === AP_ELIMINATED_BOX || s === CP_ELIMINATED_BOX) && get_army_replacement_spaces(i).length === 0)
                 continue
             if (rps_available < 1)
                 continue
@@ -5848,8 +5850,14 @@ function get_replaceable_units() {
 
         if (is_unit_eliminated(i)) {
             units.push(i)
-        } else if (is_unit_reduced(i) && (is_unit_supplied(i) || game.location[i] === AP_RESERVE_BOX || game.location[i] === CP_RESERVE_BOX)) {
-            units.push(i)
+        } else if (is_unit_reduced(i)) {
+            if (s === AP_RESERVE_BOX || s === CP_RESERVE_BOX) {
+                units.push(i)
+            } else if (s < AP_RESERVE_BOX) {
+                // TODO: 17.1.4.1 check
+                if (is_unit_supplied_for_rp_in(i, s))
+                    units.push(i)
+            }
         }
     }
 
@@ -6365,7 +6373,7 @@ function is_supply_not_blocked(s, faction) {
     )
 }
 
-function is_unit_supplied_in(p, s) {
+function is_unit_supplied_in(p, s, for_rp = false) {
     if (p === BRITISH_ANA_CORPS && data.spaces[s].map && data.spaces[s].map === "neareast")
         return !is_supply_blocked_by_units(s, AP)
 
@@ -6407,7 +6415,13 @@ function is_unit_supplied_in(p, s) {
     if (nation === ITALY)
         return game.supply[s] & SUPPLY_MASK.London_Italian
 
+    if (for_rp)
+        return check_supply_cache(game.supply, s, get_supply_sources_for_piece_rp(p))
     return check_supply_cache(game.supply, s, get_supply_sources_for_piece(p))
+}
+
+function is_unit_supplied_for_rp_in(p, s) {
+    return is_unit_supplied(p, s, true)
 }
 
 function is_space_supplied(s, faction) {
@@ -6444,11 +6458,32 @@ function get_supply_sources_for_piece(p) {
         case SERBIA:
             return [PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE]
     }
-
-    if (data.pieces[p].faction === AP) {
+    if (data.pieces[p].faction === AP)
         return [LONDON]
-    }
+    return [ESSEN, BRESLAU, SOFIA, CONSTANTINOPLE]
+}
 
+function get_supply_sources_for_piece_rp(p) {
+    let nation = data.pieces[p].nation
+    switch (nation) {
+        // 17.1.4.1 exceptions
+        case GERMANY:
+        case AUSTRIA_HUNGARY:
+            return [ ESSEN, BRESLAU ]
+        case TURKEY:
+            return [ CONSTANTINOPLE]
+        case BULGARIA:
+            return [ SOFIA ]
+        case RUSSIA:
+        case ROMANIA:
+            return [ PETROGRAD, MOSCOW, KHARKOV, CAUCASUS ]
+
+        // 14.2.2 (14.2.3 is handled elsewhere)
+        case SERBIA:
+            return [PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE]
+    }
+    if (data.pieces[p].faction === AP)
+        return [LONDON]
     return [ESSEN, BRESLAU, SOFIA, CONSTANTINOPLE]
 }
 
