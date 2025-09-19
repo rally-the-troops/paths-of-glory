@@ -1732,6 +1732,10 @@ states.choose_sr_destination = {
             log(`${piece_name(game.sr.unit)}${log_corps(game.sr.unit)} SR\n${space_name(from)} -> ${space_name(s)}`)
         else
             log(`${piece_name(game.sr.unit)} SR\n${space_name(from)} -> ${space_name(s)}`)
+
+        if (is_only_ana_corps([game.sr.unit]))
+            update_vp_after_ana_move(from, s)
+
         game.sr.unit = 0
         game.state = 'choose_sr_unit'
         update_siege(from)
