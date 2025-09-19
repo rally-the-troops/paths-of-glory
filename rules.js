@@ -3598,6 +3598,10 @@ function get_attackable_spaces_for_piece(p) {
     let attackable_spaces = []
     let s = game.location[p]
     get_connected_spaces(s, data.pieces[p].nation).forEach((conn) => {
+        // 11.3.1 Near East restriction
+        if (is_neareast_space(conn) && data.pieces[p].type === ARMY && !data.pieces[p].neareast) {
+            return
+        }
         if (can_be_attacked(conn)) {
             set_add(attackable_spaces, conn)
         }
