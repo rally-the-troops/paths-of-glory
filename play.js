@@ -2099,6 +2099,9 @@ function on_log(text) {
         p.className = "h3"
     }
 
+    text = text.replace(/\+\d VP/g, match => `<span class="cpvp">${match}</span>`)
+    text = text.replace(/[-−]\d VP/g, match => `<span class="apvp">${match}</span>`)
+
     if (text.indexOf("\n") < 0) {
         p.innerHTML = text
     } else {
