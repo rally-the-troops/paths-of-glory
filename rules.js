@@ -2786,11 +2786,8 @@ function get_eligible_spaces_to_move() {
     return spaces
 }
 
-function can_take_control(pieces) {
-    /* ANAc cannot take control */
-    if (pieces.length === 1 && pieces[0] === BRITISH_ANA_CORPS)
-        return false
-    return true
+function is_only_ana_corps(pieces) {
+    return (pieces[0] === BRITISH_ANA_CORPS && pieces.length === 1)
 }
 
 function move_stack_to_space(s) {
@@ -2816,6 +2813,8 @@ function move_stack_to_space(s) {
             set_delete(game.failed_entrench, p)
         game.location[p] = s
     })
+
+    let from = game.move.current
     game.move.spaces_moved++
     game.move.current = s
 
@@ -2825,8 +2824,10 @@ function move_stack_to_space(s) {
 
     capture_trench(s, active_faction())
 
-    if (!has_undestroyed_fort(s, other_faction(active_faction()))) {
-        if (can_take_control(game.move.pieces))
+    if (!has_undestroyed_fort(s, inactive_faction())) {
+        if (is_only_ana_corps(game.move.pieces))
+            update_vp_after_ana_move(from, s)
+        else
             set_control(s, active_faction())
     }
 }
@@ -2907,18 +2908,7 @@ function set_control(s, faction) {
     if (get_control_bit(s) === new_control)
         return
 
-    if (data.spaces[s].vp) {
-        const is_russian = data.spaces[s].nation === RUSSIA
-        if (faction === AP) {
-            game.vp--
-            logi(`-1 VP ${space_name(s)} captured`)
-            if (is_russian) game.cp.ru_vp--
-        } else {
-            logi(`+1 VP ${space_name(s)} captured`)
-            game.vp++
-            if (is_russian) game.cp.ru_vp++
-        }
-    }
+    update_vp_for_space_control(s, faction)
 
     if (s === game.mef_beachhead && !game.mef_beachhead_captured && faction === CP) {
         log(`MEF beachhead captured`)
@@ -2928,6 +2918,21 @@ function set_control(s, faction) {
     set_control_bit(s, new_control)
 
     update_russian_capitulation()
+}
+
+function update_vp_for_space_control(s, new_faction) {
+    if (data.spaces[s].vp) {
+        const is_russian = data.spaces[s].nation === RUSSIA
+        if (new_faction === AP) {
+            game.vp--
+            logi(`-1 VP ${space_name(s)} captured`)
+            if (is_russian) game.cp.ru_vp--
+        } else {
+            logi(`+1 VP ${space_name(s)} captured`)
+            game.vp++
+            if (is_russian) game.cp.ru_vp++
+        }
+    }
 }
 
 function capture_trench(s, faction) {
@@ -2951,6 +2956,18 @@ function is_controlled_by(s, faction) {
         controlling_faction = AP
     }
     return faction === controlling_faction
+}
+
+function update_vp_after_ana_move(from, to) {
+    if (is_controlled_by(from, CP) && !has_undestroyed_fort(from, CP)) {
+        // Space reverted to CP control after ANA left
+        update_vp_for_space_control(from, CP)
+    }
+
+    if (get_control_bit(to, CP) && is_controlled_by(to, AP)) {
+        // AP is temporarily controlling a CP space due to ANA presence
+        update_vp_for_space_control(to, AP)
+    }
 }
 
 function contains_piece_of_faction(s, faction) {
@@ -4149,6 +4166,9 @@ states.apply_defender_losses = {
         } else {
             reduce_piece_defender(p)
         }
+
+        if (is_only_ana_corps([p]))
+            update_vp_after_ana_move(game.attack.space)
     },
     space(s) {
         push_undo()
@@ -4905,7 +4925,9 @@ states.defender_retreat = {
         if (game.attack.retreat_path.length > 0) {
             const end_space = game.attack.retreat_path[game.attack.retreat_path.length - 1]
             if (!is_controlled_by(end_space, active_faction()) && !has_undestroyed_fort(end_space, game.attack.attacker)) {
-                if (can_take_control(game.attack.retreating_pieces))
+                if (is_only_ana_corps(game.attack.retreating_pieces))
+                    update_vp_after_ana_move(game.attack.space, end_space)
+                else
                     set_control(end_space, active_faction())
             }
             update_siege(end_space)
@@ -5074,7 +5096,9 @@ states.attacker_advance = {
                 set_add(game.forts.besieged, s)
             }
         } else {
-            if (can_take_control(game.attack.advancing_pieces))
+            if (is_only_ana_corps(game.attack.advancing_pieces))
+                update_vp_after_ana_move(leaving_spaces[0], s)
+            else
                 set_control(s, game.attack.attacker)
         }
         capture_trench(s, game.attack.attacker)
@@ -5423,7 +5447,7 @@ states.attrition_phase = {
     space(s) {
         set_delete(game.attrition[active_faction()].spaces, s)
         log(`Flipped control of ${space_name(s)}`)
-        set_control(s, other_faction(active_faction()))
+        set_control(s, inactive_faction())
 
         if (get_trench_level(s, active_faction()) > 0) {
             log(`Removed trench in ${space_name(s)}`)
