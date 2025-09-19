@@ -2069,6 +2069,11 @@ function on_log(text) {
 
     text = escape_text(text)
 
+    if (text.match(/^!/)) {
+        text = "&#x2757;" + text.substring(1)
+        p.classList.toggle("alert", true)
+    }
+
     if (text.match(/^\.h1/)) {
         text = text.substring(4)
         p.className = 'h1'

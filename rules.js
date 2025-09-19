@@ -4280,7 +4280,7 @@ function eliminate_piece(p, force_permanent_elimination) {
 
     if (data.pieces[p].type === CORPS) {
         if (data.pieces[p].notreplaceable) {
-            log(`Permanently eliminated ${piece_name(p)} in ${space_name(game.location[p])}`)
+            log_alert(`Permanently eliminated ${piece_name(p)} in ${space_name(game.location[p])}`)
             set_add(game.removed, p)
             game.location[p] = 0
         } else {
@@ -4294,7 +4294,7 @@ function eliminate_piece(p, force_permanent_elimination) {
     let replacement_options = get_replacement_options(p, get_units_in_reserve())
     if (force_permanent_elimination || replacement_options.length === 0 || data.pieces[p].notreplaceable || !is_unit_supplied(p)) {
         // Permanently eliminate piece
-        log(`Permanently eliminated ${piece_name(p)} in ${space_name(game.location[p])}`)
+        log_alert(`Permanently eliminated ${piece_name(p)} in ${space_name(game.location[p])}`)
         set_add(game.removed, p)
         game.location[p] = 0
         return replacement_options
@@ -5399,11 +5399,12 @@ states.attrition_phase = {
     piece(p) {
         let loc = game.location[p]
         set_delete(game.attrition[active_faction()].pieces, p)
-        log(`Removed ${piece_name(p)} from ${space_name(game.location[p])}`)
         if (data.pieces[p].type === ARMY) {
+            log_alert(`Permanently removed ${piece_name(p)} from ${space_name(game.location[p])}`)
             game.location[p] = 0
             set_add(game.removed, p)
         } else {
+            log(`Removed ${piece_name(p)} from ${space_name(game.location[p])}`)
             send_to_eliminated_box(p)
         }
 
@@ -7074,7 +7075,7 @@ states.war_in_africa = {
     piece(p) {
         push_undo()
         const space = game.location[p]
-        logi(`Permanently removed ${piece_name(p)} (${space_name(space)})`)
+        log_alert_i(`Permanently removed ${piece_name(p)} (${space_name(space)})`)
         game.location[p] = 0
         set_add(game.removed, p)
         game.war_in_africa_removed = p
@@ -8446,6 +8447,7 @@ events.czech_legion = {
             if (is_unit_eliminated(p) && piece_data.nation === AUSTRIA_HUNGARY && piece_data.type === CORPS) {
                 game.location[p] = 0
                 set_add(game.removed, p)
+                log_alert(`Permanently removed ${piece_name(p)} from the game`)
                 break
             }
         }
@@ -9066,6 +9068,14 @@ function logi(msg) {
 }
 function logii(msg) {
     game.log.push(">>" + msg)
+}
+
+function log_alert(msg) {
+    game.log.push("!" + msg)
+}
+
+function log_alert_i(msg) {
+    game.log.push(">!" + msg)
 }
 
 function log_h1(msg) {
