@@ -1894,6 +1894,14 @@ function get_sr_destinations(unit) {
                 set_delete(destinations, d)
         }
     }
+            // 11.1.9 Amiens, Calais & Ostend restriction
+            if (data.pieces[unit].faction === CP) {
+                if (game.events.race_to_the_sea === undefined && game.cp.ws < 4) {
+                    set_delete(destinations, AMIENS)
+                    set_delete(destinations, CALAIS) 
+                    set_delete(destinations, OSTEND)
+                }
+            }
 
     set_delete(destinations, start)
 
