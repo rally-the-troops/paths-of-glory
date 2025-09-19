@@ -234,6 +234,7 @@ const KIEV = 171
 const CAUCASUS = 186
 const ODESSA = 188
 const SOFIA = 198
+const GALLIPOLI = 212
 const MEF1 = 216
 const MEF2 = 217
 const MEF3 = 218
@@ -6085,9 +6086,16 @@ function get_connected_spaces(s, nation) {
     return data.spaces[s].limited_connections[nation] ?? data.spaces[s].connections
 }
 
-function is_port(s, faction) {
+function is_port(s, faction, is_supply_check = false) {
     if (faction === AP && s === game.mef_beachhead && !game.mef_beachhead_captured)
         return true
+
+    if (is_supply_check && s === RIGA && faction === CP && is_besieged(s))
+        return false // Besieged Riga does not function as a CP port for supply purposes
+
+    if (s === CONSTANTINOPLE && faction === AP && !is_controlled_by(GALLIPOLI, AP))
+        return false // AP cannot use Constantinople as a port unless they control Gallipoli
+
     return (faction === AP && data.spaces[s].apport) || (faction === CP && data.spaces[s].cpport)
 }
 
@@ -6223,7 +6231,7 @@ function fill_supply_cache(faction, cache, sources, options) {
             blocked_spaces[s] = 1
         } else if (use_ports) {
             // If this type of supply can use ports, build a set of friendly port spaces
-            if (is_port(s, faction)) {
+            if (is_port(s, faction, true)) {
                 set_add(friendly_ports, s)
             }
         }
