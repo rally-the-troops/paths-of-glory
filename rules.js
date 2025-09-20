@@ -6839,16 +6839,14 @@ function is_unit_supplied_in(p, s, for_rp = false) {
             return true // Serbian units can trace supply to Salonika if it is friendly controlled
     }
 
-    if (data.spaces[s].nation === ALBANIA) {
-        // Albanian spaces check Attrition supply by tracing normally to an Allied supply source;
-        // or tracing to Taranto even while Italy is still Neutral.
-        if (data.pieces[p].faction === AP) {
-            if (is_controlled_by(TARANTO, AP)) {
-                if (s === VALONA)
-                    return true
-                if (s === TIRANA && is_controlled_by(VALONA, AP))
-                    return true
-            }
+    // Albania traces supply from Taranto while Italy is neutral or when Taranto is supplied
+    if (data.spaces[s].nation === ALBANIA && (!is_space_at_war(TARANTO) || is_space_supplied(TARANTO, AP))) {
+        // Special Albanian supply does not apply to Russian, Romanian, or Serbian units, which must trace normally
+        if (data.pieces[p].faction === AP && ![RUSSIA, ROMANIA, SERBIA].includes(nation)) {
+            if (s === VALONA)
+                return true
+            if (s === TIRANA && is_controlled_by(VALONA, AP))
+                return true
         }
     }
 
@@ -6868,14 +6866,12 @@ function is_space_supplied(s, faction) {
     if (faction === CP) {
         return check_supply_cache(game.supply, s, [ESSEN, BRESLAU, SOFIA, CONSTANTINOPLE])
     } else {
-        if (data.spaces[s].nation === ALBANIA) {
+        if (data.spaces[s].nation === ALBANIA && (!is_space_at_war(TARANTO) || is_space_supplied(TARANTO, AP))) {
             // Albanian spaces may supply from Taranto even while Italy is neutral.
-            if (is_controlled_by(TARANTO, AP)) {
-                if (s === VALONA)
-                    return true
-                if (s === TIRANA && is_controlled_by(VALONA, AP))
-                    return true
-            }
+            if (s === VALONA)
+                return true
+            if (s === TIRANA && is_controlled_by(VALONA, AP))
+                return true
         }
 
         if (s === MEDINA) {
