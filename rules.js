@@ -2212,7 +2212,7 @@ function get_sr_destinations(unit) {
     if (data.pieces[unit].type === CORPS) {
         if (is_port(start, active_faction())) {
             for (let s = 1; s < data.spaces.length; s++) {
-                if (is_port(s, active_faction()) && is_controlled_by(s, active_faction())) {
+                if (is_port(s, active_faction()) && is_controlled_by(s, active_faction()) && is_unit_supplied_in(unit, s)) {
                     set_add(destinations, s)
                 }
             }
