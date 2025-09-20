@@ -1152,7 +1152,7 @@ function set_up_great_war_scenario_decks() {
         let c = data.cards[i]
         if (great_war_scenario_played_cp_cards.includes(i) || great_war_scenario_played_ap_cards.includes(i))
             set_up_played_event(i, great_war_scenario_turn_for_event(i))
-        else
+        else if (!is_optional_card(i))
             game[c.faction].deck.push(i)
     }
 
