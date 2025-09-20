@@ -4001,39 +4001,41 @@ function is_invalid_multinational_attack(attackers) {
     return true
 }
 
+function has_russian_piece(s) {
+    for (let p of all_pieces_by_nation[RUSSIA])
+        if (game.location[p] === s)
+            return true
+    return false
+}
+
 function get_attackable_spaces_for_piece(p) {
     let attackable_spaces = []
-    let s = game.location[p]
-    // Brest Litovsk - RU can't attack
-    if (game.events.treaty_of_brest_litovsk > 0) {
-        if (data.pieces[p].nation === RUSSIA) {
-            return attackable_spaces
-        }
-    }
-    get_connected_spaces(s, data.pieces[p].nation).forEach((conn) => {
-        // 11.3.1 Near East restriction
-        if (is_neareast_space(conn) && data.pieces[p].type === ARMY && !data.pieces[p].neareast) {
-            return
-        }
-        // Brest Litovsk - RU can't be attacked except TU in Near East
-        if (game.events.treaty_of_brest_litovsk > 0) {
-            const has_russian_defenders = game.location.some((loc, piece_id) => 
-                loc === conn && data.pieces[piece_id].nation === RUSSIA
-            )
-            if (has_russian_defenders && data.pieces[p].faction === CP) {
-                if (data.pieces[p].nation !== TURKEY || !is_neareast_space(conn)) {
-                    return
-                }
-            }
-        }
-        if (can_be_attacked(conn)) {
+    for (let conn of get_connected_spaces(game.location[p], data.pieces[p].nation)) {
+        if (is_attackable_space_for_piece(conn, p)) {
             set_add(attackable_spaces, conn)
         }
-    })
+    }
     return attackable_spaces
 }
 
-function can_be_attacked(s) {
+function is_attackable_space_for_piece(s, p) {
+    // 11.3.1 Near East restriction
+    if (is_neareast_space(s) && data.pieces[p].type === ARMY && !data.pieces[p].neareast) {
+        return false
+    }
+
+    if (game.events.treaty_of_brest_litovsk > 0) {
+        // Brest Litovsk - RU can't attack
+        if (data.pieces[p].nation === RUSSIA) {
+            return false
+        }
+        // Brest Litovsk - RU can only be attacked by TU in Near East
+        if (data.pieces[p].faction === CP) {
+            if ((data.pieces[p].nation !== TURKEY || !is_neareast_space(s)) && has_russian_piece(s))
+                return false
+        }
+    }
+
     // Check if space has an attackable fort
     if (has_undestroyed_fort(s, other_faction(active_faction())) && is_controlled_by(s, other_faction(active_faction())) && !is_besieged(s)) {
         return true
@@ -4047,11 +4049,11 @@ function can_be_attacked(s) {
         }
     }
 
-    for (let p = 0; p < game.location.length; ++p) {
-        if (game.location[p] === s && data.pieces[p].faction !== active_faction()) {
+    // Has enemy piece
+    for (let p of all_pieces_by_faction[other_faction(active_faction())])
+        if (game.location[p] === s)
             return true
-        }
-    }
+
     return false
 }
 
