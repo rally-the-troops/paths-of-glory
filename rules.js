@@ -4118,9 +4118,12 @@ states.eliminate_retreated_units = {
     },
     piece(p) {
         push_undo()
+        let location = game.location[p]
         // Pieces eliminated in this condition are sent to the eliminated box and not replaced (12.5.6)
         send_to_eliminated_box(p)
         set_delete(game.retreated, p)
+        if (p === BRITISH_ANA_CORPS)
+            update_vp_after_ana_move(location, game.location[p])
     },
     done() {
         game.state = 'apply_defender_losses'
@@ -4794,6 +4797,8 @@ states.cancel_retreat = {
             } else if (replacement_options.length === 1) {
                 replace_retreat_canceling_unit(p, location, replacement_options[0])
             }
+            if (p === BRITISH_ANA_CORPS)
+                update_vp_after_ana_move(location, game.location[p])
         } else {
             reduce_piece_defender(p)
         }
@@ -4885,11 +4890,14 @@ states.defender_retreat = {
         push_undo()
         let eliminated = []
         for (let p of game.attack.retreating_pieces) {
-            let options_for_piece = get_retreat_options([p], game.location[p], game.attack.retreat_length - game.attack.retreat_path.length)
+            let loc = game.location[p]
+            let options_for_piece = get_retreat_options([p], loc, game.attack.retreat_length - game.attack.retreat_path.length)
             if (options_for_piece.length > 0)
                 continue // Only eliminate pieces that have no valid retreat options
             eliminate_piece(p, true)
             eliminated.push(p)
+            if (p === BRITISH_ANA_CORPS)
+                update_vp_after_ana_move(loc, game.location[p])
             // 12.4.7, section 2
             // When an army is replaced by a corps and then that corps cannot fulfill a mandatory retreat, the army is
             // permanently eliminated
