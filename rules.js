@@ -365,6 +365,7 @@ exports.action = function (state, current, action, arg) {
         else
             throw new Error("Invalid action: " + action)
     }
+    update_ana_vp()
     return game
 }
 
@@ -3305,6 +3306,25 @@ function set_control(s, faction) {
     set_control_bit(s, new_control)
 
     update_russian_capitulation()
+}
+
+function update_ana_vp() {
+    if (game.ana_prev === game.location[BRITISH_ANA_CORPS])
+        return
+
+    // ANA was in this space, but it's now CP controlled. Update VP.
+    if (game.ana_prev && is_controlled_by(game.ana_prev, CP) && data.spaces[game.ana_prev].vp) {
+        game.vp++
+        logi(`+1 VP ${space_name(game.ana_prev)} captured`)
+    }
+
+    // ANA is now controlling a new space, and it was CP controlled. Update VP.
+    if (get_control_bit(game.location[BRITISH_ANA_CORPS]) === 1 && is_controlled_by(game.location[BRITISH_ANA_CORPS], AP) && data.spaces[game.location[BRITISH_ANA_CORPS]].vp) {
+        game.vp--
+        logi(`-1 VP ${space_name(game.location[BRITISH_ANA_CORPS])} captured`)
+    }
+
+    game.ana_prev = game.location[BRITISH_ANA_CORPS]
 }
 
 function capture_trench(s, faction) {
