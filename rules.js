@@ -4163,12 +4163,13 @@ states.apply_defender_losses = {
             } else if (replacement_options.length === 1) {
                 replace_defender_unit(p, location, replacement_options[0])
             }
+
+            if (p === BRITISH_ANA_CORPS)
+                update_vp_after_ana_move(game.attack.space, game.location[p])
         } else {
             reduce_piece_defender(p)
         }
 
-        if (p === BRITISH_ANA_CORPS)
-            update_vp_after_ana_move(game.attack.space)
     },
     space(s) {
         push_undo()
@@ -4366,6 +4367,8 @@ states.apply_attacker_losses = {
             } else if (replacement_options.length === 1) {
                 replace_attacker_unit(p, location, replacement_options[0])
             }
+            if (p === BRITISH_ANA_CORPS)
+                update_vp_after_ana_move(location, game.location[p])
         } else {
             reduce_piece(p)
         }
