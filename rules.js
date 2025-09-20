@@ -3664,14 +3664,39 @@ states.confirm_pass_attack = {
     }
 }
 
+function fmt_attack_odds() {
+    const defender = other_faction(game.attack.attacker)
+    const attack_factors = game.attack.pieces.reduce((sum, p) => sum + get_piece_cf(p), 0)
+
+    const defender_pieces = get_defenders_pieces()
+    let defense_factors = defender_pieces.reduce((sum, p) => sum + get_piece_cf(p), 0)
+
+    const attacker_table = game.attack.pieces.some(p => data.pieces[p].type === ARMY) ? fire_table.army : fire_table.corps
+    const defender_table = defender_pieces.some(p => data.pieces[p].type === ARMY) ? fire_table.army : fire_table.corps
+
+    if (has_undestroyed_fort(game.attack.space, defender))
+        defense_factors += data.spaces[game.attack.space].fort
+    let attacker_shifts = 0
+    let defender_shifts = 0
+
+    const trench_lvl = get_trench_level_for_attack(game.attack.space, defender)
+    if (trench_lvl === 2) {
+        attacker_shifts -= 2
+        defender_shifts++
+    } else if (trench_lvl === 1) {
+        attacker_shifts--
+        defender_shifts++
+    }
+
+    const attacker_col = get_fire_col(attacker_table, attack_factors, attacker_shifts)
+    const defender_col = get_fire_col(defender_table, defense_factors, defender_shifts)
+    return `${attacker_col.name} vs ${defender_col.name}`
+}
+
 states.confirm_attack = {
     inactive: 'attack',
     prompt() {
-        const attack_factors = game.attack.pieces.reduce((sum, p) => sum + get_piece_cf(p), 0)
-        let defense_factors = get_defenders_pieces().reduce((sum, p) => sum + get_piece_cf(p), 0)
-        if (has_undestroyed_fort(game.attack.space, other_faction(game.attack.attacker)))
-            defense_factors += data.spaces[game.attack.space].fort
-        view.prompt = `Attack ${space_name(game.attack.space)} with ${piece_list(game.attack.pieces)} at ${attack_factors} vs ${defense_factors}?`
+        view.prompt = `Attack ${space_name(game.attack.space)} with ${piece_list(game.attack.pieces)} at ${fmt_attack_odds()}?`
         view.where = game.attack.space
         gen_action('attack')
     },
@@ -4358,23 +4383,28 @@ const fire_table = {
         {factors: 3, result:  [1, 2, 2, 3, 3, 4], name: "3 (Army)"},
         {factors: 4, result:  [2, 2, 3, 3, 4, 4], name: "4 (Army)"},
         {factors: 5, result:  [2, 3, 3, 4, 4, 5], name: "5 (Army)"},
-        {factors: 6, result:  [3, 3, 4, 4, 5, 5], name: "6-8 (Army)"},
-        {factors: 9, result:  [3, 4, 4, 5, 5, 7], name: "9-11 (Army)"},
-        {factors: 12, result: [4, 4, 5, 5, 7, 7], name: "12-14 (Army)"},
+        {factors: 6, result:  [3, 3, 4, 4, 5, 5], name: "6 (Army)"},
+        {factors: 9, result:  [3, 4, 4, 5, 5, 7], name: "9 (Army)"},
+        {factors: 12, result: [4, 4, 5, 5, 7, 7], name: "12 (Army)"},
         {factors: 15, result: [4, 5, 5, 7, 7, 7], name: "15 (Army)"},
         {factors: 16, result: [5, 5, 7, 7, 7, 7], name: "16+ (Army)"}
     ]
 }
 
-function get_fire_result(t, cf, shifts, roll) {
-    let table = fire_table[t]
+function get_fire_col(table, cf, shifts) {
     let col = 1
     while (col < table.length && table[col].factors <= cf) { col++ } // Find first column where column factors > combat factors
     col-- // Back up one column
     col += shifts
     col = Math.min(Math.max(col, 0), table.length-1)
-    logi(`Column: ${table[col].name}`)
-    return table[col].result[roll-1]
+    return table[col]
+}
+
+function get_fire_result(t, cf, shifts, roll) {
+    let table = fire_table[t]
+    let column = get_fire_col(table, cf, shifts)
+    logi(`Column: ${column.name}`)
+    return column.result[roll-1]
 }
 
 function resolve_attackers_fire() {
