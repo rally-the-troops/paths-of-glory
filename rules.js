@@ -342,7 +342,12 @@ const all_supply_and_capitals_by_nation = object_group_by(all_supply_and_capital
 exports.roles = [ AP_ROLE, CP_ROLE ]
 
 const HISTORICAL = "Historical"
-exports.scenarios = [ HISTORICAL ]
+const GREAT_WAR = "The Great War"
+exports.scenarios = [ HISTORICAL ] // Add GREAT_WAR here to enable The Great War scenario
+
+function use_historical_scenario_rules() {
+    return true // Other rules are not implemented
+}
 
 exports.action = function (state, current, action, arg) {
     _assert_push_undo = 0
@@ -555,8 +560,6 @@ exports.dont_snap = function (state) {
 // === SETUP ===
 
 exports.setup = function (seed, scenario, options) {
-    scenario = HISTORICAL
-
     game = create_empty_game_state(seed, scenario)
 
     if (options.optional_cards)
@@ -564,137 +567,27 @@ exports.setup = function (seed, scenario, options) {
 
     // Current control of each space
     for (let i = 0; i < data.spaces.length; ++i)
-        set_control_bit(i, data.spaces[i].faction === CP ? 1 : 0)
+        set_up_control(i, data.spaces[i].faction)
 
     log_h1("Paths of Glory")
 
-    setup_piece('ge', 'GE 1', 'Aachen')
-    setup_piece('ge', 'GE 2', 'Koblenz')
-    setup_piece('ge', 'GE 3', 'Koblenz')
-    setup_piece('ge', 'GE 4', 'Metz')
-    setup_piece('ge', 'GE 5', 'Metz')
-    setup_piece('ge', 'GE 6', 'Strasbourg')
-    setup_piece('ge', 'GE 7', 'Mulhouse', true)
-    setup_piece('ge', 'GEc', 'Bremen', true)
-    setup_piece('fr', 'FR 1', 'Nancy')
-    setup_piece('fr', 'FR 2', 'Nancy')
-    setup_piece('fr', 'FR 3', 'Verdun')
-    setup_piece('fr', 'FR 4', 'Verdun')
-    setup_piece('fr', 'FR 5', 'Sedan')
-    setup_piece('fr', 'FR 6', 'Paris', true)
-    setup_piece('fr', 'FR 9', 'Bar le Duc', true)
-    setup_piece('fr', 'FRc', 'Belfort')
-    setup_piece('fr', 'FRc', 'Belfort')
-    setup_piece('fr', 'FRc', 'Grenoble')
-    setup_piece('be', 'BE 1', 'Antwerp')
-    setup_piece('br', 'BR BEF', 'Brussels')
-
-    setup_piece('ge', 'GE 8', 'Insterberg')
-    setup_piece('ge', 'GEc', 'Insterberg')
-    setup_piece('ge', 'GEc', 'Oppeln', true)
-    setup_piece('ah', 'AHc', 'Cracow')
-    setup_piece('ah', 'AH 1', 'Tarnow')
-    setup_piece('ah', 'AH 4', 'Przemysl')
-    setup_piece('ah', 'AHc', 'Stanislau')
-    setup_piece('ah', 'AH 2', 'Munkacs', true)
-    setup_piece('ah', 'AH 3', 'Tarnopol')
-    setup_piece('ah', 'AHc', 'Czernowitz')
-    setup_piece('ah', 'AHc', 'Timisvar')
-    setup_piece('ah', 'AHc', 'Villach')
-    setup_piece('ah', 'AH 6', 'Sarajevo')
-    setup_piece('ah', 'AH 5', 'Novi Sad')
-
-    setup_piece('mn', 'MNc', 'Cetinje')
-    setup_piece('sb', 'SB 2', 'Valjevo')
-    setup_piece('sb', 'SB 1', 'Belgrade')
-
-    setup_piece('ru', 'RUc', 'Odessa')
-    setup_piece('ru', 'RUc', 'Lutsk')
-    setup_piece('ru', 'RUc', 'Szawli')
-    setup_piece('ru', 'RUc', 'Riga')
-    setup_piece('ru', 'RUc', 'Grodno')
-    setup_piece('ru', 'RU 1', 'Kovno')
-    setup_piece('ru', 'RU 2', 'Lomza')
-    setup_piece('ru', 'RU 4', 'Ivangorod')
-    setup_piece('ru', 'RU 5', 'Lublin')
-    setup_piece('ru', 'RU 3', 'Dubno')
-    setup_piece('ru', 'RU 8', 'Kamenets-Podolski')
-    setup_piece('ru', 'RUc', 'Kars')
-    setup_piece('ru', 'RUc', 'Erivan')
-    setup_piece('ru', 'RUc', 'Batum')
-
-    setup_piece('br', 'BRc', 'Basra', true)
-    setup_piece('br', 'BRc', 'Cairo', true)
-    setup_piece('br', 'BRc', 'Port Said', true)
-
-    setup_piece('br', 'BR BEFc', 'AP Reserve Box')
-    setup_reserve_corps(ITALY, 4)
-    setup_reserve_corps(FRANCE, 7)
-    setup_reserve_corps(BRITAIN, 1)
-    setup_reserve_corps(RUSSIA, 5)
-    setup_reserve_corps(BELGIUM, 1)
-    setup_reserve_corps(SERBIA, 2)
-    setup_reserve_corps(AUSTRIA_HUNGARY, 4)
-    setup_reserve_corps(GERMANY, 8)
-
-    // Set up all the neutral pieces
-    setup_piece('tu', 'TUc', 'Constantinople')
-    setup_piece('tu', 'TUc', 'Balikesir')
-    setup_piece('tu', 'TUc', 'Gallipoli')
-    setup_piece('tu', 'TUc', 'Ankara')
-    setup_piece('tu', 'TUc', 'Erzerum')
-    setup_piece('tu', 'TUc', 'Rize')
-    setup_piece('tu', 'TUc', 'Van')
-    setup_piece('tu', 'TUc', 'Adana')
-    setup_piece('tu', 'TUc', 'Mosul')
-    setup_piece('tu', 'TUc', 'Damascus')
-    setup_piece('tu', 'TUc', 'Gaza')
-    setup_piece('tu', 'TUc', 'Medina')
-    setup_piece('tu', 'TUc', 'Baghdad')
-    setup_piece('it', 'ITc', 'Rome')
-    setup_piece('it', 'ITc', 'Turin')
-    setup_piece('it', 'ITc', 'Taranto')
-    setup_piece('it', 'IT 1', 'Verona', true)
-    setup_piece('it', 'IT 2', 'Udine', true)
-    setup_piece('it', 'IT 3', 'Maggiore', true)
-    setup_piece('it', 'IT 4', 'Asiago', true)
-    setup_piece(BULGARIA, 'BUc', 'Sofia')
-    setup_piece(BULGARIA, 'BUc', 'Sofia')
-    setup_piece(ROMANIA, 'ROc', 'Bucharest')
-    setup_piece(ROMANIA, 'ROc', 'Bucharest')
-
-    set_trench_level(find_space('Strasbourg'), 1, CP)
-    set_trench_level(find_space('Mulhouse'), 1, CP)
-    set_trench_level(find_space('Metz'), 1, CP)
-    set_trench_level(find_space('Trent'), 1, CP)
-    set_trench_level(find_space('Trieste'), 1, CP)
-    set_trench_level(find_space('Villach'), 1, CP)
-    set_trench_level(find_space('Cracow'), 1, CP)
-    set_trench_level(find_space('Konigsberg'), 1, CP)
-    set_trench_level(find_space('Giresun'), 1, CP)
-    set_trench_level(find_space('Gaza'), 1, CP)
-    set_trench_level(find_space('Baghdad'), 1, CP)
-    set_trench_level(find_space('Verona'), 1, AP)
-    set_trench_level(find_space('Asiago'), 1, AP)
-    set_trench_level(find_space('Maggiore'), 1, AP)
-    set_trench_level(find_space('Udine'), 1, AP)
-    set_trench_level(find_space('Verdun'), 1, AP)
-    set_trench_level(find_space('Nancy'), 1, AP)
-    set_trench_level(find_space('Paris'), 1, AP)
-    set_trench_level(find_space('Belfort'), 1, AP)
-    set_trench_level(find_space('Odessa'), 1, AP)
-    set_trench_level(find_space('Riga'), 1, AP)
-    set_trench_level(find_space('Port Said'), 1, AP)
-    set_trench_level(find_space('Cairo'), 1, AP)
-    set_trench_level(find_space('Basra'), 1, AP)
+    if (scenario === GREAT_WAR) {
+        set_up_great_war_scenario()
+    } else {
+        set_up_historical_scenario()
+    }
 
     if (game.scenario === HISTORICAL) {
         game.options.hand_size = 8
         game.failed_entrench = []
-        setup_initial_decks(true)
+        set_up_standard_decks(true)
+    } else if (scenario === GREAT_WAR) {
+        game.options.hand_size = 8
+        game.failed_entrench = []
+        set_up_great_war_scenario_decks()
     } else {
         game.options.hand_size = 7
-        setup_initial_decks(false)
+        set_up_standard_decks(false)
     }
 
     goto_start_turn()
@@ -820,20 +713,367 @@ function create_empty_game_state(seed, scenario) {
     }
 }
 
-function record_score_event(vp, card) {
+function set_up_historical_scenario() {
+    setup_piece('ge', 'GE 1', 'Aachen')
+    setup_piece('ge', 'GE 2', 'Koblenz')
+    setup_piece('ge', 'GE 3', 'Koblenz')
+    setup_piece('ge', 'GE 4', 'Metz')
+    setup_piece('ge', 'GE 5', 'Metz')
+    setup_piece('ge', 'GE 6', 'Strasbourg')
+    setup_piece('ge', 'GE 7', 'Mulhouse', true)
+    setup_piece('ge', 'GEc', 'Bremen', true)
+    setup_piece('fr', 'FR 1', 'Nancy')
+    setup_piece('fr', 'FR 2', 'Nancy')
+    setup_piece('fr', 'FR 3', 'Verdun')
+    setup_piece('fr', 'FR 4', 'Verdun')
+    setup_piece('fr', 'FR 5', 'Sedan')
+    setup_piece('fr', 'FR 6', 'Paris', true)
+    setup_piece('fr', 'FR 9', 'Bar le Duc', true)
+    setup_piece('fr', 'FRc', 'Belfort')
+    setup_piece('fr', 'FRc', 'Belfort')
+    setup_piece('fr', 'FRc', 'Grenoble')
+    setup_piece('be', 'BE 1', 'Antwerp')
+    setup_piece('br', 'BR BEF', 'Brussels')
+
+    setup_piece('ge', 'GE 8', 'Insterberg')
+    setup_piece('ge', 'GEc', 'Insterberg')
+    setup_piece('ge', 'GEc', 'Oppeln', true)
+    setup_piece('ah', 'AHc', 'Cracow')
+    setup_piece('ah', 'AH 1', 'Tarnow')
+    setup_piece('ah', 'AH 4', 'Przemysl')
+    setup_piece('ah', 'AHc', 'Stanislau')
+    setup_piece('ah', 'AH 2', 'Munkacs', true)
+    setup_piece('ah', 'AH 3', 'Tarnopol')
+    setup_piece('ah', 'AHc', 'Czernowitz')
+    setup_piece('ah', 'AHc', 'Timisvar')
+    setup_piece('ah', 'AHc', 'Villach')
+    setup_piece('ah', 'AH 6', 'Sarajevo')
+    setup_piece('ah', 'AH 5', 'Novi Sad')
+
+    setup_piece('mn', 'MNc', 'Cetinje')
+    setup_piece('sb', 'SB 2', 'Valjevo')
+    setup_piece('sb', 'SB 1', 'Belgrade')
+
+    setup_piece('ru', 'RUc', 'Odessa')
+    setup_piece('ru', 'RUc', 'Lutsk')
+    setup_piece('ru', 'RUc', 'Szawli')
+    setup_piece('ru', 'RUc', 'Riga')
+    setup_piece('ru', 'RUc', 'Grodno')
+    setup_piece('ru', 'RU 1', 'Kovno')
+    setup_piece('ru', 'RU 2', 'Lomza')
+    setup_piece('ru', 'RU 4', 'Ivangorod')
+    setup_piece('ru', 'RU 5', 'Lublin')
+    setup_piece('ru', 'RU 3', 'Dubno')
+    setup_piece('ru', 'RU 8', 'Kamenets-Podolski')
+    setup_piece('ru', 'RUc', 'Kars')
+    setup_piece('ru', 'RUc', 'Erivan')
+    setup_piece('ru', 'RUc', 'Batum')
+
+    setup_piece('br', 'BRc', 'Basra', true)
+    setup_piece('br', 'BRc', 'Cairo', true)
+    setup_piece('br', 'BRc', 'Port Said', true)
+
+    setup_piece('br', 'BR BEFc', 'AP Reserve Box')
+    setup_reserve_corps(ITALY, 4)
+    setup_reserve_corps(FRANCE, 7)
+    setup_reserve_corps(BRITAIN, 1)
+    setup_reserve_corps(RUSSIA, 5)
+    setup_reserve_corps(BELGIUM, 1)
+    setup_reserve_corps(SERBIA, 2)
+    setup_reserve_corps(AUSTRIA_HUNGARY, 4)
+    setup_reserve_corps(GERMANY, 8)
+
+    // Set up all the neutral pieces
+    setup_piece('tu', 'TUc', 'Constantinople')
+    setup_piece('tu', 'TUc', 'Balikesir')
+    setup_piece('tu', 'TUc', 'Gallipoli')
+    setup_piece('tu', 'TUc', 'Ankara')
+    setup_piece('tu', 'TUc', 'Erzerum')
+    setup_piece('tu', 'TUc', 'Rize')
+    setup_piece('tu', 'TUc', 'Van')
+    setup_piece('tu', 'TUc', 'Adana')
+    setup_piece('tu', 'TUc', 'Mosul')
+    setup_piece('tu', 'TUc', 'Damascus')
+    setup_piece('tu', 'TUc', 'Gaza')
+    setup_piece('tu', 'TUc', 'Medina')
+    setup_piece('tu', 'TUc', 'Baghdad')
+    setup_piece('it', 'ITc', 'Rome')
+    setup_piece('it', 'ITc', 'Turin')
+    setup_piece('it', 'ITc', 'Taranto')
+    setup_piece('it', 'IT 1', 'Verona', true)
+    setup_piece('it', 'IT 2', 'Udine', true)
+    setup_piece('it', 'IT 3', 'Maggiore', true)
+    setup_piece('it', 'IT 4', 'Asiago', true)
+    setup_piece(BULGARIA, 'BUc', 'Sofia')
+    setup_piece(BULGARIA, 'BUc', 'Sofia')
+    setup_piece(ROMANIA, 'ROc', 'Bucharest')
+    setup_piece(ROMANIA, 'ROc', 'Bucharest')
+
+    set_trench_level(find_space('Strasbourg'), 1, CP)
+    set_trench_level(find_space('Mulhouse'), 1, CP)
+    set_trench_level(find_space('Metz'), 1, CP)
+    set_trench_level(find_space('Trent'), 1, CP)
+    set_trench_level(find_space('Trieste'), 1, CP)
+    set_trench_level(find_space('Villach'), 1, CP)
+    set_trench_level(find_space('Cracow'), 1, CP)
+    set_trench_level(find_space('Konigsberg'), 1, CP)
+    set_trench_level(find_space('Giresun'), 1, CP)
+    set_trench_level(find_space('Gaza'), 1, CP)
+    set_trench_level(find_space('Baghdad'), 1, CP)
+    set_trench_level(find_space('Verona'), 1, AP)
+    set_trench_level(find_space('Asiago'), 1, AP)
+    set_trench_level(find_space('Maggiore'), 1, AP)
+    set_trench_level(find_space('Udine'), 1, AP)
+    set_trench_level(find_space('Verdun'), 1, AP)
+    set_trench_level(find_space('Nancy'), 1, AP)
+    set_trench_level(find_space('Paris'), 1, AP)
+    set_trench_level(find_space('Belfort'), 1, AP)
+    set_trench_level(find_space('Odessa'), 1, AP)
+    set_trench_level(find_space('Riga'), 1, AP)
+    set_trench_level(find_space('Port Said'), 1, AP)
+    set_trench_level(find_space('Cairo'), 1, AP)
+    set_trench_level(find_space('Basra'), 1, AP)
+}
+
+function set_up_great_war_scenario() {
+    game.turn = 11
+    game.cp.commitment = COMMITMENT_TOTAL
+    game.ap.commitment = COMMITMENT_TOTAL
+    game.cp.ru_vp = 1
+
+    // CP Setup
+    setup_piece(GERMANY, 'GE 1', 'Cambrai', true)
+    setup_piece(GERMANY, 'GE 2', 'Brussels', true)
+    setup_piece(GERMANY, 'GE 3', 'Brussels')
+    set_trench_level(BRUSSELS, 1, CP)
+    setup_piece(GERMANY, 'GE 4', 'Sedan')
+    setup_piece(GERMANY, 'GE 5', 'Sedan')
+    set_trench_level(SEDAN, 2, CP)
+    set_up_control(LIEGE, CP)
+    setup_piece(GERMANY, 'GE 6', 'Metz')
+    setup_piece(GERMANY, 'GE 7', 'Metz')
+    setup_piece(GERMANY, 'GE 8', 'Metz', true)
+    set_trench_level(find_space('Metz'), 1, CP)
+    setup_piece(GERMANY, 'GE 9', 'Strasbourg')
+    setup_piece(GERMANY, 'GEc', 'Strasbourg', true)
+    set_trench_level(find_space('Strasbourg'), 2, CP)
+    set_trench_level(find_space('Mulhouse'), 1, CP)
+    setup_piece(GERMANY, 'GE 10', 'Essen', true)
+    setup_piece(GERMANY, 'GE 12', 'Berlin', true)
+    setup_piece(GERMANY, 'GE 14', 'Berlin', true)
+    setup_piece(AUSTRIA_HUNGARY, 'AH 1', 'Trent', true)
+    setup_piece(GERMANY, 'GEc', 'Trent', true)
+    setup_piece(GERMANY, 'GEc', 'Trent', true)
+    set_trench_level(TRENT, 1, CP)
+    setup_piece(GERMANY, 'GEc', 'Villach')
+    set_trench_level(VILLACH, 1, CP)
+    setup_piece(AUSTRIA_HUNGARY, 'AH 2', 'Trieste')
+    setup_piece(AUSTRIA_HUNGARY, 'AHc', 'Trieste', true)
+    setup_piece(AUSTRIA_HUNGARY, 'AHc', 'Trieste', true)
+    set_trench_level(TRIESTE, 1, CP)
+    setup_piece(GERMANY, 'GE 11', 'Breslau')
+    setup_piece(GERMANY, 'GEc', 'Danzig')
+    setup_piece(GERMANY, 'GEc', 'Konigsberg')
+    set_trench_level(find_space('Konigsberg'), 1, CP)
+    set_up_control(find_space('Plock'), CP)
+    set_up_control(LODZ, CP)
+    setup_piece(GERMANY, 'GEc', 'Warsaw', true)
+    setup_piece(GERMANY, 'GEc', 'Czestochowa', true)
+    setup_piece(AUSTRIA_HUNGARY, 'AHc', 'Cracow')
+    setup_piece(AUSTRIA_HUNGARY, 'AH 3', 'Gorlice', true)
+    setup_piece(GERMANY, 'GEc', 'Gorlice', true)
+    setup_piece(GERMANY, 'GEc', 'Gorlice', true)
+    setup_piece(AUSTRIA_HUNGARY, 'AH 4', 'Uzhgorod')
+    setup_piece(AUSTRIA_HUNGARY, 'AHc', 'Miskolcz', true)
+    setup_piece(AUSTRIA_HUNGARY, 'AH 5', 'Budapest')
+    setup_piece(AUSTRIA_HUNGARY, 'AH 6', 'Budapest', true)
+    setup_piece(AUSTRIA_HUNGARY, 'AHc', 'Szeged', true)
+    set_up_control(find_space('Valjevo'), CP)
+    set_up_control(find_space('Nis'), CP)
+    setup_piece(AUSTRIA_HUNGARY, 'AH 7', 'Skopje', true)
+    setup_piece(AUSTRIA_HUNGARY, 'AH 10', 'Skopje', true)
+    setup_piece(BULGARIA, 'BUc', 'Sofia')
+    setup_piece(BULGARIA, 'BUc', 'Kazanlik', true)
+    setup_piece(BULGARIA, 'BUc', 'Philippoli', true)
+    setup_piece(TURKEY, 'TUc', 'Gallipoli')
+    setup_piece(TURKEY, 'TUc', 'Gallipoli')
+    setup_piece(TURKEY, 'TUc', 'Gallipoli', true)
+    setup_piece(TURKEY, 'TUc', 'Trebizond')
+    set_trench_level(find_space('Giresun'), 1, CP)
+    setup_piece(TURKEY, 'TUc', 'Erzerum')
+    setup_piece(TURKEY, 'TUc', 'Erzerum', true)
+    setup_piece(BULGARIA, 'BUc', 'Erzerum', true)
+    setup_piece(TURKEY, 'TUc', 'Diyarbakir')
+    setup_piece(TURKEY, 'TUc', 'Baghdad')
+    set_trench_level(find_space('Baghdad'), 1, CP)
+    setup_piece(TURKEY, 'TUc', 'Beersheba', true)
+    setup_piece(TURKEY, 'TUc', 'Beersheba', true)
+    setup_piece(BULGARIA, 'BUc', 'Gaza', true)
+    setup_piece(TURKEY, 'TUc', 'Gaza')
+    setup_piece(TURKEY, 'TUc', 'Medina')
+    setup_reserve_corps(GERMANY, 4, 1)
+    setup_reserve_corps(AUSTRIA_HUNGARY, 3, 0)
+    setup_reserve_corps(TURKEY, 1, 1)
+    // Eliminated units:
+    setup_piece(GERMANY, 'GE 17', 'CP Eliminated Box')
+    setup_piece(GERMANY, 'GE 18', 'CP Eliminated Box')
+    setup_piece(GERMANY, 'GEc', 'CP Eliminated Box')
+    setup_piece(AUSTRIA_HUNGARY, 'AHc', 'CP Eliminated Box')
+    setup_piece(AUSTRIA_HUNGARY, 'AHc', 'CP Eliminated Box')
+    setup_piece(AUSTRIA_HUNGARY, 'AHc', 'CP Eliminated Box')
+    setup_piece(TURKEY, 'TUc', 'CP Eliminated Box')
+    setup_piece(BULGARIA, 'BUc', 'CP Eliminated Box')
+
+    // AP Setup
+    setup_piece(BRITAIN, 'BR 1', 'London', true)
+    setup_piece(BRITAIN, 'BR BEF', 'Ostend')
+    setup_piece(BELGIUM, 'BE 1', 'Ostend', true)
+    setup_piece(BRITAIN, 'CNDc', 'Ostend')
+    setup_piece(BRITAIN, 'BR 2', 'Amiens', true)
+    setup_piece(FRANCE, 'FRc', 'Amiens', true)
+    setup_piece(FRANCE, 'FR 1', 'Paris', true)
+    set_trench_level(PARIS, 1, AP)
+    setup_piece(FRANCE, 'FR 2', 'Chateau Thierry')
+    setup_piece(FRANCE, 'FR 3', 'Chateau Thierry', true)
+    setup_piece(FRANCE, 'FRc', 'Chateau Thierry')
+    setup_piece(FRANCE, 'FR 4', 'Verdun')
+    setup_piece(FRANCE, 'FR 5', 'Verdun')
+    setup_piece(FRANCE, 'FR 6', 'Verdun', true)
+    set_trench_level(find_space('Verdun'), 1, AP)
+    setup_piece(FRANCE, 'FR 7', 'Nancy')
+    setup_piece(FRANCE, 'FR 9', 'Nancy')
+    set_trench_level(find_space('Nancy'), 1, AP)
+    setup_piece(FRANCE, 'FRc', 'Belfort')
+    setup_piece(FRANCE, 'FRc', 'Belfort')
+    set_trench_level(find_space('Belfort'), 1, AP)
+    setup_piece(ITALY, 'IT 1', 'Verona', true)
+    setup_piece(FRANCE, 'FRc', 'Verona')
+    set_trench_level(find_space('Verona'), 1, AP)
+    setup_piece(FRANCE, 'FRc', 'Venice')
+    setup_piece(ITALY, 'IT 2', 'Asiago', true)
+    setup_piece(ITALY, 'ITc', 'Asiago')
+    set_trench_level(find_space('Asiago'), 1, AP)
+    setup_piece(ITALY, 'ITc', 'Maggiore')
+    setup_piece(ITALY, 'IT 3', 'Udine', true)
+    setup_piece(ITALY, 'IT 4', 'Rome', true)
+    setup_piece(MONTENEGRO, 'MNc', 'Cetinje')
+    setup_piece(SERBIA, 'SB 1', 'Monastir', true)
+    setup_piece(SERBIA, 'SB 2', 'Monastir', true)
+    setup_piece(FRANCE, 'FRc', 'Salonika')
+    setup_piece(FRANCE, 'FRc', 'Salonika')
+    setup_piece(BRITAIN, 'BRc', 'Salonika')
+    set_up_control(find_space('Memel'), AP)
+    set_trench_level(find_space('Riga'), 1, AP)
+    setup_piece(RUSSIA, 'RU 1', 'Kovno', true)
+    set_trench_level(find_space('Kovno'), 1, AP)
+    setup_piece(RUSSIA, 'RU 2', 'Insterberg')
+    setup_piece(RUSSIA, 'RU 3', 'Insterberg')
+    setup_piece(RUSSIA, 'RU 4', 'Insterberg', true)
+    setup_piece(RUSSIA, 'RU 5', 'Lomza', true)
+    setup_piece(RUSSIA, 'RUc', 'Bialystok')
+    setup_piece(RUSSIA, 'RUc', 'Bialystok')
+    setup_piece(RUSSIA, 'RU 6', 'Brest Litovsk')
+    setup_piece(RUSSIA, 'RUc', 'Brest Litovsk', true)
+    setup_piece(RUSSIA, 'RUc', 'Ivangorod', true)
+    setup_piece(RUSSIA, 'RU 7', 'Przemysl')
+    setup_piece(RUSSIA, 'RU 8', 'Przemysl')
+    set_up_control(find_space('Tarnow'), AP)
+    set_up_control(find_space('Lemberg'), AP)
+    setup_piece(RUSSIA, 'RU 9', 'Stanislau', true)
+    setup_piece(RUSSIA, 'RU 10', 'Stanislau', true)
+    set_up_control(find_space('Tarnopol'), AP)
+    setup_piece(RUSSIA, 'RUc', 'Munkacs')
+    setup_piece(RUSSIA, 'RUc', 'Czernowitz', true)
+    set_up_control(find_space('Cluj'), AP)
+    set_up_control(find_space('Hermannstadt'), AP)
+    set_up_control(find_space('Schossburg'), AP)
+    set_up_control(find_space('Kronstadt'), AP)
+    set_trench_level(find_space('Odessa'), 1, AP)
+    setup_piece(RUSSIA, 'RU 11', 'Caucasus', true)
+    setup_piece(BRITAIN, 'BR MEF', 'MEF1')
+    setup_piece(BRITAIN, 'AUSc', 'MEF1')
+    game.mef_beachhead = MEF1
+    setup_piece(RUSSIA, 'RUc', 'Rize')
+    setup_piece(RUSSIA, 'RU CAU', 'Batum')
+    setup_piece(RUSSIA, 'RUc', 'Batum')
+    setup_piece(RUSSIA, 'RUc', 'Batum')
+    setup_piece(RUSSIA, 'RUc', 'Erivan')
+    setup_piece(BRITAIN, 'BRc', 'Basra')
+    set_trench_level(find_space('Basra'), 1, AP)
+    setup_piece(BRITAIN, 'BRc', 'Port Said', true)
+    setup_piece(BRITAIN, 'BRc', 'Port Said', true)
+    set_trench_level(find_space('Port Said'), 1, AP)
+    setup_piece(BRITAIN, 'BRc', 'Cairo')
+    set_trench_level(find_space('Cairo'), 1, AP)
+    setup_reserve_corps(BRITAIN, 4, 2)
+    setup_piece(BRITAIN, 'BR BEFc', 'AP Reserve Box')
+    setup_reserve_corps(FRANCE, 2, 0)
+    setup_reserve_corps(RUSSIA, 4, 2)
+    setup_reserve_corps(ITALY, 4, 2)
+    setup_reserve_corps(BELGIUM, 1, 0)
+    setup_reserve_corps(SERBIA, 2, 0)
+    // Eliminated units:
+    setup_piece(BRITAIN, 'BR 3', 'AP Eliminated Box')
+    setup_piece(BRITAIN, 'BR 4', 'AP Eliminated Box')
+    setup_piece(BRITAIN, 'BRc', 'AP Eliminated Box')
+    setup_piece(FRANCE, 'FR 10', 'AP Eliminated Box')
+    setup_piece(RUSSIA, 'RU 12', 'AP Eliminated Box')
+    setup_piece(RUSSIA, 'RUc', 'AP Eliminated Box')
+    setup_piece(RUSSIA, 'RUc', 'AP Eliminated Box')
+    setup_piece(RUSSIA, 'RUc', 'AP Eliminated Box')
+
+    // Salonika
+    setup_piece(GREECE, 'GRc', 'Athens')
+    setup_piece(GREECE, 'GRc', 'Florina')
+    setup_piece(GREECE, 'GRc', 'Larisa')
+
+    // Bulgaria is at war
+    game.war.bu = 1
+
+    // Italy is at war
+    game.war.it = 1
+
+    // Turkey is at war
+    game.war.tu = 1
+
+    // Set control for all spaces containing a piece
+    for (let p = 1; p < data.pieces.length; p++) {
+        const piece_data = data.pieces[p]
+        const loc = game.location[p]
+        if (loc !== 0) {
+            const space_data = data.spaces[loc]
+            if (piece_data.faction !== space_data.faction)
+                set_up_control(game.location[p], piece_data.faction)
+        }
+    }
+
+    // Destroy forts occupied by enemies and set control where there is a trench
+    for (let s = 1; s < data.spaces.length; s++) {
+        if (is_controlled_by(s, CP) && get_trench_level(s, AP) > 0)
+            set_up_control(s, AP)
+        if (is_controlled_by(s, AP) && get_trench_level(s, CP) > 0)
+            set_up_control(s, CP)
+        if (has_undestroyed_fort(s, AP) && is_controlled_by(s, CP))
+            game.forts.destroyed.push(s)
+        if (has_undestroyed_fort(s, CP) && is_controlled_by(s, AP))
+            game.forts.destroyed.push(s)
+    }
+}
+
+function record_score_event(vp, card, turn = game.turn) {
     if (!game.score_events)
         game.score_events = []
     if (card)
-        game.score_events.push([ game.turn, vp, card ])
+        game.score_events.push([ turn, vp, card ])
     else
-        game.score_events.push([ game.turn, vp ])
+        game.score_events.push([ turn, vp ])
 }
 
 function is_optional_card(c) {
     return (c >= 56 && c <= 65) || (c >= 56+65 && c <= 65+65)
 }
 
-function setup_initial_decks(start_with_guns_of_august) {
+function set_up_standard_decks(start_with_guns_of_august) {
     const include_optional_cards = game.options.optional_cards
 
     for (let i = 1; i < data.cards.length; i++) {
@@ -850,6 +1090,135 @@ function setup_initial_decks(start_with_guns_of_august) {
     shuffle(game.cp.deck)
     deal_ap_cards()
     deal_cp_cards()
+}
+
+const great_war_scenario_played_cp_cards = [
+    GUNS_OF_AUGUST,
+    LANDWEHR,
+    ENTRENCH_CP,
+    REICHSTAG_TRUCE,
+    SUD_ARMY,
+    OBEROST,
+    FALKENHAYN,
+    CHLORINE_GAS,
+    LIMAN_VON_SANDERS,
+    MATA_HARI,
+    FLAMETHROWERS,
+    ELEVENTH_ARMY,
+    WAR_IN_AFRICA,
+    WALTER_RATHENAU,
+    BULGARIA_ENTRY,
+    MUSTARD_GAS,
+    GERMAN_REINFORCEMENTS_1, // CP 7
+    GERMAN_REINFORCEMENTS_2, // CP 12
+    AH_REINFORCEMENTS_1, // CP 14
+    AH_REINFORCEMENTS_2, // CP 20
+    GERMAN_REINFORCEMENTS_3, // CP 21
+    GERMAN_REINFORCEMENTS_4, // CP 22
+    AH_REINFORCEMENTS_3, // CP 23
+    GERMAN_REINFORCEMENTS_7, // CP 41
+    GERMAN_REINFORCEMENTS_8 // CP 46
+]
+const great_war_scenario_played_ap_cards = [
+    BLOCKADE,
+    PLEVE,
+    WITHDRAWAL_AP,
+    MOLTKE,
+    RAPE_OF_BELGIUM,
+    ITALY_ENTRY,
+    PHOSGENE_GAS,
+    CLOAK_AND_DAGGER,
+    LUSITANIA,
+    GREAT_RETREAT,
+    YUDENITCH,
+    SINAI_PIPELINE,
+    SALONIKA_CARD,
+    BRITISH_REINFORCEMENTS_1, // AP 1
+    RUSSIAN_REINFORCEMENTS_1, // AP 3
+    FRENCH_REINFORCEMENTS_1, // AP 10
+    RUSSIAN_REINFORCEMENTS_3, // AP 11
+    BRITISH_REINFORCEMENTS_2, // AP 14
+    BRITISH_REINFORCEMENTS_4, // AP 20
+    FRENCH_REINFORCEMENTS_2, // AP 24
+    RUSSIAN_REINFORCEMENTS_4, // AP 25
+    MEF, // AP 31
+    BRITISH_REINFORCEMENTS_5 // AP 34
+]
+function set_up_great_war_scenario_decks() {
+    if (game.options.optional_cards)
+        log("Optional cards are not used in The Great War scenario.")
+
+    for (let i = 1; i < data.cards.length; i++) {
+        let c = data.cards[i]
+        if (great_war_scenario_played_cp_cards.includes(i) || great_war_scenario_played_ap_cards.includes(i))
+            set_up_played_event(i, great_war_scenario_turn_for_event(i))
+        else if (!is_optional_card(i))
+            game[c.faction].deck.push(i)
+    }
+
+    // Record "score events" for the played events
+    record_score_event(-1, RAPE_OF_BELGIUM, great_war_scenario_turn_for_event(RAPE_OF_BELGIUM))
+    record_score_event(1, WAR_IN_AFRICA, great_war_scenario_turn_for_event(WAR_IN_AFRICA))
+    record_score_event(1, REICHSTAG_TRUCE, great_war_scenario_turn_for_event(REICHSTAG_TRUCE))
+    record_score_event(-1, LUSITANIA, great_war_scenario_turn_for_event(LUSITANIA))
+    record_score_event(-1, BLOCKADE, 4)
+    record_score_event(-1, BLOCKADE, 8)
+
+    shuffle(game.ap.deck)
+    shuffle(game.cp.deck)
+    deal_ap_cards()
+    deal_cp_cards()
+}
+
+function great_war_scenario_turn_for_event(c) {
+    switch (c) {
+        case GUNS_OF_AUGUST:
+            return 1
+        case LANDWEHR:
+            return 2
+        case ENTRENCH_CP:
+            return 2
+        case REICHSTAG_TRUCE:
+            return 3
+        case SUD_ARMY:
+            return 3
+        case OBEROST:
+            return 2
+        case FALKENHAYN:
+            return 4
+        case BLOCKADE:
+            return 1
+        case MOLTKE:
+            return 3
+        case RAPE_OF_BELGIUM:
+            return 1
+        case ITALY_ENTRY:
+            return 5
+        case LUSITANIA:
+            return 4
+        case SINAI_PIPELINE:
+            return 5
+        default:
+            return 10
+    }
+}
+
+function set_up_played_event(c, turn = 1) {
+    const card_data = data.cards[c]
+    if (card_data.ws) {
+        game[card_data.faction].ws += card_data.ws
+    }
+
+    if (card_data.remove)
+        game[card_data.faction].removed.push(c)
+    else
+        game[card_data.faction].discard.push(c)
+
+    if (c === ENTRENCH_CP || c === ENTRENCH_AP) {
+        game.events.entrench = turn
+    } else {
+        game.events[card_data.event] = turn
+    }
 }
 
 // === START TURN ===
@@ -967,7 +1336,7 @@ function setup_piece(nation, unit, space, reduced) {
     }
 }
 
-function setup_reserve_corps(nation, quantity) {
+function setup_reserve_corps(nation, total, num_reduced = 0) {
     let unit = ''
     let space = 'AP Reserve Box'
     switch (nation) {
@@ -997,10 +1366,18 @@ function setup_reserve_corps(nation, quantity) {
             unit = 'GEc'
             space = 'CP Reserve Box'
             break
+        case TURKEY:
+            unit = 'TUc'
+            space = 'CP Reserve Box'
+            break
     }
-    for (let i = 0; i < quantity; ++i) {
-        setup_piece(nation, unit, space)
+    for (let i = 0; i < total; ++i) {
+        setup_piece(nation, unit, space, i < num_reduced)
     }
+}
+
+function set_up_control(space, faction) {
+    set_control_bit(space, faction === CP ? 1 : 0)
 }
 
 function find_unused_piece(nation, name) {
@@ -1144,7 +1521,7 @@ function roll_mandated_offensives() {
         ap_mo = NONE
     }
 
-    if (game.turn === 1 && ap_mo === BRITAIN && game.scenario === HISTORICAL) {
+    if (game.turn === 1 && ap_mo === BRITAIN && use_historical_scenario_rules()) {
         ap_mo = FRANCE
     }
 
@@ -1483,7 +1860,7 @@ states.action_phase = {
         let player_hand = game[active_faction()].hand
         let player_actions = game[active_faction()].actions
         view.prompt = `Turn ${game.turn}, Action ${player_actions.length+1}: Take one action.`
-        if (game.turn === 1 && game.scenario === HISTORICAL && player_actions.length === 0 && active_faction() === CP) {
+        if (game.turn === 1 && use_historical_scenario_rules() && player_actions.length === 0 && active_faction() === CP) {
             view.prompt += ` You must play "Guns of August"!`
             gen_card_menu(GUNS_OF_AUGUST, true)
         } else {
@@ -5589,7 +5966,7 @@ function add_cards_to_deck(faction, commitment, deck) {
 // === VICTORY ===
 
 function get_game_result_by_vp() {
-    if (game.scenario === HISTORICAL) {
+    if (use_historical_scenario_rules()) {
         // In the historical scenario, certain unplayed cards affect the final VP tally, per 5.7.4
         [USA_REINFORCEMENTS_2, USA_REINFORCEMENTS_3].forEach((c) => {
             if (!game.events.reinforcements || !game.events.reinforcements.includes(c)) {
@@ -5608,7 +5985,7 @@ function get_game_result_by_vp() {
     let ap_threshold = 9
     if (game.vp >= cp_threshold) {
         return CP
-    } else if (game.scenario === HISTORICAL || game.vp <= ap_threshold) {
+    } else if (use_historical_scenario_rules() || game.vp <= ap_threshold) {
         return AP
     } else {
         return "Draw" // Historical scenario draws go to the Allies, so this is future-proofing for other scenarios
