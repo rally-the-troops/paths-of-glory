@@ -839,6 +839,7 @@ function set_up_great_war_scenario() {
     game.turn = 11
     game.cp.commitment = COMMITMENT_TOTAL
     game.ap.commitment = COMMITMENT_TOTAL
+    game.cp.ru_vp = 1
 
     // CP Setup
     setup_piece(GERMANY, 'GE 1', 'Cambrai', true)
