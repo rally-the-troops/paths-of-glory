@@ -4004,10 +4004,27 @@ function is_invalid_multinational_attack(attackers) {
 function get_attackable_spaces_for_piece(p) {
     let attackable_spaces = []
     let s = game.location[p]
+    // Brest Litovsk - RU can't attack
+    if (game.events.treaty_of_brest_litovsk > 0) {
+        if (data.pieces[p].nation === RUSSIA) {
+            return attackable_spaces
+        }
+    }
     get_connected_spaces(s, data.pieces[p].nation).forEach((conn) => {
         // 11.3.1 Near East restriction
         if (is_neareast_space(conn) && data.pieces[p].type === ARMY && !data.pieces[p].neareast) {
             return
+        }
+        // Brest Litovsk - RU can't be attacked except TU in Near East
+        if (game.events.treaty_of_brest_litovsk > 0) {
+            const has_russian_defenders = game.location.some((loc, piece_id) => 
+                loc === conn && data.pieces[piece_id].nation === RUSSIA
+            )
+            if (has_russian_defenders && data.pieces[p].faction === CP) {
+                if (data.pieces[p].nation !== TURKEY || !is_neareast_space(conn)) {
+                    return
+                }
+            }
         }
         if (can_be_attacked(conn)) {
             set_add(attackable_spaces, conn)
