@@ -343,7 +343,7 @@ exports.roles = [ AP_ROLE, CP_ROLE ]
 
 const HISTORICAL = "Historical"
 const GREAT_WAR = "The Great War"
-exports.scenarios = [ HISTORICAL, GREAT_WAR ]
+exports.scenarios = [ HISTORICAL ] // Add GREAT_WAR here to enable The Great War scenario
 
 function use_historical_scenario_rules() {
     return true // Other rules are not implemented
