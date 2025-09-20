@@ -1725,6 +1725,28 @@ function check_rule_violations() {
         }
     }
 
+    if (game.events.treaty_of_brest_litovsk > 0) {
+        for (let s = 1; s < AP_RESERVE_BOX; ++s) {
+            let has_russian = false
+            let has_ap_non_russian = false
+            
+            for (let p of get_pieces_in_space(s)) {
+                if (data.pieces[p].faction === AP) {
+                    if (data.pieces[p].nation === RUSSIA) {
+                        has_russian = true
+                    } else {
+                        has_ap_non_russian = true
+                    }
+                }
+            }
+            
+            if (has_ap_non_russian && has_russian) {
+                violations.push({ space: s, piece: 0, rule: "After Brest-Litovsk, RU may not stack with AP units"})
+            }
+        }
+    }
+
+
     return violations
 }
 
@@ -2203,6 +2225,10 @@ function get_sr_destinations(unit) {
                 if (is_blocked_italian_space(n, [unit]) || is_blocked_italian_border_space(n, [unit]))
                     return
 
+                if (is_brest_litovsk_restricted([unit], n)) {
+                    return
+                }
+
                 set_add(destinations, n)
                 set_add(overland_destinations, n)
                 frontier.push(n)
@@ -2284,6 +2310,7 @@ function get_sr_destinations(unit) {
             set_delete(destinations, OSTEND)
         }
     }
+    destinations = destinations.filter(d => !is_brest_litovsk_restricted([unit], d))
 
     set_delete(destinations, start)
 
@@ -2381,6 +2408,23 @@ function clear_ne_restriction_flags() {
 
 function end_sr() {
     delete game.sr
+}
+
+function is_brest_litovsk_restricted(pieces, destination) {
+    if (game.events.treaty_of_brest_litovsk === 0) {
+        return false
+    }
+    let ru_move = pieces.some(p => data.pieces[p].nation === RUSSIA)
+    let ap_destination = get_pieces_in_space(destination).some(p => data.pieces[p].faction === AP && data.pieces[p].nation !== RUSSIA)  
+    let ru_destination = has_russian_piece(destination)
+    let ap_move = pieces.some(p => data.pieces[p].faction === AP && data.pieces[p].nation !== RUSSIA)
+    
+    if (ru_move && ap_destination)
+        return true
+    if (ru_destination && ap_move)
+        return true
+    
+    return false
 }
 
 // === REPLACEMENTS ===
@@ -2570,8 +2614,11 @@ function get_available_reinforcement_spaces(p) {
     } else if (piece_data.name === 'RU CAU') {
         // any supplied space in Russia on the NE map
         for (let s of all_spaces_by_nation[RUSSIA]) {
-            if (data.spaces[s].map === 'neareast' && is_unit_supplied_in(p, s) && !is_fully_stacked(s, AP))
-                spaces.push(s)
+            if (data.spaces[s].map === 'neareast' && is_unit_supplied_in(p, s) && !is_fully_stacked(s, AP)) {
+                if (!is_brest_litovsk_restricted(p, s)) {
+                    spaces.push(s)
+                }
+            }
         }
     } else if (piece_data.name === 'BR MEF' && !game.events.salonika) {
         spaces.push(MEF1)
@@ -5383,6 +5430,9 @@ function get_retreat_options(pieces, from, spaces_to_retreat = 1) {
         if (!check_russian_ne_restriction(pieces, conn))
             return
 
+        if (is_brest_litovsk_restricted(pieces, conn))
+            return
+
         if (!is_space_at_war(conn))
             return
 
@@ -5598,6 +5648,34 @@ function can_advance_into(space, units) {
         return false
 
     return true
+}
+
+function eliminate_ru_units_stacked_with_ap() {
+    if (game.events.treaty_of_brest_litovsk === 0)
+        return
+    
+    for (let s = 1; s < AP_RESERVE_BOX; ++s) {
+        let has_ap_non_russian = false
+        let russian_units = []
+        
+        for (let p of get_pieces_in_space(s)) {
+            if (data.pieces[p].faction === AP) {
+                if (data.pieces[p].nation === RUSSIA) {
+                    russian_units.push(p)
+                } else {
+                    has_ap_non_russian = true
+                }
+            }
+        }
+        
+        if (has_ap_non_russian && russian_units.length > 0) {
+            for (let p of russian_units) {
+                log(`Eliminated ${piece_name(p)} in ${space_name(s)}`)
+                eliminate_piece(p)
+            }
+        }
+    }
+    log('RU units cannot stack with AP after Brest-Litovsk')
 }
 
 // === FORTS AND SIEGES ===
@@ -7666,6 +7744,7 @@ events.treaty_of_brest_litovsk = {
     },
     play() {
         game.events.treaty_of_brest_litovsk = game.turn
+        eliminate_ru_units_stacked_with_ap()
         goto_end_event()
     }
 }
@@ -9648,6 +9727,31 @@ function assert_italian_operation() {
     }
 }
 
+function assert_brest_litovsk() {
+    const rule_text = "Treaty of Brest-Litovsk, Russian units cannot stack with non-Russian AP units"
+    
+    if (game.events.treaty_of_brest_litovsk > 0) {
+        for (let s = 1; s < AP_RESERVE_BOX; ++s) {
+            let has_russian = false
+            let has_ap_non_russian = false
+            
+            for (let p of get_pieces_in_space(s)) {
+                if (data.pieces[p].faction === AP) {
+                    if (data.pieces[p].nation === RUSSIA) {
+                        has_russian = true
+                    } else {
+                        has_ap_non_russian = true
+                    }
+                }
+            }
+            
+            if (has_ap_non_russian && has_russian) {
+                throw new Error(`Rule violation in S${s} ${space_name(s)}: ${rule_text}`)
+            }
+        }
+    }
+}
+
 exports.assert_state = function(state) {
     game = state
     assert_stacking_limits()
@@ -9655,6 +9759,7 @@ exports.assert_state = function(state) {
     assert_trench_level()
     assert_reinforcement_rules()
     assert_italian_operation()
+    assert_brest_litovsk()
 }
 
 /* vim:set sts=4 sw=4 expandtab: */
