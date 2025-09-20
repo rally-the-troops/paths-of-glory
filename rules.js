@@ -1733,7 +1733,7 @@ states.choose_sr_destination = {
         else
             log(`${piece_name(game.sr.unit)} SR\n${space_name(from)} -> ${space_name(s)}`)
 
-        if (is_only_ana_corps([game.sr.unit]))
+        if (game.sr.unit === BRITISH_ANA_CORPS)
             update_vp_after_ana_move(from, s)
 
         game.sr.unit = 0
@@ -2790,10 +2790,6 @@ function get_eligible_spaces_to_move() {
     return spaces
 }
 
-function is_only_ana_corps(pieces) {
-    return (pieces[0] === BRITISH_ANA_CORPS && pieces.length === 1)
-}
-
 function move_stack_to_space(s) {
     if (is_besieged(game.move.current)) {
         let pieces_remaining = []
@@ -2829,7 +2825,7 @@ function move_stack_to_space(s) {
     capture_trench(s, active_faction())
 
     if (!has_undestroyed_fort(s, inactive_faction())) {
-        if (is_only_ana_corps(game.move.pieces))
+        if (game.move.pieces[0] === BRITISH_ANA_CORPS && game.move.pieces.length === 1)
             update_vp_after_ana_move(from, s)
         else
             set_control(s, active_faction())
@@ -4171,7 +4167,7 @@ states.apply_defender_losses = {
             reduce_piece_defender(p)
         }
 
-        if (is_only_ana_corps([p]))
+        if (p === BRITISH_ANA_CORPS)
             update_vp_after_ana_move(game.attack.space)
     },
     space(s) {
@@ -4929,7 +4925,7 @@ states.defender_retreat = {
         if (game.attack.retreat_path.length > 0) {
             const end_space = game.attack.retreat_path[game.attack.retreat_path.length - 1]
             if (!is_controlled_by(end_space, active_faction()) && !has_undestroyed_fort(end_space, game.attack.attacker)) {
-                if (is_only_ana_corps(game.attack.retreating_pieces))
+                if (game.attack.retreating_pieces[0] === BRITISH_ANA_CORPS && game.attack.retreating_pieces.length === 1)
                     update_vp_after_ana_move(game.attack.space, end_space)
                 else
                     set_control(end_space, active_faction())
@@ -5100,7 +5096,7 @@ states.attacker_advance = {
                 set_add(game.forts.besieged, s)
             }
         } else {
-            if (is_only_ana_corps(game.attack.advancing_pieces))
+            if (game.attack.advancing_pieces[0] === BRITISH_ANA_CORPS && game.attack.advancing_pieces.length === 1)
                 update_vp_after_ana_move(leaving_spaces[0], s)
             else
                 set_control(s, game.attack.attacker)
