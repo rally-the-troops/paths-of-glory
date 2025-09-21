@@ -2271,6 +2271,7 @@ function update_map() {
     action_button("flank", "Flank")
     action_button("attack", "Attack")
     action_button("stop", "Stop")
+    action_button("no_attack", "No Attack")
 
     action_button("accept", "Accept")
     action_button("reject", "Reject")

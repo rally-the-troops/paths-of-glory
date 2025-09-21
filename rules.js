@@ -2635,18 +2635,6 @@ function roll_peace_terms(faction_offering, combined_war_status) {
     log_event_for_rollback("Rolled peace terms")
 }
 
-function is_still_valid_attack_activation(s) {
-    for (let p of all_pieces_by_faction[active_faction()]) {
-        if (game.location[p] !== s)
-            continue
-        if (set_has(game.oos_pieces, p))
-            continue
-        if (s === LONDON || get_attackable_spaces([p]).length > 0)
-            return true
-    }
-    return false
-}
-
 states.activate_spaces = {
     inactive: "activate spaces",
     prompt() {
@@ -2757,9 +2745,11 @@ function next_move_activation() {
 }
 
 function next_attack_activation() {
-    // filter attack spaces that have remaining legal attacks
-    game.activated.attack = game.activated.attack.filter(s => is_still_valid_attack_activation(s))
-    if (game.activated.attack.length > 0) {
+    // filter out eligible attackers that have no remaining legal attacks
+    game.eligible_attackers = game.eligible_attackers.filter(p =>
+        game.location[p] === LONDON || get_attackable_spaces([p]).length > 0
+    )
+    if (game.eligible_attackers.length > 0) {
         start_attack_activation()
     } else {
         game.state = "end_operations"
@@ -3602,8 +3592,11 @@ states.choose_attackers = {
                 if (get_attackable_spaces([p, ...game.attack.pieces]).length > 0)
                     gen_action_piece(p)
 
-        for (let s of get_attackable_spaces(game.attack.pieces))
-            gen_action_space(s)
+        if (game.attack.pieces.length > 0) {
+            for (let s of get_attackable_spaces(game.attack.pieces))
+                gen_action_space(s)
+            gen_action("no_attack")
+        }
 
         // If no attackers selected and all eligible pieces can attack the same space, add a select all button
         // Don't show this if any attackers are attacking out of a besieged space because then the calculation of whether
@@ -3620,6 +3613,13 @@ states.choose_attackers = {
             else
                 gen_action_pass()
         }
+    },
+    no_attack() {
+        push_undo()
+        for (let p of game.attack.pieces)
+            set_delete(game.eligible_attackers, p)
+        game.attack.pieces = []
+        end_attack_activation()
     },
     piece(p) {
         if (game.attack.pieces.length === 0)
