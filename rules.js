@@ -1877,6 +1877,7 @@ states.action_phase = {
         // If not playing the Historical scenario, add an action here for offering peace terms
     },
     play_event(card) {
+        push_undo()
         if (!is_ops_event_card(card))
             remove_failed_entrench_markers()
         if (data.cards[card].reinfnation) {
@@ -1886,17 +1887,21 @@ states.action_phase = {
         }
     },
     play_ops(card) {
+        push_undo()
         goto_play_ops(card)
     },
     play_sr(card) {
+        push_undo()
         remove_failed_entrench_markers()
         goto_play_sr(card)
     },
     play_rps(card) {
+        push_undo()
         remove_failed_entrench_markers()
         goto_play_rps(card)
     },
     single_op() {
+        push_undo()
         goto_play_ops(undefined)
     }
 }
@@ -1957,7 +1962,6 @@ function can_play_rps() {
 }
 
 function goto_play_event(card) {
-    push_undo()
     log(`${card_name(card)} -- Event`)
     let active_player = game[active_faction()]
     array_remove_item(active_player.hand, card)
@@ -1984,7 +1988,6 @@ function goto_play_event(card) {
 }
 
 function goto_play_ops(card) {
-    push_undo()
     if (card === undefined) {
         record_action(ACTION_1_OP, card)
         log(`Automatic Operation (1)`)
@@ -2001,7 +2004,6 @@ function goto_play_ops(card) {
 // === STRATEGIC REDEPLOYMENT ===
 
 function goto_play_sr(card) {
-    push_undo()
     record_action(ACTION_SR, card)
     let card_data = data.cards[card]
     game.sr = {
@@ -2384,7 +2386,6 @@ function end_sr() {
 // === REPLACEMENTS ===
 
 function goto_play_rps(card) {
-    push_undo()
     record_action(ACTION_RP, card)
     let card_data = data.cards[card]
 
@@ -2436,7 +2437,6 @@ states.rps = {
 // === REINFORCEMENTS ===
 
 function goto_play_reinf(card) {
-    push_undo()
     const card_data = data.cards[card]
     record_action(ACTION_REINF, card)
     game.reinf_this_turn[card_data.reinfnation] = 1
