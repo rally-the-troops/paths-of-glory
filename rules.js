@@ -2749,6 +2749,10 @@ function next_attack_activation() {
     game.eligible_attackers = game.eligible_attackers.filter(p =>
         game.location[p] === LONDON || get_attackable_spaces([p]).length > 0
     )
+
+    // remove attack markers with no eligible attackers remaining
+    game.activated.attack = game.activated.attack.filter(s => game.eligible_attackers.some(p => game.location[p] === s))
+
     if (game.eligible_attackers.length > 0) {
         start_attack_activation()
     } else {
