@@ -2225,7 +2225,7 @@ function get_sr_destinations(unit) {
                 if (is_blocked_italian_space(n, [unit]) || is_blocked_italian_border_space(n, [unit]))
                     return
 
-                if (is_brest_litovsk_restricted([unit], n)) {
+                if (is_brest_litovsk_restricted_one(unit, n)) {
                     return
                 }
 
@@ -2310,7 +2310,10 @@ function get_sr_destinations(unit) {
             set_delete(destinations, OSTEND)
         }
     }
-    destinations = destinations.filter(d => !is_brest_litovsk_restricted([unit], d))
+
+    if (game.events.treaty_of_brest_litovsk > 0) {
+        destinations = destinations.filter(d => !is_brest_litovsk_restricted_one(unit, d))
+    }
 
     set_delete(destinations, start)
 
@@ -2410,20 +2413,23 @@ function end_sr() {
     delete game.sr
 }
 
-function is_brest_litovsk_restricted(pieces, destination) {
-    if (game.events.treaty_of_brest_litovsk === 0) {
-        return false
+function is_brest_litovsk_restricted_one(p, destination) {
+    if (game.events.treaty_of_brest_litovsk > 0 && data.pieces[p].faction === AP) {
+        return (
+            (data.pieces[p].nation === RUSSIA && has_non_russian_ap_piece(destination)) ||
+            (data.pieces[p].nation !== RUSSIA && has_russian_piece(destination))
+        )
     }
-    let ru_move = pieces.some(p => data.pieces[p].nation === RUSSIA)
-    let ap_destination = get_pieces_in_space(destination).some(p => data.pieces[p].faction === AP && data.pieces[p].nation !== RUSSIA)  
-    let ru_destination = has_russian_piece(destination)
-    let ap_move = pieces.some(p => data.pieces[p].faction === AP && data.pieces[p].nation !== RUSSIA)
-    
-    if (ru_move && ap_destination)
-        return true
-    if (ru_destination && ap_move)
-        return true
-    
+    return false
+}
+
+function is_brest_litovsk_restricted_group(pieces, destination) {
+    if (game.events.treaty_of_brest_litovsk > 0 && data.pieces[pieces[0]].faction === AP) {
+        return (
+            (pieces.some(p => data.pieces[p].nation === RUSSIA) && has_non_russian_ap_piece(destination)) ||
+            (pieces.some(p => data.pieces[p].nation !== RUSSIA) && has_russian_piece(destination))
+        )
+    }
     return false
 }
 
@@ -2615,7 +2621,7 @@ function get_available_reinforcement_spaces(p) {
         // any supplied space in Russia on the NE map
         for (let s of all_spaces_by_nation[RUSSIA]) {
             if (data.spaces[s].map === 'neareast' && is_unit_supplied_in(p, s) && !is_fully_stacked(s, AP)) {
-                if (!is_brest_litovsk_restricted(p, s)) {
+                if (!is_brest_litovsk_restricted_one(p, s)) {
                     spaces.push(s)
                 }
             }
@@ -4052,6 +4058,13 @@ function is_invalid_multinational_attack(attackers) {
     return true
 }
 
+function has_non_russian_ap_piece(s) {
+    for (let p of all_pieces_by_faction[AP])
+        if (data.pieces[p].nation !== RUSSIA && game.location[p] === s)
+            return true
+    return false
+}
+
 function has_russian_piece(s) {
     for (let p of all_pieces_by_nation[RUSSIA])
         if (game.location[p] === s)
@@ -5425,7 +5438,7 @@ function get_retreat_options(pieces, from, spaces_to_retreat = 1) {
         if (!check_russian_ne_restriction(pieces, conn))
             return
 
-        if (is_brest_litovsk_restricted(pieces, conn))
+        if (is_brest_litovsk_restricted_group(pieces, conn))
             return
 
         if (!is_space_at_war(conn))
