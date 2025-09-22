@@ -238,7 +238,7 @@ function show_card_list(id, card_lists) {
             p.className = (c <= HIGHEST_AP_CARD) ? "cardtip ap-card" : "cardtip cp-card"
             p.onmouseenter = () => on_focus_card_tip(c)
             p.onmouseleave = on_blur_card_tip
-            p.textContent = `${cards[c].name}`
+            p.innerHTML = format_card_info(c)
             dl.appendChild(p)
         }
 
@@ -253,7 +253,7 @@ function show_card_list(id, card_lists) {
 }
 
 function show_dialog(id, dialog_generator) {
-    document.getElementById(id).classList.remove("hide")
+    document.getElementById(id).classList.add("show")
     let body = document.getElementById(id).querySelector(".dialog_body")
     body.replaceChildren()
     if (dialog_generator) {
@@ -262,7 +262,7 @@ function show_dialog(id, dialog_generator) {
 }
 
 function hide_dialog(id) {
-    document.getElementById(id).classList.add("hide")
+    document.getElementById(id).classList.remove("show")
 }
 
 function toggle_dialog_collapse(id) {
@@ -827,17 +827,20 @@ function on_blur_marker(evt) {
     ui.status.textContent = ""
 }
 
-function on_focus_card(evt) {
-    let id = evt.target.card
-    let card = cards[id]
-    let text = `#${card.num} [${card.ops}/${card.sr}] ${card.name}`
+function format_card_info(c) {
+    let card = cards[c]
+    let text = `[${card.ops}/${card.sr}] ${card.name}`
     if (card.remove)
         text += "*"
     if (card.ws)
         text += ` (${card.ws})`
     if (card.cc)
         text += ` <span style="color:red">CC</span>`
-    ui.status.innerHTML = text
+    return text
+}
+
+function on_focus_card(evt) {
+    ui.status.innerHTML = format_card_info(evt.target.card)
 }
 
 function on_blur_card(evt) {

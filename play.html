@@ -35,21 +35,21 @@
 	<li data-action="activate_attack"> Activate to Attack
 </menu>
 
-<div id="score" class="dialog hide">
-	<div class="dialog_x" onclick="hide_dialog('score')">&#x274c;</div>
+<div id="score" class="dialog">
 	<div class="dialog_header">Score Summary</div>
+	<div class="dialog_x" onclick="hide_dialog('score')">&#x274c;</div>
 	<div class="dialog_body"></div>
 </div>
 
-<div id="cp_card_dialog" class="dialog hide">
-	<div class="dialog_x" onclick="hide_dialog('cp_card_dialog')">&#x274c;</div>
+<div id="cp_card_dialog" class="dialog">
 	<div class="dialog_header">Central Power Cards</div>
+	<div class="dialog_x" onclick="hide_dialog('cp_card_dialog')">&#x274c;</div>
 	<div class="dialog_body"></div>
 </div>
 
-<div id="ap_card_dialog" class="dialog hide">
-	<div class="dialog_x" onclick="hide_dialog('ap_card_dialog')">&#x274c;</div>
+<div id="ap_card_dialog" class="dialog">
 	<div class="dialog_header">Allied Power Cards</div>
+	<div class="dialog_x" onclick="hide_dialog('ap_card_dialog')">&#x274c;</div>
 	<div class="dialog_body"></div>
 </div>
 
@@ -170,13 +170,14 @@
 
 <footer id="status"></footer>
 
-<dialog id="propose_rollback_dialog" class="dialog">
+<dialog id="propose_rollback_dialog" class="modal-dialog">
 	<h3>Propose Rollback</h3>
 	<p>To correct for missed supply warnings, it may be necessary to roll the game back to an earlier action round.</p>
 	<p>If your opponent agrees to the rollback proposal, the game will be reset to the chosen point.</p>
 	<p>This action cannot be undone.</p>
 	<form id="propose_rollback_form">
 		<label for="rollback_checkpoint">Roll back to:</label>
+		<br>
 		<select name="checkpoint" id="rollback_checkpoint" onchange="update_rollback_dialog()">
 		</select>
 	</form>
@@ -187,7 +188,7 @@
 	</div>
 </dialog>
 
-<dialog id="review_rollback_dialog" class="dialog">
+<dialog id="review_rollback_dialog" class="modal-dialog">
 	<h3>Review Rollback Proposal</h3>
 	<p>Your opponent has proposed a rollback to an earlier action round.</p>
 	<p>Review the details below and choose whether to accept or reject the proposal.</p>
