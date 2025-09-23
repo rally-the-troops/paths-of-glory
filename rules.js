@@ -2974,7 +2974,7 @@ states.choose_move_space = {
         let can_move = false
         game.activated.move.forEach((s) => {
             for_each_piece_in_space(s, (p) => {
-                if (get_piece_mf(p) > 0 && !set_has(game.entrenching, p) && !set_has(game.moved, p)) {
+                if (get_piece_mf(p) > 0 && !set_has(game.entrenching, p) && !set_has(game.moved, p) && is_unit_supplied_in(p, s)) {
                     gen_action_piece(p)
                     can_move = true
                 }
