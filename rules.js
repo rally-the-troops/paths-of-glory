@@ -2725,7 +2725,7 @@ function start_action_round() {
     game.attacked = []
     game.retreated = []
     game.location.forEach((s, p) => {
-        if (set_has(game.activated.attack, s)) {
+        if (set_has(game.activated.attack, s) && is_unit_supplied_in(p, s)) {
             set_add(game.eligible_attackers, p)
         }
     })
