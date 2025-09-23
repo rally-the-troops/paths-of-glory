@@ -4099,19 +4099,39 @@ states.choose_flank_attack = {
     prompt() {
         let flanking_spaces = get_flanking_spaces(get_attack_spaces(game.attack.pieces), game.attack.space, game.attack.attacker)
         let flank_roll_target = 4 - flanking_spaces.length
-        gen_action('flank')
-        gen_action_pass()
-        view.prompt = `You may attempt a flank attack (success on ${Math.max(flank_roll_target, 1)}+).`
+
+        if (game.attack.combat_cards.includes(WIRELESS_INTERCEPTS)) {
+            gen_action_done()
+            view.prompt = `Wireless Intercepts played -- flank attack automatically successful.`
+        } else {
+            gen_action('flank')
+            gen_action_pass()
+            if (can_play_wireless_intercepts()) {
+                gen_action_card(WIRELESS_INTERCEPTS)
+                view.prompt = `You may play Wireless Intercepts or attempt a flank attack (success on ${Math.max(flank_roll_target, 1)}+).`
+            } else {
+                view.prompt = `You may attempt a flank attack (success on ${Math.max(flank_roll_target, 1)}+).`
+            }
+        }
     },
     flank() {
         game.attack.attempt_flank = true
         log(`Attempting flank attack`)
-        if (can_play_wireless_intercepts())
-            game.state = 'play_wireless_intercepts'
-        else
-            roll_flank_attack()
+        roll_flank_attack()
+    },
+    card(c) {
+        push_undo()
+        array_remove_item(game[active_faction()].hand, c)
+        game.combat_cards.push(c)
+        game.attack.combat_cards.push(c)
+        log(`${faction_name(active_faction())} played ${card_name(c)}`)
+        log('Flank attack successful')
+        game.attack.is_flank = true
     },
     pass() {
+        goto_attack_step_kerensky_offensive()
+    },
+    done() {
         goto_attack_step_kerensky_offensive()
     }
 }
@@ -4120,31 +4140,6 @@ function can_play_wireless_intercepts() {
     return game[active_faction()].hand.includes(WIRELESS_INTERCEPTS) &&
         game.attack.pieces.some((p) => data.pieces[p].nation === GERMANY) &&
         contains_piece_of_nation(game.attack.space, RUSSIA)
-}
-
-states.play_wireless_intercepts = {
-    inactive: 'flank attack',
-    prompt() {
-        if (game[active_faction()].hand.includes(WIRELESS_INTERCEPTS)) {
-            view.prompt = `You may play ${card_name(WIRELESS_INTERCEPTS)}.`
-            gen_action_card(WIRELESS_INTERCEPTS)
-        } else {
-            view.prompt = `You don't have "Wireless Intercepts".`
-        }
-        gen_action_pass()
-    },
-    card(c) {
-        array_remove_item(game[active_faction()].hand, c)
-        game.combat_cards.push(c)
-        game.attack.combat_cards.push(c)
-        log(`${faction_name(active_faction())} played ${card_name(c)}`)
-        log('Flank attack successful')
-        game.attack.is_flank = true
-        goto_attack_step_kerensky_offensive()
-    },
-    pass() {
-        roll_flank_attack()
-    }
 }
 
 function get_flanking_spaces(attack_spaces, defending_space, attacker) {
