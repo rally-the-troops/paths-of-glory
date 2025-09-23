@@ -2778,7 +2778,7 @@ function start_action_round() {
     game.attacked = []
     game.retreated = []
     game.location.forEach((s, p) => {
-        if (set_has(game.activated.attack, s) && is_unit_supplied_in(p, s)) {
+        if (set_has(game.activated.attack, s) && !set_has(game.oos_pieces, p)) {
             set_add(game.eligible_attackers, p)
         }
     })
@@ -3027,7 +3027,7 @@ states.choose_move_space = {
         let can_move = false
         game.activated.move.forEach((s) => {
             for_each_piece_in_space(s, (p) => {
-                if (get_piece_mf(p) > 0 && !set_has(game.entrenching, p) && !set_has(game.moved, p) && is_unit_supplied_in(p, s)) {
+                if (get_piece_mf(p) > 0 && !set_has(game.entrenching, p) && !set_has(game.moved, p) && !set_has(game.oos_pieces, p)) {
                     gen_action_piece(p)
                     can_move = true
                 }
@@ -3120,7 +3120,7 @@ states.choose_pieces_to_move = {
         else
             view.prompt = `Move units from ${space_name(game.move.initial)}.`
         for_each_piece_in_space(game.move.initial, (p) => {
-            if (get_piece_mf(p) > 0 && !set_has(game.entrenching, p) && !set_has(game.moved, p) && !set_has(game.move.pieces, p)) {
+            if (get_piece_mf(p) > 0 && !set_has(game.entrenching, p) && !set_has(game.moved, p) && !set_has(game.move.pieces, p) && !set_has(game.oos_pieces, p)) {
                 gen_action_piece(p)
             }
         })
