@@ -3688,6 +3688,10 @@ function fmt_attack_odds() {
         defender_shifts++
     }
 
+    let terrain = data.spaces[game.attack.space].terrain
+    if (terrain === MOUNTAIN || terrain === SWAMP)
+        attacker_shifts--
+
     const attacker_col = get_fire_col(attacker_table, attack_factors, attacker_shifts)
     const defender_col = get_fire_col(defender_table, defense_factors, defender_shifts)
     return `${attacker_col.name} vs ${defender_col.name}`
