@@ -2675,16 +2675,16 @@ function get_available_reinforcement_spaces(p) {
 function roll_peace_terms(faction_offering, combined_war_status) {
     clear_undo()
     let roll = roll_die(6)
-    log(`Peace terms roll: ${fmt_roll(roll, 0, faction_offering)}`)
+    let result = 'No effect'
     if (roll <= 2 || (roll === 3 && combined_war_status < 20)) {
-        game.vp += faction_offering === AP ? 1 : -1
-        logi(`Success, 1 VP for ${faction_name(faction_offering)}`)
-    } else if (roll === 6) {
         game.vp += faction_offering === AP ? -1 : 1
-        logi(`Failure, 1 VP for ${faction_name(other_faction(faction_offering))}`)
-    } else {
-        logi(`No effect`)
+        result = faction_offering === AP ? '-1 VP' : '+1 VP'
+    } else if (roll === 6) {
+        game.vp += faction_offering === AP ? 1 : -1
+        result = faction_offering === AP ? '+1 VP' : '-1 VP'
     }
+
+    log(`Peace terms roll: ${fmt_roll(roll, 0, faction_offering)} -> ${result}`)
     log_event_for_rollback("Rolled peace terms")
 }
 
