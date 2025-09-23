@@ -2717,7 +2717,9 @@ states.activate_spaces = {
 
             if (!set_has(attack_spaces, s)) {
                 if (game.ops >= cost_to_activate(s, ATTACK)) {
-                    if (active_faction() === AP && used_ne_activation && is_neareast_space(s)) {
+                    if (get_season() === SEASON_SUMMER && data.spaces[s].terrain === DESERT) {
+                        // Cannot activate desert spaces to attack in the summer
+                    } else if (active_faction() === AP && used_ne_activation && is_neareast_space(s)) {
                         // The Allied player may Activate only one space per Action Round for combat on the Near East
                         // map. This applies to spaces actually on the NE map. Units in spaces not on the NE map may
                         // still attack into the NE map. (e.g., Adrianople, Gallipoli, Balikesir.) Exceptions: The MEF
@@ -3971,9 +3973,13 @@ function get_attackable_spaces(attackers) {
     const german_attacker = attackers.some((p) => data.pieces[p].nation === GERMANY)
     const lloyd_george = is_lloyd_george_active() && attackers.some((p) => data.pieces[p].nation === BRITAIN)
     const stavka_timidity = game.turn === game.events.stavka_timidity && russian_attacker
+    const is_summer = get_season() === SEASON_SUMMER
     eligible_spaces = eligible_spaces.filter((s) => {
         // Neutral nations
         if (!is_space_at_war(s))
+            return false
+
+        if (is_summer && data.spaces[s].terrain === DESERT)
             return false
 
         // Already attacked this turn
