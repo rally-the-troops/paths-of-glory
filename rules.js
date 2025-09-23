@@ -3053,7 +3053,7 @@ function can_entrench_with_selected() {
     let p = game.move.pieces[0]
     return (
         data.pieces[p].type === ARMY &&
-        is_controlled_by(s, active_faction()) &&
+        (is_controlled_by(s, active_faction()) || is_besieged(s)) &&
         get_trench_level(s, active_faction()) < 2 &&
         game.entrenching.every(pp => game.location[pp] !== s)
     )
