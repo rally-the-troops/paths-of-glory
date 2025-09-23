@@ -7140,6 +7140,7 @@ states.guns_of_august = {
             game.location[GE_1_ARMY] = LIEGE
             game.location[GE_2_ARMY] = LIEGE
             set_add(game.activated.attack, LIEGE)
+            update_supply()
         }
         if (s === KOBLENZ) {
             set_add(game.activated.attack, KOBLENZ)
