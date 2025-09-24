@@ -798,6 +798,7 @@ function set_up_historical_scenario() {
     setup_piece('tu', 'TUc', 'Gaza')
     setup_piece('tu', 'TUc', 'Medina')
     setup_piece('tu', 'TUc', 'Baghdad')
+    setup_piece('tu', 'TUc', 'Adrianople')
     setup_piece('it', 'ITc', 'Rome')
     setup_piece('it', 'ITc', 'Turin')
     setup_piece('it', 'ITc', 'Taranto')
