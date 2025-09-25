@@ -1841,6 +1841,9 @@ function get_trench_level_for_attack(s, faction) {
     if (!game.attack)
         return base_lvl
 
+    if (game.attack.trenches_canceled)
+        return 0
+
     if (base_lvl === 0 &&
         game.attack.attacker === AP &&
         game.attack.combat_cards.includes(TURK_DETERMINATION) &&
@@ -4149,12 +4152,12 @@ states.negate_trench = {
     },
     card(c) {
         push_undo()
+        log(`${faction_name(active_faction())} played ${card_name(c)}`)
         array_remove_item(game[active_faction()].hand, c)
         game.combat_cards.push(c)
         game.attack.combat_cards.push(c)
         game.attack.new_combat_cards.push(c)
         events[data.cards[c].event].play()
-        log(`${faction_name(active_faction())} played ${card_name(c)}`)
     },
     next() {
         goto_attack_step_flank()
@@ -7724,10 +7727,10 @@ events.von_below = {
         return this.can_play() && !game.attack.trenches_canceled
     },
     apply() {
-        log(`${card_name(VON_BELOW)} cancels trenches`)
-        game.attack.trenches_canceled = true
     },
     play() {
+        log(`${card_name(VON_BELOW)} cancels trenches`)
+        game.attack.trenches_canceled = true
     }
 }
 
@@ -7743,13 +7746,13 @@ events.von_hutier = {
         return true
     },
     play() {
+        log(`${card_name(VON_HUTIER)} cancels trenches`)
+        game.attack.trenches_canceled = true
     },
     can_apply() {
         return this.can_play() && !game.attack.trenches_canceled
     },
     apply() {
-        log(`${card_name(VON_HUTIER)} cancels trenches`)
-        game.attack.trenches_canceled = true
     }
 }
 
@@ -7792,18 +7795,15 @@ events.michael = {
     },
     apply() {
         game.attack.attacker_drm++
-        if (!game.attack.trenches_canceled) {
-            log(`${card_name(MICHAEL)} cancels trenches and adds +1 DRM`)
-            game.attack.trenches_canceled = true
-        } else {
-            log(`${card_name(MICHAEL)} adds +1 DRM`)
-        }
+        log(`${card_name(MICHAEL)} adds +1 DRM`)
     },
     play() {
         game.events.michael = game.turn
         if (is_lloyd_george_active()) {
             cancel_lloyd_george(MICHAEL)
         }
+        log(`${card_name(MICHAEL)} cancels trenches`)
+        game.attack.trenches_canceled = true
     }
 }
 
@@ -7822,14 +7822,14 @@ events.blucher = {
         return this.can_play() && !game.attack.trenches_canceled
     },
     apply() {
-        log(`${card_name(BLUCHER)} cancels trenches`)
-        game.attack.trenches_canceled = true
     },
     play() {
         game.events.blucher = game.turn
         if (is_lloyd_george_active()) {
             cancel_lloyd_george(BLUCHER)
         }
+        log(`${card_name(BLUCHER)} cancels trenches`)
+        game.attack.trenches_canceled = true
     }
 }
 
@@ -7848,15 +7848,15 @@ events.peace_offensive = {
         return this.can_play() && !game.attack.trenches_canceled
     },
     apply() {
-        log(`${card_name(PEACE_OFFENSIVE)} cancels trenches`)
-        game.attack.trenches_canceled = true
-        game.attack.used_peace_offensive = true
     },
     play() {
         game.events.peace_offensive = game.turn
         if (is_lloyd_george_active()) {
             cancel_lloyd_george(PEACE_OFFENSIVE)
         }
+        log(`${card_name(PEACE_OFFENSIVE)} cancels trenches`)
+        game.attack.trenches_canceled = true
+        game.attack.used_peace_offensive = true
     }
 }
 
