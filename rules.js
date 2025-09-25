@@ -5179,6 +5179,7 @@ function determine_combat_winner() {
         return
     }
 
+    let intact_unoccupied_fort = attacking_unoccupied_fort() && game.attack.defender_losses_taken === 0
     if ((game.attack.defender_losses > game.attack.attacker_losses && attacker_has_full_strength_unit && defender_pieces.length > 0) || was_withdrawal_active) {
         clear_undo()
         set_active_faction(other_faction(game.attack.attacker))
@@ -5196,7 +5197,7 @@ function determine_combat_winner() {
         } else {
             goto_defender_retreat()
         }
-    } else if (attacker_has_full_strength_unit && defender_pieces.length === 0 && game.location[game.attack.pieces[0]] !== game.attack.space) { // If the attacker is already in the attack space, it means they just attacked a besieged fort
+    } else if (attacker_has_full_strength_unit && defender_pieces.length === 0 && game.location[game.attack.pieces[0]] !== game.attack.space && !intact_unoccupied_fort) { // If the attacker is already in the attack space, it means they just attacked a besieged fort
         clear_undo()
         set_active_faction(game.attack.attacker)
         game.attack.to_retreat = []
