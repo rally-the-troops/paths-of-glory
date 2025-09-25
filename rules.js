@@ -1625,6 +1625,7 @@ function satisfies_mo(mo, attackers, defenders, space) {
             if (data.pieces[d].nation === ITALY || is_unit_supplied_through_italy(d))
                 return true
         }
+        return false
     }
 
     return true
@@ -7035,7 +7036,9 @@ function get_supply_sources_for_piece_rp(p) {
 function is_unit_supplied_through_italy(p) {
     if (!is_unit_supplied(p))
         return false
-    return !(game.supply[game.location[p]] & SUPPLY_MASK.NonItalianPath)
+    let supplied_from_london = game.supply[game.location[p]] & SUPPLY_MASK.London_Italian
+    let has_only_italian_path = !(game.supply[game.location[p]] & SUPPLY_MASK.NonItalianPath)
+    return supplied_from_london && has_only_italian_path
 }
 
 function is_space_supplied_through_mef(s) {
