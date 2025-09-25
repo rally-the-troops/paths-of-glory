@@ -2454,7 +2454,7 @@ function goto_play_rps(card) {
     game.rp.it += card_data.rpit !== undefined && nation_at_war(ITALY) ? card_data.rpit : 0
     game.rp.tu += card_data.rptu !== undefined && nation_at_war(TURKEY) ? card_data.rptu : 0
 
-    if (game.events.over_there > 0) {
+    if (game.events.over_there > 0 && card_data.faction === AP) {
         game.rp.us += 1
     }
 
@@ -6219,6 +6219,7 @@ function has_rps(faction) {
         if (game.rp.ru > 0) return true
         if (game.rp.allied > 0) return true
         if (game.rp.it > 0) return true
+        if (game.rp.us > 0) return true
     } else if (faction === CP) {
         if (game.rp.ge > 0) return true
         if (game.rp.ah > 0) return true
@@ -6235,6 +6236,7 @@ function remove_rps(faction) {
         game.rp.ru = 0
         game.rp.allied = 0
         game.rp.it = 0
+        game.rp.us = 0
     } else if (faction === CP) {
         game.rp.ge = 0
         game.rp.ah = 0
@@ -6271,6 +6273,7 @@ function summarize_rps(faction) {
         if (game.rp.ru > 0) summary.push(`${rp_string(game.rp.ru, 'RU')}`)
         if (game.rp.allied > 0) summary.push(`${rp_string(game.rp.allied, 'Allied')}`)
         if (game.rp.it > 0) summary.push(`${rp_string(game.rp.it, 'IT')}`)
+        if (game.rp.us > 0) summary.push(`${rp_string(game.rp.us, 'US')}`)
     } else if (faction === CP) {
         if (game.rp.ge > 0) summary.push(`${rp_string(game.rp.ge, 'GE')}`)
         if (game.rp.ah > 0) summary.push(`${rp_string(game.rp.ah, 'AH')}`)
