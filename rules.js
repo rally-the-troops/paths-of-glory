@@ -4154,11 +4154,7 @@ states.negate_trench = {
     card(c) {
         push_undo()
         log(`${faction_name(active_faction())} played ${card_name(c)}`)
-        array_remove_item(game[active_faction()].hand, c)
-        game.combat_cards.push(c)
-        game.attack.combat_cards.push(c)
-        game.attack.new_combat_cards.push(c)
-        events[data.cards[c].event].play()
+        play_combat_card(c)
     },
     next() {
         goto_attack_step_flank()
@@ -4303,6 +4299,7 @@ function play_combat_card(c) {
             let active_player = game[active_faction()]
             active_player.ws += card_data.ws
             logi(`War Status +${card_data.ws} to ${active_player.ws} (${game.ap.ws + game.cp.ws})`)
+            update_us_entry()
         }
 
         game.combat_cards.push(c)
