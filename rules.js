@@ -4256,6 +4256,9 @@ function roll_flank_attack() {
 }
 
 function is_usable_combat_card(c) {
+    if (c === YANKS_AND_TANKS)
+        return events.yanks_and_tanks.can_apply() // Special case because it is not a CC, and applies multiple times per round
+
     if (!data.cards[c].cc)
         return false
     const evt = events[data.cards[c].event]
