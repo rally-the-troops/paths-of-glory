@@ -3861,7 +3861,7 @@ function could_apply_combat_card(c) {
 function could_have_usable_combat_card(faction, skip_deck) {
     // If there are any cards already in play that could apply, return true
     for (let c of game.combat_cards) {
-        if (data.cards[c].faction === active_faction() && could_apply_combat_card(c))
+        if (data.cards[c].faction === faction && could_apply_combat_card(c))
             return true
     }
 
@@ -3872,7 +3872,7 @@ function could_have_usable_combat_card(faction, skip_deck) {
     }
 
     if (!skip_deck) {
-        // Finally, if there are any cards in the deck that could apply, return true so no information is leaked to teh other player
+        // Finally, if there are any cards in the deck that could apply, return true so no information is leaked to the other player
         for (let c of game[faction].deck) {
             if (could_apply_combat_card(c))
                 return true
