@@ -6826,7 +6826,7 @@ function fill_supply_cache(faction, cache, sources, options) {
             visited[source] = 1
             while (frontier.length > 0) {
                 let current = frontier.pop()
-                if (!is_mef_space(current) && !blocked_spaces[current]) {
+                if (!blocked_spaces[current]) {
                     cache[current] |= mask
                     for (let conn of get_connected_spaces(current, national_connections)) {
                         if (!visited[conn]) {
@@ -6836,7 +6836,7 @@ function fill_supply_cache(faction, cache, sources, options) {
                     }
                     if (set_has(friendly_ports, current)) {
                         for (let port of friendly_ports) {
-                            if (!visited[port]) {
+                            if (!visited[port] && !is_mef_space(port)) {
                                 frontier.push(port)
                                 visited[port] = 1
                             }
