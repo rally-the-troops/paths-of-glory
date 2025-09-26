@@ -7932,6 +7932,9 @@ events.h_l_take_command = {
     },
     play() {
         game.events.h_l_take_command = game.turn
+        if (game.cp.mo === GERMANY) {
+            game.cp.mo = NONE
+        }
         goto_end_event()
     }
 }
