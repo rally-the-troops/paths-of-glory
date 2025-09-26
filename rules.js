@@ -2222,6 +2222,7 @@ function get_sr_destinations(unit) {
     // Add spaces that have an overland path
     let overland_destinations = []
     let frontier = [start]
+    const block_neareast = !is_neareast_space(start) && !can_enter_neareast([unit])
     while (frontier.length > 0) {
         let current = frontier.pop()
         get_connected_spaces(current, nation).forEach((n) => {
@@ -2237,6 +2238,9 @@ function get_sr_destinations(unit) {
                 if (is_brest_litovsk_restricted_one(unit, n)) {
                     return
                 }
+
+                if (block_neareast && is_neareast_space(n))
+                    return
 
                 set_add(destinations, n)
                 set_add(overland_destinations, n)
