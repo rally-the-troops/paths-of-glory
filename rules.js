@@ -2402,6 +2402,10 @@ function check_russian_ne_restriction(units, destination) {
     if (ru_corps_crossing_count === 0)
         return true
 
+    // Once Fall of the Tsar has been played, no Russian corps can cross this boundary by move, advance, or retreat
+    if (game.events.fall_of_the_tsar > 0)
+        return false
+
     if (ru_corps_crossing_count > 1)
         return false
 
@@ -3473,17 +3477,6 @@ function can_move_to(s, moving_pieces) {
         && data.spaces[s].nation === GERMANY
         && has_undestroyed_fort(s, CP)) {
         return false
-    }
-
-    // Once Fall of the Tsar is played, Russian corps cannot move between the Caucasus box and the near east map
-    if (game.events.fall_of_the_tsar > 0 && moving_pieces.some((p) => data.pieces[p].nation === RUSSIA && data.pieces[p].type === CORPS)) {
-        const from = game.location[moving_pieces[0]]
-        if (s === CAUCASUS && (from === POTI || from === GROZNY)) {
-            return false
-        }
-        if (from === CAUCASUS && (s === POTI || s === GROZNY)) {
-            return false
-        }
     }
 
     // Check for the Russian Near East restriction
