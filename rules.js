@@ -1472,6 +1472,10 @@ function is_space_at_war(space) {
         return false
     }
 
+    if (is_mef_space(space) && game.mef_beachhead !== space) {
+        return false
+    }
+
     return true
 }
 
@@ -5454,9 +5458,6 @@ function get_retreat_options(pieces, from, spaces_to_retreat = 1) {
             return
 
         if (!is_space_at_war(conn))
-            return
-
-        if (is_mef_space(conn) && conn !== game.mef_beachhead)
             return
 
         set_add(options, conn)
