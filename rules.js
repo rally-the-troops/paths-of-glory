@@ -5456,6 +5456,9 @@ function get_retreat_options(pieces, from, spaces_to_retreat = 1) {
         if (!is_space_at_war(conn))
             return
 
+        if (is_mef_space(conn) && conn !== game.mef_beachhead)
+            return
+
         set_add(options, conn)
     })
 
