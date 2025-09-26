@@ -6958,7 +6958,7 @@ function is_unit_supplied_in(p, s, for_rp = false) {
     }
 
     if (nation === ITALY)
-        return game.supply[s] & SUPPLY_MASK.London_Italian
+        return check_supply_cache(game.supply, s, [LONDON], SUPPLY_MASK.London_Italian)
 
     if (for_rp)
         return check_supply_cache(game.supply, s, get_supply_sources_for_piece_rp(p))
@@ -6987,14 +6987,18 @@ function is_space_supplied(s, faction) {
             // already has its own exception in is_unit_supplied_in().
             return (is_space_supplied(ARABIA_SPACE, AP) || is_space_supplied(AQABA, AP))
         }
-        return check_supply_cache(game.supply, s, [LONDON, PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE, SALONIKA])
+        return check_supply_cache(game.supply, s, [LONDON, PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE, SALONIKA], SUPPLY_MASK.London_Italian)
     }
 }
 
 const all_supply_sources = [ESSEN, BRESLAU, SOFIA, CONSTANTINOPLE, PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE, LONDON]
 
-function check_supply_cache(cache, location, sources = all_supply_sources) {
+function check_supply_cache(cache, location, sources = all_supply_sources, additional_mask) {
     let source_mask = 0
+
+    if (additional_mask)
+        source_mask |= additional_mask
+
     for (let source of sources)
         source_mask |= get_supply_mask(source)
     return !!(cache[location] & source_mask)
@@ -7082,8 +7086,12 @@ function is_space_supplied_for_reserve_box_sr(s, p) {
 
 function query_supply(sources) {
     let mask = 0
-    for (let source of sources)
-        mask |= get_supply_mask(source)
+    for (let source of sources) {
+        if (source === LONDON)
+            mask |= SUPPLY_MASK.London_Italian
+        else
+            mask |= get_supply_mask(source)
+    }
     let spaces = [ 0 ]
     for (let i = 1; i < data.spaces.length; ++i) {
         spaces[i] = (game.supply[i] & mask) ? 1 : 0
