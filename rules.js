@@ -2796,6 +2796,19 @@ function start_action_round() {
     game.moved = []
     game.attacked = []
     game.retreated = []
+
+    if (game.activated.move.length > 0) {
+        log("Move")
+        for (let s of game.activated.move)
+            log(">" + space_name(s))
+    }
+
+    if (game.activated.attack.length > 0) {
+        log("Attack")
+        for (let s of game.activated.attack)
+            log(">" + space_name(s))
+    }
+
     game.location.forEach((s, p) => {
         if (set_has(game.activated.attack, s) && !set_has(game.oos_pieces, p)) {
             set_add(game.eligible_attackers, p)
