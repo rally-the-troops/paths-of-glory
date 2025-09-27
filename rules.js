@@ -4641,7 +4641,7 @@ states.apply_defender_losses = {
             loss_options = get_loss_options(true, game.attack.defender_losses - game.attack.defender_losses_taken, get_defenders_pieces(), fort_strength)
         }
         if (loss_options.length > 0) {
-            view.prompt = `Take losses: ${game.attack.defender_losses_taken} / ${game.attack.defender_losses}.`
+            view.prompt = `Take losses in attack on ${space_name(game.attack.space)}: ${game.attack.defender_losses_taken} / ${game.attack.defender_losses}.`
             loss_options.forEach((option) => {
                 if (option === FORT_LOSS) {
                     gen_action_space(game.attack.space)
@@ -4650,7 +4650,7 @@ states.apply_defender_losses = {
                 }
             })
         } else {
-            view.prompt = `Take losses: Done.`
+            view.prompt = `Take losses in attack on ${space_name(game.attack.space)}: Done.`
             gen_action_done()
         }
     },
@@ -4845,12 +4845,12 @@ states.apply_attacker_losses = {
         if (game.attack.attacker_losses - game.attack.attacker_losses_taken > 0)
             loss_options = get_loss_options(false,game.attack.attacker_losses - game.attack.attacker_losses_taken, game.attack.pieces, 0)
         if (loss_options.length > 0) {
-            view.prompt = `Take losses: ${game.attack.attacker_losses_taken} / ${game.attack.attacker_losses}.`
+            view.prompt = `Take losses in attack on ${space_name(game.attack.space)}: ${game.attack.attacker_losses_taken} / ${game.attack.attacker_losses}.`
             loss_options.forEach((p) => {
                 gen_action_piece(p)
             })
         } else {
-            view.prompt = `Take losses: Done.`
+            view.prompt = `Take losses in attack on ${space_name(game.attack.space)}: Done.`
             gen_action_done()
         }
     },
