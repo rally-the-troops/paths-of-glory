@@ -4997,22 +4997,33 @@ function build_loss_tree(parent, valid_paths) {
                 options: []
             }
 
-            let selected_replacement = find_any_replacement(unit, node.full_replacements)
-            if (selected_replacement !== 0) {
-                array_remove_item(node.full_replacements, selected_replacement)
-                node.full_strength.push(selected_replacement)
-            } else {
-                selected_replacement = find_any_replacement(unit, node.reduced_replacements)
-                if (selected_replacement !== 0) {
-                    array_remove_item(node.reduced_replacements, selected_replacement)
-                    node.reduced.push(selected_replacement)
-                }
+            const full_replacement = find_any_replacement(unit, node.full_replacements)
+            const reduced_replacement = find_any_replacement(unit, node.reduced_replacements)
+            if (full_replacement !== 0) {
+                array_remove_item(node.full_replacements, full_replacement)
+                node.full_strength.push(full_replacement)
+            } else if (reduced_replacement !== 0) {
+                array_remove_item(node.reduced_replacements, reduced_replacement)
+                node.reduced.push(reduced_replacement)
+            } else if (!is_unit_corps(unit) && node.to_satisfy >= 1) {
+                // 12.4.4.2 If a space with multiple armies that do not have replacement corps in the Reserve Box
+                // suffers a Loss Number greater than can be applied, the losses must be applied to one army before
+                // they can be applied to another unit. (This will result in at least one army being permanently
+                // eliminated.) The same principle applies in any similar situation where the full LP result cannot be
+                // satisfied but could have been satisfied had there been at least a reduced Corps available in the
+                // reserve box—the result must include an Army being permanently eliminated.
+                //
+                // In other words, if we are choosing between multiple options in the loss tree that satisfy the same
+                // number of losses, but this option could have satisfied additional losses if a corps had been
+                // in the reserve box, then we should prefer this option. Set a flag here to use as a tiebreaker later.
+                node.could_satisfy_additional_loss = true
             }
             parent.options.push(node)
         }
     }
 
-    // If there are no units left in the space and the remaining losses to satisfy are greater than the value of the fort, add a fort loss option
+    // If there are no units left in the space and the remaining losses to satisfy are greater than the value of the
+    // fort, add a fort loss option
     if (parent.full_strength.length === 0 &&
         parent.reduced.length === 0 &&
         parent.fort_strength > 0 &&
@@ -5034,7 +5045,9 @@ function build_loss_tree(parent, valid_paths) {
     for (let i = 0; i < parent.options.length; i++) {
         let current_best = valid_paths.length === 0 ? parent.to_satisfy : valid_paths[0].to_satisfy
         let option = parent.options[i]
-        if (option.to_satisfy < current_best) {
+        // If this option is strictly better than the current best option, or if it's equal but this option could have
+        // satisfied additional losses if a corps had been available in the reserve box, then clear out the valid paths.
+        if (option.to_satisfy < current_best || (option.to_satisfy === current_best && option.could_satisfy_additional_loss)) {
             valid_paths.length = 0
         }
         if (option.to_satisfy <= current_best) {
