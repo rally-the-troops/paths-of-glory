@@ -5891,9 +5891,9 @@ function cost_to_activate(space, type) {
         })
         cost = nations_with_armies.length
     }
-
     // After Fall of the Tsar, spaces with Russian units cost 1 per unit for combat only
-    if (game.events.fall_of_the_tsar > 0 && has_russians && type === ATTACK) {
+    let fall_of_the_tsar_attack=game.events.fall_of_the_tsar > 0 && has_russians && type === ATTACK
+    if (fall_of_the_tsar_attack) {
         cost = num_pieces
     }
 
@@ -5906,13 +5906,16 @@ function cost_to_activate(space, type) {
     //  may use the MEF Beachhead for supply.
     if (faction === AP && set_has(nations, BRITAIN) && is_space_supplied_through_mef(space)) {
         cost = 0
-        for_each_piece_in_space(space, (p) => {
+        pieces.forEach((p) => {
             if (p === MEF_ARMY) {
                 cost += 3
-            } else {
-                cost++ // This might be incorrect if the player has units in the space that are not _allowed_ to trace supply through the MEF Beachhead
+            } else if (data.pieces[p].nation === BRITAIN || fall_of_the_tsar_attack) {
+                cost++
             }
         })
+        if (!fall_of_the_tsar_attack) {
+            cost += nations.length - 1
+        }
     }
 
     return cost
