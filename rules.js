@@ -7025,17 +7025,6 @@ function is_unit_supplied_in(p, s, for_rp = false) {
             return true // Serbian units can trace supply to Salonika if it is friendly controlled
     }
 
-    // Albania traces supply from Taranto while Italy is neutral or when Taranto is supplied
-    if (data.spaces[s].nation === ALBANIA && (!is_space_at_war(TARANTO) || is_space_supplied(TARANTO, AP))) {
-        // Special Albanian supply does not apply to Russian, Romanian, or Serbian units, which must trace normally
-        if (data.pieces[p].faction === AP && ![RUSSIA, ROMANIA, SERBIA].includes(nation)) {
-            if (s === VALONA)
-                return true
-            if (s === TIRANA && is_controlled_by(VALONA, AP))
-                return true
-        }
-    }
-
     if (nation === ITALY)
         return check_supply_cache(game.supply, s, [LONDON], SUPPLY_MASK.London_Italian)
 
