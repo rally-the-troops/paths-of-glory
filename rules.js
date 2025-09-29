@@ -3775,12 +3775,35 @@ states.confirm_attack = {
     inactive: 'attack',
     prompt() {
         view.prompt = `Attack ${space_name(game.attack.space)} with ${piece_list(game.attack.pieces)} at ${fmt_attack_odds()}?`
+        if (french_mutiny_penalty_should_be_awarded()) {
+            view.prompt += ' French mutiny will be satisfied.'
+        }
         view.where = game.attack.space
         gen_action('attack')
     },
     attack() {
         goto_attack()
     }
+}
+
+function is_french_mutiny_mo() {
+    return game.events.french_mutiny > 0 && game.ap.mo === FRANCE
+}
+
+function french_mutiny_penalty_should_be_awarded() {
+    const nation = data.spaces[game.attack.space].nation
+    if (!is_french_mutiny_mo() || (nation !== FRANCE && nation !== BELGIUM && nation !== GERMANY)) {
+        return false
+    }
+    const us_placed_spaces = []
+    for (let p = 1; p < data.pieces.length; ++p) {
+        if (data.pieces[p].nation === US) {
+            us_placed_spaces[game.location[p]] = true
+        }
+    }
+    return game.attack.pieces.filter((p) => data.pieces[p].nation === FRANCE)
+        .map((p) => game.location[p])
+        .some((p) => us_placed_spaces[p] !== true)
 }
 
 function goto_attack() {
@@ -3806,20 +3829,16 @@ function goto_attack() {
         logi(`Fort (${space_name(game.attack.space)})`)
     }
 
-    if (game.events.french_mutiny > 0 && game.attack.attacker === AP && game.ap.mo === FRANCE) {
-        const french_attacking = game.attack.pieces.some((p) => data.pieces[p].nation === FRANCE)
-        const us_supporting = game.attack.pieces.some((p) => data.pieces[p].nation === US)
-        const nation = data.spaces[game.attack.space].nation
-        if (!game.awarded_fr_mutiny_vp && french_attacking && !us_supporting && (nation === FRANCE || nation === BELGIUM || nation === GERMANY)) {
+    const mo = active_faction() === AP ? game.ap.mo : game.cp.mo
+
+    if (game.attack.attacker === AP && is_french_mutiny_mo()) {
+        if (french_mutiny_penalty_should_be_awarded()) {
             game.vp += 1
             record_score_event(1, FRENCH_MUTINY)
-            log(`+1 VP -- French unit attacked without US support after French Mutiny`)
-            game.awarded_fr_mutiny_vp = true
+            log(`+1 VP -- French unit attacked without US stacking after French Mutiny`)
+            game[active_faction()].mo = NONE
         }
-    }
-
-    const mo = active_faction() === AP ? game.ap.mo : game.cp.mo
-    if (mo !== NONE && satisfies_mo(mo, game.attack.pieces, get_defenders_pieces(), game.attack.space)) {
+    } else if (mo !== NONE && satisfies_mo(mo, game.attack.pieces, get_defenders_pieces(), game.attack.space)) {
         game[active_faction()].mo = NONE
         log(`${faction_name(game.attack.attacker)} satisfy Mandated Offensive`)
     }
@@ -6102,7 +6121,6 @@ function goto_war_status_phase() {
         game.ap.missed_mo.push(game.turn)
         log(`+1 VP -- ${faction_name(AP)} failed to conduct their mandated offensive (${nation_name(game.ap.mo)})`)
     }
-    delete game.awarded_fr_mutiny_vp
 
     // E.4. Each player determines if his War Commitment Level has increased. This is not checked on the August 1914
     // turn (turn 1). If the appropriate War Status conditions are met, Limited War or Total War cards may be added
