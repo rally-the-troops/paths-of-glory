@@ -288,6 +288,15 @@ function is_minor_british_nation(piece) {
     return piece === AUS_CORPS || piece === CND_CORPS || piece === PT_CORPS || piece === BRITISH_ANA_CORPS
 }
 
+function is_bef_unit(p) {
+    return p === BEF_ARMY || p === BEF_CORPS
+}
+
+function can_bef_enter(s) {
+    const nation = data.spaces[s].nation
+    return nation === BRITAIN || nation === FRANCE || nation === BELGIUM || nation === GERMANY
+}
+
 function nation_name(nation) {
     switch (nation) {
         case FRANCE: return "France"
@@ -2181,6 +2190,10 @@ function get_sr_destinations(unit) {
                     continue
                 }
 
+                // Don't allow BEF Corps to SR to spaces they can't enter
+                if (is_bef_unit(unit) && !can_bef_enter(game.location[i]))
+                    continue
+
                 set_add(destinations, game.location[i])
             }
         }
@@ -2242,6 +2255,9 @@ function get_sr_destinations(unit) {
                 if (block_neareast && is_neareast_space(n))
                     return
 
+                if (is_bef_unit(unit) && !can_bef_enter(n))
+                    return
+
                 set_add(destinations, n)
                 set_add(overland_destinations, n)
                 frontier.push(n)
@@ -2253,7 +2269,10 @@ function get_sr_destinations(unit) {
     if (data.pieces[unit].type === CORPS) {
         if (is_port(start, active_faction())) {
             for (let s = 1; s < data.spaces.length; s++) {
-                if (is_port(s, active_faction()) && is_controlled_by(s, active_faction()) && is_unit_supplied_in(unit, s)) {
+                if (is_port(s, active_faction()) &&
+                    is_controlled_by(s, active_faction()) &&
+                    is_unit_supplied_in(unit, s) &&
+                    (unit !== BEF_CORPS || can_bef_enter(s))) {
                     set_add(destinations, s)
                 }
             }
@@ -3478,11 +3497,8 @@ function can_move_to(s, moving_pieces) {
         return false
 
     // Neither the BEF Corps nor Army may move in or attack into any space outside Britain, France, Belgium, and Germany.
-    if (moving_pieces.includes(find_piece(BRITAIN, 'BR BEFc')) || moving_pieces.includes(find_piece(BRITAIN, 'BR BEF'))) {
-        if (data.spaces[s].nation !== BRITAIN && data.spaces[s].nation !== FRANCE && data.spaces[s].nation !== BELGIUM && data.spaces[s].nation !== GERMANY) {
-            return false
-        }
-    }
+    if (moving_pieces.some(is_bef_unit) && !can_bef_enter(s))
+        return false
 
     if (is_neareast_space(s) && !can_enter_neareast(moving_pieces)) {
         return false
@@ -4172,6 +4188,9 @@ function is_attackable_space_for_piece(s, p) {
                 return false
         }
     }
+
+    if (is_bef_unit(p) && !can_bef_enter(s))
+        return false
 
     // Check if space has an attackable fort
     if (has_undestroyed_fort(s, other_faction(active_faction())) && is_controlled_by(s, other_faction(active_faction())) && !is_besieged(s)) {
