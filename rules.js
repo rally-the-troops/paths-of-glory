@@ -5892,7 +5892,7 @@ function cost_to_activate(space, type) {
         cost = nations_with_armies.length
     }
     // After Fall of the Tsar, spaces with Russian units cost 1 per unit for combat only
-    let fall_of_the_tsar_attack=game.events.fall_of_the_tsar > 0 && has_russians && type === ATTACK
+    let fall_of_the_tsar_attack = game.events.fall_of_the_tsar > 0 && has_russians && type === ATTACK
     if (fall_of_the_tsar_attack) {
         cost = num_pieces
     }
@@ -7829,7 +7829,7 @@ events.von_hutier = {
             return false
         if (!contains_piece_of_nation(game.attack.space, RUSSIA))
             return false
-        return true
+        return game.attack.pieces.some(p => data.pieces[p].nation === GERMANY)
     },
     play() {
         log(`${card_name(VON_HUTIER)} cancels trenches`)
