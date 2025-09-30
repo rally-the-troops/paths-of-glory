@@ -5751,6 +5751,11 @@ function get_possible_advance_spaces(pieces) {
             set_delete(spaces, OSTEND)
     }
 
+    // Filter out any spaces that do not have a valid connection. This could happen if the retreating pieces crossed
+    // a nation-specific connection, such as Russians retreating into one of their supply centers.
+    let connected = get_connected_spaces_for_pieces(location_of_advancing_units, pieces)
+    spaces = spaces.filter(s => connected.includes(s))
+
     return spaces
 }
 
