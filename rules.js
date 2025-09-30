@@ -6304,6 +6304,7 @@ function apply_replacement_phase_events() {
 
 function goto_replacement_phase() {
     clear_undo()
+    update_supply()
     if (has_rps(AP)) {
         log_h2(`${faction_name(AP)} Replacement Phase`)
         set_active_faction(AP)
