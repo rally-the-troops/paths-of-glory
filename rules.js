@@ -2069,7 +2069,10 @@ states.choose_sr_unit = {
 
         const rule_violations = check_rule_violations()
         if (rule_violations.length === 0) {
-            gen_action("end_action")
+            if (game.sr.pts > 0)
+                gen_action("confirm_end_sr")
+            else
+                gen_action("end_action")
         } else {
             gen_action('reset_phase')
         }
@@ -2079,6 +2082,9 @@ states.choose_sr_unit = {
         game.sr.unit = p
         game.sr.pts -= sr_cost(p)
         game.state = 'choose_sr_destination'
+    },
+    confirm_end_sr() {
+        this.end_action()
     },
     end_action() {
         end_sr()

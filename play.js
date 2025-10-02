@@ -2281,6 +2281,10 @@ function update_map() {
 
     action_button("end_action", "End Action")
 
+    confirm_action_button("confirm_end_sr", "End Action",
+        "You still have strategic redeployment points left to spend!\nDo you still want to END the action round?"
+    )
+
     action_button("end_rp", "End Replacement Phase")
     confirm_action_button("confirm_end_rp", "End Replacement Phase",
         "You still have replacement points left to spend!\nDo you still want to END the replacement phase?"
