@@ -5627,9 +5627,17 @@ states.attacker_advance = {
                 gen_action_done()
             }
         } else if (game.attack.advance_length > 0) {
-            for (let p of game.attack.advancing_pieces)
-                gen_action_piece(p)
-            gen_action("stop")
+            let current_space = game.location[game.attack.advancing_pieces[0]]
+
+            // Can only drop a piece if the current space is not overstacked
+            let pieces_in_space_not_advancing = get_pieces_in_space(current_space).filter((p) => !game.attack.advancing_pieces.includes(p))
+            if (pieces_in_space_not_advancing.length < STACKING_LIMIT)
+                for (let p of game.attack.advancing_pieces)
+                    gen_action_piece(p)
+
+            // If stopping here would overstack, must not stop
+            if (!is_overstacked(current_space, game.attack.attacker))
+                gen_action("stop")
         }
 
         if (game.attack.advancing_pieces.length > 0) {
@@ -5716,7 +5724,7 @@ function get_possible_advance_spaces(pieces) {
     let location_of_advancing_units = game.location[pieces[0]]
     // If the attacking pieces haven't entered the attack space (always true if this is a 1-space advance), that is the only choice
     if (game.attack.space !== location_of_advancing_units) {
-        if (can_advance_into(game.attack.space, pieces))
+        if (can_advance_into(game.attack.space, pieces, game.attack.retreat_length > 1))
             return [game.attack.space]
         else
             return []
@@ -5765,7 +5773,7 @@ function get_possible_advance_spaces(pieces) {
     return spaces
 }
 
-function can_advance_into(space, units) {
+function can_advance_into(space, units, can_overstack = false) {
     // Advance into a fort is only allowed if you have sufficient advancing units to besiege the fort (12.7.6)
     if (has_undestroyed_fort(space, other_faction(game.attack.attacker)) && !is_besieged(space) && !can_besiege(space, units))
         return false
@@ -5775,6 +5783,9 @@ function can_advance_into(space, units) {
 
     // Cannot advance into neutral nations
     if (!is_space_at_war(space))
+        return false
+
+    if (!can_overstack && would_overstack(space, units, game.attack.attacker))
         return false
 
     return true
