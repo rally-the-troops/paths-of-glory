@@ -33,6 +33,8 @@ const BULGARIA = 'bu'
 const ROMANIA = 'ro'
 const GREECE = 'gr'
 
+let options = {}
+
 function check_menu(id, x) {
     document.getElementById(id).className = x ? "menu_item checked" : "menu_item unchecked"
 }
@@ -132,10 +134,18 @@ function hide_supply() {
     }
 }
 
-function faction_card_number(card_number) {
+function on_init(scenario, game_options, static_view){
+    options=game_options
+    for (let c = 1; c < cards.length; ++c) {
+        build_card(c)
+    }
+}
+
+function card_class_name(card_number) {
     let faction = card_number > HIGHEST_AP_CARD ? "cp" : "ap"
     let faction_card_number = card_number > HIGHEST_AP_CARD ? card_number - HIGHEST_AP_CARD : card_number
-    return `${faction}_${faction_card_number}`
+    let suffix = (options.valiant &&  [27, 48, 62, 130].includes(card_number))?'_v':''
+    return `card_${faction}_${faction_card_number}${suffix}`
 }
 
 function on_click_card_tip(c) {
@@ -143,7 +153,7 @@ function on_click_card_tip(c) {
 }
 
 function on_focus_card_tip(card_number) {
-    document.getElementById("tooltip").className = `card show card_${faction_card_number(card_number)}`
+    document.getElementById("tooltip").className = `card show ${card_class_name(card_number)}`
 }
 
 function on_blur_card_tip() {
@@ -1232,7 +1242,7 @@ function build_card(id) {
     let card = cards[id]
     let elt = card.element = document.createElement("div")
     elt.card = id
-    elt.className = `card ${id <= HIGHEST_AP_CARD ? "ap" : "cp"} card_${faction_card_number(id)}`
+    elt.className = `card ${id <= HIGHEST_AP_CARD ? "ap" : "cp"} ${card_class_name(id)}`
     elt.addEventListener("click", on_click_card)
     elt.addEventListener("mouseenter", on_focus_card)
     elt.addEventListener("mouseleave", on_blur_card)
@@ -1241,6 +1251,7 @@ function build_card(id) {
 for (let c = 1; c < cards.length; ++c) {
     build_card(c)
 }
+
 for (let s = 1; s < spaces.length; ++s) {
     if (s === AP_RESERVE_BOX || s === CP_RESERVE_BOX)
         build_reserve_box(s)

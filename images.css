@@ -167,6 +167,7 @@
 .card_ap_25{background-image:url(cards.1x/card_ap_25.avif)}
 .card_ap_26{background-image:url(cards.1x/card_ap_26.avif)}
 .card_ap_27{background-image:url(cards.1x/card_ap_27.avif)}
+.card_ap_27_v{background-image:url(cards.1x/card_ap_27_v.avif)}
 .card_ap_28{background-image:url(cards.1x/card_ap_28.avif)}
 .card_ap_29{background-image:url(cards.1x/card_ap_29.avif)}
 .card_ap_30{background-image:url(cards.1x/card_ap_30.avif)}
@@ -188,6 +189,7 @@
 .card_ap_46{background-image:url(cards.1x/card_ap_46.avif)}
 .card_ap_47{background-image:url(cards.1x/card_ap_47.avif)}
 .card_ap_48{background-image:url(cards.1x/card_ap_48.avif)}
+.card_ap_48_v{background-image:url(cards.1x/card_ap_48_v.avif)}
 .card_ap_49{background-image:url(cards.1x/card_ap_49.avif)}
 .card_ap_50{background-image:url(cards.1x/card_ap_50.avif)}
 .card_ap_51{background-image:url(cards.1x/card_ap_51.avif)}
@@ -202,6 +204,7 @@
 .card_ap_60{background-image:url(cards.1x/card_ap_60.avif)}
 .card_ap_61{background-image:url(cards.1x/card_ap_61.avif)}
 .card_ap_62{background-image:url(cards.1x/card_ap_62.avif)}
+.card_ap_62_v{background-image:url(cards.1x/card_ap_62_v.avif)}
 .card_ap_63{background-image:url(cards.1x/card_ap_63.avif)}
 .card_ap_64{background-image:url(cards.1x/card_ap_64.avif)}
 .card_ap_65{background-image:url(cards.1x/card_ap_65.avif)}
@@ -271,6 +274,7 @@
 .card_cp_63{background-image:url(cards.1x/card_cp_63.avif)}
 .card_cp_64{background-image:url(cards.1x/card_cp_64.avif)}
 .card_cp_65{background-image:url(cards.1x/card_cp_65.avif)}
+.card_cp_65_v{background-image:url(cards.1x/card_cp_65_v.avif)}
 
 /* CARDS @2x*/
 @media (min-resolution: 97dpi) {
@@ -302,6 +306,7 @@
 .card_ap_25{background-image:url(cards.2x/card_ap_25.avif)}
 .card_ap_26{background-image:url(cards.2x/card_ap_26.avif)}
 .card_ap_27{background-image:url(cards.2x/card_ap_27.avif)}
+.card_ap_27_v{background-image:url(cards.2x/card_ap_27_v.avif)}
 .card_ap_28{background-image:url(cards.2x/card_ap_28.avif)}
 .card_ap_29{background-image:url(cards.2x/card_ap_29.avif)}
 .card_ap_30{background-image:url(cards.2x/card_ap_30.avif)}
@@ -323,6 +328,7 @@
 .card_ap_46{background-image:url(cards.2x/card_ap_46.avif)}
 .card_ap_47{background-image:url(cards.2x/card_ap_47.avif)}
 .card_ap_48{background-image:url(cards.2x/card_ap_48.avif)}
+.card_ap_48_v{background-image:url(cards.2x/card_ap_48_v.avif)}
 .card_ap_49{background-image:url(cards.2x/card_ap_49.avif)}
 .card_ap_50{background-image:url(cards.2x/card_ap_50.avif)}
 .card_ap_51{background-image:url(cards.2x/card_ap_51.avif)}
@@ -337,6 +343,7 @@
 .card_ap_60{background-image:url(cards.2x/card_ap_60.avif)}
 .card_ap_61{background-image:url(cards.2x/card_ap_61.avif)}
 .card_ap_62{background-image:url(cards.2x/card_ap_62.avif)}
+.card_ap_62_v{background-image:url(cards.2x/card_ap_62_v.avif)}
 .card_ap_63{background-image:url(cards.2x/card_ap_63.avif)}
 .card_ap_64{background-image:url(cards.2x/card_ap_64.avif)}
 .card_ap_65{background-image:url(cards.2x/card_ap_65.avif)}
@@ -406,4 +413,5 @@
 .card_cp_63{background-image:url(cards.2x/card_cp_63.avif)}
 .card_cp_64{background-image:url(cards.2x/card_cp_64.avif)}
 .card_cp_65{background-image:url(cards.2x/card_cp_65.avif)}
+.card_cp_65_v{background-image:url(cards.2x/card_cp_65_v.avif)}
 }

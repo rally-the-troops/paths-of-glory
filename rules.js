@@ -572,8 +572,11 @@ exports.dont_snap = function (state) {
 exports.setup = function (seed, scenario, options) {
     game = create_empty_game_state(seed, scenario)
 
-    if (options.optional_cards)
+    if (options.optional_cards) {
         game.options.optional_cards = 1
+    } else if (options.valiant) {
+        game.options.valiant = 1
+    }
 
     // Current control of each space
     for (let i = 0; i < data.spaces.length; ++i)
@@ -1084,16 +1087,33 @@ function is_optional_card(c) {
     return (c >= 56 && c <= 65) || (c >= 56+65 && c <= 65+65)
 }
 
-function set_up_standard_decks(start_with_guns_of_august) {
-    const include_optional_cards = game.options.optional_cards
+function is_base_deck(i) {
+    return !is_optional_card(i);
+}
 
+function is_valiant_deck(i) {
+    let card = data.cards[i]
+    return ((card.faction === CP && is_optional_card(i) && [56, 57, 59, 60, 64, 65].includes(card.num)) ||
+        (card.faction === CP && !is_optional_card(i) && ![2, 4, 17, 24, 35, 51].includes(card.num)) ||
+        (card.faction === AP && is_optional_card(i) && [56, 57, 60, 61, 62, 63, 65].includes(card.num)) ||
+        (card.faction === AP && !is_optional_card(i) && ![5, 8, 23, 28, 35, 36, 38].includes(card.num)))
+}
+
+function is_card_allowed_to_deal(i) {
+    if (game.options.optional_cards) {
+        return true
+    } else if (game.options.valiant) {
+        return is_valiant_deck(i)
+    }
+    return is_base_deck()
+}
+
+function set_up_standard_decks(start_with_guns_of_august) {
     for (let i = 1; i < data.cards.length; i++) {
         if (i === GUNS_OF_AUGUST && start_with_guns_of_august) {
             game.cp.hand.push(i)
-        } else if (data.cards[i].commitment === COMMITMENT_MOBILIZATION) {
-            if (include_optional_cards || !is_optional_card(i)) {
-                game[data.cards[i].faction].deck.push(i)
-            }
+        } else if (data.cards[i].commitment === COMMITMENT_MOBILIZATION && is_card_allowed_to_deal(i)) {
+            game[data.cards[i].faction].deck.push(i)
         }
     }
 
@@ -1156,9 +1176,6 @@ const great_war_scenario_played_ap_cards = [
     BRITISH_REINFORCEMENTS_5 // AP 34
 ]
 function set_up_great_war_scenario_decks() {
-    if (game.options.optional_cards)
-        log("Optional cards are not used in The Great War scenario.")
-
     for (let i = 1; i < data.cards.length; i++) {
         let c = data.cards[i]
         if (great_war_scenario_played_cp_cards.includes(i) || great_war_scenario_played_ap_cards.includes(i))
@@ -1891,7 +1908,8 @@ function is_ops_event_card(c) {
         c === KERENSKY_OFFENSIVE ||
         c === BRUSILOV_OFFENSIVE ||
         c === ZIMMERMANN_TELEGRAM ||
-        c === OVER_THERE
+        c === OVER_THERE ||
+        (c === GREAT_RETREAT && game.options.valiant)
     )
 }
 
@@ -4905,7 +4923,7 @@ states.apply_attacker_losses = {
     prompt() {
         let loss_options = []
         if (game.attack.attacker_losses - game.attack.attacker_losses_taken > 0)
-            loss_options = get_loss_options(false,game.attack.attacker_losses - game.attack.attacker_losses_taken, game.attack.pieces, 0)
+            loss_options = get_loss_options(false, game.attack.attacker_losses - game.attack.attacker_losses_taken, game.attack.pieces, 0)
         if (loss_options.length > 0) {
             view.prompt = `Take losses in attack on ${space_name(game.attack.space)}: ${game.attack.attacker_losses_taken} / ${game.attack.attacker_losses}.`
             loss_options.forEach((p) => {
@@ -6224,11 +6242,9 @@ function goto_war_status_phase() {
 }
 
 function add_cards_to_deck(faction, commitment, deck) {
-    const use_optional_cards = game.options.optional_cards
     for (let i = 1; i < data.cards.length; i++) {
-        if (data.cards[i].commitment === commitment && data.cards[i].faction === faction) {
-            if (use_optional_cards || !is_optional_card(i))
-                deck.push(i)
+        if (data.cards[i].commitment === commitment && data.cards[i].faction === faction && is_card_allowed_to_deal(i)) {
+            deck.push(i)
         }
     }
 }
@@ -8283,6 +8299,9 @@ states.alberich = {
 // CP #65
 events.prince_max = {
     can_play() {
+        if (game.options.valiant) {
+            return game.ap.ws + game.cp.ws >= 30
+        }
         return game.turn <= 16
     },
     play() {
@@ -8553,7 +8572,12 @@ events.great_retreat = {
     },
     play() {
         game.events.great_retreat = game.turn
-        goto_end_event()
+        if (game.options.valiant) {
+            game.ops = data.cards[GREAT_RETREAT].ops
+            game.state = 'activate_spaces'
+        } else {
+            goto_end_event()
+        }
     }
 }
 
@@ -8902,7 +8926,7 @@ events.royal_tank_corps = {
             return false
         if (game.attack.attacker !== AP)
             return false
-        if (!game.events.landships)
+        if (!game.events.landships && !game.options.valiant)
             return false
         if (!game.attack.pieces.some(p => data.pieces[p].nation === BRITAIN))
             return false
@@ -9174,7 +9198,7 @@ function can_trace_ap_supply_through_basra(list) {
 // AP #62
 events.the_sixtus_affair = {
     can_play() {
-        return true
+        return game.turn <= 16 || !game.options.valiant
     },
     play() {
         roll_peace_terms(AP, 0)
