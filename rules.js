@@ -2173,6 +2173,7 @@ function get_sr_destinations(unit) {
     let destinations = []
     const start = game.location[unit]
     const nation = data.pieces[unit].nation
+    const faction = data.pieces[unit].faction
 
     if (unit === MONTENEGRIN_CORPS) {
         if (start === AP_RESERVE_BOX && is_controlled_by(CETINJE, AP))
@@ -2184,30 +2185,31 @@ function get_sr_destinations(unit) {
 
     if (start === AP_RESERVE_BOX || start === CP_RESERVE_BOX) {
         // Add all spaces containing a supplied unit of the correct nationality, except ANA Corps and SN Corps
-        for (let i = 0; i < game.location.length; i++) {
-            if (game.location[i] !== 0 &&
-                data.pieces[i].nation === nation &&
-                is_unit_supplied(i) &&
-                i !== BRITISH_ANA_CORPS &&
-                i !== TURKISH_SN_CORPS) {
+        for (let p of all_pieces_by_nation[nation]) {
+            let s = game.location[p]
+            if (game.location[p] !== 0 &&
+                is_unit_supplied(p) &&
+                p !== BRITISH_ANA_CORPS &&
+                p !== TURKISH_SN_CORPS) {
 
                 // For Russian units, only allow destinations in Russian spaces
-                if (nation === RUSSIA && data.spaces[game.location[i]].nation !== RUSSIA) {
+                if (nation === RUSSIA && data.spaces[s].nation !== RUSSIA) {
                     continue
                 }
 
                 // Don't allow BEF Corps to SR to spaces they can't enter
-                if (is_bef_unit(unit) && !can_bef_enter(game.location[i]))
+                if (is_bef_unit(unit) && !can_bef_enter(s))
                     continue
 
-                set_add(destinations, game.location[i])
+                if (is_controlled_by(s, faction))
+                    set_add(destinations, s)
             }
         }
 
         // Add all capitals and supply sources in the nation, as long as they are in supply
         if (all_supply_and_capitals_by_nation[nation] !== undefined) {
             for (let s of all_supply_and_capitals_by_nation[nation]) {
-                if (is_unit_supplied_in(unit, s)) {
+                if (is_controlled_by(s, faction) && is_unit_supplied_in(unit, s)) {
                     set_add(destinations, s)
                 }
             }
@@ -2231,7 +2233,7 @@ function get_sr_destinations(unit) {
 
     } else if (data.pieces[unit].type === CORPS && is_space_supplied_for_reserve_box_sr(game.location[unit], unit)) {
         // Corps can SR to the reserve box
-        if (active_faction() === AP) {
+        if (faction === AP) {
             set_add(destinations, AP_RESERVE_BOX)
         } else {
             set_add(destinations, CP_RESERVE_BOX)
@@ -2247,7 +2249,7 @@ function get_sr_destinations(unit) {
         get_connected_spaces(current, nation).forEach((n) => {
             if (!set_has(destinations, n)
                 && is_unit_supplied_in(unit, n)
-                && (is_controlled_by(n, active_faction()) || is_besieged(n))) {
+                && (is_controlled_by(n, faction) || is_besieged(n))) {
                 if (nation === RUSSIA && data.spaces[n].nation !== RUSSIA)
                     return
 
