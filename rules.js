@@ -3845,8 +3845,11 @@ function goto_attack() {
         let attackers_in_space = game.attack.pieces.filter((p) => game.location[p] === source)
         logi(`${piece_list(attackers_in_space)} (${space_name(source)})`)
     })
+
     log(`Defenders:`)
-    logi(`${piece_list(get_pieces_in_space(game.attack.space))} (${space_name(game.attack.space)})`)
+    let defenders = get_defenders_pieces()
+    if (defenders.length > 0)
+        logi(`${piece_list(get_defenders_pieces())} (${space_name(game.attack.space)})`)
     if (has_undestroyed_fort(game.attack.space, other_faction(game.attack.attacker))) {
         logi(`Fort (${space_name(game.attack.space)})`)
     }
