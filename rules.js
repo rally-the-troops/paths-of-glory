@@ -7840,6 +7840,8 @@ events.von_below = {
         if (game.attack.attacker !== CP)
             return false
         let defenders = get_defenders_pieces()
+        if (defenders.length === 0)
+            return false
         for (let d of defenders) {
             if (data.pieces[d].nation !== ITALY)
                 return false
