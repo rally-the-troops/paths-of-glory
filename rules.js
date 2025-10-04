@@ -8671,8 +8671,10 @@ states.salonika = {
                 if (loc !== 0 &&
                     loc !== SALONIKA &&
                     data.pieces[p].type === CORPS &&
+                    !is_bef_unit(p) &&
                     (nation === FRANCE || (nation === BRITAIN && !is_minor_british_nation(p))) &&
-                    (is_port(loc, AP) || AP_RESERVE_BOX === loc)) {
+                    (is_port(loc, AP) || AP_RESERVE_BOX === loc)
+                ) {
                     gen_action_piece(p)
                 }
             }
