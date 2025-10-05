@@ -9,6 +9,7 @@ header { background-color: gainsboro; }
 
 #log .h1 { border-top: 1px solid black; border-bottom: 1px solid black; }
 #log .h2 { border-top: 1px solid black; border-bottom: 1px solid black; }
+#log .h3 { border-top: 1px solid black; border-bottom: 1px solid black; }
 
 body.Allied_Powers header.your_turn { background-color: lightcoral; }
 body.Central_Powers header.your_turn { background-color: lightsteelblue; }
@@ -30,9 +31,14 @@ body.Central_Powers header.your_turn { background-color: lightsteelblue; }
 #log > div { padding-left: 20px; text-indent: -12px; }
 #log .h1 { font-weight: bold; padding-top:2px; padding-bottom:2px; text-align: center; }
 #log .h2 { padding-top:2px; padding-bottom:2px; text-align: center; }
-#log .h3 { padding-top:2px; padding-bottom:2px; text-align: center; }
-#log .h3.cp { padding-top:2px; padding-bottom:2px; text-align: center; }
-#log .h3.ap { padding-top:2px; padding-bottom:2px; text-align: center; }
+#log .h3 { padding-top:1px; padding-bottom:1px; text-align: center; }
+
+#log .group { margin: 0 8px }
+#log .group.h4 { text-align: center; padding: 0px; }
+#log .group.h4.ap { background-color: hsl(0, 20%, 80%); }
+#log .group.h4.cp { background-color: hsl(214, 30%, 80%); }
+#log .group.ap { background-color: hsl(0, 20%, 90%) }
+#log .group.cp { background-color: hsl(214, 30%, 90%) }
 
 #log div.i { padding-left: 32px; text-indent: -12px; }
 #log div.ii { padding-left: 44px; text-indent: -12px; }
