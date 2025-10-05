@@ -191,13 +191,6 @@ function attract(elt) {
     window.setTimeout(() => elt.classList.remove("attract"), 1000)
 }
 
-function on_log_line(text, cn) {
-    let p = document.createElement("div")
-    if (cn) p.className = cn
-    p.innerHTML = text
-    return p
-}
-
 function sub_space_name(match, p1, offset, string) {
     let s = p1 | 0
     let n = spaces[s].name
@@ -2072,31 +2065,42 @@ function sub_icon(match) {
     return ICONS_SVG[match]
 }
 
-function on_log(text) {
+var log_box_ap = 0
+var log_box_cp = 0
+
+function on_log(text, ix) {
     let p = document.createElement("div")
 
-    if (text.match(/^>>/)) {
-        text = text.substring(2)
-        p.className = "ii"
-    }
+    // Reset group box counter (when log is rewound)
+    if (ix < log_box_ap) log_box_ap = 0
+    if (ix < log_box_cp) log_box_cp = 0
 
-    if (text.match(/^>/)) {
+    if (text.startsWith(">")) {
         text = text.substring(1)
         p.className = "i"
     }
 
-    text = escape_text(text)
-
-    if (text.match(/^!/)) {
-        text = "&#x2757;" + text.substring(1)
-        p.classList.toggle("alert", true)
+    if (text.startsWith("!")) {
+        text = "\u2757 " + text.substring(1)
     }
 
-    if (text.match(/^\.h1/)) {
+    else if (text.startsWith("#cp")) {
+        text = text.substring(4)
+        p.className = "h4"
+        log_box_cp = ix
+    }
+    else if (text.startsWith("#ap")) {
+        text = text.substring(4)
+        p.className = "h4"
+        log_box_ap = ix
+    }
+
+    else if (text.startsWith(".h1")) {
         text = text.substring(4)
         p.className = 'h1'
     }
-    if (text.match(/^\.h2/)) {
+
+    else if (text.startsWith(".h2")) {
         text = text.substring(4)
         if (text === 'AP')
             p.className = 'h2 ap'
@@ -2106,28 +2110,30 @@ function on_log(text) {
             p.className = 'h2'
     }
 
-    if (text.match(/^\.h3cp/)) {
+    else if (text.startsWith(".h3cp")) {
         text = text.substring(6)
         p.className = "h3 cp"
-    } else if (text.match(/^\.h3ap/)) {
+    }
+    else if (text.startsWith(".h3ap")) {
         text = text.substring(6)
         p.className = "h3 ap"
-    } else if (text.match(/^\.h3/)) {
+    }
+    else if (text.startsWith(".h3")) {
         text = text.substring(4)
         p.className = "h3"
     }
 
-    text = text.replace(/\+\d VP/g, match => `<span class="cpvp">${match}</span>`)
-    text = text.replace(/[-−]\d VP/g, match => `<span class="apvp">${match}</span>`)
-
-    if (text.indexOf("\n") < 0) {
-        p.innerHTML = text
-    } else {
-        text = text.split("\n")
-        p.appendChild(on_log_line(text[0]))
-        for (let i = 1; i < text.length; ++i)
-            p.appendChild(on_log_line(text[i], "indent"))
+    else if (text === "") {
+        log_box_ap = 0
+        log_box_cp = 0
     }
+
+    if (log_box_ap)
+        p.classList.add("group", "ap")
+    if (log_box_cp)
+        p.classList.add("group", "cp")
+
+    p.innerHTML = escape_text(text)
     return p
 }
 
@@ -2145,6 +2151,8 @@ function escape_text(text) {
     text = text.replace(/c(\d+)/g, sub_card_name)
     text = text.replace(/\b[BW]\d\b/g, sub_icon)
     text = text.replace(" 1 spaces", " 1 space")
+    text = text.replace(/\+\d VP/g, match => `<span class="cpvp">${match}</span>`)
+    text = text.replace(/[-−]\d VP/g, match => `<span class="apvp">${match}</span>`)
     return text
 }
 

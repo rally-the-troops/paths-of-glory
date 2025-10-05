@@ -1888,7 +1888,8 @@ function get_trench_level_for_attack(s, faction) {
 // === ACTION PHASE ===
 
 function goto_action_phase() {
-    log_h3(`${faction_name(active_faction())} Action ${game[active_faction()].actions.length+1}`)
+    let round = game[active_faction()].actions.length + 1
+    log_h3(`Turn ${game.turn} -- Action ${round}`)
     game.state = 'action_phase'
     save_rollback_point()
 }
@@ -2932,6 +2933,8 @@ function end_attack_activation() {
         record_score_event(-1, PEACE_OFFENSIVE)
     }
 
+    log_br()
+
     if (game.eligible_attackers.length === 0)
         game.activated.attack = []
     game.attack = null
@@ -3121,6 +3124,7 @@ states.choose_move_space = {
     piece(p) {
         push_undo()
         let s = game.location[p]
+        log_br()
         log("Moved from " + space_name(s))
         game.move.initial = s
         game.move.current = s
@@ -3862,7 +3866,7 @@ function goto_attack() {
         update_russian_ne_restriction_flag(game.attack.pieces, source, game.attack.space)
     })
 
-    log_h3(`Attack on ${space_name(game.attack.space)}`)
+    log_attack(`${space_name(game.attack.space)}`)
     log(`Attackers:`)
     attack_sources.forEach((source) => {
         let attackers_in_space = game.attack.pieces.filter((p) => game.location[p] === source)
@@ -9091,7 +9095,7 @@ states.russian_cavalry = {
     },
     space(s) {
         push_undo()
-        logii(`RU Cavc placed in ` +  data.spaces[s].name)
+        logi(`RU Cavc placed in ` +  data.spaces[s].name)
         game.units_to_place.forEach((p) => {
             game.location[p] = s
         })
@@ -9801,6 +9805,14 @@ function log_h3(msg, faction) {
     else
         log(".h3 " + msg)
     log_br()
+}
+
+function log_attack(msg) {
+    log_br()
+    if (active_faction() === AP)
+        log("#ap " + msg)
+    else
+        log("#cp " + msg)
 }
 
 function log_corps(p) {
