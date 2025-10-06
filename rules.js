@@ -3930,7 +3930,7 @@ function goto_attack_step_kerensky_offensive() {
 function goto_attack_step_combat_cards() {
     if (could_have_usable_combat_card(game.attack.attacker, true)) {
         game.state = 'attacker_combat_cards'
-    } else if (could_have_usable_combat_card(other_faction(game.attack.attacker))) {
+    } else if (!attacking_unoccupied_fort() && could_have_usable_combat_card(other_faction(game.attack.attacker))) {
         clear_undo()
         set_active_faction(other_faction(game.attack.attacker))
         game.state = 'defender_combat_cards'
