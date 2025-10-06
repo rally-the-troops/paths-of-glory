@@ -3962,7 +3962,7 @@ function goto_attack_step_combat_cards() {
 
 function could_apply_combat_card(c) {
     let card_data = data.cards[c]
-    if (!card_data.cc && card_data.event !== "yanks_and_tanks")
+    if (!card_data.cc && c !== YANKS_AND_TANKS)
         return false
     let evt = events[card_data.event]
     return !!(evt && evt.can_apply())
