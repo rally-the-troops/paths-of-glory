@@ -3796,12 +3796,15 @@ function fmt_attack_odds() {
     let defender_shifts = 0
 
     const trench_lvl = get_trench_level_for_attack(game.attack.space, defender)
-    if (trench_lvl === 2) {
-        attacker_shifts -= 2
-        defender_shifts++
-    } else if (trench_lvl === 1) {
-        attacker_shifts--
-        defender_shifts++
+    const trench_shift_canceled = attacking_unoccupied_fort() || game.attack.trenches_canceled || game.attack.trench_shift_canceled
+    if (!trench_shift_canceled) {
+        if (trench_lvl === 2) {
+            attacker_shifts -= 2
+            defender_shifts++
+        } else if (trench_lvl === 1) {
+            attacker_shifts--
+            defender_shifts++
+        }
     }
 
     let terrain = data.spaces[game.attack.space].terrain
