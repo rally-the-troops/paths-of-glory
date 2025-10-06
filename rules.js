@@ -1105,7 +1105,7 @@ function is_card_allowed_to_deal(i) {
     } else if (game.options.valiant) {
         return is_valiant_deck(i)
     }
-    return is_base_deck()
+    return is_base_deck(i)
 }
 
 function set_up_standard_decks(start_with_guns_of_august) {
