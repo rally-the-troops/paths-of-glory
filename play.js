@@ -1522,9 +1522,8 @@ function is_neutral(p) {
         case BULGARIA:
         case ROMANIA:
         case TURKEY:
-            return !view.war[pieces[p].nation]
         case GREECE:
-            return !(view.war[GREECE] || view.events.salonika > 0)
+            return !view.war[pieces[p].nation]
         default:
             return false
     }
@@ -1938,11 +1937,7 @@ function update_ne_limits() {
 
 function update_neutral_markers() {
     for (let nation of ["it", "bu", "tu", "ro", "gr"]) {
-        if (view.war[nation] || (view.events.salonika > 0 && nation === "gr")) {
-            ui.neutral[nation].classList.add("hide")
-        } else {
-            ui.neutral[nation].classList.remove("hide")
-        }
+        ui.neutral[nation].classList.toggle("hide", !!view.war[nation])
     }
 }
 
