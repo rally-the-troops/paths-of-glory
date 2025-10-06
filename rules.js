@@ -2675,14 +2675,14 @@ function get_available_reinforcement_spaces(p) {
     }
 
     // Special placement options for French Orient Army, British NE Army, Russian CAU Army, and British MEF Army
-    if (piece_data.name === 'FR Orient' && is_space_at_war(SALONIKA) && !is_fully_stacked(SALONIKA, active_faction())) {
+    if (piece_data.name === 'FR Orient' && is_space_at_war(SALONIKA) && !is_fully_stacked(SALONIKA, active_faction()) && is_controlled_by(SALONIKA, AP)) {
         spaces.push(SALONIKA)
-    } else if (piece_data.name === 'BR NE' && game.events.sinai_pipeline > 0 && !is_fully_stacked(ALEXANDRIA, active_faction())) {
+    } else if (piece_data.name === 'BR NE' && game.events.sinai_pipeline > 0 && !is_fully_stacked(ALEXANDRIA, active_faction()) && is_controlled_by(ALEXANDRIA, AP)) {
         spaces.push(ALEXANDRIA)
     } else if (piece_data.name === 'RU CAU') {
         // any supplied space in Russia on the NE map
         for (let s of all_spaces_by_nation[RUSSIA]) {
-            if (data.spaces[s].map === 'neareast' && is_unit_supplied_in(p, s) && !is_fully_stacked(s, AP)) {
+            if (data.spaces[s].map === 'neareast' && is_unit_supplied_in(p, s) && !is_fully_stacked(s, AP) && is_controlled_by(s, AP)) {
                 if (!is_brest_litovsk_restricted_one(p, s)) {
                     spaces.push(s)
                 }
