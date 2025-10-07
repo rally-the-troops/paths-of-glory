@@ -5161,15 +5161,23 @@ function build_loss_tree(parent, valid_paths) {
     // Recurse to continue building options, updating the best options as we go
     for (let i = 0; i < parent.options.length; i++) {
         let current_best = valid_paths.length === 0 ? parent.to_satisfy : valid_paths[0].to_satisfy
+        let current_best_could_satisfy_additional_loss = valid_paths.length === 0 ? parent.could_satisfy_additional_loss : valid_paths[0].could_satisfy_additional_loss
         let option = parent.options[i]
-        // If this option is strictly better than the current best option, or if it's equal but this option could have
-        // satisfied additional losses if a corps had been available in the reserve box, then clear out the valid paths.
-        if (option.to_satisfy < current_best || (option.to_satisfy === current_best && option.could_satisfy_additional_loss)) {
+
+        // If this option is strictly better than the current best option, then clear out the valid paths.
+        if (option.to_satisfy < current_best)
             valid_paths.length = 0
-        }
-        if (option.to_satisfy <= current_best) {
+
+        // If this option satisfies the same number of losses, but could have satisfied an additional loss with a corps
+        // available, and the current best could not have satisfied an additional loss, then this option is strictly
+        // better, so clear out valid paths.
+        if (option.to_satisfy === current_best && option.could_satisfy_additional_loss && !current_best_could_satisfy_additional_loss)
+            valid_paths.length = 0
+
+        // If this option is as good as the current best, add it to the valid paths
+        if (option.to_satisfy <= current_best)
             valid_paths.push(option)
-        }
+
         build_loss_tree(option, valid_paths)
     }
 }
