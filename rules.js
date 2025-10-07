@@ -5390,6 +5390,7 @@ states.cancel_retreat = {
             } else if (replacement_options.length === 1) {
                 replace_retreat_canceling_unit(p, location, replacement_options[0])
             }
+            update_siege(location)
         } else {
             reduce_piece_defender(p)
         }
