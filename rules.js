@@ -7709,7 +7709,7 @@ events.kemal = {
             return false
         if (game.attack.attacker !== AP)
             return false
-        return (get_defenders_pieces().some(p => data.pieces[p].nation === TURKEY))
+        return (get_defenders_pieces().some(p => data.pieces[p].nation === TURKEY && get_piece_cf(p) > 0))
     },
     apply() {
         log(`${card_name(KEMAL)} -- defender fires on the Army table`)
