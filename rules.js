@@ -5391,6 +5391,11 @@ states.cancel_retreat = {
                 replace_retreat_canceling_unit(p, location, replacement_options[0])
             }
             update_siege(location)
+            if (has_undestroyed_fort(location, game.attack.attacker) && !is_besieged(location)) {
+                // Fort is no longer besieged due to losses, but the remaining pieces are allowed to continue occupying the space
+                // until the player moves them out or moves another piece in, so we have to remember this space is a "broken siege". (15.2.4)
+                set_add(game.broken_sieges, location)
+            }
         } else {
             reduce_piece_defender(p)
         }
