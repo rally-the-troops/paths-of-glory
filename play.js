@@ -1447,7 +1447,16 @@ function update_space(s) {
         destroy_marker(markers.mef_beachhead, e => e.space_id === s)
     }
 
-    if (space.faction !== get_control(s) && count_pieces === 0)
+    // If the space contains pieces of one faction, but is controlled by the other faction, and it's not besieged,
+    // then this is a broken siege, and we need to show a control marker.
+    let is_broken_siege = false
+    if (ordered_pieces.length > 0) {
+        const occupying_faction = pieces[ordered_pieces[0]].faction
+        const is_besieged = view.forts.besieged.includes(s)
+        is_broken_siege = occupying_faction !== get_control(s) && !is_besieged
+    }
+
+    if ((space.faction !== get_control(s) && count_pieces === 0) || is_broken_siege)
         push_stack(stack, build_control_marker(s, get_control(s)))
     else {
         destroy_control_marker(s, AP)
