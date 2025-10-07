@@ -5551,7 +5551,9 @@ states.defender_retreat = {
             for (let replaced in game.attack.defender_replacements) {
                 let replacement = game.attack.defender_replacements[replaced]
                 if (replacement === p) {
-                    eliminate_piece(parseInt(replaced), true)
+                    let replaced_piece = parseInt(replaced)
+                    if (!set_has(game.removed, replaced_piece))
+                        eliminate_piece(parseInt(replaced), true)
                 }
             }
         }
@@ -5591,7 +5593,8 @@ states.defender_retreat = {
             game.attack.retreat_paths.push(game.attack.retreat_path)
         }
 
-        logi(piece_list(game.attack.retreating_pieces) + " -> " + space_list(game.attack.retreat_path))
+        if (game.attack.retreating_pieces.length > 0)
+            logi(piece_list(game.attack.retreating_pieces) + " -> " + space_list(game.attack.retreat_path))
 
         game.attack.retreat_path = []
         game.attack.retreating_pieces.length = 0
