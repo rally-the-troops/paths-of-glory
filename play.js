@@ -2339,10 +2339,13 @@ function on_update() {
 // INITIALIZE CLIENT
 
 function on_snap_penultimate() {
-    // Because we only snapshot at the start of each round intsead of each move in PoG,
+    // Because we only snapshot at the start of each round instead of each move in PoG,
     // override the default snapshot quickview to always show the last snapshot instead
-    // of the penultimate.
-    on_snap_prev()
+    // of the penultimate when we have an attack.
+    if (view.attack !== null)
+        on_snap_prev()
+    else
+	request_snap(snap_count - 1, on_snap_prev)
 }
 
 drag_element_with_mouse("#cp_card_dialog", "#cp_card_dialog .dialog_header")

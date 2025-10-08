@@ -2937,7 +2937,12 @@ function end_attack_activation() {
 
     if (game.eligible_attackers.length === 0)
         game.activated.attack = []
-    game.attack = null
+
+    // We set game.attack to 0 instead of null to signal to the client that we have attacked this round.
+    // This is checked for the snapshot "last turn" quick view to decide if it should show the last snapshot
+    // or the penultimate snapshot.
+    // We need this because we skip snapshots for attack actions.
+    game.attack = 0
 
     next_attack_activation()
 }
@@ -3019,6 +3024,7 @@ function goto_end_action() {
     delete game.attacked
     delete game.retreated
     delete game.sud_army_space
+    game.attack = null
 
     update_supply()
 
