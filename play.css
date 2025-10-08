@@ -43,13 +43,11 @@ body.Central_Powers header.your_turn { background-color: lightsteelblue; }
 #log div.i { padding-left: 32px; text-indent: -12px; }
 #log div.ii { padding-left: 44px; text-indent: -12px; }
 
+#log div.bold { font-weight: bold }
+#log div.italic { font-style: italic }
+
 #log .apvp { color: brown; }
 #log .cpvp { color: blue; }
-
-#log .indent {
-    padding-left: 12px;
-    text-indent: -12px;
-}
 
 #turn_info {
     white-space: normal;

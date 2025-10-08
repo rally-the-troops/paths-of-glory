@@ -3698,6 +3698,10 @@ states.confirm_move_violations = {
 
 // === ATTACK STATES ===
 
+function log_drm_card(c, n=1) {
+    log(">+" + n + " " + card_name(c))
+}
+
 function get_defenders_pieces() {
     let pieces = []
     for (let p = 1; p < data.pieces.length; ++p)
@@ -3875,10 +3879,13 @@ function goto_attack() {
 
     log(`Defenders:`)
     let defenders = get_defenders_pieces()
-    if (defenders.length > 0)
-        logi(`${piece_list(get_defenders_pieces())} (${space_name(game.attack.space)})`)
     if (has_undestroyed_fort(game.attack.space, other_faction(game.attack.attacker))) {
-        logi(`Fort (${space_name(game.attack.space)})`)
+        if (defenders.length > 0)
+            logi(`${piece_list(defenders)}, Fort`)
+        else
+            logi(`Fort`)
+    } else {
+        logi(piece_list(defenders))
     }
 
     const mo = active_faction() === AP ? game.ap.mo : game.cp.mo
@@ -3890,9 +3897,9 @@ function goto_attack() {
             log(`+1 VP -- French unit attacked without US stacking after French Mutiny`)
             game[active_faction()].mo = NONE
         }
-    } else if (mo !== NONE && satisfies_mo(mo, game.attack.pieces, get_defenders_pieces(), game.attack.space)) {
+    } else if (mo !== NONE && satisfies_mo(mo, game.attack.pieces, defenders, game.attack.space)) {
         game[active_faction()].mo = NONE
-        log(`${faction_name(game.attack.attacker)} satisfy Mandated Offensive`)
+        log(`*Mandated offensive satisfied!`)
     }
 
     goto_attack_step_great_retreat()
@@ -4299,8 +4306,6 @@ states.choose_flank_attack = {
         }
     },
     flank() {
-        game.attack.attempt_flank = true
-        log(`Attempting flank attack`)
         roll_flank_attack()
     },
     card(c) {
@@ -4349,25 +4354,29 @@ function get_attack_spaces(pieces) {
 }
 
 function roll_flank_attack() {
-    if (game.attack.attempt_flank) {
-        let attack_spaces = get_attack_spaces(game.attack.pieces)
+    clear_undo()
 
-        let flanking_spaces = get_flanking_spaces(attack_spaces, game.attack.space, game.attack.attacker)
-        let flank_drm = flanking_spaces.length
-        flanking_spaces.forEach((s) => logi(`${space_name(s)}: +1 DRM`))
+    game.attack.attempt_flank = true
 
-        const roll = roll_die(6)
-        logi(`${fmt_roll(roll, flank_drm)}`)
-        if (roll + flank_drm >= 4) {
-            logi('Successful')
-            game.attack.is_flank = true
-        } else {
-            logi('Failed')
-            game.attack.failed_flank = true
-        }
-        //log_event_for_rollback(`Flank roll at ${space_name(game.attack.space)}`) // Don't log this because it is always paired with a combat roll
-        clear_undo()
+    log(`Flank attempt:`)
+    let attack_spaces = get_attack_spaces(game.attack.pieces)
+
+    let flanking_spaces = get_flanking_spaces(attack_spaces, game.attack.space, game.attack.attacker)
+    let flank_drm = flanking_spaces.length
+    const roll = roll_die(6)
+
+    for (var s of flanking_spaces)
+        logi("+1 " + space_name(s))
+
+    if (roll + flank_drm >= 4) {
+        logi(fmt_roll(roll) + " Success")
+        game.attack.is_flank = true
+    } else {
+        logi(fmt_roll(roll) + " Fail")
+        game.attack.failed_flank = true
     }
+
+    //log_event_for_rollback(`Flank roll at ${space_name(game.attack.space)}`) // Don't log this because it is always paired with a combat roll
 
     goto_attack_step_kerensky_offensive()
 }
@@ -4510,12 +4519,23 @@ function adds_flanking_drm(space, attacking_faction, attack_space) {
     return true
 }
 
+function log_combat_winner() {
+    var a_hits = game.attack.defender_losses
+    var d_hits = game.attack.attacker_losses
+    if (a_hits > d_hits)
+        log(`*${a_hits}:${d_hits} attacker victory`)
+    else if (a_hits < d_hits)
+        log(`*${a_hits}:${d_hits} defender victory`)
+    else
+        log(`*${a_hits}:${d_hits} no combat winner`)
+}
+
 function resolve_fire() {
     const von_hutier_active = game.attack.combat_cards.includes(VON_HUTIER) && events.von_hutier.can_play()
     if (game.attack.failed_flank) {
         resolve_defenders_fire()
         set_active_faction(game.attack.attacker)
-        game.state = 'apply_attacker_losses'
+        goto_attacker_losses()
     } else if (game.attack.is_flank || von_hutier_active) {
         if (von_hutier_active)
             log(`${card_name(VON_HUTIER)}: attacker fires first`)
@@ -4524,6 +4544,7 @@ function resolve_fire() {
     } else {
         resolve_attackers_fire()
         resolve_defenders_fire()
+        log_combat_winner()
         goto_defender_losses()
     }
 }
@@ -4563,11 +4584,12 @@ function get_fire_col(table, cf, shifts) {
     return table[col]
 }
 
-function get_fire_result(t, cf, shifts, roll) {
+function get_fire_result(faction, base_roll, t, cf, shifts, roll) {
     let table = fire_table[t]
     let column = get_fire_col(table, cf, shifts)
-    logi(`Column: ${column.name}`)
-    return column.result[roll-1]
+    let losses = column.result[roll-1]
+    logi(`${fmt_roll(base_roll,0,faction)} \xd7 ${column.name} = ${losses}`)
+    return losses
 }
 
 function resolve_attackers_fire() {
@@ -4579,6 +4601,34 @@ function resolve_attackers_fire() {
         if (data.pieces[p].type === ARMY)
             game.attack.attacker_table = ARMY
     }
+
+    log(`Attacker's fire (${attacker_cf} CF):`)
+
+    let attacker_shifts = 0
+
+    // Terrain shifts
+    let terrain = data.spaces[game.attack.space].terrain
+    if (terrain === MOUNTAIN) {
+        attacker_shifts -= 1
+        logi(`1L for Mountains`)
+    }
+    if (terrain === SWAMP) {
+        attacker_shifts -= 1
+        logi(`1L for Swamp`)
+    }
+
+    // Trench shifts
+    if (!attacking_unoccupied_fort() && !(game.attack.trenches_canceled || game.attack.trench_shift_canceled)) {
+        if (get_trench_level_for_attack(game.attack.space, other_faction(game.attack.attacker)) === 2) {
+            attacker_shifts -= 2
+            logi(`2L for Trenches`)
+        } else if (get_trench_level_for_attack(game.attack.space, other_faction(game.attack.attacker)) === 1) {
+            attacker_shifts -= 1
+            logi(`1L for Trenches`)
+        }
+    }
+
+    let base_roll = roll_die(6)
 
     // Determine DRM based on played combat cards
     game.attack.combat_cards.forEach((c) => {
@@ -4596,47 +4646,17 @@ function resolve_attackers_fire() {
     // -3 DRM if all attackers are in the Sinai space
     if (game.attack.pieces.every((p) => game.location[p] === SINAI) && !(game.attack.attacker === AP && game.events.sinai_pipeline > 0)) {
         game.attack.attacker_drm -= 3
-        logi(`Attackers in Sinai: -3 DRM`)
+        logi("-3 Attackers in Sinai")
     }
 
-    log(`Attacker's fire (${attacker_cf} CF):`)
-
-    let attacker_shifts = 0
-
-    // Terrain shifts
-    let terrain = data.spaces[game.attack.space].terrain
-    if (terrain === MOUNTAIN) {
-        attacker_shifts -= 1
-        logi(`Mountains: shift 1L`)
-    }
-    if (terrain === SWAMP) {
-        attacker_shifts -= 1
-        logi(`Swamps: shift 1L`)
-    }
-
-    // Trench shifts
-    if (!attacking_unoccupied_fort() && !(game.attack.trenches_canceled || game.attack.trench_shift_canceled)) {
-        if (get_trench_level_for_attack(game.attack.space, other_faction(game.attack.attacker)) === 2) {
-            attacker_shifts -= 2
-            logi(`Trenches: shift 2L`)
-        } else if (get_trench_level_for_attack(game.attack.space, other_faction(game.attack.attacker)) === 1) {
-            attacker_shifts -= 1
-            logi(`Trenches: shift 1L`)
-        }
-    }
-
-    let base_roll = roll_die(6)
     let modified_roll = base_roll + game.attack.attacker_drm
     let clamped_roll = modified_roll > 6 ? 6 : modified_roll < 1 ? 1 : modified_roll
-    game.attack.defender_losses = get_fire_result(game.attack.attacker_table, attacker_cf, attacker_shifts, clamped_roll)
+    game.attack.defender_losses = get_fire_result(game.attack.attacker, base_roll, game.attack.attacker_table, attacker_cf, attacker_shifts, clamped_roll)
     game.attack.defender_losses_taken = 0
     game.attack.defender_loss_pieces = []
     game.attack.defender_replacements = {}
 
     clear_undo()
-
-    logi(`Roll: ${fmt_roll(base_roll, game.attack.attacker_drm, game.attack.attacker)}`)
-    logi(`Defender losses: ${game.attack.defender_losses}`)
 }
 
 function resolve_defenders_fire() {
@@ -4673,21 +4693,18 @@ function resolve_defenders_fire() {
     let trench_shift_canceled = game.attack.trenches_canceled || game.attack.trench_shift_canceled
     if (get_trench_level_for_attack(game.attack.space, defender) > 0 && !trench_shift_canceled && !attacking_unoccupied_fort()) {
         defender_shifts += 1
-        logi(`Trenches: shift 1R`)
+        logi(`1R for Trenches`)
     }
 
     let base_roll = roll_die(6)
     let modified_roll = base_roll + game.attack.defender_drm
     let clamped_roll = modified_roll > 6 ? 6 : modified_roll < 1 ? 1 : modified_roll
-    game.attack.attacker_losses = get_fire_result(game.attack.defender_table, defender_cf, defender_shifts, clamped_roll)
+    game.attack.attacker_losses = get_fire_result(other_faction(game.attack.attacker), base_roll, game.attack.defender_table, defender_cf, defender_shifts, clamped_roll)
     game.attack.attacker_losses_taken = 0
 
     log_event_for_rollback(`Combat at ${space_name(game.attack.space)}`)
 
     clear_undo()
-
-    logi(`Roll: ${fmt_roll(base_roll, game.attack.defender_drm, other_faction(game.attack.attacker))}`)
-    logi(`Attacker losses: ${game.attack.attacker_losses}`)
 }
 
 states.eliminate_retreated_units = {
@@ -4791,11 +4808,12 @@ states.apply_defender_losses = {
             determine_combat_winner()
         } else if (game.attack.is_flank || (game.attack.combat_cards.includes(VON_HUTIER) && events.von_hutier.can_play())) {
             resolve_defenders_fire()
+            log_combat_winner()
             set_active_faction(game.attack.attacker)
-            game.state = 'apply_attacker_losses'
+            goto_attacker_losses()
         } else {
             set_active_faction(game.attack.attacker)
-            game.state = 'apply_attacker_losses'
+            goto_attacker_losses()
         }
     }
 }
@@ -4817,7 +4835,7 @@ states.choose_defender_replacement = {
 function replace_defender_unit(unit, location, replacement) {
     game.location[replacement] = location
     game.attack.defender_replacements[unit] = replacement
-    log(`${piece_name(unit, true)} breaks to ${piece_name(replacement)}${log_corps(replacement)}`)
+    logi(`${piece_name(unit, true)} broke to ${piece_name(replacement)}${log_corps(replacement)}`)
 }
 
 states.withdrawal_negate_step_loss = {
@@ -4841,7 +4859,7 @@ states.withdrawal_negate_step_loss = {
         push_undo()
         // Restore the step that was previously lost, restoring the piece to the attack location on the map and
         //  removing it from the eliminated pieces area if necessary
-        log(`${card_name(game.attack.attacker === CP ? WITHDRAWAL_AP : WITHDRAWAL_CP)} negates step loss for ${piece_name(p)}`)
+        log(`${card_name(game.attack.attacker === CP ? WITHDRAWAL_AP : WITHDRAWAL_CP)}\n${piece_name(p)} loss negated`)
         if (set_has(game.removed, p) || is_unit_eliminated(p)) {
             set_delete(game.removed, p)
             set_add(game.reduced, p)
@@ -4879,22 +4897,27 @@ states.withdrawal_negate_step_loss_confirm = {
             // Not a flank attack, so we now proceed to the attacker's losses
             clear_undo()
             set_active_faction(game.attack.attacker)
-            game.state = 'apply_attacker_losses'
+            goto_attacker_losses()
         }
     }
 }
 
 function eliminate_piece(p, force_permanent_elimination) {
+    let here = ""
+    if (!game.attack)
+    // if (!game.attack || game.attack.space !== game.location[p]) // TODO - log location of attacker losses
+        here = ` in ${space_name(game.location[p])}`
+
     if (game.failed_entrench)
         set_delete(game.failed_entrench, p)
 
     if (data.pieces[p].type === CORPS) {
         if (data.pieces[p].notreplaceable) {
-            log_alert(`Permanently eliminated ${piece_name(p)} in ${space_name(game.location[p])}`)
+            log(`>*${piece_name(p)}${here} perm. eliminated`)
             set_add(game.removed, p)
             game.location[p] = 0
         } else {
-            log(`Eliminated ${piece_name(p)} in ${space_name(game.location[p])}`)
+            log(`>${piece_name(p)}${here} eliminated`)
             send_to_eliminated_box(p)
         }
         return []
@@ -4904,11 +4927,12 @@ function eliminate_piece(p, force_permanent_elimination) {
     let replacement_options = get_replacement_options(p, get_units_in_reserve())
     if (force_permanent_elimination || replacement_options.length === 0 || data.pieces[p].notreplaceable || !is_unit_supplied(p)) {
         // Permanently eliminate piece
-        log_alert(`Permanently eliminated ${piece_name(p)} in ${space_name(game.location[p])}`)
+        log(`>*${piece_name(p)}${here} perm. eliminated`)
         set_add(game.removed, p)
         game.location[p] = 0
         return replacement_options
     } else {
+        // already logged as replacement break-down
         send_to_eliminated_box(p)
     }
 
@@ -4916,13 +4940,21 @@ function eliminate_piece(p, force_permanent_elimination) {
 }
 
 function reduce_piece(p) {
-    log(`Flipped ${piece_name(p)} in ${space_name(game.location[p])}`)
+    // TODO - log location of attacker losses
+    // log(`>${piece_name(p)} in ${space_name(game.location[p])} reduced`)
+    log(`>${piece_name(p)} reduced`)
     set_add(game.reduced, p)
 }
 
 function reduce_piece_defender(p) {
-    log(`Flipped ${piece_name(p)}`)
+    log(`>${piece_name(p)} reduced`)
     set_add(game.reduced, p)
+}
+
+function goto_attacker_losses() {
+    if (game.attack.attacker_losses > 0 && get_loss_options(false, game.attack.attacker_losses, game.attack.pieces, 0).length > 0)
+        log("Attacker losses:")
+    game.state = "apply_attacker_losses"
 }
 
 states.apply_attacker_losses = {
@@ -4963,6 +4995,7 @@ states.apply_attacker_losses = {
         push_undo()
         if (game.attack.failed_flank) {
             resolve_attackers_fire()
+            log_combat_winner()
             goto_defender_losses()
         } else if (is_withdrawal_active() && game.attack.defender_loss_pieces.length > 0 && (game.attack.is_flank || (game.attack.combat_cards.includes(VON_HUTIER) && events.von_hutier.can_play()))) {
             // If this was a flank attack and the defender played Withdrawal, they now choose their step loss to negate
@@ -4985,12 +5018,12 @@ states.choose_attacker_replacement = {
         push_undo()
         replace_attacker_unit(game.attack.replacement.p, game.attack.replacement.s, p)
         delete game.attack.replacement
-        game.state = 'apply_attacker_losses'
+        goto_attacker_losses()
     }
 }
 
 function replace_attacker_unit(unit, location, replacement) {
-    log(`Replaced ${piece_name(unit, true)} in ${space_name(location)} with ${piece_name(replacement)}`)
+    logi(`${piece_name(unit, true)} broke to ${piece_name(replacement)}${log_corps(replacement)}`)
     set_add(game.attack.pieces, replacement)
     game.location[replacement] = location
 }
@@ -4998,6 +5031,14 @@ function replace_attacker_unit(unit, location, replacement) {
 function goto_defender_losses() {
     clear_undo()
     set_active_faction(other_faction(game.attack.attacker))
+
+    if (game.attack.defender_losses > 0) {
+        const fort_strength = has_undestroyed_fort(game.attack.space, active_faction()) ? data.spaces[game.attack.space].fort : 0
+        let loss_options = get_loss_options(true, game.attack.defender_losses, get_defenders_pieces(), fort_strength)
+        if (loss_options.length > 0)
+            log("Defender losses:")
+    }
+
     if (game.attack.defender_losses > 0 && get_defenders_pieces().some((p) => set_has(game.retreated, p)))
         game.state = 'eliminate_retreated_units'
     else
@@ -5390,7 +5431,7 @@ states.cancel_retreat = {
     },
     piece(p) {
         push_undo()
-        log(`Retreat canceled by taking an extra step loss to ${piece_name(p)}`)
+        log(`Retreat canceled:`)
         if (is_unit_reduced(p)) {
             const location = game.location[p]
             let replacement_options = eliminate_piece(p)
@@ -5448,11 +5489,11 @@ states.choose_retreat_canceling_replacement = {
 
 function replace_retreat_canceling_unit(unit, location, replacement) {
     game.location[replacement] = location
-    log(`${piece_name(unit, true)} in ${space_name(location)} breaks to ${piece_name(replacement)}${log_corps(replacement)}`)
+    logi(`${piece_name(unit, true)} in ${space_name(location)} broke to ${piece_name(replacement)}${log_corps(replacement)}`)
 }
 
 function goto_defender_retreat() {
-    log("Retreat")
+    log("Retreat:")
     game.attack.retreat_path = []
     game.state = 'defender_retreat'
 }
@@ -5633,7 +5674,6 @@ function goto_attacker_advance() {
     set_delete(game.attack.to_advance, MONTENEGRIN_CORPS)
 
     if (game.attack.to_advance.length > 0) {
-        log("Advance")
         game.attack.advancing_pieces = []
         game.attack.advance_length = 0
         game.state = 'attacker_advance'
@@ -5702,8 +5742,13 @@ states.attacker_advance = {
             if (game.attack.advancing_pieces.length === 0)
                 game.attack.advance_length = 0
         } else {
-            if (game.attack.advancing_pieces.length === 0)
+            if (game.attack.advancing_pieces.length === 0) {
                 push_undo()
+                if (!game.attack.advanced) {
+                    log("Advance:")
+                    game.attack.advanced = 1
+                }
+            }
             set_add(game.attack.advancing_pieces, p)
             set_delete(game.attack.to_advance, p)
         }
@@ -5838,7 +5883,9 @@ function can_advance_into(space, units, can_overstack = false) {
 function eliminate_ru_units_stacked_with_ap() {
     if (game.events.treaty_of_brest_litovsk === 0)
         return
-    
+
+    log('RU units cannot stack with AP after Brest-Litovsk')
+
     for (let s = 1; s < AP_RESERVE_BOX; ++s) {
         let has_ap_non_russian = false
         let russian_units = []
@@ -5852,15 +5899,13 @@ function eliminate_ru_units_stacked_with_ap() {
                 }
             }
         }
-        
+
         if (has_ap_non_russian && russian_units.length > 0) {
             for (let p of russian_units) {
-                log(`Eliminated ${piece_name(p)} in ${space_name(s)}`)
                 eliminate_piece(p)
             }
         }
     }
-    log('RU units cannot stack with AP after Brest-Litovsk')
 }
 
 // === FORTS AND SIEGES ===
@@ -7335,7 +7380,7 @@ events.von_francois = {
         return this.can_play()
     },
     apply() {
-        log(`${card_name(VON_FRANCOIS)} adds +1 DRM`)
+        log_drm_card(VON_FRANCOIS, 1)
         game.attack.attacker_drm += 1
     }
 }
@@ -7357,7 +7402,7 @@ events.cp_severe_weather = {
         return this.can_play()
     },
     apply() {
-        log(`${card_name(SEVERE_WEATHER_CP)} adds +2 DRM`)
+        log_drm_card(SEVERE_WEATHER_CP, 2)
         game.attack.defender_drm += 2
     }
 }
@@ -7511,7 +7556,7 @@ events.chlorine_gas = {
         return this.can_play()
     },
     apply() {
-        log(`${card_name(CHLORINE_GAS)} adds +1 DRM`)
+        log_drm_card(CHLORINE_GAS, 1)
         game.attack.attacker_drm += 1
     }
 }
@@ -7529,7 +7574,7 @@ events.liman_von_sanders = {
         return this.can_play()
     },
     apply() {
-        log(`${card_name(LIMAN_VON_SANDERS)} adds +1 DRM`)
+        log_drm_card(LIMAN_VON_SANDERS, 1)
         if (game.attack.attacker === CP)
             game.attack.attacker_drm += 1
         else
@@ -7565,7 +7610,7 @@ events.fortified_machine_guns = {
         return this.can_play()
     },
     apply() {
-        log(`${card_name(FORTIFIED_MACHINE_GUNS)} adds +1 DRM`)
+        log_drm_card(FORTIFIED_MACHINE_GUNS, 1)
         game.attack.defender_drm += 1
     }
 }
@@ -7584,7 +7629,7 @@ events.flamethrowers = {
         return this.can_play()
     },
     apply() {
-        log(`${card_name(FLAMETHROWERS)} adds +1 DRM`)
+        log_drm_card(FLAMETHROWERS, 1)
         game.attack.attacker_drm += 1
     }
 }
@@ -7621,7 +7666,7 @@ events.place_of_execution = {
         return space_data.nation === FRANCE && space_data.fort > 0 && !game.forts.destroyed.includes(game.attack.space)
     },
     apply() {
-        log(`${card_name(PLACE_OF_EXECUTION)} adds +2 DRM`)
+        log_drm_card(PLACE_OF_EXECUTION, 2)
         game.attack.attacker_drm += 2
     },
     play() {
@@ -7691,7 +7736,7 @@ events.alpenkorps = {
         return this.can_play()
     },
     apply() {
-        log(`${card_name(ALPENKORPS)} adds +1 DRM`)
+        log_drm_card(ALPENKORPS, 1)
         if (game.attack.attacker === CP)
             game.attack.attacker_drm += 1
         else
@@ -7825,7 +7870,7 @@ events.mustard_gas = {
         return this.can_play()
     },
     apply() {
-        log(`${card_name(MUSTARD_GAS)} adds +1 DRM`)
+        log_drm_card(MUSTARD_GAS, 1)
         game.attack.attacker_drm += 1
     }
 }
@@ -7866,7 +7911,7 @@ events.cp_air_superiority = {
         return this.can_play()
     },
     apply() {
-        log(`${card_name(AIR_SUPERIORITY_CP)} adds +1 DRM`)
+        log_drm_card(AIR_SUPERIORITY_CP, 1)
         game.attack.attacker_drm += 1
     }
 }
@@ -7967,7 +8012,7 @@ events.michael = {
     },
     apply() {
         game.attack.attacker_drm++
-        log(`${card_name(MICHAEL)} adds +1 DRM`)
+        log_drm_card(MICHAEL, 1)
     },
     play() {
         game.events.michael = game.turn
@@ -8141,10 +8186,10 @@ events.kaisertreu = {
     },
     apply() {
         if (game.attack.attacker === CP) {
-            log(`${card_name(KAISERTREU)} adds +1 DRM`)
+            log_drm_card(KAISERTREU, 1)
             game.attack.attacker_drm += 1
         } else {
-            log(`${card_name(KAISERTREU)} adds +1 DRM`)
+            log_drm_card(KAISERTREU, 1)
             game.attack.defender_drm += 1
         }
     }
@@ -8227,7 +8272,7 @@ events.achtung_panzer = {
         return this.can_play()
     },
     apply() {
-        log(`${card_name(ACHTUNG_PANZER)} adds +1 DRM`)
+        log_drm_card(ACHTUNG_PANZER, 1)
         game.attack.attacker_drm += 1
     }
 }
@@ -8359,10 +8404,10 @@ events.pleve = {
     },
     apply() {
         if (game.attack.attacker === AP) {
-            log(`${card_name(PLEVE)} adds +1 DRM`)
+            log_drm_card(PLEVE, 1)
             game.attack.attacker_drm += 1
         } else {
-            log(`${card_name(PLEVE)} adds +1 DRM`)
+            log_drm_card(PLEVE, 1)
             game.attack.defender_drm += 1
         }
     }
@@ -8386,7 +8431,7 @@ events.putnik = {
         return this.can_play()
     },
     apply() {
-        log(`${card_name(PUTNIK)} adds +1 DRM`)
+        log_drm_card(PUTNIK, 1)
         if (game.attack.attacker === AP)
             game.attack.attacker_drm += 1
         else
@@ -8425,7 +8470,7 @@ events.ap_severe_weather = {
         return this.can_play()
     },
     apply() {
-        log(`${card_name(SEVERE_WEATHER_AP)} adds +2 DRM`)
+        log_drm_card(SEVERE_WEATHER_AP, 2)
         game.attack.defender_drm += 2
     }
 }
@@ -8509,7 +8554,7 @@ events.hurricane_barrage = {
         return this.can_play()
     },
     apply() {
-        log(`${card_name(HURRICANE_BARRAGE)} adds +1 DRM`)
+        log_drm_card(HURRICANE_BARRAGE, 1)
         game.attack.attacker_drm += 1
     }
 }
@@ -8532,7 +8577,7 @@ events.ap_air_superiority = {
         return this.can_play()
     },
     apply() {
-        log(`${card_name(AIR_SUPERIORITY_AP)} adds +1 DRM`)
+        log_drm_card(AIR_SUPERIORITY_AP, 1)
         game.attack.attacker_drm += 1
     }
 }
@@ -8551,7 +8596,7 @@ events.phosgene_gas = {
         return this.can_play()
     },
     apply() {
-        log(`${card_name(PHOSGENE_GAS)} adds +1 DRM`)
+        log_drm_card(PHOSGENE_GAS, 1)
         game.attack.attacker_drm += 1
     }
 }
@@ -8611,6 +8656,7 @@ states.great_retreat_option = {
     },
     piece(p) {
         push_undo()
+        log("Great Retreat:")
         game.state = 'great_retreat'
         game.attack.great_retreat = p
     },
@@ -8650,7 +8696,7 @@ states.great_retreat = {
     },
     space(s) {
         push_undo()
-        log(`Retreat ${piece_name(game.attack.great_retreat)} to ${space_name(s)}`)
+        logi(`${piece_name(game.attack.great_retreat)} -> ${space_name(s)}`)
         game.location[game.attack.great_retreat] = s
         game.attack.great_retreat = 0
         update_siege(game.attack.space)
@@ -8773,7 +8819,7 @@ events.yanks_and_tanks = {
         return (game.attack.pieces.some(p => data.pieces[p].nation === US))
     },
     apply() {
-        log(`${card_name(YANKS_AND_TANKS)} adds +2 DRM`)
+        log_drm_card(YANKS_AND_TANKS, 2)
         game.attack.attacker_drm += 2
     }
 }
@@ -8792,7 +8838,7 @@ events.mine_attack = {
         return this.can_play()
     },
     apply() {
-        log(`${card_name(MINE_ATTACK)} adds +1 DRM`)
+        log_drm_card(MINE_ATTACK, 1)
         game.attack.attacker_drm += 1
     }
 }
@@ -8888,7 +8934,7 @@ states.kerensky_offensive_option = {
     use() {
         delete game.action_state.kerensky_available
         game.attack.attacker_drm += 2
-        log(`${card_name(KERENSKY_OFFENSIVE)} adds +2 DRM`)
+        log_drm_card(KERENSKY_OFFENSIVE, 2)
         goto_attack_step_combat_cards()
     },
     pass() {
@@ -8917,7 +8963,7 @@ events.brusilov_offensive = {
     apply_drm() {
         if (game.attack.pieces.some(p => data.pieces[p].nation === RUSSIA)) {
             game.attack.attacker_drm += 1
-            log(`${card_name(BRUSILOV_OFFENSIVE)} adds +1 DRM`)
+            log_drm_card(BRUSILOV_OFFENSIVE, 1)
         }
     }
 }
@@ -9120,7 +9166,7 @@ events.russian_guards = {
         return this.can_play()
     },
     apply() {
-        log(`${card_name(RUSSIAN_GUARDS)} adds +1 DRM`)
+        log_drm_card(RUSSIAN_GUARDS, 1)
         game.attack.attacker_drm += 1
     }
 }
@@ -9136,7 +9182,7 @@ events.alpine_troops = {
         return this.can_play()
     },
     apply() {
-        log(`${card_name(ALPINE_TROOPS)} adds +1 DRM`)
+        log_drm_card(ALPINE_TROOPS, 1)
         game.attack.attacker_drm += 1
     }
 }

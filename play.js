@@ -2077,7 +2077,12 @@ function on_log(text, ix) {
 
     if (text.startsWith(">")) {
         text = text.substring(1)
-        p.className = "i"
+        p.classList.add("i")
+    }
+
+    if (text.startsWith("*")) {
+        text = text.substring(1)
+        p.classList.add("bold")
     }
 
     if (text.startsWith("!")) {
