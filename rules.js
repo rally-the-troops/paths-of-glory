@@ -4780,7 +4780,7 @@ states.apply_defender_losses = {
         push_undo()
         game.attack.defender_losses_taken += data.spaces[s].fort
         set_add(game.forts.destroyed, s)
-        log(`Destroyed fort in ${space_name(s)}`)
+        logi(`Fort destroyed`)
         if (is_besieged(s)) {
             set_delete(game.forts.besieged, s)
             set_control(s, inactive_faction())
@@ -4913,7 +4913,7 @@ function eliminate_piece(p, force_permanent_elimination) {
 
     if (data.pieces[p].type === CORPS) {
         if (data.pieces[p].notreplaceable) {
-            log(`>*${piece_name(p)}${here} perm. eliminated`)
+            log(`>*${piece_name(p)}${here} permanently eliminated`)
             set_add(game.removed, p)
             game.location[p] = 0
         } else {
@@ -4927,7 +4927,7 @@ function eliminate_piece(p, force_permanent_elimination) {
     let replacement_options = get_replacement_options(p, get_units_in_reserve())
     if (force_permanent_elimination || replacement_options.length === 0 || data.pieces[p].notreplaceable || !is_unit_supplied(p)) {
         // Permanently eliminate piece
-        log(`>*${piece_name(p)}${here} perm. eliminated`)
+        log(`>*${piece_name(p)}${here} permanently eliminated`)
         set_add(game.removed, p)
         game.location[p] = 0
         return replacement_options
