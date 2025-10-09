@@ -2521,11 +2521,13 @@ function goto_play_rps(card) {
     log('Total RPs:')
     if (active_faction() === AP) {
         ['fr', 'br', 'ru', 'it', 'us', 'allied'].forEach((type) => {
-            logi(`${nation_name(type)}: ${game.rp[type]}`)
+            if (game.rp[type] > 0)
+                logi(`${nation_name(type)}: ${game.rp[type]}`)
         })
     } else {
         ['ge', 'ah', 'bu', 'tu'].forEach((type) => {
-            logi(`${nation_name(type)}: ${game.rp[type]}`)
+            if (game.rp[type] > 0)
+                logi(`${nation_name(type)}: ${game.rp[type]}`)
         })
     }
     game.state = 'rps'
