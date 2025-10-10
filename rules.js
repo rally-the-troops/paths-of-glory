@@ -9373,9 +9373,19 @@ function array_insert(array, index, item) {
 }
 
 function array_remove_item(array, item) {
-    let i = array.indexOf(item)
-    if (i >= 0)
-        array_remove(array, i)
+    let n = array.length
+    let matchCount = 0
+    for (let i = 0; i < n; ++i) {
+        if (array[i] === item) {
+            matchCount++
+        } else if (matchCount > 0) {
+            array[i - matchCount] = array[i]
+        }
+    }
+    if (matchCount > 0) {
+        array.length = n - matchCount
+    }
+    return array
 }
 
 function array_delete_pair(array, index) {
