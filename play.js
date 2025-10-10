@@ -553,6 +553,7 @@ const marker_info = {
     ah_rp: {name: "Austria-Hungary Replacements", type: "ah_rp", counter: "marker ah_rp", size: 45},
     fr_rp: {name: "French Replacements", type: "fr_rp", counter: "marker fr_rp", size: 45},
     br_rp: {name: "British Replacements", type: "br_rp", counter: "marker br_rp", size: 45},
+    br_rp_back: {name: "British Replacements U-Boats", type: "br_rp", counter: "marker br_rp back", size: 45},
     ru_rp: {name: "Russian Replacements", type: "ru_rp", counter: "marker ru_rp", size: 45},
     allied_rp: {name: "Allied Replacements", type: "allied_rp", counter: "marker allied_rp", size: 45},
     bu_rp: {name: "Bulgarian Replacements", type: "bu_rp", counter: "marker bu_rp", size: 45},
@@ -1891,13 +1892,17 @@ function update_general_records_track() {
 
     // RPs$
     if (view.events.walter_rathenau > 0 && !view.events.independent_air_force)
-        update_general_record("ge_rp_back", view.rp.ge, !view.rp.ge)
+        update_general_record("ge_rp_back", view.rp.ge, false)
     else
         update_general_record("ge_rp", view.rp.ge, !view.rp.ge)
 
+    if (view.events.uboats_unleashed > 0 && !view.events.convoy)
+        update_general_record("br_rp_back", view.rp.br, false)
+    else
+        update_general_record("br_rp", view.rp.br, !view.rp.br)
+
     update_general_record("ah_rp", view.rp.ah, !view.rp.ah)
     update_general_record("fr_rp", view.rp.fr, !view.rp.fr)
-    update_general_record("br_rp", view.rp.br, !view.rp.br) // TODO: Check for uboats event and apply the uboats class
     update_general_record("ru_rp", view.rp.ru, !view.rp.ru)
     update_general_record("allied_rp", view.rp.allied, !view.rp.allied)
 
