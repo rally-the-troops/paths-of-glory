@@ -9020,11 +9020,11 @@ events.royal_tank_corps = {
         return this.can_play()
     },
     apply() {
-        log(`${card_name(ROYAL_TANK_CORPS)} cancels trenches`)
-        // Ignore CRT shift but not other trench effects
         game.attack.trench_shift_canceled = true
     },
     play() {
+        // Ignore CRT shift but not other trench effects
+        game.attack.trench_shift_canceled = true
     }
 }
 
