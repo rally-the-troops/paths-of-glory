@@ -7807,6 +7807,7 @@ states.war_in_africa = {
                 if (data.pieces[p].nation === BRITAIN &&
                     data.pieces[p].type === CORPS &&
                     game.location[p] !== 0 &&
+                    game.location[p] !== AP_ELIMINATED_BOX &&
                     !is_minor_british_nation(p) &&
                     p !== BEF_CORPS) {
                     if (!is_unit_reduced(p))
