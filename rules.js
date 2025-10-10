@@ -3981,7 +3981,7 @@ function goto_attack_step_combat_cards() {
 
 function could_apply_combat_card(c) {
     let card_data = data.cards[c]
-    if (!card_data.cc && c !== YANKS_AND_TANKS)
+    if (!card_data.cc)
         return false
     let evt = events[card_data.event]
     return !!(evt && evt.can_apply())
@@ -4390,9 +4390,6 @@ function roll_flank_attack() {
 }
 
 function is_usable_combat_card(c) {
-    if (c === YANKS_AND_TANKS)
-        return events.yanks_and_tanks.can_apply() // Special case because it is not a CC, and applies multiple times per round
-
     if (!data.cards[c].cc)
         return false
     const evt = events[data.cards[c].event]
@@ -4646,6 +4643,11 @@ function resolve_attackers_fire() {
                 evt.apply()
         }
     })
+
+    if (game.action_state.yanks_and_tanks) {
+        if (events.yanks_and_tanks.can_apply())
+            events.yanks_and_tanks.apply()
+    }
 
     if (game.action_state.brusilov_active) {
         events.brusilov_offensive.apply_drm()
@@ -5333,10 +5335,6 @@ function determine_combat_winner() {
     // "They shall not pass" is not discarded when the result is a tie (12.2.11)
     if (game.attack.attacker_losses === game.attack.defender_losses && to_discard.includes(THEY_SHALL_NOT_PASS))
         array_remove_item(to_discard, THEY_SHALL_NOT_PASS)
-    // Yanks and Tanks is not really a combat card, but it behaves like one for the duration of the action round it is
-    // played. However, it should not be discarded after the combat.
-    if (to_discard.includes(YANKS_AND_TANKS))
-        array_remove_item(to_discard, YANKS_AND_TANKS)
 
     // Now do the actual discard
     to_discard.forEach((c) => {
@@ -8331,7 +8329,7 @@ events.alberich = {
             return false
         if (game.attack.attacker !== AP)
             return false
-        if (game.attack.combat_cards.includes(ROYAL_TANK_CORPS) || game.attack.combat_cards.includes(YANKS_AND_TANKS))
+        if (game.attack.combat_cards.includes(ROYAL_TANK_CORPS) || game.action_state.yanks_and_tanks)
             return false
         return [FRANCE, BELGIUM].includes(data.spaces[game.attack.space].nation)
     },
@@ -8819,8 +8817,8 @@ events.yanks_and_tanks = {
     },
     play() {
         game.ops = data.cards[YANKS_AND_TANKS].ops
+        game.action_state.yanks_and_tanks = true
         game.state = 'activate_spaces'
-        game.combat_cards.push(YANKS_AND_TANKS)
     },
     can_apply() {
         if (!game.attack)
