@@ -407,7 +407,13 @@ function get_control_bit(i) {
     return (view.control[word] >>> bit) & 1
 }
 
+const BRITISH_ANA_CORPS = pieces.findIndex(p => p.name === "BR ANAc")
 function get_control(i) {
+    if (view.location[BRITISH_ANA_CORPS] === i) {
+        const has_cp_fort = spaces[i].fort > 0 && spaces[i].faction === CP && !view.forts.destroyed.includes(i)
+        return has_cp_fort ? CP : AP
+    }
+
     return get_control_bit(i) ? CP : AP
 }
 
