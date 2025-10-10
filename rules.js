@@ -4165,8 +4165,10 @@ function get_nation_for_multinational_attacks(piece) {
             return TURKEY
         case MONTENEGRO:
             return SERBIA
+        case "ana":
+            return BRITAIN
         default:
-            return nation // ANA, Aus, Cnd, and Pt units are already marked as British in data
+            return nation // Aus, Cnd, and Pt units are already marked as British in data
     }
 }
 
