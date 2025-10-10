@@ -1666,6 +1666,8 @@ states.confirm_mo = {
     prompt() {
         if (game[active_faction()].mo === NONE)
             view.prompt = `Turn ${game.turn}: No mandated offensive.`
+        else if (game.events.french_mutiny > 0 && game[active_faction()].mo === FRANCE)
+            view.prompt = `Turn ${game.turn}: French mutiny (Mandated offensive for ${nation_name(game[active_faction()].mo)}).`
         else
             view.prompt = `Turn ${game.turn}: Mandated offensive for ${nation_name(game[active_faction()].mo)}.`
         gen_action_next()
