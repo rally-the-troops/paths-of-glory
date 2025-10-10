@@ -6224,7 +6224,7 @@ states.siege_phase = {
 
         if (game.sieges_to_roll.length === 0) {
             goto_war_status_phase()
-        } else if (game.sieges_to_roll.some((s) => data.spaces[s].faction === active_faction())) {
+        } else if (!game.sieges_to_roll.some((s) => data.spaces[s].faction === inactive_faction()) && game.sieges_to_roll.some((s) => data.spaces[s].faction === active_faction())) {
             clear_undo()
             switch_active_faction()
         }
