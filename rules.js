@@ -7253,6 +7253,11 @@ function get_supply_sources_for_piece_rp(p) {
 function is_unit_supplied_through_italy(p) {
     if (!is_unit_supplied(p))
         return false
+
+    const nation = data.pieces[p].nation
+    if (nation === SERBIA || nation === RUSSIA || nation === ROMANIA)
+        return false // These nations do not trace supply from London
+
     let supplied_from_london = game.supply[game.location[p]] & SUPPLY_MASK.London_Italian
     let has_only_italian_path = !(game.supply[game.location[p]] & SUPPLY_MASK.NonItalianPath)
     return supplied_from_london && has_only_italian_path
