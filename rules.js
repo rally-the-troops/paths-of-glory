@@ -6649,16 +6649,16 @@ function get_army_replacement_spaces(p) {
         const belgian_spaces = [BRUSSELS, ANTWERP, OSTEND]
         for (let s of belgian_spaces) {
             if (is_controlled_by(s, AP) && is_unit_supplied_in(p, s) && !is_fully_stacked(s, AP))
-                spaces.push(s)
+                set_add(spaces, s)
         }
         if (spaces.length === 0) {
             if (is_controlled_by(CALAIS, AP) && is_unit_supplied_in(p, CALAIS) && !is_fully_stacked(CALAIS, AP))
-                spaces.push(CALAIS)
+                set_add(spaces, CALAIS)
         }
         return spaces
     }
 
-    spaces = spaces.concat(get_available_reinforcement_spaces(p))
+    get_available_reinforcement_spaces(p).forEach((s) => set_add(spaces, s))
 
     if (data.pieces[p].nation === SERBIA) {
         //  Also 17.1.5: Serbian Army units may be recreated at Salonika if the Salonika or Greece Neutral Entry Event
@@ -6666,13 +6666,12 @@ function get_army_replacement_spaces(p) {
         //  following normal reinforcement restrictions.
         if (game.events.salonika > 0 || game.events.greece_entry > 0) {
             if (is_controlled_by(SALONIKA, AP) && is_unit_supplied_in(p, SALONIKA) && !is_fully_stacked(SALONIKA, AP))
-                spaces.push(SALONIKA)
+                set_add(spaces, SALONIKA)
         }
 
         // Exception: Serb armies may not be recreated at Belgrade if Nis is under CP control.
-        if (is_controlled_by(NIS, CP)) {
-            array_remove_item(spaces, BELGRADE)
-        }
+        if (is_controlled_by(NIS, CP))
+            set_delete(spaces, BELGRADE)
     }
 
     return spaces
@@ -9375,19 +9374,9 @@ function array_insert(array, index, item) {
 }
 
 function array_remove_item(array, item) {
-    let n = array.length
-    let matchCount = 0
-    for (let i = 0; i < n; ++i) {
-        if (array[i] === item) {
-            matchCount++
-        } else if (matchCount > 0) {
-            array[i - matchCount] = array[i]
-        }
-    }
-    if (matchCount > 0) {
-        array.length = n - matchCount
-    }
-    return array
+    let i = array.indexOf(item)
+    if (i >= 0)
+        array_remove(array, i)
 }
 
 function array_delete_pair(array, index) {
