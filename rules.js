@@ -4538,7 +4538,7 @@ function log_combat_winner() {
 }
 
 function resolve_fire() {
-    const von_hutier_active = game.attack.combat_cards.includes(VON_HUTIER) && events.von_hutier.can_play()
+    const von_hutier_active = game.attack.combat_cards.includes(VON_HUTIER)
     if (game.attack.failed_flank) {
         resolve_defenders_fire()
         set_active_faction(game.attack.attacker)
@@ -4818,7 +4818,7 @@ states.apply_defender_losses = {
         } else if (game.attack.failed_flank) {
             set_active_faction(game.attack.attacker)
             determine_combat_winner()
-        } else if (game.attack.is_flank || (game.attack.combat_cards.includes(VON_HUTIER) && events.von_hutier.can_play())) {
+        } else if (game.attack.is_flank || game.attack.combat_cards.includes(VON_HUTIER)) {
             resolve_defenders_fire()
             log_combat_winner()
             set_active_faction(game.attack.attacker)
