@@ -2235,8 +2235,7 @@ function get_sr_destinations(unit) {
                 if (is_bef_unit(unit) && !can_bef_enter(s))
                     continue
 
-                if (is_controlled_by(s, faction) || is_besieged(s))
-                    set_add(destinations, s)
+                set_add(destinations, s)
             }
         }
 
