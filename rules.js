@@ -3990,6 +3990,11 @@ function could_apply_combat_card(c) {
 }
 
 function could_have_usable_combat_card(faction, skip_deck) {
+    // No cards in hand, so there can't be any to play
+    if (game[faction].hand.length === 0) {
+        return false
+    }
+
     // If there are any cards already in play that could apply, return true
     for (let c of game.combat_cards) {
         if (data.cards[c].faction === faction && could_apply_combat_card(c))
