@@ -8720,8 +8720,8 @@ states.great_retreat = {
                 view.prompt = `Great Retreat: Retreat ${piece_name(game.attack.great_retreat)}.`
                 options.forEach(gen_action_space)
             } else {
-                // TODO: Must eliminate the unit
-                throw new Error("TODO: Must eliminate the unit")
+                view.prompt = `Great Retreat: Eliminate ${piece_name(game.attack.great_retreat)} (no retreat possible).`
+                gen_action('eliminate')
             }
         } else {
             let pieces_to_retreat = get_defenders_pieces().filter(p => data.pieces[p].nation === RUSSIA)
@@ -8744,6 +8744,11 @@ states.great_retreat = {
         game.location[game.attack.great_retreat] = s
         game.attack.great_retreat = 0
         update_siege(game.attack.space)
+    },
+    eliminate() {
+        push_undo()
+        eliminate_piece(game.attack.great_retreat, true)
+        game.attack.great_retreat = 0
     },
     done() {
         clear_undo()
