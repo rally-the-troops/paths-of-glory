@@ -1287,6 +1287,12 @@ function get_season(turn) {
 }
 
 function deal_ap_cards() {
+    if (game.ap.shuffle) {
+        // Shuffle required because new cards added, but must be delayed until now to pick up CC discards, according to 2018 rules change
+        reshuffle_discard(game.ap.deck)
+        game.ap.shuffle = false
+    }
+
     while (game.ap.hand.length < game.options.hand_size) {
         if (game.ap.deck.length === 0)
             reshuffle_discard(game.ap.deck)
@@ -1297,6 +1303,11 @@ function deal_ap_cards() {
 }
 
 function deal_cp_cards() {
+    if (game.cp.shuffle) { // Same as AP shuffle above
+        reshuffle_discard(game.cp.deck)
+        game.cp.shuffle = false
+    }
+
     while (game.cp.hand.length < game.options.hand_size) {
         if (game.cp.deck.length === 0)
             reshuffle_discard(game.cp.deck)
@@ -1336,6 +1347,8 @@ function reshuffle_discard(deck) {
 }
 
 function goto_end_turn() {
+    delete game.discarded_ccs
+
     game.ap.actions = []
     game.cp.actions = []
 
@@ -6691,9 +6704,29 @@ function goto_draw_cards_phase() {
     })
     game.combat_cards.length = 0
     log_h2(`Draw Strategy Cards Phase`)
-    game.state = 'draw_cards_phase'
-    set_active_faction(AP)
-    game.discarded_ccs = []
+    goto_ap_draw_cards_phase()
+}
+
+function goto_ap_draw_cards_phase() {
+    if (game.ap.hand.length > 0 && game.turn !== 20) {
+        game.state = 'draw_cards_phase'
+        set_active_faction(AP)
+        game.discarded_ccs = []
+    } else {
+        deal_ap_cards()
+        goto_cp_draw_cards_phase()
+    }
+}
+
+function goto_cp_draw_cards_phase() {
+    if (game.cp.hand.length > 0 && game.turn !== 20) {
+        game.state = 'draw_cards_phase'
+        set_active_faction(CP)
+        game.discarded_ccs = []
+    } else {
+        deal_cp_cards()
+        goto_end_turn()
+    }
 }
 
 states.draw_cards_phase = {
@@ -6727,15 +6760,9 @@ states.draw_cards_phase = {
                     logi(`${card_name(c)}`)
                 }
             }
-            game.discarded_ccs = []
 
-            if (game.ap.shuffle) {
-                // Shuffle required because new cards added, but must be delayed until now to pick up CC discards, according to 2018 rules change
-                reshuffle_discard(game.ap.deck)
-                game.ap.shuffle = false
-            }
             deal_ap_cards()
-            set_active_faction(CP)
+            goto_cp_draw_cards_phase()
         } else {
             if (game.discarded_ccs.length > 0) {
                 log(`${faction_name(CP)} discarded:`)
@@ -6743,12 +6770,7 @@ states.draw_cards_phase = {
                     logi(`${card_name(c)}`)
                 }
             }
-            delete game.discarded_ccs
 
-            if (game.cp.shuffle) { // Same as AP shuffle above
-                reshuffle_discard(game.cp.deck)
-                game.cp.shuffle = false
-            }
             deal_cp_cards()
             goto_end_turn()
         }
