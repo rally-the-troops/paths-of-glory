@@ -500,7 +500,9 @@ exports.view = function(state, current) {
 
         score_events: game.score_events,
 
-        supply_warnings: game.supply_warnings
+        supply_warnings: game.supply_warnings,
+
+        action_state: game.action_state
     }
 
     if (current === AP_ROLE) {
