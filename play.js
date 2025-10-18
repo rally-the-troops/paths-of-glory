@@ -484,8 +484,10 @@ let ui = {
     pieces: document.getElementById("pieces"),
     cards: document.getElementById("cards"),
     cc_list: document.getElementById("cc-list"),
+    active_card_zone: document.getElementById("active_card_zone"),
     combat_cards: document.getElementById("combat_cards"),
     unused_combat_cards: document.getElementById("unused_combat_cards"),
+    active_cards: document.getElementById("active_cards"),
     last_card: document.getElementById("last_card"),
     ne_limits: {
         br_sr: document.getElementsByClassName("br_ne_sr")[0],
@@ -2220,23 +2222,7 @@ function update_map() {
     // Hide Dead and unused pieces
     for_each_piece_in_space(0, p => pieces[p].element.classList.add('offmap'))
 
-    ui.cards.replaceChildren()
-    if (view.hand)
-        for (let i of view.hand)
-            ui.cards.appendChild(cards[i].element)
-
-    ui.combat_cards.replaceChildren()
-    ui.unused_combat_cards.replaceChildren()
-    if (view.attack) {
-        ui.cc_list.classList.remove("hide")
-        for (let i of view.combat_cards)
-            if (view.attack.combat_cards.includes(i))
-                ui.combat_cards.appendChild(cards[i].element)
-            else
-                ui.unused_combat_cards.appendChild(cards[i].element)
-    } else {
-        ui.cc_list.classList.add("hide")
-    }
+    update_card_zones()
 
     for (let i = 1; i < cards.length; ++i)
         update_card(i)
@@ -2340,6 +2326,83 @@ function update_map() {
     action_button("next", "Next")
     action_button("done", "Done")
     action_button("undo", "Undo")
+}
+
+const YANKS_AND_TANKS = cards.findIndex((c) => c.name === "Yanks and Tanks")
+const BRUSILOV_OFFENSIVE = cards.findIndex((c) => c.name === "Brusilov Offensive")
+const KERENSKY_OFFENSIVE = cards.findIndex((c) => c.name === "Kerensky Offensive")
+const GREAT_RETREAT = cards.findIndex((c) => c.name === "Great Retreat")
+const INFLUENZA = cards.findIndex((c) => c.name === "Influenza")
+const LLOYD_GEORGE = cards.findIndex((c) => c.name === "Lloyd George")
+const EVERYONE_INTO_BATTLE = cards.findIndex((c) => c.name === "Everyone Into Battle")
+
+function update_card_zones() {
+    // Update hand
+    ui.cards.replaceChildren()
+    if (view.hand)
+        for (let i of view.hand)
+            ui.cards.appendChild(cards[i].element)
+
+    ui.combat_cards.replaceChildren()
+    ui.unused_combat_cards.replaceChildren()
+    ui.active_cards.replaceChildren()
+
+    let show_ccs = false
+    let show_active_cards = false
+
+    // If in an attack, show combat cards split into used and unused
+    if (view.attack) {
+        show_ccs = true
+        for (let i of view.combat_cards)
+            if (view.attack.combat_cards.includes(i))
+                ui.combat_cards.appendChild(cards[i].element)
+            else
+                ui.unused_combat_cards.appendChild(cards[i].element)
+    } else if (view.combat_cards && view.combat_cards.length > 0) {
+        show_active_cards = true
+        for (let i of view.combat_cards)
+            ui.active_cards.appendChild(cards[i].element)
+    }
+
+    if (view.action_state) {
+        if (view.action_state.yanks_and_tanks) {
+            show_active_cards = true
+            ui.active_cards.appendChild(cards[YANKS_AND_TANKS].element)
+        }
+
+        if (view.action_state.brusilov_available) {
+            show_active_cards = true
+            ui.active_cards.appendChild(cards[BRUSILOV_OFFENSIVE].element)
+        }
+
+        if (view.action_state.kerensky_available) {
+            show_active_cards = true
+            ui.active_cards.appendChild(cards[KERENSKY_OFFENSIVE].element)
+        }
+    }
+
+    if (view.events.great_retreat === view.turn) {
+        show_active_cards = true
+        ui.active_cards.appendChild(cards[GREAT_RETREAT].element)
+    }
+
+    if (view.events.influenza === view.turn) {
+        show_active_cards = true
+        ui.active_cards.appendChild(cards[INFLUENZA].element)
+    }
+
+    if (view.events.lloyd_george === view.turn && !view.events.lloyd_george_canceled) {
+        show_active_cards = true
+        ui.active_cards.appendChild(cards[LLOYD_GEORGE].element)
+    }
+
+    if (view.events.everyone_into_battle === view.turn) {
+        show_active_cards = true
+        ui.active_cards.appendChild(cards[EVERYONE_INTO_BATTLE].element)
+    }
+
+    ui.cc_list.classList.toggle("hide", !show_ccs)
+    ui.active_card_zone.classList.toggle("hide", !show_active_cards)
 }
 
 function on_update() {
