@@ -5842,10 +5842,12 @@ function get_possible_advance_spaces(pieces) {
     if (pieces.length === 0)
         return []
 
-    let location_of_advancing_units = game.location[pieces[0]]
     // If the attacking pieces haven't entered the attack space (always true if this is a 1-space advance), that is the only choice
+    let location_of_advancing_units = game.location[pieces[0]]
     if (game.attack.space !== location_of_advancing_units) {
-        if (can_advance_into(game.attack.space, pieces, game.attack.retreat_length > 1))
+        if (game.attack.retreat_length > 1 && can_advance_through(game.attack.space, pieces, game.attack.retreat_paths))
+            return [game.attack.space]
+        else if (can_advance_into(game.attack.space, pieces))
             return [game.attack.space]
         else
             return []
@@ -5869,9 +5871,6 @@ function get_possible_advance_spaces(pieces) {
         if (can_advance_into(path[0], pieces))
             set_add(spaces, path[0]) // Add the first retreat space from each retreated path
     }
-
-    // Block advance into Italian spaces until AP is at Total War
-    spaces = spaces.filter(s => !is_blocked_italian_space(s, pieces))
 
     // 12.7.7 Central Powers units may advance into Amiens, Calais, or Ostend only if one of the following applies:
     // • if it was the defending space in the Combat.
@@ -5909,7 +5908,17 @@ function can_advance_into(space, units, can_overstack = false) {
     if (!can_overstack && would_overstack(space, units, game.attack.attacker))
         return false
 
+    if (is_blocked_italian_space(space, units))
+        return false
+
     return true
+}
+
+function can_advance_through(space, units, retreat_paths) {
+    if (!can_advance_into(space, units, true))
+        return false
+
+    return retreat_paths.some((path) => can_advance_into(path[0], units))
 }
 
 function eliminate_ru_units_stacked_with_ap() {
