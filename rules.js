@@ -5997,7 +5997,7 @@ function is_possible_sud_army_stack(pieces) {
 function cost_to_activate(space, type) {
     let nations = []
     let pieces = []
-    let has_russians = false
+    let num_russians = false
     let num_pieces = 0
     let faction = AP
     for_each_piece_in_space(space, (piece) => {
@@ -6005,7 +6005,7 @@ function cost_to_activate(space, type) {
         let n = data.pieces[piece].nation
         if (n === "sn") n = TURKEY
         if (n === MONTENEGRO) n = SERBIA
-        if (n === RUSSIA) has_russians = true
+        if (n === RUSSIA) num_russians++
         set_add(nations, n)
         pieces.push(piece)
         if (data.pieces[piece].faction === CP) faction = CP
@@ -6061,9 +6061,9 @@ function cost_to_activate(space, type) {
         cost = nations_with_armies.length
     }
     // After Fall of the Tsar, spaces with Russian units cost 1 per unit for combat only
-    let fall_of_the_tsar_attack = game.events.fall_of_the_tsar > 0 && has_russians && type === ATTACK
+    let fall_of_the_tsar_attack = game.events.fall_of_the_tsar > 0 && num_russians > 0 && type === ATTACK
     if (fall_of_the_tsar_attack) {
-        cost = num_pieces
+        cost = num_russians + nations.length - 1
     }
 
     //  9.2.7.1 It costs 3 OPS to activate the MEF Army for movement or combat when tracing supply through the MEF Beachhead
