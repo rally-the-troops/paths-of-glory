@@ -5999,7 +5999,7 @@ function is_possible_sud_army_stack(pieces) {
 function cost_to_activate(space, type) {
     let nations = []
     let pieces = []
-    let num_russians = false
+    let num_russians = 0
     let num_pieces = 0
     let faction = AP
     for_each_piece_in_space(space, (piece) => {
