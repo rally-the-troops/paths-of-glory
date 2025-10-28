@@ -4715,6 +4715,7 @@ function resolve_defenders_fire() {
     if (defender_pieces.length === 0 && defender_cf === 0) {
         game.attack.attacker_losses = 0
         game.attack.attacker_losses_taken = 0
+        clear_undo()
         return
     }
 
@@ -4741,7 +4742,6 @@ function resolve_defenders_fire() {
     let clamped_roll = modified_roll > 6 ? 6 : modified_roll < 1 ? 1 : modified_roll
     game.attack.attacker_losses = get_fire_result(other_faction(game.attack.attacker), base_roll, game.attack.defender_table, defender_cf, defender_shifts, clamped_roll)
     game.attack.attacker_losses_taken = 0
-
     clear_undo()
 }
 
