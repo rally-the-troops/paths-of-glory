@@ -4697,9 +4697,10 @@ function resolve_defenders_fire() {
     let defender_cf = 0
     game.attack.defender_table = CORPS
 
-    for_each_piece_in_space(game.attack.space, (p) => {
-        if (data.pieces[p].faction !== defender)
-            return // Only count pieces of the defender
+    log_event_for_rollback(`Combat at ${space_name(game.attack.space)}`)
+
+    const defender_pieces = get_pieces_in_space(game.attack.space).filter(p => data.pieces[p].faction === defender)
+    defender_pieces.forEach(p => {
         if (!set_has(game.retreated, p))
             defender_cf += get_piece_cf(p)
         if (data.pieces[p].type === ARMY)
@@ -4707,8 +4708,14 @@ function resolve_defenders_fire() {
     })
 
     const space_data = data.spaces[game.attack.space]
-    if (space_data.fort > 0 && !set_has(game.forts.destroyed, game.attack.space) && space_data.faction === defender) {
+    if (space_data.fort > 0 && !set_has(game.forts.destroyed, game.attack.space) && space_data.faction === defender)
         defender_cf += space_data.fort
+
+    // If there are no defender pieces left and the fort did not contribute its CF, defender does not shoot back
+    if (defender_pieces.length === 0 && defender_cf === 0) {
+        game.attack.attacker_losses = 0
+        game.attack.attacker_losses_taken = 0
+        return
     }
 
     log(`Defender's fire (${defender_cf} CF):`)
@@ -4734,8 +4741,6 @@ function resolve_defenders_fire() {
     let clamped_roll = modified_roll > 6 ? 6 : modified_roll < 1 ? 1 : modified_roll
     game.attack.attacker_losses = get_fire_result(other_faction(game.attack.attacker), base_roll, game.attack.defender_table, defender_cf, defender_shifts, clamped_roll)
     game.attack.attacker_losses_taken = 0
-
-    log_event_for_rollback(`Combat at ${space_name(game.attack.space)}`)
 
     clear_undo()
 }
