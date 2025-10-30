@@ -1021,9 +1021,8 @@ function build_trench_marker(space_id, level, faction) {
     )
 }
 
-function destroy_trench_marker(space_id, faction) {
-    destroy_marker(markers.trench[faction][1], e => e.space_id === space_id)
-    destroy_marker(markers.trench[faction][2], e => e.space_id === space_id)
+function destroy_trench_marker(space_id, faction, level) {
+    destroy_marker(markers.trench[faction][level], e => e.space_id === space_id)
 }
 
 function build_oos_marker(space_id, faction) {
@@ -1401,6 +1400,7 @@ function update_space(s) {
     let reduced_armies = []
     let full_corps = []
     let reduced_corps = []
+    let trench
 
     let count_pieces = 0
     for_each_piece_in_space(s, p => {
@@ -1487,16 +1487,28 @@ function update_space(s) {
         destroy_fort_besieged_marker(s)
     }
 
-    if (map_get(view.ap.trenches, s, 0)) {
-        push_stack(stack, build_trench_marker(s, map_get(view.ap.trenches, s, 0), AP))
+    trench = map_get(view.ap.trenches, s, 0)
+    if (trench === 2) {
+        destroy_trench_marker(s, AP, 1)
+        push_stack(stack, build_trench_marker(s, trench, AP))
+    } else if (trench === 1) {
+        destroy_trench_marker(s, AP, 2)
+        push_stack(stack, build_trench_marker(s, trench, AP))
     } else {
-        destroy_trench_marker(s, AP)
+        destroy_trench_marker(s, AP, 2)
+        destroy_trench_marker(s, AP, 1)
     }
 
-    if (map_get(view.cp.trenches, s, 0)) {
-        push_stack(stack, build_trench_marker(s, map_get(view.cp.trenches, s, 0), CP))
+    trench = map_get(view.cp.trenches, s, 0)
+    if (trench === 2) {
+        destroy_trench_marker(s, CP, 1)
+        push_stack(stack, build_trench_marker(s, trench, CP))
+    } else if (trench === 1) {
+        destroy_trench_marker(s, CP, 2)
+        push_stack(stack, build_trench_marker(s, trench, CP))
     } else {
-        destroy_trench_marker(s, CP)
+        destroy_trench_marker(s, CP, 2)
+        destroy_trench_marker(s, CP, 1)
     }
 
     if (ap_oos) {
