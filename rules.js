@@ -1627,6 +1627,9 @@ function all_capitals_occupied(nation) {
 }
 
 function satisfies_mo(mo, attackers, defenders, space) {
+    if (defenders.length === 0)
+        return false
+
     let attacker_nation = mo === AH_IT ? AUSTRIA_HUNGARY : mo
     let valid_attacker = attackers.find((a) => {
         let piece = data.pieces[a]
