@@ -17,9 +17,12 @@ const AP_MO_MARKER = "marker ap mandatory_offensive "
 const CP_MO_MARKER = "marker cp mandatory_offensive "
 
 const AP_RESERVE_BOX = 282
+const PERM_ELIMINATED_BOX = 360
 const CP_RESERVE_BOX = 283
 const AP_ELIMINATED_BOX = 284
 const CP_ELIMINATED_BOX = 285
+const AP_PER_ELIMINATED_BOX = 'ap perm elim'
+const CP_PER_ELIMINATED_BOX = 'cp perm elim'
 
 const ITALY = 'it'
 const BRITAIN = 'br'
@@ -32,6 +35,11 @@ const MINOR = 'minor'
 const BULGARIA = 'bu'
 const ROMANIA = 'ro'
 const GREECE = 'gr'
+
+//event status
+const NON_PLAYED = 'non_played'
+const DISABLED = 'disabled'
+const REMOVED = 'removed'
 
 let options = {}
 
@@ -255,6 +263,195 @@ function show_card_list(id, card_lists) {
     })
 }
 
+function build_perm_elim_box(){
+    let ap_space = spaces[360]
+    let cp_space = spaces[361]
+
+    ap_space.elements=[]
+    ap_space.stacks={}
+    cp_space.stacks={}
+}
+
+//get perm eliminated units from space 0, could be removed if all affected pieces placed at space №360
+function get_perm_eliminated() {
+    let result=[]
+    let not_placed_pieces = []
+    let war_africa = (view.removed_cards[CP].indexOf(97) >= 0)//war in africa
+    let unplaced_br_corps = 0
+    let off_map_br_corps = 0
+    let br_corp_num = 0
+    for (let i = 1; i < data.cards.length; i++) {
+        let card_data = data.cards[i]
+        if (card_data.reinf_pieces) {
+            card_data.reinf_pieces.forEach(p => {
+                let p_data = data.pieces[p]
+                if (p_data.type === "army" || p_data.notreplaceable) {
+                    not_placed_pieces.push(p)
+                } else if (war_africa && p_data.name === "BRc") {
+                    unplaced_br_corps++
+                    br_corp_num = i
+                }
+            })
+        }
+    }
+    for (let i = 1; i < data.pieces.length; i++) {
+        let p_data = data.pieces[i]
+        if (view.location[i] === 0 && (p_data.type === "army" || p_data.notreplaceable) && not_placed_pieces.indexOf(i) < 0) {
+            result.push(i)
+        } else if (view.location[i] === 0 && war_africa && p_data.name === "BRc") {
+            off_map_br_corps++
+        }
+    }
+    if (war_africa && off_map_br_corps > unplaced_br_corps) {
+        result.push(br_corp_num)
+    }
+    return result
+}
+
+function update_perm_elim_box() {
+    let ap_space = spaces[360].stacks
+    let cp_space = spaces[361].stacks
+    spaces[PERM_ELIMINATED_BOX].elements.forEach(e => {
+        e.classList.add("offmap")
+        e.my_stack.length = 0
+    })
+    let insert_piece_in_stack = function (p) {
+        const space = pieces[p].faction === CP ? cp_space : ap_space
+        let is_corps = pieces[p].type === CORPS
+        let pe = spaces[PERM_ELIMINATED_BOX].elements[p]
+        if (!pe) {
+            pe = spaces[PERM_ELIMINATED_BOX].elements[p] = build_unit(p, document.getElementById("reinforcements"))
+        }
+        const stack_name = pieces[p].nation + (pieces[p].notreplaceable ? 'n' : '')
+        if (!space[stack_name]) {
+            space[stack_name] = []
+        }
+        let stack = space[stack_name]
+        if (is_corps)
+            unshift_stack(stack, pe)
+        else
+            push_stack(stack, pe)
+    }
+
+    for_each_piece_in_space(PERM_ELIMINATED_BOX, insert_piece_in_stack)
+    get_perm_eliminated().forEach(insert_piece_in_stack)
+
+    let [ap_space_x, ap_space_y] = layout_center(layout[AP_PER_ELIMINATED_BOX])
+    let [cp_space_x, cp_space_y] = layout_center(layout[CP_PER_ELIMINATED_BOX])
+
+
+    const army_stride = 56
+    const row_stride = 66
+
+    let ap_array = Object.keys(ap_space)
+    let cp_array = Object.keys(cp_space)
+    let d = 0
+    for (let i = 0; i < ap_array.length; i++) {
+        if (ap_space[ap_array[i]].length <= 0) {
+            continue
+        }
+        ap_space[ap_array[i]].forEach(pe => {
+            pe.classList.remove('offmap')
+            pe.classList.remove('reduced')
+        })
+        layout_stack(ap_space[ap_array[i]], ap_space_x + (d % 3) * army_stride, ap_space_y + Math.floor(d / 3) * (row_stride))
+        d++
+    }
+    d = 0
+    for (let i = 0; i < cp_array.length; i++) {
+        if (cp_space[cp_array[i]].length <= 0) {
+            continue
+        }
+        cp_space[cp_array[i]].forEach(pe => {
+            pe.classList.remove('offmap')
+            pe.classList.remove('reduced')
+        })
+        layout_stack(cp_space[cp_array[i]], cp_space_x + (d % 3) * army_stride, cp_space_y + Math.floor(d / 3) * (row_stride))
+        d++
+    }
+}
+
+function on_focus_event_space(evt) {
+    let id = evt.target.space
+    let space = spaces[id]
+    let event = cards[space.event]
+    let text = space.name
+    if (event.reinf) {
+        text += " " + event.reinf
+    }
+    if (event.status === REMOVED) {
+        text += "(Played)"
+    } else if (event.status === DISABLED) {
+        text += "(Disabled)"
+    }
+    ui.status.textContent = text
+}
+
+function update_reinforcements_view() {
+    for (let i = 0; i < data.cards.length; i++) {
+        if (data.cards[i].status !== DISABLED) {
+            data.cards[i].status = NON_PLAYED
+        }
+    }
+    if (view.removed_cards) {
+        for (let i = 0; i < view.removed_cards[AP].length; i++) {
+            data.cards[view.removed_cards[AP][i]].status = REMOVED
+        }
+        for (let i = 0; i < view.removed_cards[CP].length; i++) {
+            data.cards[view.removed_cards[CP][i]].status = REMOVED
+        }
+    }
+    for (let i = 286; i <= 359; i++) {
+        let space = spaces[i]
+        if (!space.marker) {
+            return
+        }
+        let event = cards[space.event]
+        if (event.status === DISABLED) {
+            space.marker.classList.remove("hide")
+            space.marker.classList.add(DISABLED)
+            space.stack.forEach(p => p.classList.add("offmap"))
+        } else if (event.status === REMOVED && space.type === "ws") {
+            space.marker.classList.remove("hide")
+            space.marker.classList.add("played")
+        } else if (event.status === REMOVED && space.type === "reinf") {
+            space.marker.classList.add("hide")
+            space.stack.forEach(p => p.classList.add("offmap"))
+        } else if (space.type === "reinf") {
+            space.stack.forEach(p => p.classList.remove("offmap"))
+            let [space_x, space_y] = layout_center(layout[space.type + " " + space.event])
+            layout_stack(space.stack, space_x, space_y)
+        } else {
+            space.marker.classList.add("hide")
+        }
+    }
+}
+
+function show_reinforcements(cards) {
+    cards.disabled.forEach(a => {
+        data.cards[a].status = DISABLED
+    })
+    for (let i = 286; i <= 359; i++) {
+        let space = spaces[i]
+        data.cards[space.event].reinf_pieces=cards.reinf[space.event]
+        build_ws_event_space(i, cards.reinf[space.event])
+    }
+    let el = document.getElementById("reinforcements")
+    document.getElementById("reinforcements").addEventListener("mousedown", evt => {
+        if (evt.button === 0) {
+            blur_stack()
+            update_map()
+        }
+    })
+    if (el.classList.contains("hide")) {
+        el.classList.remove("hide")
+    } else {
+        el.classList.add("hide")
+        el.innerHTML = '';
+    }
+    update_map()
+}
+
 function show_dialog(id, dialog_generator) {
     document.getElementById(id).classList.add("show")
     let body = document.getElementById(id).querySelector(".dialog_body")
@@ -399,6 +596,8 @@ function on_reply(q, params) {
         show_card_list("ap_card_dialog", params)
     if (q === 'cp_cards')
         show_card_list("cp_card_dialog", params)
+    if (q === 'reinforcements')
+        show_reinforcements(params)
 }
 
 function get_control_bit(i) {
@@ -949,6 +1148,21 @@ function build_unique_marker(cn, size) {
     return elt
 }
 
+function mark_ws_event_marker(layout) {
+    let [ap_space_x, ap_space_y] = layout
+    let pe = document.createElement("div")
+
+    pe.classList.add("event")
+    if(layout[2]<=43){
+        pe.classList.add("small")
+    }
+    pe.classList.add("hide")
+    document.getElementById("reinforcements").appendChild(pe)
+    pe.style.left=ap_space_x+"px"
+    pe.style.top=ap_space_y+"px"
+    return pe
+}
+
 ui.us_entry = build_unique_marker("marker small us_entry", 36)
 ui.russian_capitulation = build_unique_marker("marker small russian_capitulation", 36)
 ui.ap_mo = build_unique_marker("marker ap mandatory_offensive", 45)
@@ -1155,6 +1369,45 @@ function build_space(id) {
     ui.space_list[id] = elt
 }
 
+function build_ws_event_space(id, units) {
+    let space = spaces[id]
+    let space_layout = layout[space.type + " " + space.event]
+    let [x, y, w, h] = grow_layout(space_layout, 8)
+
+    space.stack = []
+
+    let elt = space.element = document.createElement("div")
+    elt.space = id
+    elt.className = "space"
+    elt.style.left = x + "px"
+    elt.style.top = y + "px"
+    elt.style.width = w + "px"
+    elt.style.height = h + "px"
+    elt.addEventListener("click", on_click_space)
+    elt.addEventListener("mouseenter", on_focus_event_space)
+    elt.addEventListener("mouseleave", on_blur_space)
+
+    document.getElementById("reinforcements").appendChild(elt)
+
+
+    ui.space_list[id] = elt
+    space.marker = mark_ws_event_marker(space_layout)
+    space.marker.space = id
+    space.marker.addEventListener("mouseenter", on_focus_event_space)
+    space.marker.addEventListener("mouseleave", on_blur_space)
+    if (units && space.type === "reinf") {
+        let insert_piece_in_stack = function (p) {
+            let is_corps = pieces[p].type === CORPS
+            let pe = build_unit(p, document.getElementById("reinforcements"))
+            if (is_corps)
+                unshift_stack(space.stack, pe)
+            else
+                push_stack(space.stack, pe)
+        }
+        units.forEach(p => insert_piece_in_stack(p))
+    }
+}
+
 const OTHER = "other"
 const ap_eliminated_box_order = [FRANCE, BRITAIN, RUSSIA, OTHER]
 const cp_eliminated_box_order = [GERMANY, AUSTRIA_HUNGARY, TURKEY, OTHER]
@@ -1224,9 +1477,9 @@ function build_reserve_box(id) {
     ui.space_list[id] = elt
 }
 
-function build_unit(id) {
+function build_unit(id, place) {
     let unit = pieces[id]
-    let elt = unit.element = document.createElement("div")
+    let elt = document.createElement("div")
     elt.piece = id
     elt.className = "offmap unit " + unit.type + " " + unit.counter
     elt.addEventListener("mousedown", on_click_piece)
@@ -1236,7 +1489,8 @@ function build_unit(id) {
         elt.my_size = 45
     else
         elt.my_size = 36
-    ui.pieces.insertBefore(elt, ui.pieces.firstChild)
+    place.insertBefore(elt, place.firstChild)
+    return elt
 }
 
 function build_card(id) {
@@ -1258,11 +1512,13 @@ for (let s = 1; s < spaces.length; ++s) {
         build_reserve_box(s)
     else if (s === AP_ELIMINATED_BOX || s === CP_ELIMINATED_BOX)
         build_eliminated_box(s)
-    else
-        build_space(s)
+    else if(!spaces[s].hidden)
+        build_space(s,ui.spaces)
 }
-for (let p = 0; p < pieces.length; ++p)
-    build_unit(p)
+build_perm_elim_box()
+for (let p = 0; p < pieces.length; ++p) {
+    pieces[p].element = build_unit(p, ui.pieces)
+}
 
 //document.getElementById("last_card").addEventListener("mouseenter", on_focus_last_card)
 //document.getElementById("last_card").addEventListener("mouseleave", on_blur_last_card)
@@ -1309,7 +1565,7 @@ const style_dims = {
     },
 }
 
-const MINY = 80
+const MINY = 50
 
 function layout_stack(stack, start_x, start_y) {
     //console.log(`layout_stack: ${x}, ${y}, ${dx}. ${stack}`)
@@ -1322,6 +1578,7 @@ function layout_stack(stack, start_x, start_y) {
 
     let dx = stack.length > 5 ? dim.stack_dx_tight : dim.stack_dx
     let dy = stack.length > 5 ? dim.stack_dx_tight : dim.stack_dy
+    let dz = stack.length > 5 ? 1 : 3
 
     // Lose focus if stack is small.
     if (stack === focus && is_small_stack(stack))
@@ -1330,6 +1587,7 @@ function layout_stack(stack, start_x, start_y) {
     if (stack === focus) {
         let x = start_x
         let y = start_y + (stack[0].my_size + dim.border*2)/2
+        z += dz
         let minx = x, maxx = x, miny = y, maxy = y
 
         // compute focus box height and move down if it would go past the top
@@ -1348,9 +1606,14 @@ function layout_stack(stack, start_x, start_y) {
             maxy = Math.max(maxy, ey + elt.my_size + dim.border * 2)
             elt.style.left = ex + "px"
             elt.style.top = ey + "px"
-            elt.style.zIndex = z++
+            elt.style.zIndex = z
             y -= elt.my_size + dim.border * 2 + dim.gap
         }
+
+        focus_box.remove()
+        focus_box = document.createElement("div")
+        focus_box.id="focus"
+        stack[0].parentNode.appendChild(focus_box)
 
         focus_box.style.left = (minx - dim.padding) + "px"
         focus_box.style.top = (miny - dim.padding) + "px"
@@ -1364,9 +1627,10 @@ function layout_stack(stack, start_x, start_y) {
             let ey = Math.floor(y - elt.my_size - dim.border*2)
             elt.style.left = ex + "px"
             elt.style.top = ey + "px"
-            elt.style.zIndex = z++
+            elt.style.zIndex = z
             x += dx
             y -= dy
+            z += dz
             if (y < MINY)
                 y = MINY
         }
@@ -2233,6 +2497,7 @@ function update_map() {
 
     // Hide Dead and unused pieces
     for_each_piece_in_space(0, p => pieces[p].element.classList.add('offmap'))
+    for_each_piece_in_space(PERM_ELIMINATED_BOX, p => pieces[p].element.classList.add('offmap'))
 
     update_card_zones()
 
@@ -2248,10 +2513,11 @@ function update_map() {
     if (focus && focus.length <= 1)
         focus = null
 
-    if (focus === null)
-        focus_box.className = "hide"
-    else
+    if (focus === null) {
+        focus_box.remove()
+    } else {
         focus_box.className = "show"
+    }
 
     //ui.last_card.className = "card show card_" + faction_card_number(view.last_card)
 
@@ -2272,6 +2538,9 @@ function update_map() {
     update_neutral_markers()
 
     update_violations()
+
+    update_reinforcements_view()
+    update_perm_elim_box()
 
     document.getElementById("cp_hand").textContent = `${view.cp.hand} cards`
     document.getElementById("ap_hand").textContent = `${view.ap.hand} cards`

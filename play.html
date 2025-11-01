@@ -81,6 +81,7 @@
 				<li class="separator">
 				<li onclick="send_query('cp_cards')"> Inspect CP Cards
 				<li onclick="send_query('ap_cards')"> Inspect AP Cards
+				<li onclick="send_query('reinforcements')"> Show reinforcements box
 			</menu>
 		</details>
 		<details id="supply_menu">
@@ -157,21 +158,21 @@
 				<div class="panel-head">Unused Combat Cards</div>
 				<div class="panel-body" id="unused_combat_cards"></div>
 			</div>
-
 		</div>
 
 		<div class="panel">
 			<div class="panel-head">Hand</div>
 			<div class="panel-body" id="cards"></div>
 		</div>
-
-        <div id="active_card_zone" class="hide">
-            <div class="panel">
-                <div class="panel-head">Active Cards</div>
-                <div class="panel-body" id="active_cards"></div>
-            </div>
-        </div>
-
+		<div id="active_card_zone" class="hide">
+			<div class="panel">
+				<div class="panel-head">Active Cards</div>
+				<div class="panel-body" id="active_cards"></div>
+			</div>
+		</div>
+		<div class="panel">
+			<div class="hide" id="reinforcements"></div>
+		</div>
 	</div>
 </main>
 
