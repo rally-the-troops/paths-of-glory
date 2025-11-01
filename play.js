@@ -389,15 +389,17 @@ function on_focus_event_space(evt) {
 
 function update_reinforcements_view() {
     for (let i = 0; i < data.cards.length; i++) {
-        if(data.cards[i].status !== DISABLED){
+        if (data.cards[i].status !== DISABLED) {
             data.cards[i].status = NON_PLAYED
         }
     }
-    for (let i = 0; i < view.removed_cards[AP].length; i++) {
-        data.cards[view.removed_cards[AP][i]].status = REMOVED
-    }
-    for (let i = 0; i < view.removed_cards[CP].length; i++) {
-        data.cards[view.removed_cards[CP][i]].status = REMOVED
+    if (view.removed_cards) {
+        for (let i = 0; i < view.removed_cards[AP].length; i++) {
+            data.cards[view.removed_cards[AP][i]].status = REMOVED
+        }
+        for (let i = 0; i < view.removed_cards[CP].length; i++) {
+            data.cards[view.removed_cards[CP][i]].status = REMOVED
+        }
     }
     for (let i = 286; i <= 359; i++) {
         let space = spaces[i]
