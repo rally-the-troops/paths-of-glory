@@ -276,7 +276,7 @@ function build_perm_elim_box(){
 function get_perm_eliminated() {
     let result=[]
     let not_placed_pieces = []
-    let war_africa = (view.removed_cards[CP].indexOf(97) >= 0)//war in africa
+    let war_africa = view.removed_cards && (view.removed_cards[CP].indexOf(97) >= 0)//war in africa
     let unplaced_br_corps = 0
     let off_map_br_corps = 0
     let br_corp_num = 0
