@@ -3098,7 +3098,7 @@ function update_russian_capitulation() {
     const previous_level = game.russian_capitulation
     if (game.events.treaty_of_brest_litovsk > 0) {
         game.russian_capitulation = 7
-        if (previous_level < 6) {
+        if (previous_level < 7) {
           log(`Russian Capitulation Track reaches ${card_name(TREATY_OF_BREST_LITOVSK)}`)
         }
     } else if (game.events.bolshevik_revolution > 0) {
