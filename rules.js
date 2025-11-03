@@ -4783,6 +4783,7 @@ states.eliminate_retreated_units = {
     piece(p) {
         push_undo()
         // Pieces eliminated in this condition are sent to the eliminated box and not replaced (12.5.6)
+        log(`>${piece_name(p)} in ${space_name(game.location[p])} eliminated`)
         send_to_eliminated_box(p)
         set_delete(game.retreated, p)
     },
