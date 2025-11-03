@@ -7841,7 +7841,7 @@ events.war_in_africa = {
 states.war_in_africa_confirm = {
     inactive: 'execute "War in Africa"',
     prompt() {
-        view.prompt = 'Confirm play of War in Africa'
+        view.prompt = 'Confirm play of War in Africa.'
         gen_action_done()
     },
     done() {
