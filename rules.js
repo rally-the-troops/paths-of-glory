@@ -8777,9 +8777,18 @@ states.great_retreat = {
     space(s) {
         push_undo()
         logi(`${piece_name(game.attack.great_retreat)} -> ${space_name(s)}`)
+        const from  = game.location[game.attack.great_retreat]
+        update_russian_ne_restriction_flag([game.attack.great_retreat], from, s)
+        if (set_has(game.broken_sieges, from))
+            set_delete(game.broken_sieges, from)
+
         game.location[game.attack.great_retreat] = s
-        game.attack.great_retreat = 0
+        if (!is_controlled_by(s, AP) && !has_undestroyed_fort(s, CP) && can_take_control([game.attack.great_retreat]))
+            set_control(s, AP)
         update_siege(game.attack.space)
+        update_siege(s)
+        game.attack.great_retreat = 0
+        update_supply()
     },
     eliminate() {
         push_undo()
