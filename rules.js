@@ -3099,39 +3099,39 @@ function update_russian_capitulation() {
     if (game.events.treaty_of_brest_litovsk > 0) {
         game.russian_capitulation = 7
         if (previous_level < 7) {
-          log(`Russian Capitulation Track reaches ${card_name(TREATY_OF_BREST_LITOVSK)}`)
+          log_h3(`Russian Capitulation Track reaches ${card_name(TREATY_OF_BREST_LITOVSK)}`)
         }
     } else if (game.events.bolshevik_revolution > 0) {
         game.russian_capitulation = 6
         if (previous_level < 6) {
-          log(`Russian Capitulation Track reaches ${card_name(BOLSHEVIK_REVOLUTION)}`)
+          log_h3(`Russian Capitulation Track reaches ${card_name(BOLSHEVIK_REVOLUTION)}`)
         }
     } else if (events.bolshevik_revolution.can_play()) {
         game.russian_capitulation = 5
-        if (previous_level < 5) log(`${card_name(BOLSHEVIK_REVOLUTION)} can now be played`)
+        if (previous_level < 5) log_h3(`Russian Capitulation: ${card_name(BOLSHEVIK_REVOLUTION)} can now be played`)
     } else if (game.events.fall_of_the_tsar > 0) {
         game.russian_capitulation = 4
         if (previous_level > 4) {
-          log(`${card_name(BOLSHEVIK_REVOLUTION)} can no longer be played`)
+          log_h3(`Russian Capitulation: ${card_name(BOLSHEVIK_REVOLUTION)} can no longer be played`)
         } else if (previous_level < 4) {
-          log(`Russian Capitulation Track reaches ${card_name(FALL_OF_THE_TSAR)}`)
+          log_h3(`Russian Capitulation Track reaches ${card_name(FALL_OF_THE_TSAR)}`)
         }
     } else if (events.fall_of_the_tsar.can_play()) {
         game.russian_capitulation = 3
-        if (previous_level < 3) log(`${card_name(FALL_OF_THE_TSAR)} can now be played`)
+        if (previous_level < 3) log_h3(`Russian Capitulation: ${card_name(FALL_OF_THE_TSAR)} can now be played`)
     } else if (game.events.tsar_takes_command > 0) {
         game.russian_capitulation = 2
         if (previous_level > 2) {
-          log(`${card_name(FALL_OF_THE_TSAR)} can no longer be played`)
+          log_h3(`Russian Capitulation: ${card_name(FALL_OF_THE_TSAR)} can no longer be played`)
         } else if (previous_level < 2) {
-          log(`Russian Capitulation Track reaches ${card_name(TSAR_TAKES_COMMAND)}`)
+          log_h3(`Russian Capitulation Track reaches ${card_name(TSAR_TAKES_COMMAND)}`)
         }
     } else if (events.tsar_takes_command.can_play()) {
         game.russian_capitulation = 1
-        if (previous_level < 1) log(`${card_name(TSAR_TAKES_COMMAND)} can now be played`)
+        if (previous_level < 1) log_h3(`Russian Capitulation: ${card_name(TSAR_TAKES_COMMAND)} can now be played`)
     } else {
         game.russian_capitulation = 0
-        if (previous_level > 0) log(`${card_name(TSAR_TAKES_COMMAND)} can no longer be played`)
+        if (previous_level > 0) log_h3(`Russian Capitulation: ${card_name(TSAR_TAKES_COMMAND)} can no longer be played`)
     }
 }
 
