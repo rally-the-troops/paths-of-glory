@@ -7388,13 +7388,7 @@ states.confirm_event = {
         view.actions.end_action = 1
     },
     end_action() {
-      if (game.war_in_africa_removed === -1) {
-        game.state = 'war_in_africa'
-        game.war_in_africa_removed = 0;
-        clear_undo()
-      } else {
-        goto_end_action()
-      }
+      goto_end_action()
     },
 }
 
@@ -7840,9 +7834,21 @@ events.war_in_africa = {
         return true
     },
     play() {
+        game.state = 'war_in_africa_confirm'
+    }
+}
+
+states.war_in_africa_confirm = {
+    inactive: 'execute "War in Africa"',
+    prompt() {
+        view.prompt = 'Confirm play of War in Africa'
+        gen_action_done();
+    },
+    done() {
         set_active_faction(AP)
-        game.war_in_africa_removed = -1
-        goto_end_event()
+        game.state = 'war_in_africa'
+        game.war_in_africa_remove = 0;
+        clear_undo()
     }
 }
 
