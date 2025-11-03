@@ -7381,7 +7381,7 @@ function goto_end_event() {
 
 states.confirm_event = {
     inactive() {
-        view.prompt = `execute "${current_card_name()}"`
+        view.prompt = `execute "${current_card_name()}."`
     },
     prompt() {
         view.prompt = current_card_name() + ": Done."
@@ -7842,12 +7842,12 @@ states.war_in_africa_confirm = {
     inactive: 'execute "War in Africa"',
     prompt() {
         view.prompt = 'Confirm play of War in Africa'
-        gen_action_done();
+        gen_action_done()
     },
     done() {
         set_active_faction(AP)
         game.state = 'war_in_africa'
-        game.war_in_africa_remove = 0;
+        game.war_in_africa_remove = 0
         clear_undo()
     }
 }
