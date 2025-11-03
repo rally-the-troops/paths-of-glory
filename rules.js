@@ -8196,6 +8196,9 @@ events.bolshevik_revolution = {
     },
     play() {
         game.events.bolshevik_revolution = game.turn
+        if (game.ap.mo === RUSSIA) {
+          game.ap.mo = NONE
+        }
 
         game.ops = data.cards[BOLSHEVIK_REVOLUTION].ops
         game.state = 'activate_spaces'
