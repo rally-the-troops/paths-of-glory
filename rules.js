@@ -104,7 +104,7 @@ const GERMAN_REINFORCEMENTS_7 = 106
 const TURKISH_REINFORCEMENTS_1 = 107
 const VON_BELOW = 108
 const VON_HUTIER = 109
-const TREATY_OF_BRESK_LITOVSK = 110
+const TREATY_OF_BREST_LITOVSK = 110
 const GERMAN_REINFORCEMENTS_8 = 111
 const FRENCH_MUTINY = 112
 const TURKISH_REINFORCEMENTS_2 = 113
@@ -8196,6 +8196,9 @@ events.bolshevik_revolution = {
     },
     play() {
         game.events.bolshevik_revolution = game.turn
+        if (game.ap.mo === RUSSIA) {
+          game.ap.mo = NONE
+        }
 
         game.ops = data.cards[BOLSHEVIK_REVOLUTION].ops
         game.state = 'activate_spaces'
