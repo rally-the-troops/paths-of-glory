@@ -7847,7 +7847,7 @@ states.war_in_africa_confirm = {
     done() {
         set_active_faction(AP)
         game.state = 'war_in_africa'
-        game.war_in_africa_remove = 0
+        game.war_in_africa_removed = 0
         clear_undo()
     }
 }
