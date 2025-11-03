@@ -7388,7 +7388,7 @@ states.confirm_event = {
         view.actions.end_action = 1
     },
     end_action() {
-      goto_end_action()
+        goto_end_action()
     },
 }
 
