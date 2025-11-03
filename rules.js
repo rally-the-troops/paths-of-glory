@@ -7388,7 +7388,13 @@ states.confirm_event = {
         view.actions.end_action = 1
     },
     end_action() {
+      if (game.war_in_africa_removed === -1) {
+        game.state = 'war_in_africa'
+        game.war_in_africa_removed = 0;
+        clear_undo()
+      } else {
         goto_end_action()
+      }
     },
 }
 
@@ -7835,9 +7841,8 @@ events.war_in_africa = {
     },
     play() {
         set_active_faction(AP)
-        game.war_in_africa_removed = 0
-        game.state = 'war_in_africa'
-        clear_undo()
+        game.war_in_africa_removed = -1
+        goto_end_event()
     }
 }
 
