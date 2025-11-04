@@ -699,7 +699,7 @@ function on_click_space(evt) {
         if (view.actions && view.actions.space && view.actions.space.includes(space)) {
             if (send_action('space', space))
                 event.stopPropagation()
-        } else if (view.actions && (view.actions.activate_move || view.actions.activate_attack || view.actions.deactivate)) {
+        } else if (view.actions && (view.actions.activate_move || view.actions.activate_attack || view.actions.activate_attack_mutiny || view.actions.deactivate)) {
             let options = activation_menu_options.filter((option) => {
                 return view.actions[option] && view.actions[option].includes(space)
             })
@@ -713,6 +713,7 @@ function on_click_space(evt) {
 const activation_menu_options = [
     'activate_move',
     'activate_attack',
+    'activate_attack_mutiny',
     'deactivate'
 ]
 
@@ -1750,6 +1751,9 @@ function should_highlight_space(s) {
     if (view.actions.activate_attack && view.actions.activate_attack.includes(s))
         return true
 
+    if (view.actions.activate_attack_mutiny && view.actions.activate_attack_mutiny.includes(s))
+        return true;
+
     if (view.actions.deactivate && view.actions.deactivate.includes(s))
         return true
 
@@ -2331,6 +2335,9 @@ function update_map() {
     confirm_action_button("confirm_pass_attack", "Pass",
         "You still have units eligible to attack!\nDo you still want to PASS?"
     )
+
+    confirm_action_button("confirm_mutiny_attack", "Attack",
+        "1 VP French Mutiny penalty will be applied!\nDo you still want to Attack?")
 
     action_button("pass", "Pass")
 

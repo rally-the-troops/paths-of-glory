@@ -1601,9 +1601,14 @@ function roll_mandated_offensives() {
         cp_mo = NONE
     }
 
+    let ap_string = nation_name(ap_mo);
+    if ((ap_mo == FRANCE) && (game.events.french_mutiny > 0)) {
+      ap_string = "French mutiny";
+    }
+
     log(`Mandated offensives:`)
     log(`CP: ${fmt_roll(cp_roll, cp_drm)} -> ${nation_name(cp_mo)}`)
-    log(`AP: W${ap_roll} -> ${nation_name(ap_mo)}`)
+    log(`AP: W${ap_roll} -> ${ap_string}`)
     log_event_for_rollback("Rolled Mandated Offensives")
 
     game.ap.mo = ap_mo
@@ -2824,8 +2829,33 @@ states.activate_spaces = {
 
         for (let s of move_spaces)
             gen_action("activate_move", s)
-        for (let s of attack_spaces)
-            gen_action("activate_attack", s)
+
+        for (let s of attack_spaces) {
+            let menu_action = "activate_attack";
+            if ((active_faction() === AP) && is_french_mutiny_mo()) {
+                const nation = data.spaces[s].nation
+                if ((nation === FRANCE || nation === BELGIUM || nation === GERMANY)) {
+                  let any_us = false
+                  for (let p = 1; p < data.pieces.length; ++p) {
+                    if (data.pieces[p].nation === US) {
+                      if (game.location[p] === s) {
+                        any_us = true;
+                        break;
+                      }
+                    }
+                  }
+                  if (!any_us) {
+                    if (get_pieces_in_space(s).filter((p) => data.pieces[p].nation === FRANCE).length > 0) {
+                      menu_action = "activate_attack_mutiny";
+                    }
+                  }
+
+                  /////
+
+                }
+            }
+            gen_action(menu_action, s)
+        }
 
         gen_action_skip()
     },
@@ -2838,6 +2868,9 @@ states.activate_spaces = {
         }
         if (game.ops === 0)
             start_action_round()
+    },
+    activate_attack_mutiny(s) {
+        this.activate_attack(s);
     },
     activate_attack(s) {
         push_undo()
@@ -3868,12 +3901,19 @@ function fmt_attack_odds() {
 states.confirm_attack = {
     inactive: 'attack',
     prompt() {
-        view.prompt = `Attack ${space_name(game.attack.space)} with ${piece_list(game.attack.pieces)} at ${fmt_attack_odds()}?`
-        if (french_mutiny_penalty_should_be_awarded()) {
-            view.prompt += ' French mutiny will be satisfied.'
+      view.prompt = `Attack ${space_name(game.attack.space)} with ${piece_list(game.attack.pieces)} at ${fmt_attack_odds()}?`
+      if (french_mutiny_penalty_should_be_awarded()) {
+        view.prompt += ' (1 VP penalty for French Mutiny will be applied)'
+      }
+      view.where = game.attack.space
+      if (french_mutiny_penalty_should_be_awarded()) {
+            gen_action('confirm_mutiny_attack')
+        } else {
+            gen_action('attack')
         }
-        view.where = game.attack.space
-        gen_action('attack')
+    },
+    confirm_mutiny_attack() {
+        this.attack();
     },
     attack() {
         goto_attack()
