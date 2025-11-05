@@ -1538,7 +1538,7 @@ function update_space(s) {
     if (view.activated.attack.includes(s)) {
         let markers = view.activation_cost ? map_get(view.activation_cost, s, 1) : 1;
         for (let i = 0; i < markers; i++) {
-            unshift_stack(stack, build_activation_marker(s, 'attack'))
+            unshift_stack(stack, build_activation_marker(s, 'attack', i))
         }
     } else {
         destroy_activation_marker(s, 'attack')
