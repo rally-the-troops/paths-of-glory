@@ -1544,7 +1544,6 @@ const CP_MO_TABLE = {
 
 function roll_mandated_offensives() {
     let ap_roll = roll_die(6)
-
     let ap_index = ap_roll
     let ap_mo = AP_MO_TABLE[ap_index]
 
@@ -1602,14 +1601,13 @@ function roll_mandated_offensives() {
         cp_mo = NONE
     }
 
-    let ap_string = nation_name(ap_mo);
-    if ((ap_mo == FRANCE) && (game.events.french_mutiny > 0)) {
-        ap_string = "French Mutiny";
-    }
-
     log(`Mandated offensives:`)
     log(`CP: ${fmt_roll(cp_roll, cp_drm)} -> ${nation_name(cp_mo)}`)
-    log(`AP: W${ap_roll} -> ${ap_string}`)
+    if ((ap_mo == FRANCE) && (game.events.french_mutiny > 0)) {
+        log(`AP: W${ap_roll} -> ${card_name(FRENCH_MUTINY)}`)
+    } else {
+        log(`AP: W${ap_roll} -> ${nation_name(ap_mo)}`)
+    }
     log_event_for_rollback("Rolled Mandated Offensives")
 
     game.ap.mo = ap_mo
@@ -1691,7 +1689,7 @@ states.confirm_mo = {
         if (game[active_faction()].mo === NONE)
             view.prompt = `Turn ${game.turn}: No mandated offensive.`
         else if (game.events.french_mutiny > 0 && game[active_faction()].mo === FRANCE)
-            view.prompt = `Turn ${game.turn}: ${card_name(FRENCH_MUTINY)}.`
+            view.prompt = `Turn ${game.turn}: ${card_name(FRENCH_MUTINY)} (instead of mandated offensive).`
         else
             view.prompt = `Turn ${game.turn}: Mandated offensive for ${nation_name(game[active_faction()].mo)}.`
         gen_action_next()
@@ -3901,7 +3899,7 @@ states.confirm_attack = {
       }
     },
     confirm_mutiny_attack() {
-        this.attack();
+        this.attack()
     },
     attack() {
         goto_attack()
