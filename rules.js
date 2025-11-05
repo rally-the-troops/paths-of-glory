@@ -4985,9 +4985,9 @@ function eliminate_piece(p, force_permanent_elimination, reason) {
         // Permanently eliminate piece
         if (!reason && !data.pieces[p].notreplaceable) {
             if (replacement_options.length === 0) {
-                reason = 'no replacement corps available in Reserve Box'
+                reason = 'no replacement corps'
             } else if (!is_unit_supplied(p)) {
-                reason = 'eliminated while out of supply'
+                reason = 'out of supply'
             }
         }
         if (reason && reason !== "") {
