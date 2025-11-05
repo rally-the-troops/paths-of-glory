@@ -2835,11 +2835,9 @@ states.activate_spaces = {
             if ((active_faction() === AP) && is_french_mutiny_mo()) {
                 const nation = data.spaces[s].nation
                 if ((nation === FRANCE || nation === BELGIUM || nation === GERMANY)) {
-                    let any_us = all_pieces_by_nation[US].some(p => game.location[p] === s)
-                    if (!any_us) {
-                        if (all_pieces_by_nation[FRANCE].some(p => game.location[p] === s)) {
-                            menu_action = "activate_attack_mutiny";
-                        }
+                    if (all_pieces_by_nation[FRANCE].some(p => game.location[p] === s) &&
+                        !all_pieces_by_nation[US].some(p => game.location[p] === s)) {
+                        menu_action = "activate_attack_mutiny";
                     }
                 }
             }
@@ -3940,13 +3938,14 @@ function goto_attack() {
         update_russian_ne_restriction_flag(game.attack.pieces, source, game.attack.space)
     })
 
+    //BR// Moved up here to appear *before* the attack (so it can be log_h3 without breaking the attack box)
     if (game.attack.attacker === AP && is_french_mutiny_mo()) {
         if (french_mutiny_penalty_should_be_awarded()) {
             game.vp += 1
             record_score_event(1, FRENCH_MUTINY)
             log_h3(`${card_name(FRENCH_MUTINY)} -- +1 VP -- French unit not stacked with US unit attacked a space in France/Belgium/Germany during French Mutiny`)
             game[active_faction()].mo = NONE
-            game.ap.missed_mo.push(game.turn) //BR// This should be marked on track as a missed MO (unless we make special FR Mutiny counters, in which case those)
+            game.ap.missed_mo.push(game.turn) //BR// This should be marked on the turn track as a missed MO (unless we later make special FR Mutiny counters, in which case use those)
         }
     }
 
