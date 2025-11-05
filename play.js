@@ -1549,10 +1549,10 @@ function update_activation_markers(stack, activation_type, space) {
     let num_markers = view.activation_cost ? map_get(view.activation_cost, space, 1) : 1;
     if (!markers[activation_type].find(e => e.space_id === space)) {
         for (let i = 0; i < num_markers; i++) {
-            unshift_stack(stack, build_activation_marker(s, activation_type))
+            unshift_stack(stack, build_activation_marker(space, activation_type))
         }
     } else {
-        markers[activation_type].filter(e => e.space_id === space).forEach(e => { unshift_stack(stack, e) })
+        markers[activation_type].filter(e => e.space_id === space).forEach(e => { unshift_stack(stack, e.element) })
     }
 }
 
