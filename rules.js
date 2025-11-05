@@ -3084,11 +3084,13 @@ function update_us_entry() {
     const previous_level = game.us_entry
     if (game.events.over_there > 0) {
         game.us_entry = 3
+        if (previous_level < 2) log_h3(`US Commitment Track has reached ${card_name(OVER_THERE)}!`) // (The ! is verbatim from the playing board)
     } else if (game.events.zimmermann_telegram > 0) {
         game.us_entry = 2
+        if (previous_level < 2) log_h3(`US Commitment Track has reached ${card_name(ZIMMERMANN_TELEGRAM)}`)
     } else if (events.zimmermann_telegram.can_play()) {
         game.us_entry = 1
-        if (previous_level < 1) log(`${card_name(ZIMMERMANN_TELEGRAM)} can now be played`)
+        if (previous_level < 1) log_h3(`US Commitment: ${card_name(ZIMMERMANN_TELEGRAM)} can now be played`)
     } else {
         game.us_entry = 0
     }
