@@ -955,12 +955,9 @@ ui.ap_mo = build_unique_marker("marker ap mandatory_offensive", 45)
 ui.cp_mo = build_unique_marker("marker cp mandatory_offensive", 45)
 
 function build_marker(list, find, new_marker, info, no_listeners) {
-    let marker = null;
-    if (find) {
-        marker = list.find(find)
-        if (marker)
-            return marker.element
-    }
+    let marker = list.find(find)
+    if (marker)
+        return marker.element
 
     marker = new_marker
     marker.name = info.name
@@ -992,11 +989,11 @@ function destroy_marker(list, find) {
     } while (ix >= 0)
 }
 
-function build_activation_marker(space_id, activation_type) {
+function build_activation_marker(space_id, activation_type, ix) {
     return build_marker(
         markers[activation_type],
-        false,
-        {space_id: space_id},
+        e => e.space_id === space_id && e.ix === ix,
+        {space_id: space_id, ix: ix },
         marker_info[activation_type]
     )
 }
@@ -1530,30 +1527,25 @@ function update_space(s) {
     }
 
     if (view.activated.move.includes(s)) {
-        update_activation_markers( stack,'move', s)
+        let markers = view.activation_cost ? map_get(view.activation_cost, s, 1) : 1;
+        for (let i = 0; i < markers; i++) {
+            unshift_stack(stack, build_activation_marker(s, 'move', i))
+        }
     } else {
         destroy_activation_marker(s, 'move')
     }
 
     if (view.activated.attack.includes(s)) {
-        update_activation_markers( stack,'attack', s)
+        let markers = view.activation_cost ? map_get(game.activation_cost, s, 1) : 1;
+        for (let i = 0; i < markers; i++) {
+            unshift_stack(stack, build_activation_marker(s, 'attack'))
+        }
     } else {
         destroy_activation_marker(s, 'attack')
     }
 
     layout_stack(stack, xc, yc)
     update_space_highlight(s)
-}
-
-function update_activation_markers(stack, activation_type, space) {
-    let num_markers = view.activation_cost ? map_get(view.activation_cost, space, 1) : 1;
-    if (!markers[activation_type].find(e => e.space_id === space)) {
-        for (let i = 0; i < num_markers; i++) {
-            unshift_stack(stack, build_activation_marker(space, activation_type))
-        }
-    } else {
-        markers[activation_type].filter(e => e.space_id === space).forEach(e => { unshift_stack(stack, e.element) })
-    }
 }
 
 function is_neutral(p) {
