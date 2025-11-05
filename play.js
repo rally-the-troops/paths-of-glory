@@ -699,12 +699,13 @@ function on_click_space(evt) {
         if (view.actions && view.actions.space && view.actions.space.includes(space)) {
             if (send_action('space', space))
                 event.stopPropagation()
-        } else if (view.actions && (view.actions.activate_move || view.actions.activate_attack || view.actions.deactivate)) {
+        } else if (view.actions && (view.actions.activate_move || view.actions.activate_attack || view.actions.activate_attack_mutiny || view.actions.deactivate)) {
             let options = activation_menu_options.filter((option) => {
                 return view.actions[option] && view.actions[option].includes(space)
             })
             if (options.length > 0) {
-                show_popup_menu(evt, "activation_popup", space, spaces[space].name)
+                let hide = (view.actions.activate_attack_mutiny && view.actions.activate_attack_mutiny.includes(space)) ? 'activate_attack' : 'activate_attack_mutiny'
+                show_popup_menu(evt, "activation_popup", space, spaces[space].name, hide)
             }
         }
     }
@@ -713,6 +714,7 @@ function on_click_space(evt) {
 const activation_menu_options = [
     'activate_move',
     'activate_attack',
+    'activate_attack_mutiny',
     'deactivate'
 ]
 
@@ -863,26 +865,35 @@ function on_blur_card(evt) {
 
 let card_action_menu = Array.from(document.getElementById("card_popup").querySelectorAll("li[data-action]")).map(e => e.dataset.action)
 
-function show_popup_menu(evt, menu_id, target_id, title) {
+function show_popup_menu(evt, menu_id, target_id, title, hide = '') {
     let menu = document.getElementById(menu_id)
 
     let show = false
     for (let item of menu.querySelectorAll("li")) {
         let action = item.dataset.action
         if (action) {
-            if (is_action(action, target_id)) {
-                show = true
-                item.classList.add("action")
-                item.classList.remove("disabled")
-                item.onclick = function () {
-                    send_action(action, target_id)
-                    hide_popup_menu()
-                    evt.stopPropagation()
+            if (action === hide) {
+              item.classList.remove("action")
+              item.classList.add("hide")
+              item.onclick = null
+            }
+            else {
+                if (is_action(action, target_id)) {
+                    show = true
+                    item.classList.add("action")
+                    item.classList.remove("disabled")
+                    item.classList.remove("hide")
+                    item.onclick = function() {
+                      send_action(action, target_id)
+                      hide_popup_menu()
+                      evt.stopPropagation()
+                    }
+                } else {
+                    item.classList.remove("action")
+                    item.classList.remove("hide")
+                    item.classList.add("disabled")
+                    item.onclick = null
                 }
-            } else {
-                item.classList.remove("action")
-                item.classList.add("disabled")
-                item.onclick = null
             }
         }
     }
@@ -1750,6 +1761,9 @@ function should_highlight_space(s) {
     if (view.actions.activate_attack && view.actions.activate_attack.includes(s))
         return true
 
+    if (view.actions.activate_attack_mutiny && view.actions.activate_attack_mutiny.includes(s))
+        return true;
+
     if (view.actions.deactivate && view.actions.deactivate.includes(s))
         return true
 
@@ -2331,6 +2345,9 @@ function update_map() {
     confirm_action_button("confirm_pass_attack", "Pass",
         "You still have units eligible to attack!\nDo you still want to PASS?"
     )
+
+    confirm_action_button("confirm_mutiny_attack", "Attack",
+        "1 VP French Mutiny penalty will be applied!\nDo you still want to Attack?")
 
     action_button("pass", "Pass")
 
