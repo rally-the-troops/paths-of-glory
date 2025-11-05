@@ -955,9 +955,12 @@ ui.ap_mo = build_unique_marker("marker ap mandatory_offensive", 45)
 ui.cp_mo = build_unique_marker("marker cp mandatory_offensive", 45)
 
 function build_marker(list, find, new_marker, info, no_listeners) {
-    let marker = list.find(find)
-    if (marker)
-        return marker.element
+    let marker = null;
+    if (find) {
+        marker = list.find(find)
+        if (marker)
+            return marker.element
+    }
 
     marker = new_marker
     marker.name = info.name
@@ -992,7 +995,7 @@ function destroy_marker(list, find) {
 function build_activation_marker(space_id, activation_type) {
     return build_marker(
         markers[activation_type],
-        e => e.space_id === space_id,
+        false,
         {space_id: space_id},
         marker_info[activation_type]
     )
@@ -1527,7 +1530,7 @@ function update_space(s) {
     }
 
     if (view.activated.move.includes(s)) {
-        let markers = view.activation_cost ? map_get(game.activation_cost, s, 1) : 1;
+        let markers = view.activation_cost ? map_get(view.activation_cost, s, 1) : 1;
         for (let i = 0; i < markers; i++) {
             unshift_stack(stack, build_activation_marker(s, 'move'))
         }
@@ -1536,7 +1539,7 @@ function update_space(s) {
     }
 
     if (view.activated.attack.includes(s)) {
-        let markers = view.activation_cost ? map_get(game.activation_cost, s, 1) : 1;
+        let markers = view.activation_cost ? map_get(view.activation_cost, s, 1) : 1;
         for (let i = 0; i < markers; i++) {
             unshift_stack(stack, build_activation_marker(s, 'attack'))
         }

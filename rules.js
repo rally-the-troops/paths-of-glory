@@ -441,7 +441,6 @@ function query_cards(state, faction) {
 exports.view = function(state, current) {
     game = state
     update_supply_if_missing()
-    if (!game.activation_cost) game.activation_cost = [];
 
     view = {
         active: game.active,
