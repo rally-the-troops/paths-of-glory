@@ -4892,7 +4892,7 @@ function replace_defender_unit(unit, location, replacement) {
     game.location[replacement] = location
     game.attack.defender_replacements[unit] = replacement
     logi(`${piece_name(unit, true)} broke to ${piece_name(replacement)}${log_corps(replacement)}`)
-    check_rb_empty(replacement);
+    check_rb_empty(replacement)
 }
 
 states.withdrawal_negate_step_loss = {
@@ -5081,7 +5081,7 @@ states.choose_attacker_replacement = {
 
 function replace_attacker_unit(unit, location, replacement) {
     logi(`${piece_name(unit, true)} broke to ${piece_name(replacement)}${log_corps(replacement)}`)
-    check_rb_empty(replacement);
+    check_rb_empty(replacement)
     set_add(game.attack.pieces, replacement)
     game.location[replacement] = location
 }
@@ -5561,6 +5561,7 @@ states.choose_retreat_canceling_replacement = {
 function replace_retreat_canceling_unit(unit, location, replacement) {
     game.location[replacement] = location
     logi(`${piece_name(unit, true)} in ${space_name(location)} broke to ${piece_name(replacement)}${log_corps(replacement)}`)
+    check_rb_empty(replacement)
 }
 
 function goto_defender_retreat() {
