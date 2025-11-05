@@ -1952,6 +1952,20 @@ states.action_phase = {
             if (player_actions.length === 5 && game[active_faction()].mo !== NONE && !french_mutiny_active)
                 view.prompt += ` Final round for ${nation_name(game[active_faction()].mo)} mandated offensive!`
 
+            if (active_faction() === CP) {
+                if ((game.vp <= 0) && player_actions.length === 5) {
+                    view.prompt += ` Final round to avoid AP autovictory (VP is 0)!`
+                } else if (game.vp <= 2) {
+                    view.prompt += ` CAUTION: VP total now ${game.vp}.`
+                }
+            } else {
+                if ((game.vp >= 20) && player_actions.length === 5) {
+                    view.prompt += ` Final round to avoid CP autovictory (VP is ${game.vp})!`
+                } else if (game.vp >= 18) {
+                    view.prompt += ` CAUTION: VP total now ${game.vp}.`
+                }
+            }
+
             for(let card of player_hand) {
                 gen_card_menu(card)
             }
