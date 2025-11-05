@@ -2835,17 +2835,9 @@ states.activate_spaces = {
             if ((active_faction() === AP) && is_french_mutiny_mo()) {
                 const nation = data.spaces[s].nation
                 if ((nation === FRANCE || nation === BELGIUM || nation === GERMANY)) {
-                    let any_us = false
-                    for (let p = 1; p < data.pieces.length; ++p) {
-                        if (data.pieces[p].nation === US) {
-                            if (game.location[p] === s) {
-                                any_us = true;
-                                break;
-                            }
-                        }
-                    }
+                    let any_us = all_pieces_by_nation[US].some(p => game.location[p] === s)
                     if (!any_us) {
-                        if (get_pieces_in_space(s).filter((p) => data.pieces[p].nation === FRANCE).length > 0) {
+                        if (all_pieces_by_nation[FRANCE].some(p => game.location[p] === s)) {
                             menu_action = "activate_attack_mutiny";
                         }
                     }
@@ -3952,7 +3944,7 @@ function goto_attack() {
         if (french_mutiny_penalty_should_be_awarded()) {
             game.vp += 1
             record_score_event(1, FRENCH_MUTINY)
-            log_h3(`${card_name(FRENCH_MUTINY)} -- +1 VP -- French unit attacked without US stacking after French Mutiny`)
+            log_h3(`${card_name(FRENCH_MUTINY)} -- +1 VP -- French unit not stacked with US unit attacked a space in France/Belgium/Germany during French Mutiny`)
             game[active_faction()].mo = NONE
             game.ap.missed_mo.push(game.turn) //BR// This should be marked on track as a missed MO (unless we make special FR Mutiny counters, in which case those)
         }
