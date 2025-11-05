@@ -1530,29 +1530,30 @@ function update_space(s) {
     }
 
     if (view.activated.move.includes(s)) {
-        let num_markers = view.activation_cost ? map_get(view.activation_cost, s, 1) : 1;
-        if (!markers['move'].find(e => e.space_id === s)) {
-            for (let i = 0; i < num_markers; i++) {
-                unshift_stack(stack, build_activation_marker(s, 'move'))
-            }
-        }
+        update_activation_markers( stack,'move', s)
     } else {
         destroy_activation_marker(s, 'move')
     }
 
     if (view.activated.attack.includes(s)) {
-        let num_markers = view.activation_cost ? map_get(view.activation_cost, s, 1) : 1;
-        if (!markers['attack'].find(e => e.space_id === s)) {
-            for (let i = 0; i < num_markers; i++) {
-                unshift_stack(stack, build_activation_marker(s, 'attack'))
-            }
-        }
+        update_activation_markers( stack,'attack', s)
     } else {
         destroy_activation_marker(s, 'attack')
     }
 
     layout_stack(stack, xc, yc)
     update_space_highlight(s)
+}
+
+function update_activation_markers(stack, activation_type, space) {
+    let num_markers = view.activation_cost ? map_get(view.activation_cost, space, 1) : 1;
+    if (!markers[activation_type].find(e => e.space_id === space)) {
+        for (let i = 0; i < num_markers; i++) {
+            unshift_stack(stack, build_activation_marker(s, activation_type))
+        }
+    } else {
+        markers[activation_type].filter(e => e.space_id === space).forEach(e => { unshift_stack(stack, e) })
+    }
 }
 
 function is_neutral(p) {
