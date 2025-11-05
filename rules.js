@@ -1544,6 +1544,7 @@ const CP_MO_TABLE = {
 
 function roll_mandated_offensives() {
     let ap_roll = roll_die(6)
+
     let ap_index = ap_roll
     let ap_mo = AP_MO_TABLE[ap_index]
 
@@ -1603,7 +1604,7 @@ function roll_mandated_offensives() {
 
     let ap_string = nation_name(ap_mo);
     if ((ap_mo == FRANCE) && (game.events.french_mutiny > 0)) {
-        ap_string = "French mutiny";
+        ap_string = "French Mutiny";
     }
 
     log(`Mandated offensives:`)
@@ -1690,7 +1691,7 @@ states.confirm_mo = {
         if (game[active_faction()].mo === NONE)
             view.prompt = `Turn ${game.turn}: No mandated offensive.`
         else if (game.events.french_mutiny > 0 && game[active_faction()].mo === FRANCE)
-            view.prompt = `Turn ${game.turn}: French mutiny (Mandated offensive for ${nation_name(game[active_faction()].mo)}).`
+            view.prompt = `Turn ${game.turn}: ${card_name(FRENCH_MUTINY)}.`
         else
             view.prompt = `Turn ${game.turn}: Mandated offensive for ${nation_name(game[active_faction()].mo)}.`
         gen_action_next()
@@ -2831,13 +2832,13 @@ states.activate_spaces = {
             gen_action("activate_move", s)
 
         for (let s of attack_spaces) {
-            let menu_action = "activate_attack";
+            let menu_action = "activate_attack"
             if ((active_faction() === AP) && is_french_mutiny_mo()) {
                 const nation = data.spaces[s].nation
                 if ((nation === FRANCE || nation === BELGIUM || nation === GERMANY)) {
                     if (all_pieces_by_nation[FRANCE].some(p => game.location[p] === s) &&
                         !all_pieces_by_nation[US].some(p => game.location[p] === s)) {
-                        menu_action = "activate_attack_mutiny";
+                        menu_action = "activate_attack_mutiny"
                     }
                 }
             }

@@ -704,7 +704,7 @@ function on_click_space(evt) {
                 return view.actions[option] && view.actions[option].includes(space)
             })
             if (options.length > 0) {
-                let hide = (!view.actions.activate_attack_mutiny || view.actions.activate_attack_mutiny.includes(space)) ? 'activate_attack' : 'activate_attack_mutiny'
+                let hide = (view.actions.activate_attack_mutiny && view.actions.activate_attack_mutiny.includes(space)) ? 'activate_attack' : 'activate_attack_mutiny'
                 show_popup_menu(evt, "activation_popup", space, spaces[space].name, hide)
             }
         }
