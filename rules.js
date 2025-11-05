@@ -3941,10 +3941,10 @@ function goto_attack() {
     if (game.attack.attacker === AP && is_french_mutiny_mo()) {
         if (french_mutiny_penalty_should_be_awarded()) {
             game.vp += 1
-            record_score_event(1, FRENCH_MUTINY)
             log_h3(`${card_name(FRENCH_MUTINY)} -- +1 VP -- French unit not stacked with US unit attacked a space in France/Belgium/Germany during French Mutiny`)
             game[active_faction()].mo = NONE
-            game.ap.missed_mo.push(game.turn) //BR// This should be marked on the turn track as a missed MO (unless we later make special FR Mutiny counters, in which case use those)
+            game.ap.missed_mo.push(game.turn)      //BR// This should be marked on the turn track as a missed MO (unless we later make special FR Mutiny counters, in which case use those)
+            //record_score_event(1, FRENCH_MUTINY) //BR// Now covered in score summary by the missed MO marker
         }
     }
 
