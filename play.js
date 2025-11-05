@@ -1600,8 +1600,11 @@ function update_reserve_boxes() {
 
         const nation = pieces[p].nation
         const space = pieces[p].faction === CP ? cp_space : ap_space
-        const nation_stack = get_reserve_box_stack(nation)
-        let stack = view.reduced.includes(p) ? space.stacks[nation_stack].reduced : space.stacks[nation_stack].full
+        let which_stack = get_reserve_box_stack(nation)
+        if (pieces[p].rptype === 'allied') {
+            which_stack = MINOR; //BR// Put the BR minor allies in the stack where their RPs come from (also helps avoid player error thinking BR has plenty of Reserve Corps when it actually has none)
+        }
+        let stack = view.reduced.includes(p) ? space.stacks[which_stack].reduced : space.stacks[which_stack].full
         if (is_corps)
             unshift_stack(stack, pe)
         else
