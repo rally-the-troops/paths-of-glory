@@ -4892,6 +4892,7 @@ function replace_defender_unit(unit, location, replacement) {
     game.location[replacement] = location
     game.attack.defender_replacements[unit] = replacement
     logi(`${piece_name(unit, true)} broke to ${piece_name(replacement)}${log_corps(replacement)}`)
+    check_rb_empty(replacement);
 }
 
 states.withdrawal_negate_step_loss = {
@@ -5080,6 +5081,7 @@ states.choose_attacker_replacement = {
 
 function replace_attacker_unit(unit, location, replacement) {
     logi(`${piece_name(unit, true)} broke to ${piece_name(replacement)}${log_corps(replacement)}`)
+    check_rb_empty(replacement);
     set_add(game.attack.pieces, replacement)
     game.location[replacement] = location
 }
@@ -5175,6 +5177,23 @@ function get_reserve_units_by_nation(nation) {
         }
     }
     return `(${full},${reduced})`
+}
+
+function check_rb_empty(replacement) {
+    let nation = data.pieces[replacement].nation
+    let reduced = 0, full = 0
+    for (let p of all_pieces_by_nation[nation]) {
+        if (game.location[p] === AP_RESERVE_BOX || game.location[p] === CP_RESERVE_BOX) {
+            if (is_unit_reduced(p))
+                ++reduced
+            else
+                ++full
+        }
+    }
+
+    if ((full <= 0) && (reduced <= 0)) {
+        log (`*Reserve Box EMPTY for ${nation_name(nation)}!`)
+    }
 }
 
 // Recursively build a tree of possible options for choosing losses
