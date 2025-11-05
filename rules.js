@@ -1603,7 +1603,7 @@ function roll_mandated_offensives() {
 
     let ap_string = nation_name(ap_mo);
     if ((ap_mo == FRANCE) && (game.events.french_mutiny > 0)) {
-      ap_string = "French mutiny";
+        ap_string = "French mutiny";
     }
 
     log(`Mandated offensives:`)
@@ -2835,23 +2835,20 @@ states.activate_spaces = {
             if ((active_faction() === AP) && is_french_mutiny_mo()) {
                 const nation = data.spaces[s].nation
                 if ((nation === FRANCE || nation === BELGIUM || nation === GERMANY)) {
-                  let any_us = false
-                  for (let p = 1; p < data.pieces.length; ++p) {
-                    if (data.pieces[p].nation === US) {
-                      if (game.location[p] === s) {
-                        any_us = true;
-                        break;
-                      }
+                    let any_us = false
+                    for (let p = 1; p < data.pieces.length; ++p) {
+                        if (data.pieces[p].nation === US) {
+                            if (game.location[p] === s) {
+                                any_us = true;
+                                break;
+                            }
+                        }
                     }
-                  }
-                  if (!any_us) {
-                    if (get_pieces_in_space(s).filter((p) => data.pieces[p].nation === FRANCE).length > 0) {
-                      menu_action = "activate_attack_mutiny";
+                    if (!any_us) {
+                        if (get_pieces_in_space(s).filter((p) => data.pieces[p].nation === FRANCE).length > 0) {
+                            menu_action = "activate_attack_mutiny";
+                        }
                     }
-                  }
-
-                  /////
-
                 }
             }
             gen_action(menu_action, s)
@@ -3903,14 +3900,14 @@ states.confirm_attack = {
     prompt() {
       view.prompt = `Attack ${space_name(game.attack.space)} with ${piece_list(game.attack.pieces)} at ${fmt_attack_odds()}?`
       if (french_mutiny_penalty_should_be_awarded()) {
-        view.prompt += ' (1 VP penalty for French Mutiny will be applied)'
+          view.prompt += ' (1 VP penalty for French Mutiny will be applied)'
       }
       view.where = game.attack.space
       if (french_mutiny_penalty_should_be_awarded()) {
-            gen_action('confirm_mutiny_attack')
-        } else {
-            gen_action('attack')
-        }
+          gen_action('confirm_mutiny_attack')
+      } else {
+          gen_action('attack')
+      }
     },
     confirm_mutiny_attack() {
         this.attack();
@@ -3951,6 +3948,16 @@ function goto_attack() {
         update_russian_ne_restriction_flag(game.attack.pieces, source, game.attack.space)
     })
 
+    if (game.attack.attacker === AP && is_french_mutiny_mo()) {
+        if (french_mutiny_penalty_should_be_awarded()) {
+            game.vp += 1
+            record_score_event(1, FRENCH_MUTINY)
+            log_h3(`${card_name(FRENCH_MUTINY)} -- +1 VP -- French unit attacked without US stacking after French Mutiny`)
+            game[active_faction()].mo = NONE
+            game.ap.missed_mo.push(game.turn) //BR// This should be marked on track as a missed MO (unless we make special FR Mutiny counters, in which case those)
+        }
+    }
+
     log_attack(`${space_name(game.attack.space)}`)
     log(`Attackers:`)
     attack_sources.forEach((source) => {
@@ -3971,14 +3978,7 @@ function goto_attack() {
 
     const mo = active_faction() === AP ? game.ap.mo : game.cp.mo
 
-    if (game.attack.attacker === AP && is_french_mutiny_mo()) {
-        if (french_mutiny_penalty_should_be_awarded()) {
-            game.vp += 1
-            record_score_event(1, FRENCH_MUTINY)
-            log(`+1 VP -- French unit attacked without US stacking after French Mutiny`)
-            game[active_faction()].mo = NONE
-        }
-    } else if (mo !== NONE && satisfies_mo(mo, game.attack.pieces, defenders, game.attack.space)) {
+    if (mo !== NONE && ((game.attack.attacker !== AP) || !is_french_mutiny_mo()) && satisfies_mo(mo, game.attack.pieces, defenders, game.attack.space)) {
         game[active_faction()].mo = NONE
         log(`*Mandated offensive satisfied!`)
     }
