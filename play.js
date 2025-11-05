@@ -1552,25 +1552,14 @@ function is_neutral(p) {
     }
 }
 
-function get_reserve_box_stack(nation) {
-    switch (nation) {
-        case ITALY:
-            return ITALY
-        case BRITAIN:
-            return BRITAIN
-        case FRANCE:
-            return FRANCE
-        case RUSSIA:
-            return RUSSIA
-        case GERMANY:
-            return GERMANY
-        case AUSTRIA_HUNGARY:
-            return AUSTRIA_HUNGARY
-        case TURKEY:
-            return TURKEY
-        default:
-            return MINOR
+function get_reserve_box_stack(nation, p) {
+    if (pieces[p].rptype === 'allied') {
+        return MINOR //BR// Put the BR minor allies in the stack where their RPs come from (also helps avoid player error thinking BR has plenty of Reserve Corps when it actually has none)
     }
+    if ((nation === ITALY) || (nation === BRITAIN) || (nation === FRANCE) || (nation === RUSSIA) || (nation === GERMANY) || (nation === AUSTRIA_HUNGARY) || (nation === TURKEY)) {
+        return nation
+    }
+    return MINOR
 }
 
 function update_reserve_boxes() {
@@ -1600,10 +1589,7 @@ function update_reserve_boxes() {
 
         const nation = pieces[p].nation
         const space = pieces[p].faction === CP ? cp_space : ap_space
-        let which_stack = get_reserve_box_stack(nation)
-        if (pieces[p].rptype === 'allied') {
-            which_stack = MINOR; //BR// Put the BR minor allies in the stack where their RPs come from (also helps avoid player error thinking BR has plenty of Reserve Corps when it actually has none)
-        }
+        const which_stack = get_reserve_box_stack(nation, p)
         let stack = view.reduced.includes(p) ? space.stacks[which_stack].reduced : space.stacks[which_stack].full
         if (is_corps)
             unshift_stack(stack, pe)
