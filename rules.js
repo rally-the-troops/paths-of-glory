@@ -441,6 +441,7 @@ function query_cards(state, faction) {
 exports.view = function(state, current) {
     game = state
     update_supply_if_missing()
+    if (!game.activation_cost) game.activation_cost = [];
 
     view = {
         active: game.active,
@@ -2779,6 +2780,11 @@ function goto_activate_spaces() {
     game.activation_cost = [];
 }
 
+function push_activation_cost(space, cost) {
+    if (!game.activation_cost) game.activation_cost = [];
+    map_set(game.activation_cost, space, cost);
+}
+
 states.activate_spaces = {
     inactive: "activate spaces",
     prompt() {
@@ -2841,7 +2847,7 @@ states.activate_spaces = {
         set_add(game.activated.move, s)
         let cost = cost_to_activate(s, MOVE)
         game.ops -= cost
-        game.activation_cost.push({ space: s, cost: cost })
+        push_activation_cost(s, cost)
         if (!game.sud_army_space && is_possible_sud_army_stack(get_pieces_in_space(s))) {
             game.sud_army_space = s
         }
@@ -2853,7 +2859,7 @@ states.activate_spaces = {
         set_add(game.activated.attack, s)
         let cost = cost_to_activate(s, ATTACK)
         game.ops -= cost
-        game.activation_cost.push({ space: s, cost: cost })
+        push_activation_cost(s, cost)
         if (!game.sud_army_space && is_possible_sud_army_stack(get_pieces_in_space(s))) {
             game.sud_army_space = s
         }
