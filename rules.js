@@ -4958,7 +4958,7 @@ states.withdrawal_negate_step_loss_confirm = {
     }
 }
 
-function eliminate_piece(p, force_permanent_elimination) {
+function eliminate_piece(p, force_permanent_elimination, reason) {
     let here = ""
     if (!game.attack)
     // if (!game.attack || game.attack.space !== game.location[p]) // TODO - log location of attacker losses
@@ -4983,7 +4983,18 @@ function eliminate_piece(p, force_permanent_elimination) {
     let replacement_options = get_replacement_options(p, get_units_in_reserve())
     if (force_permanent_elimination || replacement_options.length === 0 || data.pieces[p].notreplaceable || !is_unit_supplied(p)) {
         // Permanently eliminate piece
-        log(`>*${piece_name(p)}${here} permanently eliminated`)
+        if (!reason && !data.pieces[p].notreplaceable) {
+            if (replacement_options.length === 0) {
+                reason = 'no replacement corps available in Reserve Box'
+            } else if (!is_unit_supplied(p)) {
+                reason = 'eliminated while out of supply'
+            }
+        }
+        if (reason && reason !== "") {
+            log(`>*${piece_name(p)}${here} permanently eliminated - ${reason}`)
+        } else {
+            log(`>*${piece_name(p)}${here} permanently eliminated`)
+        }
         set_add(game.removed, p)
         game.location[p] = 0
         return replacement_options
@@ -5595,7 +5606,7 @@ states.defender_retreat = {
             let options_for_piece = get_retreat_options([p], game.location[p], game.attack.retreat_length - game.attack.retreat_path.length)
             if (options_for_piece.length > 0)
                 continue // Only eliminate pieces that have no valid retreat options
-            eliminate_piece(p, true)
+            eliminate_piece(p, true, 'failure to retreat')
             eliminated.push(p)
             // 12.4.7, section 2
             // When an army is replaced by a corps and then that corps cannot fulfill a mandatory retreat, the army is
@@ -5605,7 +5616,7 @@ states.defender_retreat = {
                 if (replacement === p) {
                     let replaced_piece = parseInt(replaced)
                     if (!set_has(game.removed, replaced_piece))
-                        eliminate_piece(parseInt(replaced), true)
+                        eliminate_piece(parseInt(replaced), true, 'failure to retreat')
                 }
             }
         }
@@ -8796,7 +8807,7 @@ states.great_retreat = {
     },
     eliminate() {
         push_undo()
-        eliminate_piece(game.attack.great_retreat, true)
+        eliminate_piece(game.attack.great_retreat, true, 'failure to retreat')
         game.attack.great_retreat = 0
     },
     done() {
