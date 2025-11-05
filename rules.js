@@ -1090,7 +1090,7 @@ function is_optional_card(c) {
 }
 
 function is_base_deck(i) {
-    return !is_optional_card(i);
+    return !is_optional_card(i)
 }
 
 function is_valiant_deck(i) {
@@ -2856,7 +2856,7 @@ states.activate_spaces = {
             start_action_round()
     },
     activate_attack_mutiny(s) {
-        this.activate_attack(s);
+        this.activate_attack(s)
     },
     activate_attack(s) {
         push_undo()
@@ -3120,12 +3120,12 @@ function update_russian_capitulation() {
     if (game.events.treaty_of_brest_litovsk > 0) {
         game.russian_capitulation = 7
         if (previous_level < 7) {
-          log_h3(`Russian Capitulation Track reaches ${card_name(TREATY_OF_BREST_LITOVSK)}`)
+            log_h3(`Russian Capitulation Track reaches ${card_name(TREATY_OF_BREST_LITOVSK)}`)
         }
     } else if (game.events.bolshevik_revolution > 0) {
         game.russian_capitulation = 6
         if (previous_level < 6) {
-          log_h3(`Russian Capitulation Track reaches ${card_name(BOLSHEVIK_REVOLUTION)}`)
+            log_h3(`Russian Capitulation Track reaches ${card_name(BOLSHEVIK_REVOLUTION)}`)
         }
     } else if (events.bolshevik_revolution.can_play()) {
         game.russian_capitulation = 5
@@ -3133,9 +3133,9 @@ function update_russian_capitulation() {
     } else if (game.events.fall_of_the_tsar > 0) {
         game.russian_capitulation = 4
         if (previous_level > 4) {
-          log_h3(`Russian Capitulation: ${card_name(BOLSHEVIK_REVOLUTION)} can no longer be played`)
+            log_h3(`Russian Capitulation: ${card_name(BOLSHEVIK_REVOLUTION)} can no longer be played`)
         } else if (previous_level < 4) {
-          log_h3(`Russian Capitulation Track reaches ${card_name(FALL_OF_THE_TSAR)}`)
+            log_h3(`Russian Capitulation Track reaches ${card_name(FALL_OF_THE_TSAR)}`)
         }
     } else if (events.fall_of_the_tsar.can_play()) {
         game.russian_capitulation = 3
@@ -3143,9 +3143,9 @@ function update_russian_capitulation() {
     } else if (game.events.tsar_takes_command > 0) {
         game.russian_capitulation = 2
         if (previous_level > 2) {
-          log_h3(`Russian Capitulation: ${card_name(FALL_OF_THE_TSAR)} can no longer be played`)
+            log_h3(`Russian Capitulation: ${card_name(FALL_OF_THE_TSAR)} can no longer be played`)
         } else if (previous_level < 2) {
-          log_h3(`Russian Capitulation Track reaches ${card_name(TSAR_TAKES_COMMAND)}`)
+            log_h3(`Russian Capitulation Track reaches ${card_name(TSAR_TAKES_COMMAND)}`)
         }
     } else if (events.tsar_takes_command.can_play()) {
         game.russian_capitulation = 1
@@ -3889,16 +3889,16 @@ function fmt_attack_odds() {
 states.confirm_attack = {
     inactive: 'attack',
     prompt() {
-      view.prompt = `Attack ${space_name(game.attack.space)} with ${piece_list(game.attack.pieces)} at ${fmt_attack_odds()}?`
-      if (french_mutiny_penalty_should_be_awarded()) {
-          view.prompt += ' (1 VP penalty for French Mutiny will be applied)'
-      }
-      view.where = game.attack.space
-      if (french_mutiny_penalty_should_be_awarded()) {
-          gen_action('confirm_mutiny_attack')
-      } else {
-          gen_action('attack')
-      }
+        view.prompt = `Attack ${space_name(game.attack.space)} with ${piece_list(game.attack.pieces)} at ${fmt_attack_odds()}?`
+        if (french_mutiny_penalty_should_be_awarded()) {
+            view.prompt += ' (1 VP penalty for French Mutiny will be applied)'
+        }
+        view.where = game.attack.space
+        if (french_mutiny_penalty_should_be_awarded()) {
+            gen_action('confirm_mutiny_attack')
+        } else {
+            gen_action('attack')
+        }
     },
     confirm_mutiny_attack() {
         this.attack()
@@ -8241,7 +8241,7 @@ events.bolshevik_revolution = {
     play() {
         game.events.bolshevik_revolution = game.turn
         if (game.ap.mo === RUSSIA) {
-          game.ap.mo = NONE
+            game.ap.mo = NONE
         }
 
         game.ops = data.cards[BOLSHEVIK_REVOLUTION].ops
