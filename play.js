@@ -302,7 +302,8 @@ function propose_rollback() {
     let form = document.getElementById('propose_rollback_form')
     form.checkpoint.innerHTML = ""
     view.rollback.forEach((rollback, i) => {
-        form.checkpoint.add(new Option(rollback.name, i))
+        form.checkpoint.add(new Option(rollback.name, i), 0)
+        form.checkpoint.value = i;
     })
     update_rollback_dialog()
     document.getElementById('propose_rollback_dialog').showModal()
