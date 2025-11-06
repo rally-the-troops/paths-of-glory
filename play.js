@@ -1875,6 +1875,8 @@ function update_turn_track() {
         "br2",
         "mef",
         "allenby",
+        "grand_fleet",
+        "over_there",
 
         // cp markers with no printed counter
         "guns_of_august",

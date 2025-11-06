@@ -9005,6 +9005,7 @@ events.grand_fleet = {
         return game.events.high_seas_fleet > 0
     },
     play() {
+        game.events.grand_fleet = game.turn
         delete game.events.high_seas_fleet
         goto_end_event()
     }

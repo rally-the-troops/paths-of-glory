@@ -102,6 +102,8 @@
 .marker.bolshevik_revolution::before { content:"Bolshevik Revolution"; }
 .marker.treaty_of_brest_litovsk::before { content:"Treaty of Brest Litovsk"; }
 .marker.french_mutiny::before { content:"French Mutiny"; }
+.marker.over_there::before { content:"Over There"; }
+.marker.grand_fleet::before { content:"Grand Fleet"; }
 
 .marker.italy::before { content:"Italy"; }
 .marker.romania::before { content:"Romania"; }
