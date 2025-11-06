@@ -433,7 +433,24 @@ function show_score_summary() {
             p.innerHTML = `${label}: ${value > 0 ? '+' : ''}${value}`
             dl.appendChild(p)
         }
+
+        let append_value = (label, value) => {
+            let p = document.createElement("dd")
+            p.className = "score_row"
+            p.innerHTML = `${label}: ${value}`
+            dl.appendChild(p)
+        }
+
+        let append_string = (label) => {
+            let p = document.createElement("dd")
+            p.className = "score_row"
+            p.innerHTML = `${label}`
+            dl.appendChild(p)
+        }
+
         body.appendChild(dl)
+
+        let current_score = 10;
 
         // Captured spaces
         let ap_captured = []
@@ -449,11 +466,17 @@ function show_score_summary() {
         append_header(`AP Captured (-${ap_captured.length})`)
         ap_captured.forEach((s) => { append_score(sub_space_name('', s), -spaces[s].vp) })
 
+        current_score += cp_captured.length
+        current_score -= ap_captured.length
+
         // Missed MOs
         append_header(`CP Missed MOs (-${view.cp.missed_mo.length})`)
         view.cp.missed_mo.forEach((turn) => { append_score(`Turn ${turn}`, -1) })
         append_header(`AP Missed MOs (+${view.ap.missed_mo.length})`)
         view.ap.missed_mo.forEach((turn) => { append_score(`Turn ${turn}`, 1) })
+
+        current_score -= view.cp.missed_mo.length
+        current_score += view.ap.missed_mo.length
 
         // Score events
         const score_events = view.score_events || []
@@ -463,17 +486,56 @@ function show_score_summary() {
             append_score(`Turn ${score_event[0]}: ${score_event.length > 2 ? sub_card_name('', score_event[2]) : ''}`, score_event[1])
         })
 
+        current_score += event_total
+
         // Bid
         // TODO
 
+        let endgame_score = current_score
+
         // Historical Scenario VPs that would score if the scenario ended by armistice or at turn 20
         append_header(`Historical Scenario End Game VPs`)
-        if (!view.events.reinforcements || !view.events.reinforcements.includes(43))
+        if (!view.events.reinforcements || !view.events.reinforcements.includes(43)) {
             append_score(`${sub_card_name('', 43)} not played`, 1)
-        if (!view.events.reinforcements || !view.events.reinforcements.includes(47))
+            endgame_score++
+        }
+        if (!view.events.reinforcements || !view.events.reinforcements.includes(47)) {
             append_score(`${sub_card_name('', 47)} not played`, 1)
-        if (!view.events.fall_of_the_tsar > 0)
+            endgame_score++
+        }
+        if (!view.events.fall_of_the_tsar > 0) {
             append_score(`${sub_card_name('', 117)} not played`, -2)
+            endgame_score -= 2
+        }
+
+        let future_blockades = 0;
+        if ((view.events.blockade >= 1) && (view.state !== "game_over")) {
+            future_blockades++;
+            if (view.turn <= 16) future_blockades++
+            if (view.turn <= 12) future_blockades++
+            if (view.turn <= 8) future_blockades++
+            if (view.turn <= 4) future_blockades++
+        }
+        append_score('Future Blockade points if game goes to Turn 20', -future_blockades)
+
+        let final_score = endgame_score - future_blockades
+
+        append_header(`TOTALS`)
+        append_value(`Current Score`, current_score)
+        append_value(`Scenario Score as of present turn`, endgame_score)
+
+        if (view.state === "game_over") {
+            append_value (`Final Score`, final_score)
+        } else {
+            append_value(`Turn 20 Score (w/ future Blockades)`, final_score)
+        }
+
+        if (view.events.treaty_of_brest_litovsk >= 1) {
+            append_string(`Treaty of Brest-Litovsk PLAYED: Central Powers win with VP >= 11`)
+        }
+        else {
+            append_string(`Treaty of Brest-Litovsk NOT PLAYED: Central Powers win with VP >= 13`)
+        }
     })
 }
 
