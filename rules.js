@@ -3301,7 +3301,7 @@ function better_entrencher_available() {
     let p = game.move.pieces[0]
     if (!game.failed_entrench) return false
     if (set_has(game.failed_entrench, p)) return false
-    return game.failed_entrench.filter(pp => game.location[pp] === s).length > 0
+    return game.failed_entrenched.some(pp => game.location[pp] === s)
 }
 
 states.choose_pieces_to_move = {
