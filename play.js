@@ -1343,7 +1343,7 @@ const style_dims = {
     },
 }
 
-const MINY = 80
+const MINY = 50
 
 function layout_stack(stack, start_x, start_y) {
     //console.log(`layout_stack: ${x}, ${y}, ${dx}. ${stack}`)
