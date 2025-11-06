@@ -680,6 +680,8 @@ const marker_info = {
     everyone_into_battle: {name: "Everyone Into Battle", counter: "ap-marker marker everyone_into_battle", size: 45, cardIndex: 51},
     brusilov_offensive: {name: "Brusilov Offensive", counter: "ap-marker marker brusilov_offensive", size: 45, cardIndex: 46},
     zimmermann_telegram: {name: "Zimmermann Telegram", counter: "ap-marker marker zimmermann_telegram", size: 45, cardIndex: 54},
+    over_there: {name: "Over There", counter: "ap-marker marker over_there", size: 45, cardIndex: 55},
+    grand_fleet: {name: "Grand Fleet", counter: "ap-marker marker grand_fleet", size: 45, cardIndex: 33},
 
     italy: {name: "Italy", counter: "ap-marker marker italy", size: 45, cardIndex: 17},
     romania: {name: "Romania", counter: "ap-marker marker romania", size: 45, cardIndex: 16},
