@@ -2913,16 +2913,21 @@ function start_action_round() {
     game.attacked = []
     game.retreated = []
 
+
     if (game.activated.move.length > 0) {
         log("Move")
-        for (let s of game.activated.move)
-            log(">" + space_name(s))
+        for (let s of game.activated.move) {
+            let cost = game.activation_cost ? map_get(game.activation_cost, s, 1) : 1
+            log(">" + space_name(s) + ((cost > 1) ? " (" + cost + " OPs)" : ""))
+        }
     }
 
     if (game.activated.attack.length > 0) {
         log("Attack")
-        for (let s of game.activated.attack)
-            log(">" + space_name(s))
+        for (let s of game.activated.attack) {
+            let cost = game.activation_cost ? map_get(game.activation_cost, s, 1) : 1
+            log(">" + space_name(s) + ((cost > 1) ? " (" + cost + " OPs)" : ""))
+        }
     }
 
     game.location.forEach((s, p) => {
