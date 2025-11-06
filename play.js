@@ -991,18 +991,21 @@ function build_marker(list, find, new_marker, info, no_listeners) {
 }
 
 function destroy_marker(list, find) {
-    let ix = list.findIndex(find)
-    if (ix >= 0) {
-        list[ix].element.remove()
-        list.splice(ix, 1)
-    }
+    let ix = -1;
+    do {
+        ix = list.findIndex(find)
+        if (ix >= 0) {
+            list[ix].element.remove()
+            list.splice(ix, 1)
+        }
+    } while (ix >= 0)
 }
 
-function build_activation_marker(space_id, activation_type) {
+function build_activation_marker(space_id, activation_type, ix) {
     return build_marker(
         markers[activation_type],
-        e => e.space_id === space_id,
-        {space_id: space_id},
+        e => e.space_id === space_id && e.ix === ix,
+        {space_id: space_id, ix: ix },
         marker_info[activation_type]
     )
 }
@@ -1536,13 +1539,19 @@ function update_space(s) {
     }
 
     if (view.activated.move.includes(s)) {
-        unshift_stack(stack, build_activation_marker(s, 'move'))
+        let markers = view.activation_cost ? map_get(view.activation_cost, s, 1) : 1;
+        for (let i = 0; i < markers; i++) {
+            unshift_stack(stack, build_activation_marker(s, 'move', i))
+        }
     } else {
         destroy_activation_marker(s, 'move')
     }
 
     if (view.activated.attack.includes(s)) {
-        unshift_stack(stack, build_activation_marker(s, 'attack'))
+        let markers = view.activation_cost ? map_get(view.activation_cost, s, 1) : 1;
+        for (let i = 0; i < markers; i++) {
+            unshift_stack(stack, build_activation_marker(s, 'attack', i))
+        }
     } else {
         destroy_activation_marker(s, 'attack')
     }

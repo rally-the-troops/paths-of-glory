@@ -453,6 +453,7 @@ exports.view = function(state, current) {
         russian_capitulation: game.russian_capitulation,
         last_card: game.last_card,
         activated: game.activated,
+        activation_cost: game.activation_cost,
         move: game.move,
         attack: game.attack,
         ap: {
@@ -665,6 +666,7 @@ function create_empty_game_state(seed, scenario) {
             move: [], // Spaces activated for movement
             attack: [] // Spaces activated for attack
         },
+        activation_cost: [], // Cost space was activated for
         control: Array(Math.floor((data.spaces.length + 7) / 8)).fill(0),
         forts: { // data for spaces tells you strength of forts per space
             destroyed: [], // Spaces with destroyed forts
@@ -2095,7 +2097,7 @@ function goto_play_ops(card) {
         play_card(card)
         game.ops = data.cards[card].ops
     }
-    game.state = 'activate_spaces'
+    goto_activate_spaces()
 }
 
 // === STRATEGIC REDEPLOYMENT ===
@@ -2790,6 +2792,16 @@ function roll_peace_terms(faction_offering, combined_war_status) {
     log_event_for_rollback("Rolled peace terms")
 }
 
+function goto_activate_spaces() {
+    game.state = 'activate_spaces';
+    game.activation_cost = [];
+}
+
+function push_activation_cost(space, cost) {
+    if (!game.activation_cost) game.activation_cost = [];
+    map_set(game.activation_cost, space, cost);
+}
+
 states.activate_spaces = {
     inactive: "activate spaces",
     prompt() {
@@ -2862,7 +2874,9 @@ states.activate_spaces = {
     activate_move(s) {
         push_undo()
         set_add(game.activated.move, s)
-        game.ops -= cost_to_activate(s, MOVE)
+        let cost = cost_to_activate(s, MOVE)
+        game.ops -= cost
+        push_activation_cost(s, cost)
         if (!game.sud_army_space && is_possible_sud_army_stack(get_pieces_in_space(s))) {
             game.sud_army_space = s
         }
@@ -2875,7 +2889,9 @@ states.activate_spaces = {
     activate_attack(s) {
         push_undo()
         set_add(game.activated.attack, s)
-        game.ops -= cost_to_activate(s, ATTACK)
+        let cost = cost_to_activate(s, ATTACK)
+        game.ops -= cost
+        push_activation_cost(s, cost)
         if (!game.sud_army_space && is_possible_sud_army_stack(get_pieces_in_space(s))) {
             game.sud_army_space = s
         }
@@ -7748,7 +7764,7 @@ events.mata_hari = {
             log(`${card_name(c)}`)
         }
         game.ops = data.cards[MATA_HARI].ops
-        game.state = 'activate_spaces'
+        goto_activate_spaces()
     }
 }
 
@@ -7857,8 +7873,8 @@ events.tsar_takes_command = {
     play() {
         game.events.tsar_takes_command = game.turn
         game.ops = data.cards[TSAR_TAKES_COMMAND].ops
-        game.state = 'activate_spaces'
         update_russian_capitulation()
+        goto_activate_spaces()
     }
 }
 
@@ -8263,8 +8279,8 @@ events.fall_of_the_tsar = {
         }
 
         game.ops = data.cards[FALL_OF_THE_TSAR].ops
-        game.state = 'activate_spaces'
         update_russian_capitulation()
+        goto_activate_spaces()
     }
 }
 
@@ -8290,8 +8306,8 @@ events.bolshevik_revolution = {
         }
 
         game.ops = data.cards[BOLSHEVIK_REVOLUTION].ops
-        game.state = 'activate_spaces'
         update_russian_capitulation()
+        goto_activate_spaces()
     }
 }
 
@@ -8785,7 +8801,7 @@ events.cloak_and_dagger = {
             log(`${card_name(c)}`)
         }
         game.ops = data.cards[CLOAK_AND_DAGGER].ops
-        game.state = 'activate_spaces'
+        goto_activate_spaces()
     }
 }
 
@@ -8812,7 +8828,7 @@ events.great_retreat = {
         game.events.great_retreat = game.turn
         if (game.options.valiant) {
             game.ops = data.cards[GREAT_RETREAT].ops
-            game.state = 'activate_spaces'
+            goto_activate_spaces()
         } else {
             goto_end_event()
         }
@@ -8916,7 +8932,7 @@ events.landships = {
     play() {
         game.events.landships = game.turn
         game.ops = data.cards[LANDSHIPS].ops
-        game.state = 'activate_spaces'
+        goto_activate_spaces()
     }
 }
 
@@ -8995,7 +9011,7 @@ events.yanks_and_tanks = {
     play() {
         game.ops = data.cards[YANKS_AND_TANKS].ops
         game.action_state.yanks_and_tanks = true
-        game.state = 'activate_spaces'
+        goto_activate_spaces()
     },
     can_apply() {
         if (!game.attack)
@@ -9099,7 +9115,7 @@ events.kerensky_offensive = {
     play() {
         game.ops = data.cards[KERENSKY_OFFENSIVE].ops
         game.action_state.kerensky_available = true
-        game.state = 'activate_spaces'
+        goto_activate_spaces()
     },
     can_apply() {
         if (!game.attack.pieces.some(p => data.pieces[p].nation === RUSSIA))
@@ -9137,7 +9153,7 @@ events.brusilov_offensive = {
         game.ops = data.cards[BRUSILOV_OFFENSIVE].ops
         game.action_state.brusilov_active = true
         game.action_state.brusilov_available = true
-        game.state = 'activate_spaces'
+        goto_activate_spaces()
     },
     can_apply() {
         if (!game.attack.pieces.some(p => data.pieces[p].nation === RUSSIA))
@@ -9247,7 +9263,7 @@ events.zimmermann_telegram = {
         record_score_event(-1, ZIMMERMANN_TELEGRAM)
         logi(`-1 VP for ${card_name(ZIMMERMANN_TELEGRAM)}`)
         game.ops = data.cards[ZIMMERMANN_TELEGRAM].ops
-        game.state = 'activate_spaces'
+        goto_activate_spaces()
     }
 }
 
@@ -9260,7 +9276,7 @@ events.over_there = {
         game.events.over_there = game.turn
         set_nation_at_war(US)
         game.ops = data.cards[OVER_THERE].ops
-        game.state = 'activate_spaces'
+        goto_activate_spaces()
     }
 }
 
