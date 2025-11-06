@@ -15,7 +15,7 @@ data.cards = [
         "rpfr": 2,
         "rpit": 1,
         "rpru": 3,
-        "name": "British Reinforcements",
+        "name": "British Reinforcements (BR 2)",
         "effect": "2nd Army, 1 corps.",
         "reinfnation": "br",
         "reinf": "BR 2|BRc"
@@ -48,7 +48,7 @@ data.cards = [
         "rpfr": 1,
         "rpit": 1,
         "rpru": 2,
-        "name": "Russian Reinforcements",
+        "name": "Russian Reinforcements (RU 11)",
         "effect": "11th Army, 1 corps.",
         "reinfnation": "ru",
         "reinf": "RU 11|RUc"
@@ -121,7 +121,7 @@ data.cards = [
         "rpbr": 1,
         "rpfr": 1,
         "rpru": 1,
-        "name": "Russian Reinforcements",
+        "name": "Russian Reinforcements (2 corps)",
         "effect": "2 corps.",
         "reinfnation": "ru",
         "reinf": "RUc|RUc"
@@ -152,7 +152,7 @@ data.cards = [
         "rpfr": 1,
         "rpit": 1,
         "rpru": 2,
-        "name": "French Reinforcements",
+        "name": "French Reinforcements (FR 10)",
         "effect": "10th Army.",
         "reinfnation": "fr",
         "reinf": "FR 10"
@@ -168,7 +168,7 @@ data.cards = [
         "rpfr": 1,
         "rpit": 1,
         "rpru": 2,
-        "name": "Russian Reinforcements",
+        "name": "Russian Reinforcements (RU 9, RU 10)",
         "effect": "9th Army, 10th Army.",
         "reinfnation": "ru",
         "reinf": "RU 9|RU 10"
@@ -218,7 +218,7 @@ data.cards = [
         "rpfr": 2,
         "rpit": 1,
         "rpru": 3,
-        "name": "British Reinforcements",
+        "name": "British Reinforcements (BR 1)",
         "effect": "1st Army, 1 corps.",
         "reinfnation": "br",
         "reinf": "BR 1|BRc"
@@ -234,7 +234,7 @@ data.cards = [
         "rpfr": 1,
         "rpit": 1,
         "rpru": 2,
-        "name": "British Reinforcements",
+        "name": "British Reinforcements (BR 4)",
         "effect": "4th Army, 1 corps.",
         "reinfnation": "br",
         "reinf": "BR 4|BRc"
@@ -310,7 +310,7 @@ data.cards = [
         "rpbr": 1,
         "rpfr": 1,
         "rpru": 1,
-        "name": "British Reinforcements",
+        "name": "British Reinforcements (AUS, CND)",
         "effect": "AUS Corps, CND Corps.",
         "reinfnation": "br",
         "reinf": "AUSc|CNDc"
@@ -371,7 +371,7 @@ data.cards = [
         "rpfr": 1,
         "rpit": 1,
         "rpru": 2,
-        "name": "French Reinforcements",
+        "name": "French Reinforcements (FR 7)",
         "effect": "7th Army.",
         "reinfnation": "fr",
         "reinf": "FR 7"
@@ -387,7 +387,7 @@ data.cards = [
         "rpfr": 1,
         "rpit": 1,
         "rpru": 2,
-        "name": "Russian Reinforcements",
+        "name": "Russian Reinforcements (RU 6, RU 7)",
         "effect": "6th Army, 7th Army, 2 corps.",
         "reinfnation": "ru",
         "reinf": "RU 6|RU 7|RUc|RUc"
@@ -502,7 +502,7 @@ data.cards = [
         "rpbr": 1,
         "rpfr": 1,
         "rpru": 1,
-        "name": "Russian Reinforcements",
+        "name": "Russian Reinforcements (RU 12)",
         "effect": "12th Army.",
         "reinfnation": "ru",
         "reinf": "RU 12"
@@ -532,7 +532,7 @@ data.cards = [
         "rpfr": 1,
         "rpit": 1,
         "rpru": 2,
-        "name": "British Reinforcements",
+        "name": "British Reinforcements (BR 3)",
         "effect": "3rd Army, 2 corps.",
         "reinfnation": "br",
         "reinf": "BR 3|BRc|BRc"
@@ -592,7 +592,7 @@ data.cards = [
         "rpbr": 1,
         "rpfr": 1,
         "rpru": 1,
-        "name": "USA Reinforcements",
+        "name": "USA Reinforcements (1 corps)",
         "effect": "May only be played after \"Over There\". 1 corps.",
         "reinfnation": "us",
         "reinf": "USc"
@@ -652,7 +652,7 @@ data.cards = [
         "rpfr": 1,
         "rpit": 1,
         "rpru": 2,
-        "name": "British Reinforcements",
+        "name": "British Reinforcements (BR 5)",
         "effect": "5th Army, 1 corps, PT Corps.",
         "reinfnation": "br",
         "reinf": "BR 5|BRc|PTc"
@@ -668,7 +668,7 @@ data.cards = [
         "rpfr": 1,
         "rpit": 1,
         "rpru": 2,
-        "name": "USA Reinforcements",
+        "name": "USA Reinforcements (US 1)",
         "effect": "May only be played after \"Over There\". 1st Army, 2 corps.",
         "reinfnation": "us",
         "reinf": "US 1|USc|USc"
@@ -733,7 +733,7 @@ data.cards = [
         "rpfr": 2,
         "rpit": 1,
         "rpru": 3,
-        "name": "USA Reinforcements",
+        "name": "USA Reinforcements (US 2)",
         "effect": "May only be played after \"Over There\". 2nd Army, 1 corps.",
         "reinfnation": "us",
         "reinf": "US 2|USc"
@@ -1003,7 +1003,7 @@ data.cards = [
         "rpfr": 1,
         "rpit": 1,
         "rpru": 2,
-        "name": "USA Reinforcements",
+        "name": "USA Reinforcements (2 corps)",
         "effect": "May only be played after 'Over There'. 2 Corps [2-1-4/1-1-4]",
         "reinfnation": "us",
         "reinf": "USc|USc"
@@ -1112,7 +1112,7 @@ data.cards = [
         "rpah": 1,
         "rpge": 2,
         "rptu": 1,
-        "name": "German Reinforcements",
+        "name": "German Reinforcements (GE 9)",
         "effect": "9th Army.",
         "reinfnation": "ge",
         "reinf": "GE 9"
@@ -1185,7 +1185,7 @@ data.cards = [
         "rpbu": 1,
         "rpge": 3,
         "rptu": 1,
-        "name": "German Reinforcements",
+        "name": "German Reinforcements (GE 10)",
         "effect": "10th Army, 2 corps.",
         "reinfnation": "ge",
         "reinf": "GE 10|GEc|GEc"
@@ -1217,7 +1217,7 @@ data.cards = [
         "rpbu": 1,
         "rpge": 3,
         "rptu": 1,
-        "name": "Austria-Hungary Reinforcements",
+        "name": "Austria-Hungary Reinforcements (AH 7)",
         "effect": "7th Army, 2 corps.",
         "reinfnation": "ah",
         "reinf": "AH 7|AHc|AHc"
@@ -1295,7 +1295,7 @@ data.cards = [
         "rpah": 1,
         "rpge": 2,
         "rptu": 1,
-        "name": "Austria-Hungary Reinforcements",
+        "name": "Austria-Hungary Reinforcements (AH 10)",
         "effect": "10th Army.",
         "reinfnation": "ah",
         "reinf": "AH 10"
@@ -1310,7 +1310,7 @@ data.cards = [
         "rpah": 1,
         "rpge": 2,
         "rptu": 1,
-        "name": "German Reinforcements",
+        "name": "German Reinforcements (GE 11)",
         "effect": "11th Army, 1 corps.",
         "reinfnation": "ge",
         "reinf": "GE 11|GEc"
@@ -1325,7 +1325,7 @@ data.cards = [
         "rpah": 1,
         "rpge": 2,
         "rptu": 1,
-        "name": "German Reinforcements",
+        "name": "German Reinforcements (GE 12)",
         "effect": "12th Army, 1 corps.",
         "reinfnation": "ge",
         "reinf": "GE 12|GEc"
@@ -1340,7 +1340,7 @@ data.cards = [
         "rpah": 1,
         "rpge": 2,
         "rptu": 1,
-        "name": "Austria-Hungary Reinforcements",
+        "name": "Austria-Hungary Reinforcements (AH 11)",
         "effect": "11th Army.",
         "reinfnation": "ah",
         "reinf": "AH 11"
@@ -1555,7 +1555,7 @@ data.cards = [
         "sr": 2,
         "remove": true,
         "rpge": 1,
-        "name": "German Reinforcements",
+        "name": "German Reinforcements (2 corps)",
         "effect": "2 corps.",
         "reinfnation": "ge",
         "reinf": "GEc|GEc"
@@ -1568,7 +1568,7 @@ data.cards = [
         "sr": 2,
         "remove": true,
         "rpge": 1,
-        "name": "German Reinforcements",
+        "name": "German Reinforcements (2 corps)",
         "effect": "2 corps.",
         "reinfnation": "ge",
         "reinf": "GEc|GEc"
@@ -1597,7 +1597,7 @@ data.cards = [
         "rpah": 1,
         "rpge": 2,
         "rptu": 1,
-        "name": "German Reinforcements",
+        "name": "German Reinforcements (GE 14)",
         "effect": "14th Army.",
         "reinfnation": "ge",
         "reinf": "GE 14"
@@ -1612,7 +1612,7 @@ data.cards = [
         "rpah": 1,
         "rpge": 2,
         "rptu": 1,
-        "name": "Turkish Reinforcements",
+        "name": "Turkish Reinforcements (YLD)",
         "effect": "YLD.",
         "reinfnation": "tu",
         "reinf": "TU YLD"
@@ -1674,7 +1674,7 @@ data.cards = [
         "rpbu": 1,
         "rpge": 3,
         "rptu": 1,
-        "name": "German Reinforcements",
+        "name": "German Reinforcements (GE 17, GE 18)",
         "effect": "17th Army, 18th Army.",
         "reinfnation": "ge",
         "reinf": "GE 17|GE 18"
@@ -1706,7 +1706,7 @@ data.cards = [
         "rpbu": 1,
         "rpge": 3,
         "rptu": 1,
-        "name": "Turkish Reinforcements",
+        "name": "Turkish Reinforcements (AoI)",
         "effect": "AoI Army.",
         "reinfnation": "tu",
         "reinf": "TU AoI"
