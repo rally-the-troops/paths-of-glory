@@ -1046,13 +1046,13 @@ function set_up_great_war_scenario() {
     setup_piece(GREECE, 'GRc', 'Larisa')
 
     // Bulgaria is at war
-    game.war.bu = 1
+    game.war.bu = 7 //BR// Actual historic entry turn, just for the hell of it
 
     // Italy is at war
-    game.war.it = 1
+    game.war.it = 5 //BR// Actual historic entry turn, just for the hell of it
 
     // Turkey is at war
-    game.war.tu = 1
+    game.war.tu = 3 //BR// Actual historic entry turn, just for the hell of it
 
     // Set control for all spaces containing a piece
     for (let p = 1; p < data.pieces.length; p++) {
@@ -1477,7 +1477,7 @@ function nation_at_war(nation) {
 function set_nation_at_war(nation) {
     if (nation_at_war(nation)) return
 
-    game.war[nation] = 1
+    game.war[nation] = game.turn
 
     if (nation === TURKEY) {
         log_h3("Turkey enters the war", CP)
@@ -2608,6 +2608,12 @@ function goto_play_reinf(card) {
         active_player.ws += card_data.ws
         logi(`War Status +${card_data.ws} to ${active_player.ws} (${game.ap.ws + game.cp.ws})`)
         update_us_entry()
+
+        //BR// Turn track event markers for the WS-generating reinforcement cards
+        if (card === BRITISH_REINFORCEMENTS_2) game.events.br1 = game.turn; // Yes BR1 is BR2 and BR2 is BR1.
+        if (card === BRITISH_REINFORCEMENTS_1) game.events.br2 = game.turn;
+        if (card === MEF) game.events.mef = game.turn;
+        if (card === ALLENBY) game.events.allenby = game.turn;
     }
 
     if (!game.events.reinforcements)
@@ -7957,6 +7963,7 @@ states.war_in_africa_confirm = {
         set_active_faction(AP)
         game.state = 'war_in_africa'
         game.war_in_africa_removed = 0
+        game.events.war_in_africa = game.turn
         clear_undo()
     }
 }
@@ -9153,6 +9160,7 @@ events.brusilov_offensive = {
         game.ops = data.cards[BRUSILOV_OFFENSIVE].ops
         game.action_state.brusilov_active = true
         game.action_state.brusilov_available = true
+        game.events.brusilov_offensive = game.turn
         goto_activate_spaces()
     },
     can_apply() {

@@ -93,6 +93,24 @@
 .marker.uboats_unleashed::before { content:"U-Boats Unleashed"; }
 .marker.everyone_into_battle::before { content:"Everyone into Battle"; }
 .marker.lloyd_george::before { content:"Lloyd George"; }
+.marker.brusilov_offensive::before { content: "Brusilov Offensive"; }
+.marker.zimmermann_telegram::before { content: "Zimmer- mann Telegram"; }
+.marker.walter_rathenau::before { content:"Walter Rathenau"; }
+.marker.place_of_execution::before { content:"Place of Execution"; }
+.marker.tsar_takes_command::before { content:"Tsar Takes Command"; }
+.marker.war_in_africa::before { content:"War in Africa"; }
+.marker.bolshevik_revolution::before { content:"Bolshevik Revolution"; }
+.marker.treaty_of_brest_litovsk::before { content:"Treaty of Brest Litovsk"; }
+.marker.french_mutiny::before { content:"French Mutiny"; }
+
+.marker.italy::before { content:"Italy"; }
+.marker.romania::before { content:"Romania"; }
+.marker.greece::before { content:"Greece"; }
+.marker.bulgaria::before { content:"Bulgaria"; }
+.marker.br1::before { content:"BR 1"; }
+.marker.br2::before { content:"BR 2"; }
+.marker.mef::before { content:"MEF"; }
+.marker.allenby::before { content:"Allenby"; }
 
 /* VASSAL NE MARKERS */
 .marker.ne_limit { background-size: 45px 45px; }

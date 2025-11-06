@@ -615,7 +615,17 @@ const marker_info = {
     salonika: {name: "Salonika", counter: "ap-marker marker salonika", size: 45, cardIndex: 30},
     independent_air_force: {name: "Independent Air Force", counter: "ap-marker marker independent_air_force", size: 45, cardIndex: 37},
     convoy: {name: "Convoy", counter: "ap-marker marker convoy", size: 45, cardIndex: 52},
-    everyone_into_battle: {name: "Everyone into battle", counter: "ap-marker marker everyone_into_battle", size: 45, cardIndex: 51},
+    everyone_into_battle: {name: "Everyone Into Battle", counter: "ap-marker marker everyone_into_battle", size: 45, cardIndex: 51},
+    brusilov_offensive: {name: "Brusilov Offensive", counter: "ap-marker marker brusilov_offensive", size: 45, cardIndex: 46},
+    zimmermann_telegram: {name: "Zimmermann Telegram", counter: "ap-marker marker zimmermann_telegram", size: 45, cardIndex: 54},
+
+    italy: {name: "Italy", counter: "ap-marker marker italy", size: 45, cardIndex: 17},
+    romania: {name: "Romania", counter: "ap-marker marker romania", size: 45, cardIndex: 16},
+    greece: {name: "Greece", counter: "ap-marker marker greece", size: 45, cardIndex: 44},
+    br1: {name: "BR 1", counter: "ap-marker marker br1", size: 45, cardIndex: 14},
+    br2: {name: "BR 2", counter: "ap-marker marker br2", size: 45, cardIndex: 1},
+    mef: {name: "MEF", counter: "ap-marker marker mef", size: 45, cardIndex: 31},
+    allenby: {name: "Allenby", counter: "ap-marker marker allenby", size: 45, cardIndex: 50},
 
     // synthesized cp event markers
     guns_of_august: {name: "Guns of August", counter: "cp-marker marker guns_of_august", size: 45, cardIndex: 65 + 1},
@@ -634,6 +644,15 @@ const marker_info = {
     h_l_take_command: {name: "H-L Take Command", counter: "cp-marker marker h_l_take_command", size: 45, cardIndex: 65 + 54},
     polish_restoration: {name: "Polish Restoration", counter: "cp-marker marker polish_restoration", size: 45, cardIndex: 65 + 59},
     lloyd_george: {name: "Lloyd George", counter: "cp-marker marker lloyd_george", size: 45, cardIndex: 65 + 55},
+    walter_rathenau: {name: "Walter Rathenau", counter: "cp-marker marker walter_rathenau", size: 45, cardIndex: 98},
+    place_of_execution: {name: "Place of Execution", counter: "cp-marker marker place_of_execution", size: 45, cardIndex: 91},
+    tsar_takes_command: {name: "Tsar Takes Command", counter: "cp-marker marker tsar_takes_command", size: 45, cardIndex: 93},
+    war_in_africa: {name: "War in Africa", counter: "cp-marker marker war_in_africa", size: 45, cardIndex: 97},
+    bolshevik_revolution: {name: "Bolshevik Revolution", counter: "cp-marker marker bolshevik_revolution", size: 45, cardIndex: 118},
+    treaty_of_brest_litovsk: {name: "Treaty of Brest-Litovsk", counter: "cp-marker marker treaty_of_brest_litovsk", size: 45, cardIndex: 110},
+    french_mutiny: {name: "French Mutiny", counter: "cp-marker marker french_mutiny", size: 45, cardIndex: 112},
+
+    bulgaria: {name: "Bulgaria", counter: "ap-marker marker bulgaria", size: 45, cardIndex: 99},
 }
 
 let markers = {
@@ -1850,6 +1869,12 @@ function update_turn_track() {
         "independent_air_force",
         "convoy",
         "everyone_into_battle",
+        "brusilov_offensive",
+        "zimmermann_telegram",
+        "br1",
+        "br2",
+        "mef",
+        "allenby",
 
         // cp markers with no printed counter
         "guns_of_august",
@@ -1867,6 +1892,13 @@ function update_turn_track() {
         "h_l_take_command",
         "polish_restoration",
         "lloyd_george",
+        "walter_rathenau",
+        "place_of_execution",
+        "tsar_takes_command",
+        "war_in_africa",
+        "bolshevik_revolution",
+        "treaty_of_brest_litovsk",
+        "french_mutiny"
     ]
 
     event_markers.forEach((marker) => {
@@ -1876,6 +1908,12 @@ function update_turn_track() {
             update_turn_track_marker(marker, 0, true)
         }
     })
+
+    //BR// Markers for neutral entry events. If the turn is listed as "1" the game is from before these had game turns tracked
+    update_turn_track_marker("italy", view.war[ITALY], !view.war[ITALY] || (view.war[ITALY] === 1))
+    update_turn_track_marker("romania", view.war[ROMANIA], !view.war[ROMANIA] || (view.war[ROMANIA] === 1))
+    update_turn_track_marker("bulgaria", view.war[BULGARIA], !view.war[BULGARIA] || (view.war[BULGARIA] === 1))
+    update_turn_track_marker("greece", view.war[GREECE], !view.war[GREECE] || (view.war[GREECE] === 1))
 
     if (view.events.entrench & 128) {
         update_turn_track_marker("entrench_ap", view.events.entrench & 127)
