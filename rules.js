@@ -3285,6 +3285,14 @@ function can_entrench_with_selected() {
     )
 }
 
+function better_entrencher_available() {
+    let s = game.move.initial
+    let p = game.move.pieces[0]
+    if (!game.failed_entrench) return false
+    if (set_has(game.failed_entrench, p)) return false
+    return game.failed_entrench.filter(pp => game.location[pp] === s).length > 0
+}
+
 states.choose_pieces_to_move = {
     inactive: 'move',
     prompt() {
@@ -3300,7 +3308,12 @@ states.choose_pieces_to_move = {
 
         if (can_entrench_with_selected()) {
             view.prompt = `Move ${piece_name(game.move.pieces[0])} from ${space_name(game.move.initial)} or attempt to entrench.`
-            gen_action("entrench")
+
+            if (better_entrencher_available()) {
+                gen_action("confirm_odd_entrench")
+            } else {
+                gen_action("entrench")
+            }
         }
 
         if (game.move.pieces.length > 0) {
@@ -3320,6 +3333,9 @@ states.choose_pieces_to_move = {
         if (game.move.pieces.length === 0)
             push_undo()
         set_add(game.move.pieces, p)
+    },
+    confirm_odd_entrench() {
+        this.entrench()
     },
     entrench() {
         push_undo()

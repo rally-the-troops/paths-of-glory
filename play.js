@@ -2348,6 +2348,9 @@ function update_map() {
     confirm_action_button("confirm_mutiny_attack", "Attack",
         "1 VP French Mutiny penalty will be applied!\nDo you still want to Attack?")
 
+    confirm_action_button("confirm_odd_entrench", "Entrench",
+        "A different unit in the same space has earned a -1 DRM marker to entrench here.\nDo you still want to entrench with this unit instead?")
+
     action_button("pass", "Pass")
 
     action_button("skip", "Skip")
