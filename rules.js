@@ -6139,6 +6139,13 @@ function is_possible_sud_army_stack(pieces) {
     return ah_pieces === 1 && ge_corps >= 1 && ah_pieces + ge_corps === pieces.length
 }
 
+function get_piece_nation_for_activation(p) {
+    if (p === BRITISH_ANA_CORPS) return BRITAIN
+    if (p === MONTENEGRIN_CORPS) return SERBIA
+    if (p === TURKISH_SN_CORPS) return TURKEY
+    return data.pieces[p].nation
+}
+
 function cost_to_activate(space, type) {
     let nations = []
     let pieces = []
@@ -6147,9 +6154,7 @@ function cost_to_activate(space, type) {
     let faction = AP
     for_each_piece_in_space(space, (piece) => {
         num_pieces++
-        let n = data.pieces[piece].nation
-        if (n === "sn") n = TURKEY
-        if (n === MONTENEGRO) n = SERBIA
+        let n = get_piece_nation_for_activation(piece)
         if (n === RUSSIA) num_russians++
         set_add(nations, n)
         pieces.push(piece)
