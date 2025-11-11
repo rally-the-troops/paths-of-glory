@@ -80,6 +80,21 @@
 .marker.race_to_the_sea::before { content:"Race to the Sea"; }
 .marker.moltke::before { content:"Moltke"; }
 .marker.oberost::before { content:"Oberost"; }
+.marker.bulgaria::before { content:"Bulgaria"; }
+.marker.walter_rathenau::before { content:"Walter Rathenau"; }
+.marker.place_of_execution::before { content:"Place of Execution"; }
+.marker.tsar_takes_command::before { content:"Tsar Takes Command"; }
+.marker.war_in_africa::before { content:"War in Africa"; }
+.marker.french_mutiny::before { content:"French Mutiny"; }
+.marker.treaty_of_brest_litovsk::before { content:"Treaty of Brest-Litovsk"; }
+.marker.british_reinforcements::before { content:"British Reinf."; }
+.marker.italy::before { content:"Italy"; }
+.marker.mef::before { content:"MEF"; }
+.marker.romania::before { content:"Romania"; }
+.marker.brusilov_offensive::before { content:"Brusilov Offensive"; }
+.marker.zimmermann_telegram::before { content:"Zimmer\ad mann Telegram"; }
+.marker.greece::before { content:"Greece"; }
+.marker.allenby::before { content:"Allenby"; }
 .marker.great_retreat::before { content:"Great Retreat"; }
 .marker.landships::before { content:"Land\ad ships"; }
 .marker.entrench::before { content:"Entrench"; }

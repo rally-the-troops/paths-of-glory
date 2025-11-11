@@ -1050,6 +1050,8 @@ const marker_info = {
     cp_missed_mo: {name: "CP Missed Mandatory Offensive", counter: "marker cp_missed_mo", size: 45},
     failed_entrench: {name: "Failed Entrench", counter: "marker small trench_attempt", size: 36},
     mef_beachhead: {name: "MEF Beachhead", counter: "marker mef_beachhead", size: 45, cardIndex: 31 },
+    british_reinforcements_1: {name: "British Reinforcements", counter: "ap-marker marker british_reinforcements", size: 45, cardIndex: 14},
+    british_reinforcements_2: {name: "British Reinforcements", counter: "ap-marker marker british_reinforcements", size: 45, cardIndex: 1},
 
     // small event markers
     fourteen_points: {name: "US Points", counter: "marker small us_points", size: 36, cardIndex: 40},
@@ -1092,7 +1094,12 @@ const marker_info = {
     // synthesized cp event markers
     guns_of_august: {name: "Guns of August", counter: "cp-marker marker guns_of_august", size: 45, cardIndex: 65 + 1},
     entrench_cp: {name: "Entrench", counter: "cp-marker marker entrench", size: 45, cardIndex: 65 + 6},
-    race_to_the_sea: {name: "Race to the Sea", counter: "cp-marker marker race_to_the_sea", size: 45, cardIndex: 65 + 8},
+    race_to_the_sea: {
+        name: "Race to the Sea",
+        counter: "cp-marker marker race_to_the_sea",
+        size: 45,
+        cardIndex: 65 + 8
+    },
     oberost: {name: "Oberost", counter: "cp-marker marker oberost", size: 45, cardIndex: 65 + 11},
     reichstag_truce: {name: "Reichstag Truce", counter: "cp-marker marker reichstag_truce", size: 45, cardIndex: 65 + 9},
     falkenhayn: {name: "Falkenhayn", counter: "cp-marker marker falkenhayn", size: 45, cardIndex: 65 + 13},
@@ -2333,10 +2340,7 @@ function should_highlight_space(s) {
         return true
 
     if (view.actions.activate_attack_mutiny && view.actions.activate_attack_mutiny.includes(s))
-        return true
-
-    if (view.actions.activate_attack_mutiny && view.actions.activate_attack_mutiny.includes(s))
-        return true
+        return true;
 
     if (view.actions.deactivate && view.actions.deactivate.includes(s))
         return true
