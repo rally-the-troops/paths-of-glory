@@ -793,6 +793,8 @@ function on_reply(q, params) {
         show_card_list("ap_card_dialog", params)
     if (q === 'cp_cards')
         show_card_list("cp_card_dialog", params)
+    if (q === 'reinforcements')
+        show_reinforcements(params)
 }
 
 function get_control_bit(i) {

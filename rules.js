@@ -423,6 +423,9 @@ exports.query = function (state, _current, q) {
         removed.push(...state.cp.removed)
         return removed
     }
+    if (q === 'reinforcements') {
+        return get_reinforcements_sheet_data(state)
+    }
     return null
 }
 
