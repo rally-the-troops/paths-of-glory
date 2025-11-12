@@ -624,7 +624,24 @@ function show_score_summary() {
             p.innerHTML = `${label}: ${value > 0 ? '+' : ''}${value}`
             dl.appendChild(p)
         }
+
+        let append_value = (label, value) => {
+            let p = document.createElement("dd")
+            p.className = "score_row"
+            p.innerHTML = `${label}: ${value}`
+            dl.appendChild(p)
+        }
+
+        let append_string = (label) => {
+            let p = document.createElement("dd")
+            p.className = "score_row"
+            p.innerHTML = `${label}`
+            dl.appendChild(p)
+        }
+
         body.appendChild(dl)
+
+        let current_score = 10;
 
         // Captured spaces
         let ap_captured = []
@@ -640,11 +657,17 @@ function show_score_summary() {
         append_header(`AP Captured (-${ap_captured.length})`)
         ap_captured.forEach((s) => { append_score(sub_space_name('', s), -spaces[s].vp) })
 
+        current_score += cp_captured.length
+        current_score -= ap_captured.length
+
         // Missed MOs
         append_header(`CP Missed MOs (-${view.cp.missed_mo.length})`)
         view.cp.missed_mo.forEach((turn) => { append_score(`Turn ${turn}`, -1) })
         append_header(`AP Missed MOs (+${view.ap.missed_mo.length})`)
         view.ap.missed_mo.forEach((turn) => { append_score(`Turn ${turn}`, 1) })
+
+        current_score -= view.cp.missed_mo.length
+        current_score += view.ap.missed_mo.length
 
         // Score events
         const score_events = view.score_events || []
@@ -654,17 +677,56 @@ function show_score_summary() {
             append_score(`Turn ${score_event[0]}: ${score_event.length > 2 ? sub_card_name('', score_event[2]) : ''}`, score_event[1])
         })
 
+        current_score += event_total
+
         // Bid
         // TODO
 
+        let endgame_score = current_score
+
         // Historical Scenario VPs that would score if the scenario ended by armistice or at turn 20
         append_header(`Historical Scenario End Game VPs`)
-        if (!view.events.reinforcements || !view.events.reinforcements.includes(43))
+        if (!view.events.reinforcements || !view.events.reinforcements.includes(43)) {
             append_score(`${sub_card_name('', 43)} not played`, 1)
-        if (!view.events.reinforcements || !view.events.reinforcements.includes(47))
+            endgame_score++
+        }
+        if (!view.events.reinforcements || !view.events.reinforcements.includes(47)) {
             append_score(`${sub_card_name('', 47)} not played`, 1)
-        if (!view.events.fall_of_the_tsar > 0)
+            endgame_score++
+        }
+        if (!view.events.fall_of_the_tsar > 0) {
             append_score(`${sub_card_name('', 117)} not played`, -2)
+            endgame_score -= 2
+        }
+
+        let future_blockades = 0;
+        if ((view.events.blockade >= 1) && (view.state !== "game_over")) {
+            future_blockades++;
+            if (view.turn <= 16) future_blockades++
+            if (view.turn <= 12) future_blockades++
+            if (view.turn <= 8) future_blockades++
+            if (view.turn <= 4) future_blockades++
+        }
+        append_score('Future Blockade points if game goes to Turn 20', -future_blockades)
+
+        let final_score = endgame_score - future_blockades
+
+        append_header(`TOTALS`)
+        append_value(`Current Score`, current_score)
+        append_value(`Scenario Score as of present turn`, endgame_score)
+
+        if (view.state === "game_over") {
+            append_value (`Final Score`, final_score)
+        } else {
+            append_value(`Turn 20 Score (w/ future Blockades)`, final_score)
+        }
+
+        if (view.events.treaty_of_brest_litovsk >= 1) {
+            append_string(`Treaty of Brest-Litovsk PLAYED: Central Powers win with VP >= 11`)
+        }
+        else {
+            append_string(`Treaty of Brest-Litovsk NOT PLAYED: Central Powers win with VP >= 13`)
+        }
     })
 }
 
@@ -782,8 +844,6 @@ const marker_info = {
     cp_missed_mo: {name: "CP Missed Mandatory Offensive", counter: "marker cp_missed_mo", size: 45},
     failed_entrench: {name: "Failed Entrench", counter: "marker small trench_attempt", size: 36},
     mef_beachhead: {name: "MEF Beachhead", counter: "marker mef_beachhead", size: 45, cardIndex: 31 },
-    british_reinforcements_1: {name: "British Reinforcements", counter: "ap-marker marker british_reinforcements", size: 45, cardIndex: 14},
-    british_reinforcements_2: {name: "British Reinforcements", counter: "ap-marker marker british_reinforcements", size: 45, cardIndex: 1},
 
     // small event markers
     fourteen_points: {name: "US Points", counter: "marker small us_points", size: 36, cardIndex: 40},
@@ -802,116 +862,52 @@ const marker_info = {
     // synthesized ap event markers
     moltke: {name: "Moltke", counter: "ap-marker marker moltke", size: 45, cardIndex: 9},
     entrench_ap: {name: "Entrench", counter: "ap-marker marker entrench", size: 45, cardIndex: 12},
-    rape_of_belgium: {name: "Rape of Belgium", counter: "ap-marker marker rape_of_belgium", size: 45, cardIndex: 13},
+    rape_of_belgium: {name: "Rape of Belgium", counter:"ap-marker marker rape_of_belgium", size:45, cardIndex: 13},
     great_retreat: {name: "Great Retreat", counter: "ap-marker marker great_retreat", size: 45, cardIndex: 27},
     landships: {name: "Landships", counter: "ap-marker marker landships", size: 45, cardIndex: 28},
     salonika: {name: "Salonika", counter: "ap-marker marker salonika", size: 45, cardIndex: 30},
-    independent_air_force: {
-        name: "Independent Air Force",
-        counter: "ap-marker marker independent_air_force",
-        size: 45,
-        cardIndex: 37
-    },
+    independent_air_force: {name: "Independent Air Force", counter: "ap-marker marker independent_air_force", size: 45, cardIndex: 37},
     convoy: {name: "Convoy", counter: "ap-marker marker convoy", size: 45, cardIndex: 52},
-    everyone_into_battle: {
-        name: "Everyone into battle",
-        counter: "ap-marker marker everyone_into_battle",
-        size: 45,
-        cardIndex: 51
-    },
-    italy_entry: {name: "Italy", counter: "ap-marker marker italy", size: 45, cardIndex: 17},
-    mef: {name: "MEF (BR Reinforcements)", counter: "ap-marker marker mef", size: 45, cardIndex: 31},
-    romania_entry: {name: "Romania", counter: "ap-marker marker romania", size: 45, cardIndex: 16},
-    salinika: {name: "Salonika", counter: "ap-marker marker salonika", size: 45, cardIndex: 30},
-    brusilov_offensive: {
-        name: "Brusilov Offensive",
-        counter: "ap-marker marker brusilov_offensive",
-        size: 45,
-        cardIndex: 46
-    },
-    zimmermann_telegram: {
-        name: "Zimmermann Telegram",
-        counter: "ap-marker marker zimmermann_telegram",
-        size: 45,
-        cardIndex: 54
-    },
-    greece_entry: {name: "Greece", counter: "ap-marker marker greece", size: 45, cardIndex: 44},
-    allenby: {name: "Allenby (BR Reinforcements)", counter: "ap-marker marker allenby", size: 45, cardIndex: 50},
+    everyone_into_battle: {name: "Everyone Into Battle", counter: "ap-marker marker everyone_into_battle", size: 45, cardIndex: 51},
+    brusilov_offensive: {name: "Brusilov Offensive", counter: "ap-marker marker brusilov_offensive", size: 45, cardIndex: 46},
+    zimmermann_telegram: {name: "Zimmermann Telegram", counter: "ap-marker marker zimmermann_telegram", size: 45, cardIndex: 54},
+    over_there: {name: "Over There", counter: "ap-marker marker over_there", size: 45, cardIndex: 55},
+    grand_fleet: {name: "Grand Fleet", counter: "ap-marker marker grand_fleet", size: 45, cardIndex: 33},
+
+    italy: {name: "Italy", counter: "ap-marker marker italy", size: 45, cardIndex: 17},
+    romania: {name: "Romania", counter: "ap-marker marker romania", size: 45, cardIndex: 16},
+    greece: {name: "Greece", counter: "ap-marker marker greece", size: 45, cardIndex: 44},
+    br1: {name: "BR 1", counter: "ap-marker marker br1", size: 45, cardIndex: 14},
+    br2: {name: "BR 2", counter: "ap-marker marker br2", size: 45, cardIndex: 1},
+    mef: {name: "MEF", counter: "ap-marker marker mef", size: 45, cardIndex: 31},
+    allenby: {name: "Allenby", counter: "ap-marker marker allenby", size: 45, cardIndex: 50},
 
     // synthesized cp event markers
     guns_of_august: {name: "Guns of August", counter: "cp-marker marker guns_of_august", size: 45, cardIndex: 65 + 1},
     entrench_cp: {name: "Entrench", counter: "cp-marker marker entrench", size: 45, cardIndex: 65 + 6},
-    race_to_the_sea: {
-        name: "Race to the Sea",
-        counter: "cp-marker marker race_to_the_sea",
-        size: 45,
-        cardIndex: 65 + 8
-    },
+    race_to_the_sea: {name: "Race to the Sea", counter: "cp-marker marker race_to_the_sea", size: 45, cardIndex: 65 + 8},
     oberost: {name: "Oberost", counter: "cp-marker marker oberost", size: 45, cardIndex: 65 + 11},
-    reichstag_truce: {
-        name: "Reichstag Truce",
-        counter: "cp-marker marker reichstag_truce",
-        size: 45,
-        cardIndex: 65 + 9
-    },
+    reichstag_truce: {name: "Reichstag Truce", counter: "cp-marker marker reichstag_truce", size: 45, cardIndex: 65 + 9},
     falkenhayn: {name: "Falkenhayn", counter: "cp-marker marker falkenhayn", size: 45, cardIndex: 65 + 13},
-    high_seas_fleet: {
-        name: "High Seas Fleet",
-        counter: "cp-marker marker high_seas_fleet",
-        size: 45,
-        cardIndex: 65 + 25
-    },
+    high_seas_fleet: {name: "High Seas Fleet", counter: "cp-marker marker high_seas_fleet", size: 45, cardIndex: 65 + 25},
     zeppelin_raids: {name: "Zeppelin Raids", counter: "cp-marker marker zeppelin_raids", size: 45, cardIndex: 65 + 27},
-    uboats_unleashed: {
-        name: "U-Boats Unleashed",
-        counter: "cp-marker marker u_boats_unleashed",
-        size: 45,
-        cardIndex: 65 + 36
-    },
+    uboats_unleashed: {name: "U-Boats Unleashed", counter: "cp-marker marker uboats_unleashed", size: 45, cardIndex: 65 + 36},
     hoffmann: {name: "Hoffmann", counter: "cp-marker marker hoffmann", size: 45, cardIndex: 65 + 37},
     michael: {name: "Michael", counter: "cp-marker marker michael", size: 45, cardIndex: 65 + 49},
     blucher: {name: "Blucher", counter: "cp-marker marker blucher", size: 45, cardIndex: 65 + 50},
-    peace_offensive: {
-        name: "Peace Offensive",
-        counter: "cp-marker marker peace_offensive",
-        size: 45,
-        cardIndex: 65 + 51
-    },
-    h_l_take_command: {
-        name: "H-L Take Command",
-        counter: "cp-marker marker h_l_take_command",
-        size: 45,
-        cardIndex: 65 + 54
-    },
-    polish_restoration: {
-        name: "Polish Restoration",
-        counter: "cp-marker marker polish_restoration",
-        size: 45,
-        cardIndex: 65 + 59
-    },
+    peace_offensive: {name: "Peace Offensive", counter: "cp-marker marker peace_offensive", size: 45, cardIndex: 65 + 51},
+    h_l_take_command: {name: "H-L Take Command", counter: "cp-marker marker h_l_take_command", size: 45, cardIndex: 65 + 54},
+    polish_restoration: {name: "Polish Restoration", counter: "cp-marker marker polish_restoration", size: 45, cardIndex: 65 + 59},
     lloyd_george: {name: "Lloyd George", counter: "cp-marker marker lloyd_george", size: 45, cardIndex: 65 + 55},
-    bulgaria_entry: {name: "Bulgaria", counter: "cp-marker marker bulgaria", size: 45, cardIndex: 99},
     walter_rathenau: {name: "Walter Rathenau", counter: "cp-marker marker walter_rathenau", size: 45, cardIndex: 98},
-    place_of_execution: {
-        name: "Place of Execution",
-        counter: "cp-marker marker place_of_execution",
-        size: 45,
-        cardIndex: 91
-    },
-    tsar_takes_command: {
-        name: "Tsar Takes Command",
-        counter: "cp-marker marker tsar_takes_command",
-        size: 45,
-        cardIndex: 93
-    },
+    place_of_execution: {name: "Place of Execution", counter: "cp-marker marker place_of_execution", size: 45, cardIndex: 91},
+    tsar_takes_command: {name: "Tsar Takes Command", counter: "cp-marker marker tsar_takes_command", size: 45, cardIndex: 93},
     war_in_africa: {name: "War in Africa", counter: "cp-marker marker war_in_africa", size: 45, cardIndex: 97},
+    bolshevik_revolution: {name: "Bolshevik Revolution", counter: "cp-marker marker bolshevik_revolution", size: 45, cardIndex: 118},
+    treaty_of_brest_litovsk: {name: "Treaty of Brest-Litovsk", counter: "cp-marker marker treaty_of_brest_litovsk", size: 45, cardIndex: 110},
     french_mutiny: {name: "French Mutiny", counter: "cp-marker marker french_mutiny", size: 45, cardIndex: 112},
-    treaty_of_brest_litovsk: {
-        name: "Treaty of Brest Litovsk",
-        counter: "cp-marker marker treaty_of_brest_litovsk",
-        size: 45,
-        cardIndex: 110
-    },
+
+    bulgaria: {name: "Bulgaria", counter: "ap-marker marker bulgaria", size: 45, cardIndex: 99},
 }
 
 let markers_by_card = []

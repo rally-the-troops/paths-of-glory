@@ -104,7 +104,7 @@ const GERMAN_REINFORCEMENTS_7 = 106
 const TURKISH_REINFORCEMENTS_1 = 107
 const VON_BELOW = 108
 const VON_HUTIER = 109
-const TREATY_OF_BRESK_LITOVSK = 110
+const TREATY_OF_BREST_LITOVSK = 110
 const GERMAN_REINFORCEMENTS_8 = 111
 const FRENCH_MUTINY = 112
 const TURKISH_REINFORCEMENTS_2 = 113
@@ -515,6 +515,7 @@ exports.view = function(state, current) {
         russian_capitulation: game.russian_capitulation,
         last_card: game.last_card,
         activated: game.activated,
+        activation_cost: game.activation_cost,
         move: game.move,
         attack: game.attack,
         ap: {
@@ -731,6 +732,7 @@ function create_empty_game_state(seed, scenario) {
             move: [], // Spaces activated for movement
             attack: [] // Spaces activated for attack
         },
+        activation_cost: [], // Cost space was activated for
         control: Array(Math.floor((data.spaces.length + 7) / 8)).fill(0),
         forts: { // data for spaces tells you strength of forts per space
             destroyed: [], // Spaces with destroyed forts
@@ -1110,13 +1112,13 @@ function set_up_great_war_scenario() {
     setup_piece(GREECE, 'GRc', 'Larisa')
 
     // Bulgaria is at war
-    game.war.bu = 1
+    game.war.bu = 7 //BR// Actual historic entry turn, just for the hell of it
 
     // Italy is at war
-    game.war.it = 1
+    game.war.it = 5 //BR// Actual historic entry turn, just for the hell of it
 
     // Turkey is at war
-    game.war.tu = 1
+    game.war.tu = 3 //BR// Actual historic entry turn, just for the hell of it
 
     // Set control for all spaces containing a piece
     for (let p = 1; p < data.pieces.length; p++) {
@@ -1156,7 +1158,7 @@ function is_optional_card(c) {
 }
 
 function is_base_deck(i) {
-    return !is_optional_card(i);
+    return !is_optional_card(i)
 }
 
 function is_valiant_deck(i) {
@@ -1541,7 +1543,7 @@ function nation_at_war(nation) {
 function set_nation_at_war(nation) {
     if (nation_at_war(nation)) return
 
-    game.war[nation] = 1
+    game.war[nation] = game.turn
 
     if (nation === TURKEY) {
         log_h3("Turkey enters the war", CP)
@@ -1669,7 +1671,11 @@ function roll_mandated_offensives() {
 
     log(`Mandated offensives:`)
     log(`CP: ${fmt_roll(cp_roll, cp_drm)} -> ${nation_name(cp_mo)}`)
-    log(`AP: W${ap_roll} -> ${nation_name(ap_mo)}`)
+    if ((ap_mo == FRANCE) && (game.events.french_mutiny > 0)) {
+        log(`AP: W${ap_roll} -> ${card_name(FRENCH_MUTINY)}`)
+    } else {
+        log(`AP: W${ap_roll} -> ${nation_name(ap_mo)}`)
+    }
     log_event_for_rollback("Rolled Mandated Offensives")
 
     game.ap.mo = ap_mo
@@ -1751,7 +1757,7 @@ states.confirm_mo = {
         if (game[active_faction()].mo === NONE)
             view.prompt = `Turn ${game.turn}: No mandated offensive.`
         else if (game.events.french_mutiny > 0 && game[active_faction()].mo === FRANCE)
-            view.prompt = `Turn ${game.turn}: French mutiny (Mandated offensive for ${nation_name(game[active_faction()].mo)}).`
+            view.prompt = `Turn ${game.turn}: ${card_name(FRENCH_MUTINY)} (instead of mandated offensive).`
         else
             view.prompt = `Turn ${game.turn}: Mandated offensive for ${nation_name(game[active_faction()].mo)}.`
         gen_action_next()
@@ -2014,6 +2020,20 @@ states.action_phase = {
             if (player_actions.length === 5 && game[active_faction()].mo !== NONE && !french_mutiny_active)
                 view.prompt += ` Final round for ${nation_name(game[active_faction()].mo)} mandated offensive!`
 
+            if (active_faction() === CP) {
+                if ((game.vp <= 0) && player_actions.length === 5) {
+                    view.prompt += ` Final round to avoid AP autovictory (VP is 0)!`
+                } else if (game.vp <= 2) {
+                    view.prompt += ` CAUTION: VP total now ${game.vp}.`
+                }
+            } else {
+                if ((game.vp >= 20) && player_actions.length === 5) {
+                    view.prompt += ` Final round to avoid CP autovictory (VP is ${game.vp})!`
+                } else if (game.vp >= 18) {
+                    view.prompt += ` CAUTION: VP total now ${game.vp}.`
+                }
+            }
+
             for(let card of player_hand) {
                 gen_card_menu(card)
             }
@@ -2143,7 +2163,7 @@ function goto_play_ops(card) {
         play_card(card)
         game.ops = data.cards[card].ops
     }
-    game.state = 'activate_spaces'
+    goto_activate_spaces()
 }
 
 // === STRATEGIC REDEPLOYMENT ===
@@ -2654,6 +2674,12 @@ function goto_play_reinf(card) {
         active_player.ws += card_data.ws
         logi(`War Status +${card_data.ws} to ${active_player.ws} (${game.ap.ws + game.cp.ws})`)
         update_us_entry()
+
+        //BR// Turn track event markers for the WS-generating reinforcement cards
+        if (card === BRITISH_REINFORCEMENTS_2) game.events.br1 = game.turn; // Yes BR1 is BR2 and BR2 is BR1.
+        if (card === BRITISH_REINFORCEMENTS_1) game.events.br2 = game.turn;
+        if (card === MEF) game.events.mef = game.turn;
+        if (card === ALLENBY) game.events.allenby = game.turn;
     }
 
     if (!game.events.reinforcements)
@@ -2838,6 +2864,16 @@ function roll_peace_terms(faction_offering, combined_war_status) {
     log_event_for_rollback("Rolled peace terms")
 }
 
+function goto_activate_spaces() {
+    game.state = 'activate_spaces';
+    game.activation_cost = [];
+}
+
+function push_activation_cost(space, cost) {
+    if (!game.activation_cost) game.activation_cost = [];
+    map_set(game.activation_cost, space, cost);
+}
+
 states.activate_spaces = {
     inactive: "activate spaces",
     prompt() {
@@ -2890,25 +2926,44 @@ states.activate_spaces = {
 
         for (let s of move_spaces)
             gen_action("activate_move", s)
-        for (let s of attack_spaces)
-            gen_action("activate_attack", s)
+
+        for (let s of attack_spaces) {
+            let menu_action = "activate_attack"
+            if ((active_faction() === AP) && is_french_mutiny_mo()) {
+                const nation = data.spaces[s].nation
+                if ((nation === FRANCE || nation === BELGIUM || nation === GERMANY)) {
+                    if (all_pieces_by_nation[FRANCE].some(p => game.location[p] === s) &&
+                        !all_pieces_by_nation[US].some(p => game.location[p] === s)) {
+                        menu_action = "activate_attack_mutiny"
+                    }
+                }
+            }
+            gen_action(menu_action, s)
+        }
 
         gen_action_skip()
     },
     activate_move(s) {
         push_undo()
         set_add(game.activated.move, s)
-        game.ops -= cost_to_activate(s, MOVE)
+        let cost = cost_to_activate(s, MOVE)
+        game.ops -= cost
+        push_activation_cost(s, cost)
         if (!game.sud_army_space && is_possible_sud_army_stack(get_pieces_in_space(s))) {
             game.sud_army_space = s
         }
         if (game.ops === 0)
             start_action_round()
     },
+    activate_attack_mutiny(s) {
+        this.activate_attack(s)
+    },
     activate_attack(s) {
         push_undo()
         set_add(game.activated.attack, s)
-        game.ops -= cost_to_activate(s, ATTACK)
+        let cost = cost_to_activate(s, ATTACK)
+        game.ops -= cost
+        push_activation_cost(s, cost)
         if (!game.sud_army_space && is_possible_sud_army_stack(get_pieces_in_space(s))) {
             game.sud_army_space = s
         }
@@ -2930,16 +2985,21 @@ function start_action_round() {
     game.attacked = []
     game.retreated = []
 
+
     if (game.activated.move.length > 0) {
         log("Move")
-        for (let s of game.activated.move)
-            log(">" + space_name(s))
+        for (let s of game.activated.move) {
+            let cost = game.activation_cost ? map_get(game.activation_cost, s, 1) : 1
+            log(">" + space_name(s) + ((cost > 1) ? " (" + cost + " OPs)" : ""))
+        }
     }
 
     if (game.activated.attack.length > 0) {
         log("Attack")
-        for (let s of game.activated.attack)
-            log(">" + space_name(s))
+        for (let s of game.activated.attack) {
+            let cost = game.activation_cost ? map_get(game.activation_cost, s, 1) : 1
+            log(">" + space_name(s) + ((cost > 1) ? " (" + cost + " OPs)" : ""))
+        }
     }
 
     game.location.forEach((s, p) => {
@@ -3150,11 +3210,13 @@ function update_us_entry() {
     const previous_level = game.us_entry
     if (game.events.over_there > 0) {
         game.us_entry = 3
+        if (previous_level < 2) log_h3(`US Commitment Track has reached ${card_name(OVER_THERE)}!`) // (The ! is verbatim from the playing board)
     } else if (game.events.zimmermann_telegram > 0) {
         game.us_entry = 2
+        if (previous_level < 2) log_h3(`US Commitment Track has reached ${card_name(ZIMMERMANN_TELEGRAM)}`)
     } else if (events.zimmermann_telegram.can_play()) {
         game.us_entry = 1
-        if (previous_level < 1) log(`${card_name(ZIMMERMANN_TELEGRAM)} can now be played`)
+        if (previous_level < 1) log_h3(`US Commitment: ${card_name(ZIMMERMANN_TELEGRAM)} can now be played`)
     } else {
         game.us_entry = 0
     }
@@ -3165,12 +3227,12 @@ function update_russian_capitulation() {
     if (game.events.treaty_of_brest_litovsk > 0) {
         game.russian_capitulation = 7
         if (previous_level < 7) {
-          log_h3(`Russian Capitulation Track reaches ${card_name(TREATY_OF_BREST_LITOVSK)}`)
+            log_h3(`Russian Capitulation Track reaches ${card_name(TREATY_OF_BREST_LITOVSK)}`)
         }
     } else if (game.events.bolshevik_revolution > 0) {
         game.russian_capitulation = 6
         if (previous_level < 6) {
-          log_h3(`Russian Capitulation Track reaches ${card_name(BOLSHEVIK_REVOLUTION)}`)
+            log_h3(`Russian Capitulation Track reaches ${card_name(BOLSHEVIK_REVOLUTION)}`)
         }
     } else if (events.bolshevik_revolution.can_play()) {
         game.russian_capitulation = 5
@@ -3178,9 +3240,9 @@ function update_russian_capitulation() {
     } else if (game.events.fall_of_the_tsar > 0) {
         game.russian_capitulation = 4
         if (previous_level > 4) {
-          log_h3(`Russian Capitulation: ${card_name(BOLSHEVIK_REVOLUTION)} can no longer be played`)
+            log_h3(`Russian Capitulation: ${card_name(BOLSHEVIK_REVOLUTION)} can no longer be played`)
         } else if (previous_level < 4) {
-          log_h3(`Russian Capitulation Track reaches ${card_name(FALL_OF_THE_TSAR)}`)
+            log_h3(`Russian Capitulation Track reaches ${card_name(FALL_OF_THE_TSAR)}`)
         }
     } else if (events.fall_of_the_tsar.can_play()) {
         game.russian_capitulation = 3
@@ -3188,9 +3250,9 @@ function update_russian_capitulation() {
     } else if (game.events.tsar_takes_command > 0) {
         game.russian_capitulation = 2
         if (previous_level > 2) {
-          log_h3(`Russian Capitulation: ${card_name(FALL_OF_THE_TSAR)} can no longer be played`)
+            log_h3(`Russian Capitulation: ${card_name(FALL_OF_THE_TSAR)} can no longer be played`)
         } else if (previous_level < 2) {
-          log_h3(`Russian Capitulation Track reaches ${card_name(TSAR_TAKES_COMMAND)}`)
+            log_h3(`Russian Capitulation Track reaches ${card_name(TSAR_TAKES_COMMAND)}`)
         }
     } else if (events.tsar_takes_command.can_play()) {
         game.russian_capitulation = 1
@@ -3300,6 +3362,14 @@ function can_entrench_with_selected() {
     )
 }
 
+function better_entrencher_available() {
+    let s = game.move.initial
+    let p = game.move.pieces[0]
+    if (!game.failed_entrench) return false
+    if (set_has(game.failed_entrench, p)) return false
+    return game.failed_entrench.some(pp => game.location[pp] === s)
+}
+
 states.choose_pieces_to_move = {
     inactive: 'move',
     prompt() {
@@ -3315,7 +3385,12 @@ states.choose_pieces_to_move = {
 
         if (can_entrench_with_selected()) {
             view.prompt = `Move ${piece_name(game.move.pieces[0])} from ${space_name(game.move.initial)} or attempt to entrench.`
-            gen_action("entrench")
+
+            if (better_entrencher_available()) {
+                gen_action("confirm_odd_entrench")
+            } else {
+                gen_action("entrench")
+            }
         }
 
         if (game.move.pieces.length > 0) {
@@ -3335,6 +3410,9 @@ states.choose_pieces_to_move = {
         if (game.move.pieces.length === 0)
             push_undo()
         set_add(game.move.pieces, p)
+    },
+    confirm_odd_entrench() {
+        this.entrench()
     },
     entrench() {
         push_undo()
@@ -3936,10 +4014,17 @@ states.confirm_attack = {
     prompt() {
         view.prompt = `Attack ${space_name(game.attack.space)} with ${piece_list(game.attack.pieces)} at ${fmt_attack_odds()}?`
         if (french_mutiny_penalty_should_be_awarded()) {
-            view.prompt += ' French mutiny will be satisfied.'
+            view.prompt += ' (1 VP penalty for French Mutiny will be applied)'
         }
         view.where = game.attack.space
-        gen_action('attack')
+        if (french_mutiny_penalty_should_be_awarded()) {
+            gen_action('confirm_mutiny_attack')
+        } else {
+            gen_action('attack')
+        }
+    },
+    confirm_mutiny_attack() {
+        this.attack()
     },
     attack() {
         goto_attack()
@@ -3977,6 +4062,17 @@ function goto_attack() {
         update_russian_ne_restriction_flag(game.attack.pieces, source, game.attack.space)
     })
 
+    //BR// Moved up here to appear *before* the attack (so it can be log_h3 without breaking the attack box)
+    if (game.attack.attacker === AP && is_french_mutiny_mo()) {
+        if (french_mutiny_penalty_should_be_awarded()) {
+            game.vp += 1
+            log_h3(`${card_name(FRENCH_MUTINY)} -- +1 VP -- French unit not stacked with US unit attacked a space in France/Belgium/Germany during French Mutiny`)
+            game[active_faction()].mo = NONE
+            game.ap.missed_mo.push(game.turn)      //BR// This should be marked on the turn track as a missed MO (unless we later make special FR Mutiny counters, in which case use those)
+            //record_score_event(1, FRENCH_MUTINY) //BR// Now covered in score summary by the missed MO marker
+        }
+    }
+
     log_attack(`${space_name(game.attack.space)}`)
     log(`Attackers:`)
     attack_sources.forEach((source) => {
@@ -3997,14 +4093,7 @@ function goto_attack() {
 
     const mo = active_faction() === AP ? game.ap.mo : game.cp.mo
 
-    if (game.attack.attacker === AP && is_french_mutiny_mo()) {
-        if (french_mutiny_penalty_should_be_awarded()) {
-            game.vp += 1
-            record_score_event(1, FRENCH_MUTINY)
-            log(`+1 VP -- French unit attacked without US stacking after French Mutiny`)
-            game[active_faction()].mo = NONE
-        }
-    } else if (mo !== NONE && satisfies_mo(mo, game.attack.pieces, defenders, game.attack.space)) {
+    if (mo !== NONE && ((game.attack.attacker !== AP) || !is_french_mutiny_mo()) && satisfies_mo(mo, game.attack.pieces, defenders, game.attack.space)) {
         game[active_faction()].mo = NONE
         log(`*Mandated offensive satisfied!`)
     }
@@ -4849,6 +4938,7 @@ states.eliminate_retreated_units = {
     piece(p) {
         push_undo()
         // Pieces eliminated in this condition are sent to the eliminated box and not replaced (12.5.6)
+        log(`>${piece_name(p)} in ${space_name(game.location[p])} eliminated`)
         send_to_eliminated_box(p)
         set_delete(game.retreated, p)
     },
@@ -4957,6 +5047,7 @@ function replace_defender_unit(unit, location, replacement) {
     game.location[replacement] = location
     game.attack.defender_replacements[unit] = replacement
     logi(`${piece_name(unit, true)} broke to ${piece_name(replacement)}${log_corps(replacement)}`)
+    check_rb_empty(replacement)
 }
 
 states.withdrawal_negate_step_loss = {
@@ -5023,7 +5114,7 @@ states.withdrawal_negate_step_loss_confirm = {
     }
 }
 
-function eliminate_piece(p, force_permanent_elimination) {
+function eliminate_piece(p, force_permanent_elimination, reason) {
     let here = ""
     if (!game.attack)
     // if (!game.attack || game.attack.space !== game.location[p]) // TODO - log location of attacker losses
@@ -5048,7 +5139,18 @@ function eliminate_piece(p, force_permanent_elimination) {
     let replacement_options = get_replacement_options(p, get_units_in_reserve())
     if (force_permanent_elimination || replacement_options.length === 0 || data.pieces[p].notreplaceable || !is_unit_supplied(p)) {
         // Permanently eliminate piece
-        log(`>*${piece_name(p)}${here} permanently eliminated`)
+        if (!reason && !data.pieces[p].notreplaceable) {
+            if (replacement_options.length === 0) {
+                reason = 'no replacement corps'
+            } else if (!is_unit_supplied(p)) {
+                reason = 'out of supply'
+            }
+        }
+        if (reason && reason !== "") {
+            log(`>*${piece_name(p)}${here} permanently eliminated - ${reason}`)
+        } else {
+            log(`>*${piece_name(p)}${here} permanently eliminated`)
+        }
         set_add(game.removed, p)
         game.location[p] = PERM_ELIMINATED_BOX
         return replacement_options
@@ -5145,6 +5247,7 @@ states.choose_attacker_replacement = {
 
 function replace_attacker_unit(unit, location, replacement) {
     logi(`${piece_name(unit, true)} broke to ${piece_name(replacement)}${log_corps(replacement)}`)
+    check_rb_empty(replacement)
     set_add(game.attack.pieces, replacement)
     game.location[replacement] = location
 }
@@ -5240,6 +5343,23 @@ function get_reserve_units_by_nation(nation) {
         }
     }
     return `(${full},${reduced})`
+}
+
+function check_rb_empty(replacement) {
+    let nation = data.pieces[replacement].nation
+    let reduced = 0, full = 0
+    for (let p of all_pieces_by_nation[nation]) {
+        if (game.location[p] === AP_RESERVE_BOX || game.location[p] === CP_RESERVE_BOX) {
+            if (is_unit_reduced(p))
+                ++reduced
+            else
+                ++full
+        }
+    }
+
+    if ((full <= 0) && (reduced <= 0)) {
+        log (`*Reserve Box EMPTY for ${nation_name(nation)}!`)
+    }
 }
 
 // Recursively build a tree of possible options for choosing losses
@@ -5607,6 +5727,7 @@ states.choose_retreat_canceling_replacement = {
 function replace_retreat_canceling_unit(unit, location, replacement) {
     game.location[replacement] = location
     logi(`${piece_name(unit, true)} in ${space_name(location)} broke to ${piece_name(replacement)}${log_corps(replacement)}`)
+    check_rb_empty(replacement)
 }
 
 function goto_defender_retreat() {
@@ -5660,7 +5781,7 @@ states.defender_retreat = {
             let options_for_piece = get_retreat_options([p], game.location[p], game.attack.retreat_length - game.attack.retreat_path.length)
             if (options_for_piece.length > 0)
                 continue // Only eliminate pieces that have no valid retreat options
-            eliminate_piece(p, true)
+            eliminate_piece(p, true, 'failure to retreat')
             eliminated.push(p)
             // 12.4.7, section 2
             // When an army is replaced by a corps and then that corps cannot fulfill a mandatory retreat, the army is
@@ -5670,7 +5791,7 @@ states.defender_retreat = {
                 if (replacement === p) {
                     let replaced_piece = parseInt(replaced)
                     if (!set_has(game.removed, replaced_piece))
-                        eliminate_piece(parseInt(replaced), true)
+                        eliminate_piece(parseInt(replaced), true, 'failure to retreat')
                 }
             }
         }
@@ -6084,6 +6205,13 @@ function is_possible_sud_army_stack(pieces) {
     return ah_pieces === 1 && ge_corps >= 1 && ah_pieces + ge_corps === pieces.length
 }
 
+function get_piece_nation_for_activation(p) {
+    if (p === BRITISH_ANA_CORPS) return BRITAIN
+    if (p === MONTENEGRIN_CORPS) return SERBIA
+    if (p === TURKISH_SN_CORPS) return TURKEY
+    return data.pieces[p].nation
+}
+
 function cost_to_activate(space, type) {
     let nations = []
     let pieces = []
@@ -6092,9 +6220,7 @@ function cost_to_activate(space, type) {
     let faction = AP
     for_each_piece_in_space(space, (piece) => {
         num_pieces++
-        let n = data.pieces[piece].nation
-        if (n === "sn") n = TURKEY
-        if (n === MONTENEGRO) n = SERBIA
+        let n = get_piece_nation_for_activation(piece)
         if (n === RUSSIA) num_russians++
         set_add(nations, n)
         pieces.push(piece)
@@ -7461,7 +7587,7 @@ function goto_end_event() {
 
 states.confirm_event = {
     inactive() {
-        view.prompt = `execute "${current_card_name()}"`
+        view.prompt = `execute "${current_card_name()}."`
     },
     prompt() {
         view.prompt = current_card_name() + ": Done."
@@ -7736,7 +7862,7 @@ events.mata_hari = {
             log(`${card_name(c)}`)
         }
         game.ops = data.cards[MATA_HARI].ops
-        game.state = 'activate_spaces'
+        goto_activate_spaces()
     }
 }
 
@@ -7845,8 +7971,8 @@ events.tsar_takes_command = {
     play() {
         game.events.tsar_takes_command = game.turn
         game.ops = data.cards[TSAR_TAKES_COMMAND].ops
-        game.state = 'activate_spaces'
         update_russian_capitulation()
+        goto_activate_spaces()
     }
 }
 
@@ -7915,9 +8041,21 @@ events.war_in_africa = {
         return true
     },
     play() {
+        game.state = 'war_in_africa_confirm'
+    }
+}
+
+states.war_in_africa_confirm = {
+    inactive: 'execute "War in Africa"',
+    prompt() {
+        view.prompt = 'Confirm play of War in Africa.'
+        gen_action_done()
+    },
+    done() {
         set_active_faction(AP)
-        game.war_in_africa_removed = 0
         game.state = 'war_in_africa'
+        game.war_in_africa_removed = 0
+        game.events.war_in_africa = game.turn
         clear_undo()
     }
 }
@@ -8240,8 +8378,8 @@ events.fall_of_the_tsar = {
         }
 
         game.ops = data.cards[FALL_OF_THE_TSAR].ops
-        game.state = 'activate_spaces'
         update_russian_capitulation()
+        goto_activate_spaces()
     }
 }
 
@@ -8262,10 +8400,13 @@ events.bolshevik_revolution = {
     },
     play() {
         game.events.bolshevik_revolution = game.turn
+        if (game.ap.mo === RUSSIA) {
+            game.ap.mo = NONE
+        }
 
         game.ops = data.cards[BOLSHEVIK_REVOLUTION].ops
-        game.state = 'activate_spaces'
         update_russian_capitulation()
+        goto_activate_spaces()
     }
 }
 
@@ -8759,7 +8900,7 @@ events.cloak_and_dagger = {
             log(`${card_name(c)}`)
         }
         game.ops = data.cards[CLOAK_AND_DAGGER].ops
-        game.state = 'activate_spaces'
+        goto_activate_spaces()
     }
 }
 
@@ -8786,7 +8927,7 @@ events.great_retreat = {
         game.events.great_retreat = game.turn
         if (game.options.valiant) {
             game.ops = data.cards[GREAT_RETREAT].ops
-            game.state = 'activate_spaces'
+            goto_activate_spaces()
         } else {
             goto_end_event()
         }
@@ -8843,13 +8984,22 @@ states.great_retreat = {
     space(s) {
         push_undo()
         logi(`${piece_name(game.attack.great_retreat)} -> ${space_name(s)}`)
+        const from  = game.location[game.attack.great_retreat]
+        update_russian_ne_restriction_flag([game.attack.great_retreat], from, s)
+        if (set_has(game.broken_sieges, from))
+            set_delete(game.broken_sieges, from)
+
         game.location[game.attack.great_retreat] = s
-        game.attack.great_retreat = 0
+        if (!is_controlled_by(s, AP) && !has_undestroyed_fort(s, CP) && can_take_control([game.attack.great_retreat]))
+            set_control(s, AP)
         update_siege(game.attack.space)
+        update_siege(s)
+        game.attack.great_retreat = 0
+        update_supply()
     },
     eliminate() {
         push_undo()
-        eliminate_piece(game.attack.great_retreat, true)
+        eliminate_piece(game.attack.great_retreat, true, 'failure to retreat')
         game.attack.great_retreat = 0
     },
     done() {
@@ -8881,7 +9031,7 @@ events.landships = {
     play() {
         game.events.landships = game.turn
         game.ops = data.cards[LANDSHIPS].ops
-        game.state = 'activate_spaces'
+        goto_activate_spaces()
     }
 }
 
@@ -8947,6 +9097,7 @@ events.grand_fleet = {
         return game.events.high_seas_fleet > 0
     },
     play() {
+        game.events.grand_fleet = game.turn
         delete game.events.high_seas_fleet
         goto_end_event()
     }
@@ -8960,7 +9111,7 @@ events.yanks_and_tanks = {
     play() {
         game.ops = data.cards[YANKS_AND_TANKS].ops
         game.action_state.yanks_and_tanks = true
-        game.state = 'activate_spaces'
+        goto_activate_spaces()
     },
     can_apply() {
         if (!game.attack)
@@ -9064,7 +9215,7 @@ events.kerensky_offensive = {
     play() {
         game.ops = data.cards[KERENSKY_OFFENSIVE].ops
         game.action_state.kerensky_available = true
-        game.state = 'activate_spaces'
+        goto_activate_spaces()
     },
     can_apply() {
         if (!game.attack.pieces.some(p => data.pieces[p].nation === RUSSIA))
@@ -9102,7 +9253,8 @@ events.brusilov_offensive = {
         game.ops = data.cards[BRUSILOV_OFFENSIVE].ops
         game.action_state.brusilov_active = true
         game.action_state.brusilov_available = true
-        game.state = 'activate_spaces'
+        game.events.brusilov_offensive = game.turn
+        goto_activate_spaces()
     },
     can_apply() {
         if (!game.attack.pieces.some(p => data.pieces[p].nation === RUSSIA))
@@ -9212,7 +9364,7 @@ events.zimmermann_telegram = {
         record_score_event(-1, ZIMMERMANN_TELEGRAM)
         logi(`-1 VP for ${card_name(ZIMMERMANN_TELEGRAM)}`)
         game.ops = data.cards[ZIMMERMANN_TELEGRAM].ops
-        game.state = 'activate_spaces'
+        goto_activate_spaces()
     }
 }
 
@@ -9225,7 +9377,7 @@ events.over_there = {
         game.events.over_there = game.turn
         set_nation_at_war(US)
         game.ops = data.cards[OVER_THERE].ops
-        game.state = 'activate_spaces'
+        goto_activate_spaces()
     }
 }
 
