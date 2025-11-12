@@ -881,6 +881,7 @@ const marker_info = {
     br2: {name: "BR 2", counter: "ap-marker marker br2", size: 45, cardIndex: 1},
     mef: {name: "MEF", counter: "ap-marker marker mef", size: 45, cardIndex: 31},
     allenby: {name: "Allenby", counter: "ap-marker marker allenby", size: 45, cardIndex: 50},
+    the_sixtus_affair: {name: "The Sixtus Affair", counter: "ap-marker marker sixtus", size: 45, cardIndex: 62},
 
     // synthesized cp event markers
     guns_of_august: {name: "Guns of August", counter: "cp-marker marker guns_of_august", size: 45, cardIndex: 65 + 1},
@@ -907,7 +908,7 @@ const marker_info = {
     treaty_of_brest_litovsk: {name: "Treaty of Brest-Litovsk", counter: "cp-marker marker treaty_of_brest_litovsk", size: 45, cardIndex: 110},
     french_mutiny: {name: "French Mutiny", counter: "cp-marker marker french_mutiny", size: 45, cardIndex: 112},
 
-    bulgaria: {name: "Bulgaria", counter: "ap-marker marker bulgaria", size: 45, cardIndex: 99},
+    bulgaria: {name: "Bulgaria", counter: "cp-marker marker bulgaria", size: 45, cardIndex: 99},
 }
 
 let markers_by_card = []
