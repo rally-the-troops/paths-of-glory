@@ -889,6 +889,7 @@ const marker_info = {
     br2: {name: "BR 2", counter: "ap-marker marker br2", size: 45, cardIndex: 1},
     mef: {name: "MEF", counter: "ap-marker marker mef", size: 45, cardIndex: 31},
     allenby: {name: "Allenby", counter: "ap-marker marker allenby", size: 45, cardIndex: 50},
+    the_sixtus_affair: {name: "The Sixtus Affair", counter: "ap-marker marker sixtus", size: 45, cardIndex: 62},
 
     // synthesized cp event markers
     guns_of_august: {name: "Guns of August", counter: "cp-marker marker guns_of_august", size: 45, cardIndex: 65 + 1},
