@@ -2037,7 +2037,7 @@ function can_play_event(card) {
         if (game.events.uboats_unleashed > 0 && !game.events.convoy && card_data.reinfnation === US)
             return false
 
-        if (card === MEF && (!nation_at_war(TURKEY) || game.events.salonika > 0))
+        if (card === MEF && !nation_at_war(TURKEY))
             return false
 
         return nation_at_war(card_data.reinfnation)
