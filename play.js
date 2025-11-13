@@ -2033,10 +2033,13 @@ function update_general_records_track() {
     else
         update_general_record("ge_rp", view.rp.ge, !view.rp.ge)
 
-    if (view.events.uboats_unleashed > 0 && !view.events.convoy)
+    if (view.events.uboats_unleashed > 0 && !view.events.convoy) {
         update_general_record("br_rp_back", view.rp.br, false)
-    else
+        update_general_record("br_rp", view.rp.br, true)
+    } else {
+        update_general_record("br_rp_back", view.rp.br, true)
         update_general_record("br_rp", view.rp.br, !view.rp.br)
+    }
 
     update_general_record("ah_rp", view.rp.ah, !view.rp.ah)
     update_general_record("fr_rp", view.rp.fr, !view.rp.fr)
