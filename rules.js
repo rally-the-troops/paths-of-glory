@@ -423,9 +423,6 @@ exports.query = function (state, _current, q) {
         removed.push(...state.cp.removed)
         return removed
     }
-    if (q === 'reinforcements') {
-        return get_reinforcements_sheet_data(state)
-    }
     return null
 }
 
@@ -439,7 +436,6 @@ function get_reinforcement_pieces(card){
     if (card === ARAB_NORTHERN_ARMY)
         piece_nation = 'ana' // This card counts as British reinforcements but places the 'ana' piece
 
-    game.reinforcements = []
     let reinf_names = card_data.reinf.split('|')
     let quantities = {}
     reinf_names.forEach(name => {
@@ -454,29 +450,29 @@ function get_reinforcement_pieces(card){
     return result
 }
 
-function get_reinforcements_sheet_data() {
+function get_reinforcements_sheet_data(state) {
     let cards = {
         disabled: [],
-        reinf: {},
+        reinf: [],
     }
     for (let i = 1; i < data.cards.length; i++) {
         let card_data = data.cards[i]
         let deck = []
-        if (!is_card_allowed_to_deal(i)) {
+        if (!is_card_allowed_to_deal(i, state)) {
             deck = cards.disabled
         }
         if (card_data.reinf) {
             deck.push(i)
-            cards.reinf[i] = get_reinforcement_pieces(i)
+            map_set(cards.reinf, i, get_reinforcement_pieces(i))
         } else if (i === RUSSIAN_CAVALRY) {
             deck.push(i)
-            cards.reinf[i] = [RUS_CAV_CORPS, RUS_CAV_CORPS + 1]
+            map_set(cards.reinf, i, [RUS_CAV_CORPS, RUS_CAV_CORPS + 1])
         } else if (i === CZECH_LEGION) {
             deck.push(i)
-            cards.reinf[i] = [CZECH_CORPS]
+            map_set(cards.reinf, i, [CZECH_CORPS])
         } else if (i === POLISH_RESTORATION) {
             deck.push(i)
-            cards.reinf[i] = [PL_CORPS, PL_CORPS + 1, PL_CORPS + 2]
+            map_set(cards.reinf, i, [PL_CORPS, PL_CORPS + 1, PL_CORPS + 2])
         } else if (card_data.ws) {
             deck.push(i)
         }
@@ -498,6 +494,10 @@ function query_cards(state, faction) {
     cards.deck.sort((a, b) => a - b)
     cards.removed.sort((a, b) => a - b)
     return cards
+}
+
+exports.static_view = function(state) {
+    return get_reinforcements_sheet_data(state)
 }
 
 exports.view = function(state, current) {
