@@ -75,7 +75,6 @@
 				<li class="unchecked" id="style_flat" onclick="set_style('flat')"> Flat
 			</menu>
 		</details>
-		<button onclick="to_reinforcements()"><img src="/images/flying-flag.svg" id="reinforcements_button"></button>
 		<details id="info_menu">
 			<summary><img src="/images/wooden-sign.svg"></summary>
 			<menu>
@@ -83,6 +82,8 @@
 				<li class="separator">
 				<li onclick="send_query('cp_cards')"> Inspect CP Cards
 				<li onclick="send_query('ap_cards')"> Inspect AP Cards
+                <li class="separator">
+                <li class="reinforcements" onclick="to_reinforcements()"> Inspect Reinforcements
 			</menu>
 		</details>
 		<details id="supply_menu">
@@ -171,9 +172,9 @@
 				<div class="panel-body" id="active_cards"></div>
 			</div>
 		</div>
-		<div class="panel">
-			<div id="reinforcements"></div>
-		</div>
+
+		<div id="reinforcements"></div>
+
 	</div>
 </main>
 

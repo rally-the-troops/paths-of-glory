@@ -147,7 +147,7 @@ function on_init(scenario, game_options, static_view){
     for (let c = 1; c < cards.length; ++c) {
         build_card(c)
     }
-    send_query('reinforcements')
+    show_reinforcements(static_view)
 }
 
 function card_class_name(card_number) {
@@ -429,8 +429,8 @@ function show_reinforcements(cards) {
     })
     for (let i = 286; i <= 359; i++) {
         let space = spaces[i]
-        data.cards[space.event].reinf_pieces=cards.reinf[space.event]
-        build_ws_event_space(i, cards.reinf[space.event])
+        data.cards[space.event].reinf_pieces=map_get(cards.reinf, space.event)
+        build_ws_event_space(i, map_get(cards.reinf, space.event))
     }
     document.getElementById("reinforcements").addEventListener("mousedown", evt => {
         if (evt.button === 0) {
@@ -586,8 +586,6 @@ function on_reply(q, params) {
         show_card_list("ap_card_dialog", params)
     if (q === 'cp_cards')
         show_card_list("cp_card_dialog", params)
-    if (q === 'reinforcements')
-        show_reinforcements(params)
 }
 
 function get_control_bit(i) {
@@ -1204,8 +1202,7 @@ function show_popup_menu(evt, menu_id, target_id, title, hide = '') {
               item.classList.remove("action")
               item.classList.add("hide")
               item.onclick = null
-            }
-            else {
+            } else {
                 if (is_action(action, target_id)) {
                     show = true
                     item.classList.add("action")
@@ -2171,7 +2168,7 @@ function should_highlight_space(s) {
         return true
 
     if (view.actions.activate_attack_mutiny && view.actions.activate_attack_mutiny.includes(s))
-        return true;
+        return true
 
     if (view.actions.deactivate && view.actions.deactivate.includes(s))
         return true
@@ -2268,6 +2265,7 @@ function update_turn_track() {
         "allenby",
         "grand_fleet",
         "over_there",
+        "the_sixtus_affair",
 
         // cp markers with no printed counter
         "guns_of_august",
@@ -2788,10 +2786,12 @@ function update_map() {
     )
 
     confirm_action_button("confirm_mutiny_attack", "Attack",
-        "1 VP French Mutiny penalty will be applied!\nDo you still want to Attack?")
+        "1 VP French Mutiny penalty will be applied!\nDo you still want to Attack?"
+    )
 
     confirm_action_button("confirm_odd_entrench", "Entrench",
-        "A different unit in the same space has earned a -1 DRM marker to entrench here.\nDo you still want to entrench with this unit instead?")
+        "A different unit in the same space has earned a -1 DRM marker to entrench here.\nDo you still want to entrench with this unit instead?"
+    )
 
     action_button("pass", "Pass")
 

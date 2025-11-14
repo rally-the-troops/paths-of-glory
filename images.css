@@ -1,8 +1,8 @@
 #map{background-image:url(map75.jpg)}
-#reinforcements{background-image:url(reinf75.jpg); }
+#reinforcements{background-image:url(reinf75.webp); }
 @media (min-resolution: 97dpi) {
 #map{background-image:url(map150.jpg)}
-#reinforcements{background-image:url(reinf150.jpg)}
+#reinforcements{background-image:url(reinf150.webp)}
 }
 
 .marker.mini.fort_destroyed { background-image: url(pieces/fort_destroyed.webp); background-size: 18px 18px; }
