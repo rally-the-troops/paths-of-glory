@@ -1081,6 +1081,9 @@ function set_up_great_war_scenario() {
     setup_piece(RUSSIA, 'RUc', 'AP Eliminated Box')
     setup_piece(RUSSIA, 'RUc', 'AP Eliminated Box')
 
+    // One British corps has been sent to serve in Africa
+    setup_piece(BRITAIN, 'BRc', 'AP Permanently Eliminated Box')
+
     // Bulgaria is at war
     game.war.bu = 7 //BR// Actual historic entry turn, just for the hell of it
 
