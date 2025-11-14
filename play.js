@@ -1076,12 +1076,7 @@ const marker_info = {
     great_retreat: {name: "Great Retreat", counter: "ap-marker marker great_retreat", size: 45, cardIndex: 27},
     landships: {name: "Landships", counter: "ap-marker marker landships", size: 45, cardIndex: 28},
     salonika: {name: "Salonika", counter: "ap-marker marker salonika", size: 45, cardIndex: 30},
-    independent_air_force: {
-        name: "Independent Air Force",
-        counter: "ap-marker marker independent_air_force",
-        size: 45,
-        cardIndex: 37
-    },
+    independent_air_force: {name: "Independent Air Force", counter: "ap-marker marker independent_air_force", size: 45, cardIndex: 37},
     convoy: {name: "Convoy", counter: "ap-marker marker convoy", size: 45, cardIndex: 52},
     everyone_into_battle: {name: "Everyone Into Battle", counter: "ap-marker marker everyone_into_battle", size: 45, cardIndex: 51},
     brusilov_offensive: {name: "Brusilov Offensive", counter: "ap-marker marker brusilov_offensive", size: 45, cardIndex: 46},
@@ -1101,54 +1096,19 @@ const marker_info = {
     // synthesized cp event markers
     guns_of_august: {name: "Guns of August", counter: "cp-marker marker guns_of_august", size: 45, cardIndex: 65 + 1},
     entrench_cp: {name: "Entrench", counter: "cp-marker marker entrench", size: 45, cardIndex: 65 + 6},
-    race_to_the_sea: {
-        name: "Race to the Sea",
-        counter: "cp-marker marker race_to_the_sea",
-        size: 45,
-        cardIndex: 65 + 8
-    },
+    race_to_the_sea: {name: "Race to the Sea", counter: "cp-marker marker race_to_the_sea", size: 45, cardIndex: 65 + 8},
     oberost: {name: "Oberost", counter: "cp-marker marker oberost", size: 45, cardIndex: 65 + 11},
-    reichstag_truce: {
-        name: "Reichstag Truce",
-        counter: "cp-marker marker reichstag_truce",
-        size: 45,
-        cardIndex: 65 + 9
-    },
+    reichstag_truce: {name: "Reichstag Truce", counter: "cp-marker marker reichstag_truce", size: 45, cardIndex: 65 + 9},
     falkenhayn: {name: "Falkenhayn", counter: "cp-marker marker falkenhayn", size: 45, cardIndex: 65 + 13},
-    high_seas_fleet: {
-        name: "High Seas Fleet",
-        counter: "cp-marker marker high_seas_fleet",
-        size: 45,
-        cardIndex: 65 + 25
-    },
+    high_seas_fleet: {name: "High Seas Fleet", counter: "cp-marker marker high_seas_fleet", size: 45, cardIndex: 65 + 25},
     zeppelin_raids: {name: "Zeppelin Raids", counter: "cp-marker marker zeppelin_raids", size: 45, cardIndex: 65 + 27},
-    uboats_unleashed: {
-        name: "U-Boats Unleashed",
-        counter: "cp-marker marker u_boats_unleashed",
-        size: 45,
-        cardIndex: 65 + 36
-    },
+    uboats_unleashed: {name: "U-Boats Unleashed", counter: "cp-marker marker uboats_unleashed", size: 45, cardIndex: 65 + 36},
     hoffmann: {name: "Hoffmann", counter: "cp-marker marker hoffmann", size: 45, cardIndex: 65 + 37},
     michael: {name: "Michael", counter: "cp-marker marker michael", size: 45, cardIndex: 65 + 49},
     blucher: {name: "Blucher", counter: "cp-marker marker blucher", size: 45, cardIndex: 65 + 50},
-    peace_offensive: {
-        name: "Peace Offensive",
-        counter: "cp-marker marker peace_offensive",
-        size: 45,
-        cardIndex: 65 + 51
-    },
-    h_l_take_command: {
-        name: "H-L Take Command",
-        counter: "cp-marker marker h_l_take_command",
-        size: 45,
-        cardIndex: 65 + 54
-    },
-    polish_restoration: {
-        name: "Polish Restoration",
-        counter: "cp-marker marker polish_restoration",
-        size: 45,
-        cardIndex: 65 + 59
-    },
+    peace_offensive: {name: "Peace Offensive", counter: "cp-marker marker peace_offensive", size: 45, cardIndex: 65 + 51},
+    h_l_take_command: {name: "H-L Take Command", counter: "cp-marker marker h_l_take_command", size: 45, cardIndex: 65 + 54},
+    polish_restoration: {name: "Polish Restoration", counter: "cp-marker marker polish_restoration", size: 45, cardIndex: 65 + 59},
     lloyd_george: {name: "Lloyd George", counter: "cp-marker marker lloyd_george", size: 45, cardIndex: 65 + 55},
     walter_rathenau: {name: "Walter Rathenau", counter: "cp-marker marker walter_rathenau", size: 45, cardIndex: 98},
     place_of_execution: {name: "Place of Execution", counter: "cp-marker marker place_of_execution", size: 45, cardIndex: 91},
