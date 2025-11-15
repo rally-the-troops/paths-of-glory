@@ -602,16 +602,17 @@ exports.setup = function (seed, scenario, options) {
         game.options.hand_size = 8
         game.failed_entrench = []
         set_up_standard_decks(true)
+        goto_start_turn()
     } else if (scenario === GREAT_WAR) {
         game.options.hand_size = 8
         game.failed_entrench = []
         set_up_great_war_scenario_decks()
+        goto_start_great_war_scenario()
     } else {
         game.options.hand_size = 7
         set_up_standard_decks(false)
+        goto_start_turn()
     }
-
-    goto_start_turn()
 
     return game
 }
@@ -859,7 +860,8 @@ function set_up_historical_scenario() {
 }
 
 function set_up_great_war_scenario() {
-    game.turn = 11
+    game.turn = 10 // Start at replacement phase of turn 10
+    game.state = 'replacement_phase'
     game.cp.commitment = COMMITMENT_TOTAL
     game.ap.commitment = COMMITMENT_TOTAL
     game.cp.ru_vp = 2
@@ -1117,6 +1119,17 @@ function set_up_great_war_scenario() {
         if (has_undestroyed_fort(s, CP) && is_controlled_by(s, AP))
             game.forts.destroyed.push(s)
     }
+
+    // Each player starts with a 5-ops card worth of RPs
+    game.rp.fr = 3
+    game.rp.br = 3
+    game.rp.ru = 4
+    game.rp.it = 2
+    game.rp.allied = 1
+    game.rp.ge = 4
+    game.rp.ah = 3
+    game.rp.tu = 2
+    game.rp.bu = 1
 }
 
 function record_score_event(vp, card, turn = game.turn) {
@@ -1219,8 +1232,9 @@ function set_up_great_war_scenario_decks() {
 
     shuffle(game.ap.deck)
     shuffle(game.cp.deck)
-    deal_ap_cards()
-    deal_cp_cards()
+    // Great War scenario starts with a replacement phase, and then cards are dealt
+    //deal_ap_cards()
+    //deal_cp_cards()
 }
 
 function great_war_scenario_turn_for_event(c) {
@@ -1288,6 +1302,16 @@ function goto_start_turn() {
     roll_mandated_offensives()
     log_br()
     update_russian_capitulation()
+}
+
+function goto_start_great_war_scenario() {
+    log_br()
+    log_h1(`The Great War`)
+    log_br()
+    game.ap.mo = NONE
+    game.cp.mo = NONE
+    update_russian_capitulation()
+    goto_replacement_phase()
 }
 
 const SEASON_NONE = "None"
