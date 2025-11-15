@@ -1224,7 +1224,6 @@ function set_up_great_war_scenario_decks() {
 
     // Record "score events" for the played events
     record_score_event(-1, RAPE_OF_BELGIUM, great_war_scenario_turn_for_event(RAPE_OF_BELGIUM))
-    record_score_event(1, WAR_IN_AFRICA, great_war_scenario_turn_for_event(WAR_IN_AFRICA))
     record_score_event(1, REICHSTAG_TRUCE, great_war_scenario_turn_for_event(REICHSTAG_TRUCE))
     record_score_event(-1, LUSITANIA, great_war_scenario_turn_for_event(LUSITANIA))
     record_score_event(-1, BLOCKADE, 4)
@@ -1238,35 +1237,42 @@ function set_up_great_war_scenario_decks() {
 }
 
 function great_war_scenario_turn_for_event(c) {
+    // Most of these are based on the timing of the historical events represented on the card
     switch (c) {
         case GUNS_OF_AUGUST:
             return 1
         case LANDWEHR:
             return 2
         case ENTRENCH_CP:
-            return 2
+            return 3
         case REICHSTAG_TRUCE:
-            return 3
+            return 1
         case SUD_ARMY:
-            return 3
-        case OBEROST:
-            return 2
-        case FALKENHAYN:
             return 4
+        case OBEROST:
+            return 3
+        case FALKENHAYN:
+            return 2
         case BLOCKADE:
             return 1
         case MOLTKE:
-            return 3
+            return 1
         case RAPE_OF_BELGIUM:
             return 1
         case ITALY_ENTRY:
             return 5
         case LUSITANIA:
-            return 4
-        case SINAI_PIPELINE:
             return 5
+        case SINAI_PIPELINE:
+            return 4
+        case ELEVENTH_ARMY:
+            return 5
+        case SALONIKA_CARD:
+            return 7
+        case GREAT_RETREAT:
+            return 6
         default:
-            return 10
+            return 9
     }
 }
 
@@ -1311,6 +1317,7 @@ function goto_start_great_war_scenario() {
     game.ap.mo = NONE
     game.cp.mo = NONE
     update_russian_capitulation()
+    apply_replacement_phase_events()
     goto_replacement_phase()
 }
 
