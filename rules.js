@@ -4066,7 +4066,7 @@ function goto_attack_step_trench_negation() {
 function has_trench_negating_card_in_hand(faction) {
     let hand = game[faction].hand
     for (let c of TRENCH_NEGATING_CARDS) {
-        if (hand.includes(c))
+        if (hand.includes(c) && can_play_event(c))
             return true
     }
     return false
