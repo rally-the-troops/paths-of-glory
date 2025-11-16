@@ -257,6 +257,7 @@ body.Central_Powers header.your_turn { background-color: lightsteelblue; }
 #score { top: 100px; left: 60px; }
 #cp_card_dialog { top: 160px; left: 120px; }
 #ap_card_dialog { top: 220px; left: 180px; }
+#reinforcements {background-size: 1047px 611px;height: 611px; width: 1047px; position: relative;background-repeat: no-repeat;}
 
 .rollback_event {
     margin-left: 20px;
@@ -651,6 +652,11 @@ body.bevel .unit.tip { box-shadow: 0 0 0 1px #000, 0 0 0 4px yellow !important }
 .marker{width:45px;height:45px;}
 .marker.small{width:36px;height:36px}
 .marker.mini{width:18px;height:18px;border-radius:0;border-width:1px!important;}
+.event{width:45px;height:45px;position: absolute;z-index: 1;border-width: 2px;border-style: solid;border-radius: 5px;}
+.event.played{border-color: red;background-color:rgba(0,0,0,0);}
+.event.disabled{border-color: rgba(0,0,0,0.4);background-color:rgba(0,0,0,0.4);}
+.event.small{width:36px;height:36px}
+.event.hide{display:none;}
 
 /* Animations */
 @keyframes attractAnimation {
