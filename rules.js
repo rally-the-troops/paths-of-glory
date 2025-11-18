@@ -2516,6 +2516,9 @@ function end_sr() {
 }
 
 function is_brest_litovsk_restricted_one(p, destination) {
+    if (destination === AP_RESERVE_BOX || destination === CP_RESERVE_BOX)
+        return false
+
     if (game.events.treaty_of_brest_litovsk > 0 && data.pieces[p].faction === AP) {
         return (
             (data.pieces[p].nation === RUSSIA && has_non_russian_ap_piece(destination)) ||
