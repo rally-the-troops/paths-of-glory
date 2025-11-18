@@ -1,2 +1,37 @@
+<style>
+    .hide { display: none; }
+    .scenario_info { display: none; }
+    .scenario_info.show { display: block; }
+</style>
+
+<div class="scenario_info" id="Historical">
+<p>
+The Historical scenario presents the full game, up to 20 turns. It is carefully balanced and used for competitive play. For details of the scenario, see section 5.7 in the <a href="/paths-of-glory/info/rulebook.html">Paths of Glory rulebook</a>.
+</div>
+
+<div class="scenario_info" id="The Great War">
+<p>
+The Great War is a shorter scenario, beginning in turn 11. It was created for the WBC 2024 tournament. For details about this scenario, see <a href="https://www.boardgamers.org/downloads/WBC2025Preview-PathsofGloryGreatWarScenario.pdf">The Great War scenario information</a> from the WBC.
+</div>
+
+<div id="valiant_variant">
 <p>
 <label><input type="checkbox" value="true" name="valiant">Use Valiant variant cards</label> (<a href="/paths-of-glory/info/valiant.html">what is this?</a>)
+</div>
+
+<script>
+let scenario = document.querySelector("select[name='scenario']");
+scenario.onchange = function (evt) {
+    document.querySelectorAll(".scenario_info").forEach(e=>e.classList.remove("show"));
+    document.getElementById(scenario.value).classList.add("show");
+    switch (scenario.value) {
+        case "Historical":
+            document.querySelector("#valiant_variant").classList.remove("hide");
+            break;
+        case "The Great War":
+            document.querySelector("#valiant_variant").classList.add("hide");
+            break;
+    }
+}
+scenario.onchange();
+</script>
