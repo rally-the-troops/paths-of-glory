@@ -582,7 +582,7 @@ exports.setup = function (seed, scenario, options) {
 
     if (options.optional_cards) {
         game.options.optional_cards = 1
-    } else if (options.valiant) {
+    } else if (options.valiant && scenario !== GREAT_WAR) {
         game.options.valiant = 1
     }
 
