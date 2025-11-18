@@ -2028,10 +2028,13 @@ function update_general_records_track() {
     update_general_record("tsar_fell_cp_russian_vp", view.tsar_fell_cp_russian_vp, !view.tsar_fell_cp_russian_vp)
 
     // RPs$
-    if (view.events.walter_rathenau > 0 && !view.events.independent_air_force)
+    if (view.events.walter_rathenau > 0 && !view.events.independent_air_force) {
         update_general_record("ge_rp_back", view.rp.ge, false)
-    else
+        update_general_record("ge_rp", view.rp.ge, true)
+    } else {
+        update_general_record("ge_rp_back", view.rp.ge, true)
         update_general_record("ge_rp", view.rp.ge, !view.rp.ge)
+    }
 
     if (view.events.uboats_unleashed > 0 && !view.events.convoy) {
         update_general_record("br_rp_back", view.rp.br, false)
