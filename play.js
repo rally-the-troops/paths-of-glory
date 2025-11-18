@@ -2337,6 +2337,9 @@ function should_highlight_space(s) {
     if (view.actions.activate_attack_mutiny && view.actions.activate_attack_mutiny.includes(s))
         return true
 
+    if (view.actions.activate_attack_mutiny && view.actions.activate_attack_mutiny.includes(s))
+        return true
+
     if (view.actions.deactivate && view.actions.deactivate.includes(s))
         return true
 
