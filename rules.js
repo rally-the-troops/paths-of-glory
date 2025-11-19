@@ -284,9 +284,6 @@ const CAU_ARMY = find_piece(RUSSIA, 'RU CAU')
 const BRITISH_ANA_CORPS = find_piece('ana', 'BR ANAc')
 const TURKISH_SN_CORPS = find_piece('sn', 'TU SNc')
 const MONTENEGRIN_CORPS = find_piece('mn', 'MNc')
-const CZECH_CORPS = find_piece('ru', 'RU Czlc')
-const RUS_CAV_CORPS = find_piece('ru', 'RU CAVc')
-const PL_CORPS = find_piece('ge', 'PLc')
 
 function is_minor_british_nation(piece) {
     return piece === AUS_CORPS || piece === CND_CORPS || piece === PT_CORPS || piece === BRITISH_ANA_CORPS
@@ -426,60 +423,6 @@ exports.query = function (state, _current, q) {
     return null
 }
 
-function get_reinforcement_pieces(card){
-    let result=[]
-    const card_data = data.cards[card]
-
-    let piece_nation = card_data.reinfnation
-    if (card === LIBYAN_REVOLT)
-        piece_nation = 'sn' // This card counts as Turkish reinforcements but places the 'sn' piece
-    if (card === ARAB_NORTHERN_ARMY)
-        piece_nation = 'ana' // This card counts as British reinforcements but places the 'ana' piece
-
-    let reinf_names = card_data.reinf.split('|')
-    let quantities = {}
-    reinf_names.forEach(name => {
-        if (!quantities[name])
-            quantities[name] = 0
-        quantities[name]++
-    })
-    for (let name in quantities) {
-        let pieces = find_n_pieces(piece_nation, name, quantities[name], false)
-        result.push(...pieces)
-    }
-    return result
-}
-
-function get_reinforcements_sheet_data(state) {
-    let cards = {
-        disabled: [],
-        reinf: [],
-    }
-    for (let i = 1; i < data.cards.length; i++) {
-        let card_data = data.cards[i]
-        let deck = []
-        if (!is_card_allowed_to_deal(i, state)) {
-            deck = cards.disabled
-        }
-        if (card_data.reinf) {
-            deck.push(i)
-            map_set(cards.reinf, i, get_reinforcement_pieces(i))
-        } else if (i === RUSSIAN_CAVALRY) {
-            deck.push(i)
-            map_set(cards.reinf, i, [RUS_CAV_CORPS, RUS_CAV_CORPS + 1])
-        } else if (i === CZECH_LEGION) {
-            deck.push(i)
-            map_set(cards.reinf, i, [CZECH_CORPS])
-        } else if (i === POLISH_RESTORATION) {
-            deck.push(i)
-            map_set(cards.reinf, i, [PL_CORPS, PL_CORPS + 1, PL_CORPS + 2])
-        } else if (card_data.ws) {
-            deck.push(i)
-        }
-    }
-    return cards
-}
-
 function query_cards(state, faction) {
     let cards = {
         discard: [],
@@ -494,10 +437,6 @@ function query_cards(state, faction) {
     cards.deck.sort((a, b) => a - b)
     cards.removed.sort((a, b) => a - b)
     return cards
-}
-
-exports.static_view = function(state) {
-    return get_reinforcements_sheet_data(state)
 }
 
 exports.view = function(state, current) {
@@ -1153,36 +1092,13 @@ function record_score_event(vp, card, turn = game.turn) {
         game.score_events.push([ turn, vp ])
 }
 
-function is_optional_card(c) {
-    return (c >= 56 && c <= 65) || (c >= 56+65 && c <= 65+65)
-}
 
-function is_base_deck(i) {
-    return !is_optional_card(i)
-}
-
-function is_valiant_deck(i) {
-    let card = data.cards[i]
-    return ((card.faction === CP && is_optional_card(i) && [56, 57, 59, 60, 64, 65].includes(card.num)) ||
-        (card.faction === CP && !is_optional_card(i) && ![2, 4, 17, 24, 35, 51].includes(card.num)) ||
-        (card.faction === AP && is_optional_card(i) && [56, 57, 60, 61, 62, 63, 65].includes(card.num)) ||
-        (card.faction === AP && !is_optional_card(i) && ![5, 8, 23, 28, 35, 36, 38].includes(card.num)))
-}
-
-function is_card_allowed_to_deal(i, state) {
-    if (state.options.optional_cards) {
-        return true
-    } else if (state.options.valiant) {
-        return is_valiant_deck(i)
-    }
-    return is_base_deck(i)
-}
 
 function set_up_standard_decks(start_with_guns_of_august) {
     for (let i = 1; i < data.cards.length; i++) {
         if (i === GUNS_OF_AUGUST && start_with_guns_of_august) {
             game.cp.hand.push(i)
-        } else if (data.cards[i].commitment === COMMITMENT_MOBILIZATION && is_card_allowed_to_deal(i, game)) {
+        } else if (data.cards[i].commitment === COMMITMENT_MOBILIZATION && data.utils.is_card_allowed_to_deal(i, game.options)) {
             game[data.cards[i].faction].deck.push(i)
         }
     }
@@ -1492,27 +1408,12 @@ function set_up_control(space, faction) {
 }
 
 function find_unused_piece(nation, name) {
-    const pieces = find_n_pieces(nation, name, 1)
-    if (pieces.length === 0) {
-        throw new Error(`Could not find unused piece for nation ${nation} and name ${name}`)
-    }
+    const pieces = find_n_unused_pieces(nation, name, 1)
     return pieces[0]
 }
 
-function find_n_pieces(nation, name, n, unused = true) {
-    let pieces = []
-    let found = 0
-    for (let i = 0; i < data.pieces.length; i++) {
-        let piece = data.pieces[i]
-        if (piece.name === name && piece.nation === nation && (!unused || game.location[i] === 0)) {
-            pieces.push(i)
-            found++
-        }
-        if (found === n) {
-            return pieces
-        }
-    }
-    throw new Error(`Could not find ${n} unused pieces for nation ${nation} and name ${name}`)
+function find_n_unused_pieces(nation, name, n) {
+    return data.utils.find_n_pieces(nation, name, n, i => game.location[i] === 0)
 }
 
 function find_piece(nation, name) {
@@ -1796,7 +1697,9 @@ function is_unit_eliminated(p) {
 function send_to_eliminated_box(p) {
     if (is_unit_reduced(p))
         set_delete(game.reduced, p)
-    if (data.pieces[p].faction === AP) {
+    if (data.pieces[p].notreplaceable) {
+        game.location[p] = PERM_ELIMINATED_BOX
+    } else if (data.pieces[p].faction === AP) {
         game.location[p] = AP_ELIMINATED_BOX
     } else {
         game.location[p] = CP_ELIMINATED_BOX
@@ -2187,7 +2090,7 @@ states.choose_sr_unit = {
     prompt() {
         view.prompt = `Strategic Redeployment: ${game.sr.pts} points left.`
         game.location.forEach((loc, p) => {
-            if (loc !== 0 && data.pieces[p].faction === active_faction() && can_sr(p)) {
+            if ((loc !== 0 && loc !== PERM_ELIMINATED_BOX) && data.pieces[p].faction === active_faction() && can_sr(p)) {
                 gen_action_piece(p)
             }
         })
@@ -2704,7 +2607,7 @@ function goto_play_reinf(card) {
         quantities[name]++
     })
     for (let name in quantities) {
-        let pieces = find_n_pieces(piece_nation, name, quantities[name])
+        let pieces = find_n_unused_pieces(piece_nation, name, quantities[name])
         game.reinforcements.push(...pieces)
     }
     game.state = 'place_reinforcements'
@@ -6578,7 +6481,7 @@ function goto_war_status_phase() {
 
 function add_cards_to_deck(faction, commitment, deck) {
     for (let i = 1; i < data.cards.length; i++) {
-        if (data.cards[i].commitment === commitment && data.cards[i].faction === faction && is_card_allowed_to_deal(i, game)) {
+        if (data.cards[i].commitment === commitment && data.cards[i].faction === faction && data.utils.is_card_allowed_to_deal(i, game.options)) {
             deck.push(i)
         }
     }
@@ -8147,7 +8050,7 @@ events.bulgaria_entry = {
     },
     play() {
         set_nation_at_war(BULGARIA)
-        game.units_to_place = find_n_pieces(BULGARIA, 'BUc', 4)
+        game.units_to_place = find_n_unused_pieces(BULGARIA, 'BUc', 4)
         game.state = 'place_new_neutral_units'
     }
 }
@@ -8517,7 +8420,7 @@ events.polish_restoration = {
         game.vp--
         record_score_event(-1, POLISH_RESTORATION)
         logi(`-1 VP for ${card_name(POLISH_RESTORATION)}`)
-        const polish_corps = find_n_pieces(GERMANY, 'PLc', 3)
+        const polish_corps = find_n_unused_pieces(GERMANY, 'PLc', 3)
         for (let p of polish_corps) {
             game.location[p] = CP_RESERVE_BOX
         }
@@ -8820,7 +8723,7 @@ events.romania_entry = {
     },
     play() {
         set_nation_at_war(ROMANIA)
-        game.units_to_place = find_n_pieces(ROMANIA, 'ROc', 4)
+        game.units_to_place = find_n_unused_pieces(ROMANIA, 'ROc', 4)
         game.state = 'place_new_neutral_units'
     }
 }
@@ -9431,7 +9334,7 @@ events.russian_cavalry = {
         return true
     },
     play() {
-        game.units_to_place = find_n_pieces(RUSSIA, 'RU CAVc', 2)
+        game.units_to_place = find_n_unused_pieces(RUSSIA, 'RU CAVc', 2)
         game.state = 'russian_cavalry'
     }
 }

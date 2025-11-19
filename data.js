@@ -7023,6 +7023,48 @@ data.spaces = [
     },
 ]
 
+data.utils = {
+    find_n_pieces: function (nation, name, n, condition) {
+        let pieces = []
+        let found = 0
+        for (let i = 0; i < data.pieces.length; i++) {
+            let piece = data.pieces[i]
+            if (piece.name === name && piece.nation === nation && (!condition || condition(i))) {
+                pieces.push(i)
+                found++
+            }
+            if (found === n) {
+                return pieces
+            }
+        }
+        throw new Error(`Could not find ${n} pieces for nation ${nation} and name ${name}`)
+    },
+    is_card_allowed_to_deal: function (i, options) {
+        if (options.optional_cards) {
+            return true
+        } else if (options.valiant) {
+            return is_valiant_deck(i)
+        }
+        return is_base_deck(i)
+    }
+}
+
+function is_optional_card(c) {
+    return (c >= 56 && c <= 65) || (c >= 56+65 && c <= 65+65)
+}
+
+function is_base_deck(i) {
+    return !is_optional_card(i)
+}
+
+function is_valiant_deck(i) {
+    let card = data.cards[i]
+    return ((card.faction === CP && is_optional_card(i) && [56, 57, 59, 60, 64, 65].includes(card.num)) ||
+        (card.faction === CP && !is_optional_card(i) && ![2, 4, 17, 24, 35, 51].includes(card.num)) ||
+        (card.faction === AP && is_optional_card(i) && [56, 57, 60, 61, 62, 63, 65].includes(card.num)) ||
+        (card.faction === AP && !is_optional_card(i) && ![5, 8, 23, 28, 35, 36, 38].includes(card.num)))
+}
+
 const edges = [
     {
         "a": 1,

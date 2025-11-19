@@ -41,6 +41,144 @@ const NON_PLAYED = 'non_played'
 const DISABLED = 'disabled'
 const REMOVED = 'removed'
 
+// Central powers
+const GUNS_OF_AUGUST = 66
+const WIRELESS_INTERCEPTS = 67
+const VON_FRANCOIS = 68
+const SEVERE_WEATHER_CP = 69
+const LANDWEHR = 70
+const ENTRENCH_CP = 71
+const GERMAN_REINFORCEMENTS_1 = 72
+const RACE_TO_THE_SEA = 73
+const REICHSTAG_TRUCE = 74
+const SUD_ARMY = 75
+const OBEROST = 76
+const GERMAN_REINFORCEMENTS_2 = 77
+const FALKENHAYN = 78
+const AH_REINFORCEMENTS_1 = 79
+const CHLORINE_GAS = 80
+const LIMAN_VON_SANDERS = 81
+const MATA_HARI = 82
+const FORTIFIED_MACHINE_GUNS = 83
+const FLAMETHROWERS = 84
+const AH_REINFORCEMENTS_2 = 85
+const GERMAN_REINFORCEMENTS_3 = 86
+const GERMAN_REINFORCEMENTS_4 = 87
+const AH_REINFORCEMENTS_3 = 88
+const LIBYAN_REVOLT = 89
+const HIGH_SEAS_FLEET = 90
+const PLACE_OF_EXECUTION = 91
+const ZEPPELIN_RAIDS = 92
+const TSAR_TAKES_COMMAND = 93
+const ELEVENTH_ARMY = 94
+const ALPENKORPS = 95
+const KEMAL = 96
+const WAR_IN_AFRICA = 97
+const WALTER_RATHENAU = 98
+const BULGARIA_ENTRY = 99
+const MUSTARD_GAS = 100
+const U_BOATS_UNLEASHED = 101
+const HOFFMAN = 102
+const GERMAN_REINFORCEMENTS_5 = 103
+const GERMAN_REINFORCEMENTS_6 = 104
+const AIR_SUPERIORITY_CP = 105
+const GERMAN_REINFORCEMENTS_7 = 106
+const TURKISH_REINFORCEMENTS_1 = 107
+const VON_BELOW = 108
+const VON_HUTIER = 109
+const TREATY_OF_BREST_LITOVSK = 110
+const GERMAN_REINFORCEMENTS_8 = 111
+const FRENCH_MUTINY = 112
+const TURKISH_REINFORCEMENTS_2 = 113
+const MICHAEL = 114
+const BLUCHER = 115
+const PEACE_OFFENSIVE = 116
+const FALL_OF_THE_TSAR = 117
+const BOLSHEVIK_REVOLUTION = 118
+const H_L_TAKES_COMMAND = 119
+const LLOYD_GEORGE = 120
+const WITHDRAWAL_CP = 121
+const KAISERTREU = 122
+const STAVKA_TIMIDITY = 123
+const POLISH_RESTORATION = 124
+const TURK_DETERMINATION = 125
+const HAIG = 126
+const ACHTUNG_PANZER = 127
+const RUSSIAN_DESERTIONS = 128
+const ALBERICH = 129
+const PRINCE_MAX = 130
+
+// Allied powers
+const BRITISH_REINFORCEMENTS_1 = 1
+const BLOCKADE = 2
+const RUSSIAN_REINFORCEMENTS_1 = 3
+const PLEVE = 4
+const PUTNIK = 5
+const WITHDRAWAL_AP = 6
+const SEVERE_WEATHER_AP = 7
+const RUSSIAN_REINFORCEMENTS_2 = 8
+const MOLTKE = 9
+const FRENCH_REINFORCEMENTS_1 = 10
+const RUSSIAN_REINFORCEMENTS_3 = 11
+const ENTRENCH_AP = 12
+const RAPE_OF_BELGIUM = 13
+const BRITISH_REINFORCEMENTS_2 = 14
+const BRITISH_REINFORCEMENTS_3 = 15
+const ROMANIA_ENTRY = 16
+const ITALY_ENTRY = 17
+const HURRICANE_BARRAGE = 18
+const AIR_SUPERIORITY_AP = 19
+const BRITISH_REINFORCEMENTS_4 = 20
+const PHOSGENE_GAS = 21
+const ITALIAN_REINFORCEMENTS_1 = 22
+const CLOAK_AND_DAGGER = 23
+const FRENCH_REINFORCEMENTS_2 = 24
+const RUSSIAN_REINFORCEMENTS_4 = 25
+const LUSITANIA = 26
+const GREAT_RETREAT = 27
+const LANDSHIPS = 28
+const YUDENITCH = 29
+const SALONIKA_CARD = 30
+const MEF = 31
+const RUSSIAN_REINFORCEMENTS_5 = 32
+const GRAND_FLEET = 33
+const BRITISH_REINFORCEMENTS_5 = 34
+const YANKS_AND_TANKS = 35
+const MINE_ATTACK = 36
+const INDEPENDANT_AIR_FORCE = 37
+const USA_REINFORCEMENTS_1 = 38
+const THEY_SHALL_NOT_PASS = 39
+const FOURTEEN_POINTS = 40
+const ARAB_NORTHERN_ARMY = 41
+const BRITISH_REINFORCEMENTS_6 = 42
+const USA_REINFORCEMENTS_2 = 43
+const GREECE_ENTRY = 44
+const KERENSKY_OFFENSIVE = 45
+const BRUSILOV_OFFENSIVE = 46
+const USA_REINFORCEMENTS_3 = 47
+const ROYAL_TANK_CORPS = 48
+const SINAI_PIPELINE = 49
+const ALLENBY = 50
+const EVERYONE_INTO_BATTLE = 51
+const CONVOY = 52
+const ARMY_OF_THE_ORIENT = 53
+const ZIMMERMANN_TELEGRAM = 54
+const OVER_THERE = 55
+const PARIS_TAXIS = 56
+const RUSSIAN_CAVALRY = 57
+const RUSSIAN_GUARDS = 58
+const ALPINE_TROOPS = 59
+const CZECH_LEGION = 60
+const MAUDE = 61
+const THE_SIXTUS_AFFAIR = 62
+const BACKS_TO_THE_WALL = 63
+const USA_REINFORCEMENTS_4 = 64
+const INFLUENZA = 65
+
+const CZECH_CORPS = data.utils.find_n_pieces('ru', 'RU Czlc', 1)[0]
+const RUS_CAV_CORPS = data.utils.find_n_pieces('ru', 'RU CAVc', 1)[0]
+const PL_CORPS = data.utils.find_n_pieces('ge', 'PLc', 1)[0]
+
 let options = {}
 
 function check_menu(id, x) {
@@ -63,6 +201,34 @@ function map_get(map, key, missing) {
 			return map[(m<<1)+1]
 	}
 	return missing
+}
+
+function map_set(map, key, value) {
+    var a = 0
+    var b = (map.length >> 1) - 1
+    while (a <= b) {
+        var m = (a + b) >> 1
+        var x = map[m<<1]
+        if (key < x)
+            b = m - 1
+        else if (key > x)
+            a = m + 1
+        else {
+            map[(m<<1)+1] = value
+            return
+        }
+    }
+    array_insert_pair(map, a<<1, key, value)
+}
+
+
+function array_insert_pair(array, index, key, value) {
+    for (var i = array.length; i > index; i -= 2) {
+        array[i] = array[i-2]
+        array[i+1] = array[i-1]
+    }
+    array[index] = key
+    array[index+1] = value
 }
 
 // LAYOUT AND STYLE OPTIONS
@@ -147,7 +313,7 @@ function on_init(scenario, game_options, static_view){
     for (let c = 1; c < cards.length; ++c) {
         build_card(c)
     }
-    show_reinforcements(static_view)
+    show_reinforcements()
 }
 
 function card_class_name(card_number) {
@@ -423,14 +589,55 @@ function update_reinforcements_view() {
     }
 }
 
-function show_reinforcements(cards) {
-    cards.disabled.forEach(a => {
-        data.cards[a].status = DISABLED
+function get_reinforcement_pieces(card) {
+    let result = []
+    const card_data = data.cards[card]
+
+    let piece_nation = card_data.reinfnation
+    if (card === LIBYAN_REVOLT)
+        piece_nation = 'sn' // This card counts as Turkish reinforcements but places the 'sn' piece
+    if (card === ARAB_NORTHERN_ARMY)
+        piece_nation = 'ana' // This card counts as British reinforcements but places the 'ana' piece
+
+    let reinf_names = card_data.reinf.split('|')
+    let quantities = {}
+    reinf_names.forEach(name => {
+        if (!quantities[name])
+            quantities[name] = 0
+        quantities[name]++
     })
+    for (let name in quantities) {
+        let pieces = data.utils.find_n_pieces(piece_nation, name, quantities[name])
+        result.push(...pieces)
+    }
+    return result
+}
+
+function show_reinforcements() {
+    let reinf = []
+    for (let i = 1; i < data.cards.length; i++) {
+        let card_data = data.cards[i]
+
+        if (card_data.reinf) {
+            map_set(reinf, i, get_reinforcement_pieces(i))
+        } else if (i === RUSSIAN_CAVALRY) {
+            map_set(reinf, i, [RUS_CAV_CORPS, RUS_CAV_CORPS + 1])
+        } else if (i === CZECH_LEGION) {
+            map_set(reinf, i, [CZECH_CORPS])
+        } else if (i === POLISH_RESTORATION) {
+            map_set(reinf, i, [PL_CORPS, PL_CORPS + 1, PL_CORPS + 2])
+        } else if (card_data.ws) {
+        }
+
+        if (!data.utils.is_card_allowed_to_deal(i, options)) {
+            data.cards[i].status = DISABLED
+        }
+    }
     for (let i = 286; i <= 359; i++) {
         let space = spaces[i]
-        data.cards[space.event].reinf_pieces=map_get(cards.reinf, space.event)
-        build_ws_event_space(i, map_get(cards.reinf, space.event))
+        let units = map_get(reinf, space.event)
+        data.cards[space.event].reinf_pieces = units
+        build_ws_event_space(i, units)
     }
     document.getElementById("reinforcements").addEventListener("mousedown", evt => {
         if (evt.button === 0) {
@@ -843,8 +1050,6 @@ const marker_info = {
     cp_missed_mo: {name: "CP Missed Mandatory Offensive", counter: "marker cp_missed_mo", size: 45},
     failed_entrench: {name: "Failed Entrench", counter: "marker small trench_attempt", size: 36},
     mef_beachhead: {name: "MEF Beachhead", counter: "marker mef_beachhead", size: 45, cardIndex: 31 },
-    british_reinforcements_1: {name: "British Reinforcements", counter: "ap-marker marker british_reinforcements", size: 45, cardIndex: 14},
-    british_reinforcements_2: {name: "British Reinforcements", counter: "ap-marker marker british_reinforcements", size: 45, cardIndex: 1},
 
     // small event markers
     fourteen_points: {name: "US Points", counter: "marker small us_points", size: 36, cardIndex: 40},
@@ -2763,14 +2968,6 @@ function update_map() {
     action_button("done", "Done")
     action_button("undo", "Undo")
 }
-
-const YANKS_AND_TANKS = cards.findIndex((c) => c.name === "Yanks and Tanks")
-const BRUSILOV_OFFENSIVE = cards.findIndex((c) => c.name === "Brusilov Offensive")
-const KERENSKY_OFFENSIVE = cards.findIndex((c) => c.name === "Kerensky Offensive")
-const GREAT_RETREAT = cards.findIndex((c) => c.name === "Great Retreat")
-const INFLUENZA = cards.findIndex((c) => c.name === "Influenza")
-const LLOYD_GEORGE = cards.findIndex((c) => c.name === "Lloyd George")
-const EVERYONE_INTO_BATTLE = cards.findIndex((c) => c.name === "Everyone Into Battle")
 
 function update_card_zones() {
     // Update hand

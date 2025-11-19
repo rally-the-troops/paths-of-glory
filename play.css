@@ -266,14 +266,6 @@ body.Central_Powers header.your_turn { background-color: lightsteelblue; }
 	margin: 12px;
 }
 
-#reinforcements {
-	background-size: 1044px 614px;
-	width: 1044px;
-	height: 614px;
-	position: relative;
-	margin: 12px;
-}
-
 .rollback_event {
     margin-left: 20px;
 }
@@ -668,7 +660,6 @@ body.bevel .unit.tip { box-shadow: 0 0 0 1px #000, 0 0 0 4px yellow !important }
 .marker.small{width:36px;height:36px}
 .marker.mini{width:18px;height:18px;border-radius:0;border-width:1px!important;}
 .event{width:45px;height:45px;position: absolute;z-index: 1;border-width: 2px;border-style: solid;border-radius: 5px;}
-.event.played{border-color: red;background-color:rgba(0,0,0,0);}
 .event.disabled{border-color: rgba(0,0,0,0.4);background-color:rgba(0,0,0,0.4);}
 .event.small{width:36px;height:36px}
 .event.hide{display:none;}
