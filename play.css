@@ -266,14 +266,6 @@ body.Central_Powers header.your_turn { background-color: lightsteelblue; }
 	margin: 12px;
 }
 
-#reinforcements {
-	background-size: 1044px 614px;
-	width: 1044px;
-	height: 614px;
-	position: relative;
-	margin: 12px;
-}
-
 .rollback_event {
     margin-left: 20px;
 }

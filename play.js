@@ -1050,8 +1050,6 @@ const marker_info = {
     cp_missed_mo: {name: "CP Missed Mandatory Offensive", counter: "marker cp_missed_mo", size: 45},
     failed_entrench: {name: "Failed Entrench", counter: "marker small trench_attempt", size: 36},
     mef_beachhead: {name: "MEF Beachhead", counter: "marker mef_beachhead", size: 45, cardIndex: 31 },
-    british_reinforcements_1: {name: "British Reinforcements", counter: "ap-marker marker british_reinforcements", size: 45, cardIndex: 14},
-    british_reinforcements_2: {name: "British Reinforcements", counter: "ap-marker marker british_reinforcements", size: 45, cardIndex: 1},
 
     // small event markers
     fourteen_points: {name: "US Points", counter: "marker small us_points", size: 36, cardIndex: 40},
