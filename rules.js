@@ -4851,8 +4851,7 @@ states.eliminate_retreated_units = {
         if (data.pieces[p].notreplaceable) {
             log(`>*${piece_name(p)} in ${space_name(game.location[p])} permanently eliminated`)
             set_add(game.removed, p)
-            game.location[p] = 0
-            //game.location[p] = PERM_ELIMINATED_BOX
+            game.location[p] = PERM_ELIMINATED_BOX
         } else {
             log(`>${piece_name(p)} in ${space_name(game.location[p])} eliminated`)
             send_to_eliminated_box(p)
