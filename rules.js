@@ -3915,7 +3915,11 @@ function fmt_attack_odds() {
     const attack_factors = game.attack.pieces.reduce((sum, p) => sum + get_piece_cf(p), 0)
 
     const defender_pieces = get_defenders_pieces()
-    let defense_factors = defender_pieces.reduce((sum, p) => sum + get_piece_cf(p), 0)
+    let defense_factors = defender_pieces.reduce((sum, p) => {
+        if (set_has(game.retreated, p))
+            return sum
+        return sum + get_piece_cf(p)
+    }, 0)
 
     const attacker_table = game.attack.pieces.some(p => data.pieces[p].type === ARMY) ? fire_table.army : fire_table.corps
     const defender_table = defender_pieces.some(p => data.pieces[p].type === ARMY) ? fire_table.army : fire_table.corps
@@ -4875,8 +4879,15 @@ states.eliminate_retreated_units = {
     piece(p) {
         push_undo()
         // Pieces eliminated in this condition are sent to the eliminated box and not replaced (12.5.6)
-        log(`>${piece_name(p)} in ${space_name(game.location[p])} eliminated`)
-        send_to_eliminated_box(p)
+        if (data.pieces[p].notreplaceable) {
+            log(`>*${piece_name(p)} in ${space_name(game.location[p])} permanently eliminated`)
+            set_add(game.removed, p)
+            game.location[p] = 0
+            //game.location[p] = PERM_ELIMINATED_BOX
+        } else {
+            log(`>${piece_name(p)} in ${space_name(game.location[p])} eliminated`)
+            send_to_eliminated_box(p)
+        }
         set_delete(game.retreated, p)
     },
     done() {
