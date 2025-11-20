@@ -1,6 +1,8 @@
 #map{background-image:url(map75.jpg)}
+#reinforcements{background-image:url(reinf75.webp); }
 @media (min-resolution: 97dpi) {
 #map{background-image:url(map150.jpg)}
+#reinforcements{background-image:url(reinf150.webp)}
 }
 
 .marker.mini.fort_destroyed { background-image: url(pieces/fort_destroyed.webp); background-size: 18px 18px; }
@@ -91,6 +93,7 @@
 .marker.blucher::before { content:"Blucher"; }
 .marker.peace_offensive::before { content:"Peace Offensive"; }
 .marker.uboats_unleashed::before { content:"U-Boats Unleashed"; }
+.marker.sixtus::before { content:"The Sixtus Affair"; }
 .marker.everyone_into_battle::before { content:"Everyone into Battle"; }
 .marker.lloyd_george::before { content:"Lloyd George"; }
 .marker.brusilov_offensive::before { content: "Brusilov Offensive"; }

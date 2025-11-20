@@ -253,13 +253,14 @@ const AP_RESERVE_BOX = 282
 const CP_RESERVE_BOX = 283
 const AP_ELIMINATED_BOX = 284
 const CP_ELIMINATED_BOX = 285
+const PERM_ELIMINATED_BOX = 360
 
 function is_mef_space(s) {
     return (s >= MEF1 && s <= MEF3) || s === MEF4
 }
 
 function is_off_map_space(s) {
-    return s === AP_RESERVE_BOX || s === CP_RESERVE_BOX || s === AP_ELIMINATED_BOX || s === CP_ELIMINATED_BOX
+    return s === AP_RESERVE_BOX || s === CP_RESERVE_BOX || s === AP_ELIMINATED_BOX || s === CP_ELIMINATED_BOX || s === PERM_ELIMINATED_BOX
 }
 
 // Terrain
@@ -481,6 +482,10 @@ exports.view = function(state, current) {
         war: game.war,
         location: game.location,
         reduced: game.reduced,
+        removed_cards: {
+            ap: game[AP].removed,
+            cp: game[CP].removed,
+        },
         entrenching: game.entrenching,
         failed_entrench: game.failed_entrench,
         forts: {
@@ -1087,36 +1092,13 @@ function record_score_event(vp, card, turn = game.turn) {
         game.score_events.push([ turn, vp ])
 }
 
-function is_optional_card(c) {
-    return (c >= 56 && c <= 65) || (c >= 56+65 && c <= 65+65)
-}
 
-function is_base_deck(i) {
-    return !is_optional_card(i)
-}
-
-function is_valiant_deck(i) {
-    let card = data.cards[i]
-    return ((card.faction === CP && is_optional_card(i) && [56, 57, 59, 60, 64, 65].includes(card.num)) ||
-        (card.faction === CP && !is_optional_card(i) && ![2, 4, 17, 24, 35, 51].includes(card.num)) ||
-        (card.faction === AP && is_optional_card(i) && [56, 57, 60, 61, 62, 63, 65].includes(card.num)) ||
-        (card.faction === AP && !is_optional_card(i) && ![5, 8, 23, 28, 35, 36, 38].includes(card.num)))
-}
-
-function is_card_allowed_to_deal(i) {
-    if (game.options.optional_cards) {
-        return true
-    } else if (game.options.valiant) {
-        return is_valiant_deck(i)
-    }
-    return is_base_deck(i)
-}
 
 function set_up_standard_decks(start_with_guns_of_august) {
     for (let i = 1; i < data.cards.length; i++) {
         if (i === GUNS_OF_AUGUST && start_with_guns_of_august) {
             game.cp.hand.push(i)
-        } else if (data.cards[i].commitment === COMMITMENT_MOBILIZATION && is_card_allowed_to_deal(i)) {
+        } else if (data.cards[i].commitment === COMMITMENT_MOBILIZATION && data.utils.is_card_allowed_to_deal(i, game.options)) {
             game[data.cards[i].faction].deck.push(i)
         }
     }
@@ -1427,26 +1409,11 @@ function set_up_control(space, faction) {
 
 function find_unused_piece(nation, name) {
     const pieces = find_n_unused_pieces(nation, name, 1)
-    if (pieces.length === 0) {
-        throw new Error(`Could not find unused piece for nation ${nation} and name ${name}`)
-    }
     return pieces[0]
 }
 
 function find_n_unused_pieces(nation, name, n) {
-    let pieces = []
-    let found = 0
-    for (let i = 0; i < data.pieces.length; i++) {
-        let piece = data.pieces[i]
-        if (piece.name === name && piece.nation === nation && game.location[i] === 0) {
-            pieces.push(i)
-            found++
-        }
-        if (found === n) {
-            return pieces
-        }
-    }
-    throw new Error(`Could not find ${n} unused pieces for nation ${nation} and name ${name}`)
+    return data.utils.find_n_pieces(nation, name, n, i => game.location[i] === 0)
 }
 
 function find_piece(nation, name) {
@@ -1730,7 +1697,9 @@ function is_unit_eliminated(p) {
 function send_to_eliminated_box(p) {
     if (is_unit_reduced(p))
         set_delete(game.reduced, p)
-    if (data.pieces[p].faction === AP) {
+    if (data.pieces[p].notreplaceable) {
+        game.location[p] = PERM_ELIMINATED_BOX
+    } else if (data.pieces[p].faction === AP) {
         game.location[p] = AP_ELIMINATED_BOX
     } else {
         game.location[p] = CP_ELIMINATED_BOX
@@ -2121,7 +2090,7 @@ states.choose_sr_unit = {
     prompt() {
         view.prompt = `Strategic Redeployment: ${game.sr.pts} points left.`
         game.location.forEach((loc, p) => {
-            if (loc !== 0 && data.pieces[p].faction === active_faction() && can_sr(p)) {
+            if ((loc !== 0 && loc !== PERM_ELIMINATED_BOX) && data.pieces[p].faction === active_faction() && can_sr(p)) {
                 gen_action_piece(p)
             }
         })
@@ -4882,8 +4851,7 @@ states.eliminate_retreated_units = {
         if (data.pieces[p].notreplaceable) {
             log(`>*${piece_name(p)} in ${space_name(game.location[p])} permanently eliminated`)
             set_add(game.removed, p)
-            game.location[p] = 0
-            //game.location[p] = PERM_ELIMINATED_BOX
+            game.location[p] = PERM_ELIMINATED_BOX
         } else {
             log(`>${piece_name(p)} in ${space_name(game.location[p])} eliminated`)
             send_to_eliminated_box(p)
@@ -5075,7 +5043,7 @@ function eliminate_piece(p, force_permanent_elimination, reason) {
         if (data.pieces[p].notreplaceable) {
             log(`>*${piece_name(p)}${here} permanently eliminated`)
             set_add(game.removed, p)
-            game.location[p] = 0
+            game.location[p] = PERM_ELIMINATED_BOX
         } else {
             log(`>${piece_name(p)}${here} eliminated`)
             send_to_eliminated_box(p)
@@ -5100,7 +5068,7 @@ function eliminate_piece(p, force_permanent_elimination, reason) {
             log(`>*${piece_name(p)}${here} permanently eliminated`)
         }
         set_add(game.removed, p)
-        game.location[p] = 0
+        game.location[p] = PERM_ELIMINATED_BOX
         return replacement_options
     } else {
         // already logged as replacement break-down
@@ -6337,7 +6305,7 @@ states.attrition_phase = {
         set_delete(game.attrition[active_faction()].pieces, p)
         if (data.pieces[p].type === ARMY) {
             log_alert(`Permanently removed ${piece_name(p)} from ${space_name(game.location[p])}`)
-            game.location[p] = 0
+            game.location[p] = PERM_ELIMINATED_BOX
             set_add(game.removed, p)
         } else {
             log(`Removed ${piece_name(p)} from ${space_name(game.location[p])}`)
@@ -6512,7 +6480,7 @@ function goto_war_status_phase() {
 
 function add_cards_to_deck(faction, commitment, deck) {
     for (let i = 1; i < data.cards.length; i++) {
-        if (data.cards[i].commitment === commitment && data.cards[i].faction === faction && is_card_allowed_to_deal(i)) {
+        if (data.cards[i].commitment === commitment && data.cards[i].faction === faction && data.utils.is_card_allowed_to_deal(i, game.options)) {
             deck.push(i)
         }
     }
@@ -7305,7 +7273,7 @@ function update_supply() {
 
 function is_unit_supplied(p) {
     let location = game.location[p]
-    if (location === 0)
+    if (location === 0 || location === PERM_ELIMINATED_BOX)
         return true
     return is_unit_supplied_in(p, game.location[p])
 }
@@ -8043,7 +8011,7 @@ states.war_in_africa = {
         push_undo()
         const space = game.location[p]
         log_alert_i(`Permanently removed ${piece_name(p)} (${space_name(space)})`)
-        game.location[p] = 0
+        game.location[p] = PERM_ELIMINATED_BOX
         set_add(game.removed, p)
         game.war_in_africa_removed = p
         update_siege(space)
@@ -9447,7 +9415,7 @@ events.czech_legion = {
         for (let p = 1; p < data.pieces.length; ++p) {
             const piece_data = data.pieces[p]
             if (is_unit_eliminated(p) && piece_data.nation === AUSTRIA_HUNGARY && piece_data.type === CORPS) {
-                game.location[p] = 0
+                game.location[p] = PERM_ELIMINATED_BOX
                 set_add(game.removed, p)
                 log_alert(`Permanently removed ${piece_name(p)} from the game`)
                 break
