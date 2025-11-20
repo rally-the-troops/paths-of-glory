@@ -1190,11 +1190,11 @@ function destroy_missed_mo_marker(faction, turn) {
 }
 
 function build_failed_entrench_marker(piece_id) {
-    return build_marker(markers.failed_entrench, e => e.piece_id === piece_id, {piece_id: piece_id}, marker_info.failed_entrench)
+    return build_marker(markers.failed_entrench, e => e.piece_id === piece_id, {piece_id: piece_id, space_id:view.location[piece_id]}, marker_info.failed_entrench)
 }
 
-function destroy_failed_entrench_marker(piece_id) {
-    destroy_marker(markers.failed_entrench, e => e.piece_id === piece_id)
+function destroy_failed_entrench_markers_in_space(space_id) {
+    destroy_marker(markers.failed_entrench, e => e.space_id === space_id)
 }
 
 function build_action_marker(faction, round) {
@@ -1523,6 +1523,7 @@ function update_space(s) {
         }
     })
 
+    destroy_failed_entrench_markers_in_space(s)
     let ordered_pieces = full_armies.concat(reduced_armies).concat(full_corps).concat(reduced_corps)
     ordered_pieces.forEach(p => {
         let pe = pieces[p].element
@@ -1531,8 +1532,6 @@ function update_space(s) {
 
         if (view.failed_entrench.includes(p)) {
             unshift_stack(stack, build_failed_entrench_marker(p))
-        } else {
-            destroy_failed_entrench_marker(p)
         }
 
         if (view.oos_pieces && view.oos_pieces.length > 0 && view.oos_pieces.includes(p)) {
