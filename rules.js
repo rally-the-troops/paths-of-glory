@@ -583,10 +583,12 @@ exports.dont_snap = function (state) {
 exports.setup = function (seed, scenario, options) {
     game = create_empty_game_state(seed, scenario)
 
-    if (options.optional_cards) {
-        game.options.optional_cards = 1
-    } else if (options.valiant && scenario !== GREAT_WAR) {
-        game.options.valiant = 1
+    if (scenario !== GREAT_WAR) {
+        if (options.optional_cards) {
+            game.options.optional_cards = 1
+        } else if (options.valiant) {
+            game.options.valiant = 1
+        }
     }
 
     // Current control of each space
@@ -1229,7 +1231,7 @@ function set_up_great_war_scenario_decks() {
         let c = data.cards[i]
         if (great_war_scenario_played_cp_cards.includes(i) || great_war_scenario_played_ap_cards.includes(i))
             set_up_played_event(i, great_war_scenario_turn_for_event(i))
-        else if (!is_optional_card(i))
+        else if (data.utils.is_card_allowed_to_deal(i, game.options))
             game[c.faction].deck.push(i)
     }
 
