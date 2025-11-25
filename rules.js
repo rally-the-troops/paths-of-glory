@@ -557,14 +557,15 @@ exports.view = function(state, current) {
         }
 
         // Rollback action
-        if (!globalThis.RTT_FUZZER &&
+        if (!game.options.no_supply_warnings &&
             game.rollback_proposal === undefined &&
             game.rollback &&
             game.rollback.length > 0)
             view.actions.propose_rollback = view.rollback.map((_, i) => i)
 
         // Flag supply warnings
-        if (!globalThis.RTT_FUZZER && game.state !== "flag_supply_warnings")
+        if (!game.options.no_supply_warnings &&
+            game.state !== "flag_supply_warnings")
             view.actions.flag_supply_warnings = 1
     }
 
@@ -596,6 +597,14 @@ exports.setup = function (seed, scenario, options) {
         set_up_great_war_scenario()
     } else {
         set_up_historical_scenario()
+    }
+
+    if (globalThis.RTT_FUZZER)
+        game.options.no_supply_warnings = 1
+
+    if (options.no_supply_warnings) {
+        game.options.no_supply_warnings = 1
+        log("Supply warnings and rollbacks disabled.")
     }
 
     if (game.scenario === HISTORICAL) {
@@ -1756,7 +1765,7 @@ function check_rule_violations() {
         for (let s = 1; s < AP_RESERVE_BOX; ++s) {
             let has_russian = false
             let has_ap_non_russian = false
-            
+
             for (let p of get_pieces_in_space(s)) {
                 if (data.pieces[p].faction === AP) {
                     if (data.pieces[p].nation === RUSSIA) {
@@ -1766,13 +1775,12 @@ function check_rule_violations() {
                     }
                 }
             }
-            
+
             if (has_ap_non_russian && has_russian) {
                 violations.push({ space: s, piece: 0, rule: "After Brest-Litovsk, RU may not stack with AP units"})
             }
         }
     }
-
 
     return violations
 }
@@ -2891,7 +2899,6 @@ function start_action_round() {
     game.attacked = []
     game.retreated = []
 
-
     if (game.activated.move.length > 0) {
         log("Move")
         for (let s of game.activated.move) {
@@ -3729,7 +3736,6 @@ function can_end_move(s, pieces) {
 
     return true
 }
-
 
 function is_blocked_italian_space(s, pieces) {
     if (game.ap.commitment === COMMITMENT_TOTAL)
@@ -6055,7 +6061,7 @@ function eliminate_ru_units_stacked_with_ap() {
     for (let s = 1; s < AP_RESERVE_BOX; ++s) {
         let has_ap_non_russian = false
         let russian_units = []
-        
+
         for (let p of get_pieces_in_space(s)) {
             if (data.pieces[p].faction === AP) {
                 if (data.pieces[p].nation === RUSSIA) {
@@ -9844,6 +9850,9 @@ function decompress_state(state_str) {
 }
 
 function save_rollback_point() {
+    if (game.options.no_supply_warnings)
+        return
+
     // Load the compressed state array or create a new array of states
     let rollback_state = decompress_state(game.rollback_state) || []
     if (!game.rollback) {
@@ -10203,12 +10212,12 @@ function assert_italian_operation() {
 
 function assert_brest_litovsk() {
     const rule_text = "Treaty of Brest-Litovsk, Russian units cannot stack with non-Russian AP units"
-    
+
     if (game.events.treaty_of_brest_litovsk > 0) {
         for (let s = 1; s < AP_RESERVE_BOX; ++s) {
             let has_russian = false
             let has_ap_non_russian = false
-            
+
             for (let p of get_pieces_in_space(s)) {
                 if (data.pieces[p].faction === AP) {
                     if (data.pieces[p].nation === RUSSIA) {
@@ -10218,7 +10227,7 @@ function assert_brest_litovsk() {
                     }
                 }
             }
-            
+
             if (has_ap_non_russian && has_russian) {
                 throw new Error(`Rule violation in S${s} ${space_name(s)}: ${rule_text}`)
             }
