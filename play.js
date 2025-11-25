@@ -812,7 +812,7 @@ function get_control(i) {
 }
 
 function to_reinforcements(){
-    document.getElementById("reinforcements").scrollIntoView();
+    scroll_into_view(document.getElementById("reinforcements"))
 }
 
 function show_score_summary() {
