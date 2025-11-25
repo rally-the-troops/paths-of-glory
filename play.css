@@ -258,12 +258,20 @@ body.Central_Powers header.your_turn { background-color: lightsteelblue; }
 #cp_card_dialog { top: 160px; left: 120px; }
 #ap_card_dialog { top: 220px; left: 180px; }
 
+#reinforcements_wrap {
+	width: min-content;
+	height: min-content;
+	background-color: #d9ccb5;
+	padding: 4px;
+	margin: 12px 12px 24px 12px;
+	border: 8px solid #123b4f;
+}
+
 #reinforcements {
+	position: relative;
 	background-size: 1044px 614px;
 	width: 1044px;
 	height: 614px;
-	position: relative;
-	margin: 12px;
 }
 
 .rollback_event {
