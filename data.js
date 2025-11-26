@@ -7059,10 +7059,10 @@ function is_base_deck(i) {
 
 function is_valiant_deck(i) {
     let card = data.cards[i]
-    return ((card.faction === CP && is_optional_card(i) && [56, 57, 59, 60, 64, 65].includes(card.num)) ||
-        (card.faction === CP && !is_optional_card(i) && ![2, 4, 17, 24, 35, 51].includes(card.num)) ||
-        (card.faction === AP && is_optional_card(i) && [56, 57, 60, 61, 62, 63, 65].includes(card.num)) ||
-        (card.faction === AP && !is_optional_card(i) && ![5, 8, 23, 28, 35, 36, 38].includes(card.num)))
+    return ((card.faction === "cp" && is_optional_card(i) && [56, 57, 59, 60, 64, 65].includes(card.num)) ||
+        (card.faction === "cp" && !is_optional_card(i) && ![2, 4, 17, 24, 35, 51].includes(card.num)) ||
+        (card.faction === "ap" && is_optional_card(i) && [56, 57, 60, 61, 62, 63, 65].includes(card.num)) ||
+        (card.faction === "ap" && !is_optional_card(i) && ![5, 8, 23, 28, 35, 36, 38].includes(card.num)))
 }
 
 const edges = [
