@@ -4917,6 +4917,9 @@ states.apply_defender_losses = {
         if (is_besieged(s)) {
             set_delete(game.forts.besieged, s)
             set_control(s, inactive_faction())
+        } else if (game.broken_sieges && set_has(game.broken_sieges, s) && contains_piece_of_faction(s, inactive_faction())) {
+            set_delete(game.broken_sieges, s)
+            set_control(s, inactive_faction())
         }
     },
     done() {
