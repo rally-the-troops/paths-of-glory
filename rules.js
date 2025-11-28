@@ -5823,7 +5823,7 @@ function get_retreat_options(pieces, from, spaces_to_retreat = 1) {
     }
 
     // if any options are friendly controlled, remove all enemy-controlled options
-    let friendly_options = options.filter((s) => is_controlled_by(s, faction))
+    let friendly_options = options.filter((s) => is_controlled_by(s, faction) || is_besieged(s))
     if (friendly_options.length > 0)
         options = friendly_options
 
