@@ -7348,6 +7348,11 @@ function is_unit_supplied_in(p, s, for_rp = false) {
     if (nation === ITALY)
         return check_supply_cache(game.supply, s, [LONDON], SUPPLY_MASK.London_Italian)
 
+    if (data.pieces[p].faction === AP && is_space_supplied_through_mef(s)) {
+        let name = data.pieces[p].name
+        return p === MEF_ARMY || name === 'BRc' || name === 'AUSc' // Only MEF army, British corps, and the Australian corps can be supplied through the MEF beachhead
+    }
+
     if (for_rp)
         return check_supply_cache(game.supply, s, get_supply_sources_for_piece_rp(p))
     return check_supply_cache(game.supply, s, get_supply_sources_for_piece(p))
@@ -7445,7 +7450,9 @@ function is_unit_supplied_through_italy(p) {
 function is_space_supplied_through_mef(s) {
     if (!is_space_supplied(s, AP))
         return false
-    return !(game.supply[s] & SUPPLY_MASK.NonMEFPath)
+    let supplied_from_london = !!(game.supply[s] & SUPPLY_MASK.London)
+    let non_mef_path = !!(game.supply[s] & SUPPLY_MASK.NonMEFPath)
+    return supplied_from_london && !non_mef_path
 }
 
 function is_space_supplied_or_has_supplied_unit(s, faction) {
