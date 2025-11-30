@@ -6127,7 +6127,29 @@ function is_possible_sud_army_stack(pieces) {
         if (data.pieces[p].nation === AUSTRIA_HUNGARY)
             ah_pieces++
     })
-    return ah_pieces === 1 && ge_corps >= 1 && ah_pieces + ge_corps === pieces.length
+    return ah_pieces >= 1 && ge_corps >= 1
+}
+
+function get_sud_army_activation_cost(pieces) {
+    if (!is_possible_sud_army_stack(pieces))
+        return undefined
+
+    let ge = 0
+    let ah = 0
+    let other = 0
+    pieces.forEach((p) => {
+        const nation = data.pieces[p].nation
+        if (nation === GERMANY)
+            ge++
+        else if (nation === AUSTRIA_HUNGARY)
+            ah++
+        else
+            other++
+    })
+    if (ah === 1 && ge >= 1 && other === 0)
+        return 1
+    else
+        return 2
 }
 
 function get_piece_nation_for_activation(p) {
@@ -6181,7 +6203,7 @@ function cost_to_activate(space, type) {
     // Sud Army modifies the activation cost for one stack per action round
     if (active_faction() === CP && game.events.sud_army > 0 && is_possible_sud_army_stack(pieces)) {
         if (!game.sud_army_space || game.sud_army_space === space) {
-            cost = 1
+            cost = get_sud_army_activation_cost(pieces)
         }
     }
 
