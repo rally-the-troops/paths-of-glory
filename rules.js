@@ -363,6 +363,7 @@ exports.action = function (state, current, action, arg) {
     _assert_push_undo = 0
     game = state
     update_supply_if_missing()
+
     if (action in states[game.state]) {
         states[game.state][action](arg, current)
     } else {
@@ -376,6 +377,7 @@ exports.action = function (state, current, action, arg) {
             throw new Error("Invalid action: " + action)
     }
     update_ana_vp()
+    interrupt_ap_mo_confirmation()
     return game
 }
 
@@ -1249,6 +1251,7 @@ function set_up_played_event(c, turn = 1) {
 function goto_start_turn() {
     game.state = 'confirm_mo'
     game.active = CP_ROLE
+    game.ap_mo_confirmation_needed = true
 
     update_supply()
 
@@ -1673,7 +1676,20 @@ states.confirm_mo = {
         gen_action_next()
     },
     next() {
-        goto_review_supply_warnings()
+        if (game.active === AP_ROLE && game.ap_mo_return_state) {
+            game.state = game.ap_mo_return_state
+            delete game.ap_mo_return_state
+            delete game.ap_mo_confirmation_needed
+        } else {
+            goto_review_supply_warnings()
+        }
+    }
+}
+
+function interrupt_ap_mo_confirmation() {
+    if (game.ap_mo_confirmation_needed && game.active === AP_ROLE) {
+        game.ap_mo_return_state = game.state
+        game.state = 'confirm_mo'
     }
 }
 
@@ -3105,11 +3121,7 @@ function goto_end_action() {
     if (game.ap.actions.length < 6 || game.cp.actions.length < 6) {
         clear_undo()
         switch_active_faction()
-        if (game.ap.actions.length === 0) {
-            game.state = 'confirm_mo'
-        } else {
-            goto_review_supply_warnings()
-        }
+        goto_review_supply_warnings()
     } else {
         goto_attrition_phase()
     }
