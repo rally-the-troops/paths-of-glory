@@ -6089,7 +6089,10 @@ function eliminate_ru_units_stacked_with_ap() {
 
         if (has_ap_non_russian && russian_units.length > 0) {
             for (let p of russian_units) {
-                eliminate_piece(p)
+                // Send to eliminated box, but don't call eliminate_piece since we don't want to permanently eliminate
+                // the piece, even if there are no corps remaining in the reserve box
+                log(`>${piece_name(p)} in ${space_name(game.location[p])} eliminated`)
+                send_to_eliminated_box(p)
             }
         }
     }
