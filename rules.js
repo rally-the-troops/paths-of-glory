@@ -8915,6 +8915,7 @@ states.great_retreat_option = {
         log("Great Retreat:")
         game.state = 'great_retreat'
         game.attack.great_retreat = p
+        set_add(game.retreated, p)
     },
     pass() {
         set_active_faction(game.attack.attacker)
@@ -8949,6 +8950,7 @@ states.great_retreat = {
     piece(p) {
         push_undo()
         game.attack.great_retreat = p
+        set_add(game.retreated, p)
     },
     space(s) {
         push_undo()
