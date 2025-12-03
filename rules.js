@@ -6134,15 +6134,27 @@ function update_siege(space) {
 }
 
 function is_possible_sud_army_stack(pieces) {
+    // Sud army stack may be any 1 AH piece (army or corps) with at least 1 GE corps and any other corps
     let ge_corps = 0
-    let ah_pieces = 0
-    pieces.forEach((p) => {
-        if (data.pieces[p].nation === GERMANY && data.pieces[p].type === CORPS)
+    let ah_corps = 0
+    let ah_armies = 0
+
+    for (let p of pieces) {
+        const nation = data.pieces[p].nation
+        const type = data.pieces[p].type
+        if (nation === AUSTRIA_HUNGARY) {
+            if (type === ARMY)
+                ah_armies++
+            else
+                ah_corps++
+        } else if (type === ARMY) {
+            return false // Any non-AH army means this cannot be a Sud Army stack
+        } else if (nation === GERMANY) {
             ge_corps++
-        if (data.pieces[p].nation === AUSTRIA_HUNGARY)
-            ah_pieces++
-    })
-    return ah_pieces >= 1 && ge_corps >= 1
+        }
+    }
+
+    return (ah_armies + ah_corps > 0 && ah_armies <= 1 && ge_corps >= 1)
 }
 
 function get_sud_army_activation_cost(pieces) {
