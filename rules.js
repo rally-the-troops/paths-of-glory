@@ -366,6 +366,7 @@ exports.action = function (state, current, action, arg) {
 
     if (action in states[game.state]) {
         states[game.state][action](arg, current)
+        interrupt_ap_mo_confirmation()
     } else {
         if (action === "undo" && game.undo && game.undo.length > 0)
             pop_undo()
@@ -377,7 +378,6 @@ exports.action = function (state, current, action, arg) {
             throw new Error("Invalid action: " + action)
     }
     update_ana_vp()
-    interrupt_ap_mo_confirmation()
     return game
 }
 
@@ -2795,13 +2795,13 @@ function roll_peace_terms(faction_offering, combined_war_status) {
 }
 
 function goto_activate_spaces() {
-    game.state = 'activate_spaces';
-    game.activation_cost = [];
+    game.state = 'activate_spaces'
+    game.activation_cost = []
 }
 
 function push_activation_cost(space, cost) {
-    if (!game.activation_cost) game.activation_cost = [];
-    map_set(game.activation_cost, space, cost);
+    if (!game.activation_cost) game.activation_cost = []
+    map_set(game.activation_cost, space, cost)
 }
 
 states.activate_spaces = {
