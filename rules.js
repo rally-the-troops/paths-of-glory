@@ -4801,10 +4801,11 @@ function resolve_defenders_fire() {
 
     const defender_pieces = get_pieces_in_space(game.attack.space).filter(p => data.pieces[p].faction === defender)
     defender_pieces.forEach(p => {
-        if (!set_has(game.retreated, p))
+        if (!set_has(game.retreated, p)) {
             defender_cf += get_piece_cf(p)
-        if (data.pieces[p].type === ARMY)
-            game.attack.defender_table = ARMY
+            if (data.pieces[p].type === ARMY)
+                game.attack.defender_table = ARMY
+        }
     })
 
     const space_data = data.spaces[game.attack.space]
