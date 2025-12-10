@@ -2913,6 +2913,7 @@ function start_action_round() {
     game.eligible_attackers = []
     game.moved = []
     game.attacked = []
+    game.pieces_attacked = []
     game.retreated = []
 
     if (game.activated.move.length > 0) {
@@ -3098,6 +3099,7 @@ function goto_end_action() {
     // Clean up state that is per action round
     delete game.moved
     delete game.attacked
+    delete game.pieces_attacked
     delete game.retreated
     delete game.sud_army_space
     game.attack = null
@@ -3862,6 +3864,7 @@ states.choose_attackers = {
         if (game.attack.pieces.length === 0)
             push_undo()
         set_add(game.attack.pieces, p)
+        set_add(game.pieces_attacked, p)
     },
     space(s) {
         push_undo()
@@ -4199,7 +4202,8 @@ function get_attackable_spaces(attackers) {
     // can only attack the besieged space
     let besieged_spaces = attackers.map((p) => game.location[p]).filter((s) => is_besieged(s))
     for (let besieged_space of besieged_spaces) {
-        const remaining_besieging_pieces = get_pieces_in_space(besieged_space).filter((p) => !attackers.includes(p))
+        // Remaining besieging force cannot include pieces designated to attack or pieces that already attacked
+        const remaining_besieging_pieces = get_pieces_in_space(besieged_space).filter((p) => !attackers.includes(p) && !has_piece_attacked(p))
         if (!can_besiege(besieged_space, remaining_besieging_pieces)) {
             // If any attacker is attacking out of a besieged space, and the remaining pieces in that space cannot
             // maintain the siege, then remove other spaces from the eligible targets
@@ -4272,6 +4276,12 @@ function get_attackable_spaces(attackers) {
     })
 
     return eligible_spaces
+}
+
+function has_piece_attacked(p) {
+    if (!game.pieces_attacked)
+        return false
+    return set_has(game.pieces_attacked, p)
 }
 
 function get_nation_for_multinational_attacks(piece) {
