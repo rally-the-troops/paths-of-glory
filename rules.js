@@ -3909,7 +3909,7 @@ function fmt_attack_odds() {
     }, 0)
 
     const attacker_table = game.attack.pieces.some(p => data.pieces[p].type === ARMY) ? fire_table.army : fire_table.corps
-    const defender_table = defender_pieces.some(p => data.pieces[p].type === ARMY) ? fire_table.army : fire_table.corps
+    const defender_table = defender_pieces.some(p => data.pieces[p].type === ARMY && !set_has(game.retreated, p)) ? fire_table.army : fire_table.corps
 
     if (has_undestroyed_fort(game.attack.space, defender))
         defense_factors += data.spaces[game.attack.space].fort
