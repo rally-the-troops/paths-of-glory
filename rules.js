@@ -5845,6 +5845,10 @@ function get_retreat_options(pieces, from, spaces_to_retreat = 1) {
         if (!is_space_at_war(conn))
             return
 
+        if (is_neareast_space(conn) && !can_enter_neareast(pieces)) {
+            return
+        }
+
         set_add(options, conn)
     })
 
