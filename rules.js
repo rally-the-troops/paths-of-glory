@@ -2917,6 +2917,7 @@ function start_action_round() {
     game.eligible_attackers = []
     game.moved = []
     game.attacked = []
+    game.ineligible_for_siege = []
     game.retreated = []
 
     if (game.activated.move.length > 0) {
@@ -3102,6 +3103,7 @@ function goto_end_action() {
     // Clean up state that is per action round
     delete game.moved
     delete game.attacked
+    delete game.ineligible_for_siege
     delete game.retreated
     delete game.sud_army_space
     game.attack = null
@@ -4204,7 +4206,8 @@ function get_attackable_spaces(attackers) {
     // can only attack the besieged space
     let besieged_spaces = attackers.map((p) => game.location[p]).filter((s) => is_besieged(s))
     for (let besieged_space of besieged_spaces) {
-        const remaining_besieging_pieces = get_pieces_in_space(besieged_space).filter((p) => !attackers.includes(p))
+        // Remaining besieging force cannot include pieces designated to attack or pieces that already attacked
+        const remaining_besieging_pieces = get_pieces_in_space(besieged_space).filter((p) => !attackers.includes(p) && is_eligible_for_siege(p))
         if (!can_besiege(besieged_space, remaining_besieging_pieces)) {
             // If any attacker is attacking out of a besieged space, and the remaining pieces in that space cannot
             // maintain the siege, then remove other spaces from the eligible targets
@@ -4277,6 +4280,12 @@ function get_attackable_spaces(attackers) {
     })
 
     return eligible_spaces
+}
+
+function is_eligible_for_siege(p) {
+    if (!game.ineligible_for_siege)
+        return true
+    return !set_has(game.ineligible_for_siege, p)
 }
 
 function get_nation_for_multinational_attacks(piece) {
@@ -4638,6 +4647,12 @@ function begin_combat() {
         game.attack.pieces.some((p) => data.pieces[p].nation === BRITAIN)
     ) {
         game.attack.haig_cancels_ge_retreat = true
+    }
+
+    // Mark all attackers as ineligible for siege duties this round, unless they are attacking their own space
+    for (let p of game.attack.pieces) {
+        if (game.location[p] !== game.attack.space)
+            set_add(game.ineligible_for_siege, p)
     }
 
     resolve_fire()
