@@ -1259,6 +1259,7 @@ function goto_start_turn() {
 
     log_br()
     log_h1(`Turn ${game.turn} -- ${turn_season_and_year(game.turn)}`)
+    game.phase = "Start Turn"
     log_br()
     roll_mandated_offensives()
     log_br()
@@ -1911,6 +1912,7 @@ function get_trench_level_for_attack(s, faction) {
 function goto_action_phase() {
     let round = game[active_faction()].actions.length + 1
     log_h3(`Turn ${game.turn} -- Action ${round}`)
+    game.phase = "Action Phase"
     game.state = 'action_phase'
     save_rollback_point()
 }
@@ -6287,6 +6289,7 @@ function cost_to_activate(space, type) {
 function goto_attrition_phase() {
 
     log_h2("Attrition Phase")
+    game.phase = "Attrition Phase"
 
     game.attrition = {
         ap: {
@@ -6409,6 +6412,7 @@ states.attrition_phase = {
 function goto_siege_phase() {
     if (game.forts.besieged.length > 0) {
         log_h2("Siege Phase")
+        game.phase = "Siege Phase"
         game.state = 'siege_phase'
         const ap_has_sieges = game.forts.besieged.some((s) => data.spaces[s].faction === CP)
         set_active_faction(ap_has_sieges ? AP : CP)
@@ -6456,6 +6460,7 @@ states.siege_phase = {
 function goto_war_status_phase() {
     // E. War Status Phase
     log_h2("War Status Phase")
+    game.phase = "War Status Phase"
 
     // E.1. Check the Victory Point table and make any changes called for under the “During the War Status Phase”
     // section of the table.
@@ -6640,6 +6645,7 @@ function apply_replacement_phase_events() {
 function goto_replacement_phase() {
     clear_undo()
     update_supply()
+    game.phase = "Replacement Phase"
     if (has_rps(AP)) {
         log_h2(`${faction_name(AP)} Replacement Phase`)
         set_active_faction(AP)
@@ -6904,6 +6910,7 @@ function goto_draw_cards_phase() {
     })
     game.combat_cards.length = 0
     log_h2(`Draw Strategy Cards Phase`)
+    game.phase = "Draw Strategy Cards Phase"
     goto_ap_draw_cards_phase()
 }
 
@@ -10039,12 +10046,47 @@ states.review_rollback_proposal = {
         gen_action('reject')
     },
     accept() {
+        const prev_turn = game.turn
+
+        let phase = game.phase || ""
+        if (phase === "Action Phase") {
+            // Figure out whose action round it is
+            let ar_faction = game.ap.actions.length === game.cp.actions.length ? AP : CP
+            if (game.rollback_proposal.save_state === 'action_phase') {
+                // Usually, if the count of actions is the same, it's the AP player's action round, but there's a
+                // special case for the action phase state: the active player hasn't recorded an action yet, so the
+                // count of actions tells the wrong story.
+                ar_faction = other_faction(ar_faction)
+            }
+            let round = ar_faction === AP ? game.ap.actions.length : game.cp.actions.length
+            phase = `${faction_name(ar_faction)} Action ${round}`
+        }
+
         restore_rollback(game.rollback_proposal.index)
+
+        game.rollback_confirmation = {
+            msg: `Rolled back from Turn ${prev_turn} ${phase}`,
+            state: game.state
+        }
+        game.state = 'confirm_rollback'
     },
     reject() {
         game.active = game.rollback_proposal.faction
         game.state = game.rollback_proposal.save_state
         delete game.rollback_proposal
+    }
+}
+
+states.confirm_rollback = {
+    inactive: 'confirm rollback',
+    prompt() {
+        view.prompt = game.rollback_confirmation.msg
+        gen_action('next')
+    },
+    next() {
+        log_h2(game.rollback_confirmation.msg)
+        game.state = game.rollback_confirmation.state
+        delete game.rollback_confirmation
     }
 }
 
