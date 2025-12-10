@@ -242,10 +242,12 @@ const CONSTANTINOPLE = 219
 const POTI = 233
 const GROZNY = 234
 const MEF4 = 260
+const AMMAN = 262
 const BASRA = 269
 const ARABIA_SPACE = 271
 const MEDINA = 272
 const AQABA = 273
+const JERUSALEM = 275
 const SINAI = 277
 const ALEXANDRIA = 280
 const LIBYA = 281
@@ -7424,10 +7426,12 @@ function is_space_supplied(s, faction) {
         }
 
         if (s === MEDINA) {
-            // AP supply in Medina is complicated by the connections being ANA-only, so just check if either of the
-            // neighbors have AP supply. The only AP unit that can be supplied in Medina is the ANA corps, which
-            // already has its own exception in is_unit_supplied_in().
-            return (is_space_supplied(ARABIA_SPACE, AP) || is_space_supplied(AQABA, AP))
+            // AP supply in Medina is complicated by the connections being ANA-only. Instead of calculating a whole
+            // supply network for ANA, just directly check if the spaces that could supply Medina are supplied. This
+            // includes Aqaba, which can supply Medina directly, or the neighbors of Arabia, Jerusalem and Amman. Unit
+            // supply doesn't matter here, because the only AP unit that can be supplied in Medina is the ANA corps,
+            // which already has its own exception in is_unit_supplied_in().
+            return (is_space_supplied(JERUSALEM, AP) || is_space_supplied(AMMAN, AP) || is_space_supplied(AQABA, AP))
         }
         return check_supply_cache(game.supply, s, [LONDON, PETROGRAD, MOSCOW, KHARKOV, CAUCASUS, BELGRADE, SALONIKA], SUPPLY_MASK.London_Italian)
     }
