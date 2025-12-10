@@ -10060,12 +10060,29 @@ states.review_rollback_proposal = {
 
         restore_rollback(game.rollback_proposal.index)
 
-        log_h2(`Rolled back from Turn ${prev_turn} ${phase}`)
+        game.rollback_confirmation = {
+            msg: `Rolled back from Turn ${prev_turn} ${phase}`,
+            state: game.state
+        }
+        game.state = 'confirm_rollback'
     },
     reject() {
         game.active = game.rollback_proposal.faction
         game.state = game.rollback_proposal.save_state
         delete game.rollback_proposal
+    }
+}
+
+states.confirm_rollback = {
+    inactive: 'confirm rollback',
+    prompt() {
+        view.prompt = game.rollback_confirmation.msg
+        gen_action('next')
+    },
+    next() {
+        log_h2(game.rollback_confirmation.msg)
+        game.state = game.rollback_confirmation.state
+        delete game.rollback_confirmation
     }
 }
 
