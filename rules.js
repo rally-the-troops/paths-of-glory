@@ -3913,7 +3913,7 @@ function fmt_attack_odds() {
     }, 0)
 
     const attacker_table = game.attack.pieces.some(p => data.pieces[p].type === ARMY) ? fire_table.army : fire_table.corps
-    const defender_table = defender_pieces.some(p => data.pieces[p].type === ARMY) ? fire_table.army : fire_table.corps
+    const defender_table = defender_pieces.some(p => data.pieces[p].type === ARMY && !set_has(game.retreated, p)) ? fire_table.army : fire_table.corps
 
     if (has_undestroyed_fort(game.attack.space, defender))
         defense_factors += data.spaces[game.attack.space].fort
@@ -4137,9 +4137,10 @@ function could_have_usable_combat_card(faction, skip_deck) {
 }
 
 function attacking_unoccupied_fort() {
+    let unretreated_defenders = get_defenders_pieces().filter((p) => !set_has(game.retreated, p))
     return (data.spaces[game.attack.space].fort > 0 &&
         !set_has(game.forts.destroyed, game.attack.space) &&
-        get_defenders_pieces().length === 0)
+        unretreated_defenders.length === 0)
 }
 
 function attacker_can_flank() {
@@ -4805,10 +4806,11 @@ function resolve_defenders_fire() {
 
     const defender_pieces = get_pieces_in_space(game.attack.space).filter(p => data.pieces[p].faction === defender)
     defender_pieces.forEach(p => {
-        if (!set_has(game.retreated, p))
+        if (!set_has(game.retreated, p)) {
             defender_cf += get_piece_cf(p)
-        if (data.pieces[p].type === ARMY)
-            game.attack.defender_table = ARMY
+            if (data.pieces[p].type === ARMY)
+                game.attack.defender_table = ARMY
+        }
     })
 
     const space_data = data.spaces[game.attack.space]
