@@ -4133,9 +4133,10 @@ function could_have_usable_combat_card(faction, skip_deck) {
 }
 
 function attacking_unoccupied_fort() {
+    let unretreated_defenders = get_defenders_pieces().filter((p) => !set_has(game.retreated, p))
     return (data.spaces[game.attack.space].fort > 0 &&
         !set_has(game.forts.destroyed, game.attack.space) &&
-        get_defenders_pieces().length === 0)
+        unretreated_defenders.length === 0)
 }
 
 function attacker_can_flank() {
