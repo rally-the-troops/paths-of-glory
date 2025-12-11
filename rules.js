@@ -2808,6 +2808,39 @@ function push_activation_cost(space, cost) {
     map_set(game.activation_cost, space, cost)
 }
 
+function can_activate_piece_in_space_to_attack(p, s, used_ne_activation) {
+    if (get_season() === SEASON_SUMMER && data.spaces[s].terrain === DESERT)
+        // Cannot activate desert spaces to attack in the summer
+        return false
+
+    if (active_faction() === AP && used_ne_activation && is_neareast_space(s)) {
+        // The Allied player may Activate only one space per Action Round for combat on the Near East
+        // map. This applies to spaces actually on the NE map. Units in spaces not on the NE map may
+        // still attack into the NE map. (e.g., Adrianople, Gallipoli, Balikesir.) Exceptions: The MEF
+        // Beachhead space and the space containing the British NE Army do not count against this limit.
+        if (is_mef_space(s) || game.location[BRITISH_NE_ARMY] === s) {
+            if (get_attackable_spaces([p]).length > 0)
+                return true
+        }
+        return false
+    }
+
+    // London must be exempt from this filtering based on attackable spaces, because it never has
+    // an attackable space on its own, only in combination with units in France or Belgium.
+    if (s === LONDON || get_attackable_spaces([p]).length > 0)
+        return true
+
+    // If the space is adjacent to a besieged space, allow activation to attack because the player could
+    // move out of the besieged space and then attack.
+    const connected = get_connected_spaces_for_pieces(s, [p])
+    for (let conn of connected) {
+        if (is_controlled_by(conn, inactive_faction()) && is_besieged(conn))
+            return true
+    }
+
+    return false
+}
+
 states.activate_spaces = {
     inactive: "activate spaces",
     prompt() {
@@ -2830,32 +2863,11 @@ states.activate_spaces = {
             if (set_has(game.activated.move, s) || set_has(game.activated.attack, s))
                 continue
 
-            if (!set_has(move_spaces, s)) {
-                if (game.ops >= cost_to_activate(s, MOVE))
-                    set_add(move_spaces, s)
-            }
+            if (!set_has(move_spaces, s) && game.ops >= cost_to_activate(s, MOVE))
+                set_add(move_spaces, s)
 
-            if (!set_has(attack_spaces, s)) {
-                if (game.ops >= cost_to_activate(s, ATTACK)) {
-                    if (get_season() === SEASON_SUMMER && data.spaces[s].terrain === DESERT) {
-                        // Cannot activate desert spaces to attack in the summer
-                    } else if (active_faction() === AP && used_ne_activation && is_neareast_space(s)) {
-                        // The Allied player may Activate only one space per Action Round for combat on the Near East
-                        // map. This applies to spaces actually on the NE map. Units in spaces not on the NE map may
-                        // still attack into the NE map. (e.g., Adrianople, Gallipoli, Balikesir.) Exceptions: The MEF
-                        // Beachhead space and the space containing the British NE Army do not count against this limit.
-                        if (is_mef_space(s) || game.location[BRITISH_NE_ARMY] === s) {
-                            if (get_attackable_spaces([p]).length > 0)
-                                set_add(attack_spaces, s)
-                        }
-                    } else {
-                        // London must be exempt from this filtering based on attackable spaces, because it never has
-                        // an attackable space on its own, only in combination with units in France or Belgium.
-                        if (s === LONDON || get_attackable_spaces([p]).length > 0)
-                            set_add(attack_spaces, s)
-                    }
-                }
-            }
+            if (!set_has(attack_spaces, s) && game.ops >= cost_to_activate(s, ATTACK) && can_activate_piece_in_space_to_attack(p, s, used_ne_activation))
+                set_add(attack_spaces, s)
         }
 
         for (let s of move_spaces)
