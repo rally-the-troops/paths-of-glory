@@ -4646,6 +4646,9 @@ function used_cc_this_round(c) {
 }
 
 function begin_combat() {
+    // TODO: remove this backward compatibility hotfix
+    game.ineligible_for_siege ??= []
+
     if (game.attack.combat_cards.length > 0) {
         if (game.action_state.used_ccs === undefined)
             game.action_state.used_ccs = []
