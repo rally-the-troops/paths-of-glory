@@ -6242,12 +6242,6 @@ function cost_to_activate(space, type) {
     })
     let cost = nations.length
 
-    if (faction === AP &&
-        game.turn === game.events.everyone_into_battle &&
-        [ITALY, FRANCE, BELGIUM].includes(data.spaces[space].nation)) {
-        cost = 1
-    }
-
     const spaces_where_belgian_units_treated_as_british = [
         AMIENS,
         CALAIS,
@@ -6265,6 +6259,15 @@ function cost_to_activate(space, type) {
         nations.includes(FRANCE) &&
         nations.includes(US)) {
         cost--
+    }
+
+    // Everyone into Battle modifies the activation cost for Allied units in Italy, France, and Belgium
+    // Apply this cost after the cost reductions for British units stacked with Belgians and French units
+    // stacked with US, to avoid a zero-cost activation.
+    if (faction === AP &&
+        game.turn === game.events.everyone_into_battle &&
+        [ITALY, FRANCE, BELGIUM].includes(data.spaces[space].nation)) {
+        cost = 1
     }
 
     // Sud Army modifies the activation cost for one stack per action round
