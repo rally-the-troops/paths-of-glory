@@ -1897,12 +1897,8 @@ function get_trench_level_for_attack(s, faction) {
     if (game.attack.trenches_canceled)
         return 0
 
-    if (base_lvl === 0 &&
-        game.attack.attacker === AP &&
-        game.attack.combat_cards.includes(TURK_DETERMINATION) &&
-        events[data.cards[TURK_DETERMINATION].event].can_apply()) {
+    if (game.attack.turk_determination)
         return 1
-    }
 
     return base_lvl
 }
@@ -4865,6 +4861,14 @@ function resolve_defenders_fire() {
             }
         }
     })
+
+    // Remember that Turk Determination applies, even after the card is discarded
+    if (get_trench_level(game.attack.space, CP) === 0 &&
+        game.attack.attacker === AP &&
+        game.attack.combat_cards.includes(TURK_DETERMINATION) &&
+        events[data.cards[TURK_DETERMINATION].event].can_apply()) {
+        game.attack.turk_determination = true
+    }
 
     let defender_shifts = 0
     let trench_shift_canceled = game.attack.trenches_canceled || game.attack.trench_shift_canceled
