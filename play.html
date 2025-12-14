@@ -19,7 +19,7 @@
 </head>
 <body class="bevel">
 
-<menu id="card_popup">
+<menu id="card_popup" hidden>
 	<li class="title">CARD
 	<li class="separator">
 	<li data-action="play_event"> &#x1f3b4;&#xfe0e; &nbsp; Play Event
@@ -28,7 +28,7 @@
 	<li data-action="play_rps"> &#x1f3ed;&#xfe0e; &nbsp; Replacement Points
 </menu>
 
-<menu id="activation_popup">
+<menu id="activation_popup" hidden>
 	<li class="title">ACTIVATE
 	<li class="separator">
 	<li data-action="activate_move"> Activate to Move
@@ -36,19 +36,19 @@
 	<li data-action="activate_attack_mutiny"> Activate to Attack (French Mutiny)
 </menu>
 
-<div id="score" class="dialog">
+<div id="score" class="dialog" hidden>
 	<div class="dialog_header">Score Summary</div>
 	<div class="dialog_x" onclick="hide_dialog('score')">&#x274c;</div>
 	<div class="dialog_body"></div>
 </div>
 
-<div id="cp_card_dialog" class="dialog">
+<div id="cp_card_dialog" class="dialog" hidden>
 	<div class="dialog_header">Central Power Cards</div>
 	<div class="dialog_x" onclick="hide_dialog('cp_card_dialog')">&#x274c;</div>
 	<div class="dialog_body"></div>
 </div>
 
-<div id="ap_card_dialog" class="dialog">
+<div id="ap_card_dialog" class="dialog" hidden>
 	<div class="dialog_header">Allied Power Cards</div>
 	<div class="dialog_x" onclick="hide_dialog('ap_card_dialog')">&#x274c;</div>
 	<div class="dialog_body"></div>

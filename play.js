@@ -330,7 +330,7 @@ function on_click_card_tip(c) {
 }
 
 function on_focus_card_tip(card_number) {
-    document.getElementById("tooltip").className = `card show ${card_class_name(card_number)}`
+    document.getElementById("tooltip").className = `card ${card_class_name(card_number)}`
 }
 
 function on_blur_card_tip() {
@@ -651,7 +651,7 @@ function show_reinforcements() {
 }
 
 function show_dialog(id, dialog_generator) {
-    document.getElementById(id).classList.add("show")
+    document.getElementById(id).hidden = false
     let body = document.getElementById(id).querySelector(".dialog_body")
     body.replaceChildren()
     if (dialog_generator) {
@@ -660,7 +660,7 @@ function show_dialog(id, dialog_generator) {
 }
 
 function hide_dialog(id) {
-    document.getElementById(id).classList.remove("show")
+    document.getElementById(id).hidden = true
 }
 
 function can_flag_supply_warnings() {
@@ -1379,7 +1379,7 @@ function show_popup_menu(evt, menu_id, target_id, title, hide = '') {
 
     if (show) {
         menu.onmouseleave = hide_popup_menu
-        menu.style.display = "block"
+        menu.hidden = false
         if (title) {
             let item = menu.querySelector("li.title")
             if (item) {
@@ -1397,13 +1397,13 @@ function show_popup_menu(evt, menu_id, target_id, title, hide = '') {
 
         evt.stopPropagation()
     } else {
-        menu.style.display = "none"
+        menu.hidden = true
     }
 }
 
 function hide_popup_menu() {
-    document.getElementById("activation_popup").style.display = "none"
-    document.getElementById("card_popup").style.display = "none"
+    document.getElementById("activation_popup").hidden = true
+    document.getElementById("card_popup").hidden = true
 }
 
 function is_card_enabled(card) {
