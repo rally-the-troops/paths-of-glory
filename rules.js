@@ -6111,7 +6111,7 @@ function can_advance_through(space, units, retreat_paths) {
     return retreat_paths.some((path) => can_advance_into(path[0], units))
 }
 
-function eliminate_ru_units_stacked_with_ap() {
+function eliminate_ru_units_violating_treaty_of_brest_litovsk() {
     if (game.events.treaty_of_brest_litovsk === 0)
         return
 
@@ -6138,6 +6138,20 @@ function eliminate_ru_units_stacked_with_ap() {
                 log(`>${piece_name(p)} in ${space_name(game.location[p])} eliminated`)
                 send_to_eliminated_box(p)
             }
+        }
+    }
+
+    log('RU units can only operate in Russia, Germany, Turkey, Austria and Romania')
+
+    const allowed_nations = [RUSSIA, GERMANY, TURKEY, AUSTRIA_HUNGARY, ROMANIA]
+    for (let p of all_pieces_by_nation[RUSSIA]) {
+        const location = game.location[p]
+        if (location >= AP_RESERVE_BOX || location === 0)
+            continue
+        const nation = data.spaces[location].nation
+        if (!allowed_nations.includes(nation)) {
+            log(`>${piece_name(p)} in ${space_name(location)} eliminated`)
+            send_to_eliminated_box(p)
         }
     }
 }
@@ -8310,7 +8324,7 @@ events.treaty_of_brest_litovsk = {
     },
     play() {
         game.events.treaty_of_brest_litovsk = game.turn
-        eliminate_ru_units_stacked_with_ap()
+        eliminate_ru_units_violating_treaty_of_brest_litovsk()
         goto_end_event()
     }
 }
