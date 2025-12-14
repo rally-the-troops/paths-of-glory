@@ -663,18 +663,6 @@ function hide_dialog(id) {
     document.getElementById(id).classList.remove("show")
 }
 
-function toggle_dialog_collapse(id) {
-    let dialog_body = document.getElementById(id).querySelector(".dialog_body")
-    let dialog_x = document.getElementById(id).querySelector(".dialog_x")
-    if (dialog_body.className.includes("hide")) {
-        dialog_body.classList.remove("hide")
-        dialog_x.textContent = "A"
-    } else {
-        dialog_body.classList.add("hide")
-        dialog_x.textContent = "V"
-    }
-}
-
 function can_flag_supply_warnings() {
     return view.actions && 'flag_supply_warnings' in view.actions
 }
@@ -950,7 +938,6 @@ let ui = {
     combat_cards: document.getElementById("combat_cards"),
     unused_combat_cards: document.getElementById("unused_combat_cards"),
     active_cards: document.getElementById("active_cards"),
-    last_card: document.getElementById("last_card"),
     ne_limits: {
         br_sr: document.getElementsByClassName("br_ne_sr")[0],
         cp_sr: document.getElementsByClassName("cp_ne_sr")[0],
@@ -1841,9 +1828,6 @@ for (let p = 0; p < pieces.length; ++p) {
     pieces[p].element = build_unit(p, ui.pieces)
 }
 
-//document.getElementById("last_card").addEventListener("mouseenter", on_focus_last_card)
-//document.getElementById("last_card").addEventListener("mouseleave", on_blur_last_card)
-
 // UPDATE UI
 
 function is_action_piece(p) {
@@ -2681,14 +2665,6 @@ function update_violations() {
     }
 }
 
-function toggle_marker(id, show) {
-    let element = document.getElementById(id)
-    if (show)
-        element.classList.add("show")
-    else
-        element.classList.remove("show")
-}
-
 const ICONS_SVG = {
     B1: '<span class="die cp d1"></span>',
     B2: '<span class="die cp d2"></span>',
@@ -2869,11 +2845,7 @@ function update_map() {
 
     if (focus === null) {
         focus_box.remove()
-    } else {
-        focus_box.className = "show"
     }
-
-    //ui.last_card.className = "card show card_" + faction_card_number(view.last_card)
 
     // Update tracks
     update_general_records_track()
