@@ -261,9 +261,7 @@ function is_mef_space(s) {
     return (s >= MEF1 && s <= MEF3) || s === MEF4
 }
 
-function is_off_map_space(s) {
-    return s === AP_RESERVE_BOX || s === CP_RESERVE_BOX || s === AP_ELIMINATED_BOX || s === CP_ELIMINATED_BOX || s === PERM_ELIMINATED_BOX
-}
+const map_space_count = 282
 
 // Terrain
 const MOUNTAIN = "mountain"
@@ -592,7 +590,7 @@ exports.setup = function (seed, scenario, options) {
     }
 
     // Current control of each space
-    for (let i = 0; i < data.spaces.length; ++i)
+    for (let i = 0; i < map_space_count; ++i)
         set_up_control(i, data.spaces[i].faction)
 
     log_h1("Paths of Glory")
@@ -685,7 +683,7 @@ function create_empty_game_state(seed, scenario) {
             attack: [] // Spaces activated for attack
         },
         activation_cost: [], // Cost space was activated for
-        control: Array(Math.floor((data.spaces.length + 7) / 8)).fill(0),
+        control: Array(Math.floor((map_space_count + 7) / 8)).fill(0),
         forts: { // data for spaces tells you strength of forts per space
             destroyed: [], // Spaces with destroyed forts
             besieged: [] // Spaces with besieged forts
@@ -1084,7 +1082,7 @@ function set_up_great_war_scenario() {
     }
 
     // Destroy forts occupied by enemies and set control where there is a trench
-    for (let s = 1; s < data.spaces.length; s++) {
+    for (let s = 1; s < map_space_count; s++) {
         if (is_controlled_by(s, CP) && get_trench_level(s, AP) > 0)
             set_up_control(s, AP)
         if (is_controlled_by(s, AP) && get_trench_level(s, CP) > 0)
@@ -1771,7 +1769,7 @@ function check_rule_violations() {
     })
 
     // Check for intact fort spaces with insufficient enemy pieces to begin a siege
-    for (let s = 1; s < data.spaces.length; ++s) {
+    for (let s = 1; s < map_space_count; ++s) {
         if ((has_undestroyed_fort(s, AP) || has_undestroyed_fort(s, CP)) && !is_besieged(s) && game.broken_sieges && !set_has(game.broken_sieges, s)) {
             const enemy_pieces = get_pieces_in_space(s).filter(p => data.pieces[p].faction !== data.spaces[s].faction)
             if (enemy_pieces.length > 0 && !can_besiege(s, enemy_pieces)) {
@@ -2327,7 +2325,7 @@ function get_sr_destinations(unit) {
     // AP can SR Corps to any friendly-controlled port, CP can SR using ports in Germany and Russia
     if (data.pieces[unit].type === CORPS) {
         if (is_port(start, active_faction())) {
-            for (let s = 1; s < data.spaces.length; s++) {
+            for (let s = 1; s < map_space_count; s++) {
                 if (is_port(s, active_faction()) &&
                     is_controlled_by(s, active_faction()) &&
                     is_unit_supplied_in(unit, s) &&
@@ -3735,14 +3733,12 @@ function would_overstack(s, pieces, faction) {
 }
 
 function get_all_overstacked_spaces() {
-    let stacks = new Array(data.spaces.length).fill(0)
+    let stacks = new Array(map_space_count).fill(0)
     for (let p = 1; p < data.pieces.length; ++p) {
         stacks[game.location[p]]++
     }
     let overstacked = []
-    for (let s = 1; s < data.spaces.length; ++s) {
-        if (is_off_map_space(s))
-            continue
+    for (let s = 1; s < map_space_count; ++s) {
         if (stacks[s] > STACKING_LIMIT) {
             overstacked.push(s)
         }
@@ -6372,7 +6368,7 @@ function goto_attrition_phase() {
     }
 
     // Get all OOS spaces that should flip control
-    for (let s = 1; s < data.spaces.length; ++s) {
+    for (let s = 1; s < map_space_count; ++s) {
         const controlling_faction = is_controlled_by(s, AP) ? AP : CP
         if (controlling_faction === AP && data.spaces[s].nation === SERBIA) {
             continue // Under rule 14.1.5, Serbian spaces only convert when CP units enter the spaces.
@@ -7224,8 +7220,8 @@ function get_supply_mask(source) {
 // - set_nonitalian_path: whether to set the NonItalianPath mask for spaces reachable without passing through Italy
 // - set_nonmef_path: whether to set the NonMEFPath mask for spaces reachable without passing through the MEF
 
-let blocked_spaces = new Array(data.spaces.length).fill(0) // allocate once and re-use
-let visited = new Array(data.spaces.length).fill(0) // allocate once and re-use
+let blocked_spaces = new Array(map_space_count).fill(0) // allocate once and re-use
+let visited = new Array(map_space_count).fill(0) // allocate once and re-use
 
 function fill_supply_cache(faction, cache, sources, options) {
     options = options || {}
@@ -7247,7 +7243,7 @@ function fill_supply_cache(faction, cache, sources, options) {
     }
 
     // Block spaces that are in nations not yet at war
-    for (let s = 1; s < data.spaces.length; ++s) {
+    for (let s = 1; s < map_space_count; ++s) {
         if (!is_space_at_war(s))
             blocked_spaces[s] = 1
     }
@@ -7262,7 +7258,7 @@ function fill_supply_cache(faction, cache, sources, options) {
             }
         }
     }
-    for (let s = 1; s < data.spaces.length; ++s) {
+    for (let s = 1; s < map_space_count; ++s) {
         if (!is_controlled_by(s, faction) && !set_has(occupied_forts, s)) {
             blocked_spaces[s] = 1
         } else if (use_ports) {
@@ -7378,7 +7374,7 @@ function update_supply() {
     if (nation_at_war(TURKEY))
         cp_sources.push(CONSTANTINOPLE)
 
-    game.supply = new Array(data.spaces.length).fill(0)
+    game.supply = new Array(map_space_count).fill(0)
 
     // Supply for CP, western, and eastern units is saved in the same cache, kept distinct by the separate supply sources
     fill_supply_cache(CP, game.supply, cp_sources, { use_ports:true, national_connections: TURKEY }) // Not all CP supply can follow Turkish connections, but this only applied to Medina, so it's easier to add a special check for non-Turkish units in Medina
@@ -7623,7 +7619,7 @@ function query_supply(sources) {
             mask |= get_supply_mask(source)
     }
     let spaces = [ 0 ]
-    for (let i = 1; i < data.spaces.length; ++i) {
+    for (let i = 1; i < map_space_count; ++i) {
         spaces[i] = (game.supply[i] & mask) ? 1 : 0
     }
     return spaces

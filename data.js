@@ -6873,6 +6873,7 @@ data.spaces = [
         "nation": "eg",
         "faction": "cp"
     },
+
     {
         "id": 282,
         "name": "AP Reserve Box",

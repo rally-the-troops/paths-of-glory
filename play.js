@@ -4,6 +4,8 @@
 
 const { cards, spaces, pieces } = data
 
+const map_space_count = 282
+
 const DEBUG_SPACES = false
 const DEBUG_CONNECTIONS = false
 
@@ -273,7 +275,7 @@ function show_ap_supply(supply) {
     if (showing_supply)
         hide_supply()
     showing_supply = true
-    for (let s = 1; s < spaces.length; ++s) {
+    for (let s = 1; s < map_space_count; ++s) {
         const western = supply.western[s] > 0
         const eastern = supply.eastern[s] > 0
         spaces[s].element.classList.toggle("western_supply", western)
@@ -286,7 +288,7 @@ function show_cp_supply(supply) {
     if (showing_supply)
         hide_supply()
     showing_supply = true
-    for (let s = 1; s < spaces.length; ++s) {
+    for (let s = 1; s < map_space_count; ++s) {
         const cp = supply.spaces[s] > 0
         spaces[s].element.classList.toggle("cp_supply", cp)
         spaces[s].element.classList.toggle("no_supply", !cp)
@@ -296,7 +298,7 @@ function show_cp_supply(supply) {
 function hide_supply() {
     if (showing_supply) {
         showing_supply = false
-        for (let s = 1; s < spaces.length; ++s) {
+        for (let s = 1; s < map_space_count; ++s) {
             spaces[s].element.classList.remove("western_supply")
             spaces[s].element.classList.remove("eastern_supply")
             spaces[s].element.classList.remove("cp_supply")
@@ -852,7 +854,7 @@ function show_score_summary() {
         // Captured spaces
         let ap_captured = []
         let cp_captured = []
-        for (let s = 1; s < spaces.length; s++) {
+        for (let s = 1; s < map_space_count; s++) {
             if (get_control(s) === CP && spaces[s].faction === AP && spaces[s].vp > 0)
                 cp_captured.push(s)
             if (get_control(s) === AP && spaces[s].faction === CP && spaces[s].vp > 0)
