@@ -1779,7 +1779,7 @@ function check_rule_violations() {
     }
 
     if (game.events.treaty_of_brest_litovsk > 0) {
-        for (let s = 1; s < AP_RESERVE_BOX; ++s) {
+        for (let s = 1; s < map_space_count; ++s) {
             let has_russian = false
             let has_ap_non_russian = false
 
@@ -6113,7 +6113,7 @@ function eliminate_ru_units_violating_treaty_of_brest_litovsk() {
 
     log('RU units cannot stack with AP after Brest-Litovsk')
 
-    for (let s = 1; s < AP_RESERVE_BOX; ++s) {
+    for (let s = 1; s < map_space_count; ++s) {
         let has_ap_non_russian = false
         let russian_units = []
 
@@ -6894,7 +6894,7 @@ function get_replaceable_units() {
         } else if (is_unit_reduced(i)) {
             if (s === AP_RESERVE_BOX || s === CP_RESERVE_BOX) {
                 units.push(i)
-            } else if (s < AP_RESERVE_BOX) {
+            } else if (s < map_space_count) {
                 // TODO: 17.1.4.1 check
                 if (is_unit_supplied_for_rp_in(i, s))
                     units.push(i)
@@ -7631,7 +7631,7 @@ function update_oos_pieces() {
     for (let p = 1; p < data.pieces.length; ++p) {
         if (!nation_at_war(data.pieces[p].nation))
             continue
-        if (game.location[p] !== 0 && game.location[p] < AP_RESERVE_BOX && !is_unit_supplied(p) && !set_has(moving_pieces, p)) {
+        if (game.location[p] !== 0 && game.location[p] < map_space_count && !is_unit_supplied(p) && !set_has(moving_pieces, p)) {
             game.oos_pieces.push(p)
         }
     }
@@ -10160,7 +10160,7 @@ states.flag_supply_warnings = {
     inactive: 'flag supply warnings',
     prompt() {
         view.prompt = 'Flag spaces where supply lines are threatened.'
-        for (let s = 1; s < AP_RESERVE_BOX; ++s) {
+        for (let s = 1; s < map_space_count; ++s) {
             gen_action_space(s)
         }
         gen_action_done()
@@ -10303,7 +10303,7 @@ function assert_stacking_limits() {
         return
 
     for (const faction of [AP, CP]) {
-        for (let s = 1; s < AP_RESERVE_BOX; ++s) {
+        for (let s = 1; s < map_space_count; ++s) {
             if (is_overstacked(s, faction)) {
                 throw new Error(`Rule violation by ${faction} in S${s} ${space_name(s)}: ${rule_text}`)
             }
@@ -10314,7 +10314,7 @@ function assert_stacking_limits() {
 function assert_opposing_sides_not_stacked() {
     const rule_text = "10.1.5 Units of opposing sides may never be stacked together. (unless besieged)"
 
-    for (let s = 1; s < AP_RESERVE_BOX; ++s) {
+    for (let s = 1; s < map_space_count; ++s) {
         if (is_besieged(s))
             continue
         let has_ap = false
@@ -10335,7 +10335,7 @@ function assert_opposing_sides_not_stacked() {
 function assert_trench_level() {
     const rule_text = "11.2.3 [...] Trench levels may never be more than Level 2."
 
-    for (let s = 1; s < AP_RESERVE_BOX; ++s) {
+    for (let s = 1; s < map_space_count; ++s) {
         if (get_trench_level(s) > 2) {
             throw new Error(`Rule violation in S${s} ${space_name(s)}: ${rule_text}`)
         }
@@ -10387,7 +10387,7 @@ function assert_brest_litovsk() {
     const rule_text = "Treaty of Brest-Litovsk, Russian units cannot stack with non-Russian AP units"
 
     if (game.events.treaty_of_brest_litovsk > 0) {
-        for (let s = 1; s < AP_RESERVE_BOX; ++s) {
+        for (let s = 1; s < map_space_count; ++s) {
             let has_russian = false
             let has_ap_non_russian = false
 
