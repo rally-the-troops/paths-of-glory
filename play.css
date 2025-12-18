@@ -11,9 +11,10 @@ header { background-color: gainsboro; }
 #log .h2 { border-top: 1px solid black; border-bottom: 1px solid black; }
 #log .h3 { border-top: 1px solid black; border-bottom: 1px solid black; }
 
+#chat_text .Allied_Powers { background-color: var(--red) }
+#chat_text .Central_Powers { background-color: var(--blue) }
 body.Allied_Powers header.your_turn { background-color: lightcoral; }
 body.Central_Powers header.your_turn { background-color: lightsteelblue; }
-
 #role_Allied_Powers { background-color: lightcoral; }
 #role_Central_Powers { background-color: lightsteelblue; }
 #log .ap { background-color: lightpink; }
