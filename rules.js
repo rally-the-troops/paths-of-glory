@@ -7816,6 +7816,14 @@ events.landwehr = {
     }
 }
 
+function is_unit_eligible_for_landwehr(p) {
+    if (data.pieces[p].nation !== GERMANY)
+        return false
+    if (!is_unit_reduced(p))
+        return false
+    return is_unit_supplied(p) || game.location[p] === CP_RESERVE_BOX
+}
+
 states.landwehr = {
     inactive: 'execute "Landwehr"',
     prompt() {
@@ -7824,32 +7832,22 @@ states.landwehr = {
             view.prompt = `Landwehr: Done.`
             view.actions.end_action = 1
         } else {
-            let has_eligible_piece = false
+            let pieces = all_pieces_by_nation[GERMANY].filter(is_unit_eligible_for_landwehr)
             const has_half_rp = spent_rp !== Math.floor(spent_rp)
             const remaining_rp = Math.floor(2 - spent_rp)
             if (remaining_rp === 0) {
                 view.prompt = `Landwehr: Choose a reduced corps to flip.`
-                for (let p = 1; p < data.pieces.length; ++p) {
-                    if (data.pieces[p].nation === GERMANY && data.pieces[p].type === CORPS && is_unit_reduced(p) && is_unit_supplied(p)) {
-                        has_eligible_piece = true
-                        gen_action_piece(p)
-                    }
-                }
+                pieces = pieces.filter(is_unit_corps)
             } else {
                 view.prompt = `Landwehr: Choose a reduced unit to flip (${remaining_rp} RP${has_half_rp ? ' plus 1 corps': ''}).`
-                for (let p = 1; p < data.pieces.length; ++p) {
-                    if (data.pieces[p].nation === GERMANY && is_unit_reduced(p) && is_unit_supplied(p)) {
-                        has_eligible_piece = true
-                        gen_action_piece(p)
-                    }
-                }
             }
 
-            if (!has_eligible_piece) {
+            if (pieces.length === 0) {
                 view.prompt = `Landwehr: Done.`
                 view.actions.end_action = 1
             } else {
                 gen_action_pass()
+                pieces.forEach(gen_action_piece)
             }
         }
     },
