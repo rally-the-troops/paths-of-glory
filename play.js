@@ -331,10 +331,11 @@ function on_click_card_tip(c) {
 
 function on_focus_card_tip(card_number) {
     document.getElementById("tooltip").className = `card ${card_class_name(card_number)}`
+    document.getElementById("tooltip").hidden = false
 }
 
 function on_blur_card_tip() {
-    document.getElementById("tooltip").classList = "card"
+    document.getElementById("tooltip").hidden = true
 }
 
 function on_focus_piece_tip(p) {

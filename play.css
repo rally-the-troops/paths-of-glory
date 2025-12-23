@@ -163,16 +163,11 @@ body.Central_Powers header.your_turn { background-color: lightsteelblue; }
 }
 
 #tooltip {
-    display: none;
     pointer-events: none;
     position: fixed;
     z-index: 600;
     right: 240px;
     top: 60px;
-}
-
-#tooltip.show {
-    display: block;
 }
 
 @media (max-width: 800px) {
