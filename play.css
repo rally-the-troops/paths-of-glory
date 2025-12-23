@@ -283,16 +283,12 @@ body.Central_Powers header.your_turn { background-color: lightsteelblue; }
 		position: static;
 		grid-column: 1;
 		grid-row: 2/4;
-		display: none;
 		width: auto;
 		box-shadow: none;
 		border: none;
 	}
 	.dialog_body {
 		height: auto;
-	}
-	.dialog.show {
-		display: grid;
 	}
 }
 
