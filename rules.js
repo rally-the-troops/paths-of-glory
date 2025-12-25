@@ -7999,7 +7999,7 @@ events.fortified_machine_guns = {
     can_play() {
         return (game.attack &&
                 game.attack.attacker !== CP &&
-                get_trench_level(game.attack.space) > 0 &&
+                get_trench_level(game.attack.space, CP) > 0 &&
                 get_defenders_pieces().some(p => data.pieces[p].nation === GERMANY))
     },
     can_apply() {
