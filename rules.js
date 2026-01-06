@@ -5688,24 +5688,31 @@ function determine_combat_winner() {
 
 function defender_can_cancel_retreat() {
     const terrain = data.spaces[game.attack.space].terrain
+    const defender_faction = other_faction(game.attack.attacker)
+    const has_uncanceled_trench = get_trench_level_for_attack(game.attack.space, defender_faction) > 0 && !game.attack.trenches_canceled
     if (terrain === MOUNTAIN ||
         terrain === SWAMP ||
         terrain === DESERT ||
         terrain === FOREST ||
-        (get_trench_level_for_attack(game.attack.space, other_faction(game.attack.attacker)) > 0 && !game.attack.trenches_canceled)) {
+        has_uncanceled_trench) {
         let step_count = 0
-        for_each_piece_in_space(game.attack.space, (p) => {
-            if (data.pieces[p].faction !== other_faction(game.attack.attacker))
-                return // Only count pieces of the defender
-            if (is_unit_reduced(p) && data.pieces[p].type === CORPS) {
-                step_count++
-            } else {
-                step_count += 2
-            }
-        })
-        return step_count > 1
+        const pieces = get_pieces_in_space(game.attack.space).filter((p) => data.pieces[p].faction === defender_faction)
+        // Cannot remove the last step to cancel a retreat
+        for (let p of pieces) {
+            if (!is_unit_reduced(p))
+                return true // Any full strength unit allows canceling the retreat
+            if (data.pieces[p].type === ARMY && has_replacement_available(p))
+                return true // Any army that has a replacement available allows canceling the retreat
+            step_count++
+            if (step_count > 1)
+                return true
+        }
     }
     return false
+}
+
+function has_replacement_available(p) {
+    return get_replacement_options(p, get_units_in_reserve()).length > 0
 }
 
 states.cancel_retreat = {
