@@ -2244,6 +2244,13 @@ function can_sr(p) {
         return false
     }
 
+    // If unit is part of a siege, only allow SR when it would not break the siege
+    if (is_besieged(game.location[p])) {
+        let other_units = get_pieces_in_space(game.location[p]).filter(unit => unit !== p)
+        if (!can_besiege(game.location[p], other_units))
+            return false
+    }
+
     return true
 }
 
