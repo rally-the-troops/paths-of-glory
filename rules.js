@@ -7009,7 +7009,7 @@ function get_army_replacement_spaces(p) {
         //  if a line of supply does not exist. If none of these spaces are Allied controlled and in supply, the Belgian
         //  Army may be rebuilt in Calais. (Calais also represents the corner of Belgium held by the Allies after October
         //  1914.)
-        const belgian_spaces = [BRUSSELS, ANTWERP, OSTEND, LIEGE]
+        const belgian_spaces = [BRUSSELS, ANTWERP, OSTEND]
         for (let s of belgian_spaces) {
             if (is_controlled_by(s, AP) && is_unit_supplied_in(p, s) && !is_fully_stacked(s, AP))
                 set_add(spaces, s)
