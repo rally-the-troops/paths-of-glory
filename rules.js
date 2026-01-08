@@ -5031,6 +5031,12 @@ states.apply_defender_losses = {
                 game.state = 'choose_defender_replacement'
             } else if (replacement_options.length === 1) {
                 replace_defender_unit(p, location, replacement_options[0])
+            } else if (is_withdrawal_active() && data.pieces[p].type === ARMY) {
+                // If the army was permanently eliminated because of no replacement corps, and withdrawal is active,
+                // remember that its step loss cannot be negated unless losses were exactly fulfilled (12.6.8)
+                if (!game.attack.ineligible_for_withdrawal)
+                    game.attack.ineligible_for_withdrawal = []
+                set_add(game.attack.ineligible_for_withdrawal, p)
             }
         } else {
             reduce_piece_defender(p)
@@ -5051,6 +5057,12 @@ states.apply_defender_losses = {
     },
     done() {
         clear_undo()
+
+        // If withdrawal was played and the last step loss was an army permanently eliminated because of no replacement
+        // corps in the reserve box, then withdrawal only allows replacement of that step loss if the losses taken are
+        // exactly equal to the total losses. (12.6.8)
+        if (game.attack.defender_losses === game.attack.defender_losses_taken)
+            game.attack.defender_fulfilled_losses_exactly = true
 
         update_siege(game.attack.space)
 
@@ -5102,6 +5114,16 @@ function replace_defender_unit(unit, location, replacement) {
     check_rb_empty(replacement)
 }
 
+function army_step_loss_can_be_negated_by_withdrawal(p) {
+    if (game.attack.defender_fulfilled_losses_exactly)
+        return true // if losses were exactly fulfilled, it doesn't matter if the army was permanently eliminated
+
+    if (game.attack.ineligible_for_withdrawal && set_has(game.attack.ineligible_for_withdrawal, p))
+        return false // step loss cannot be negated because army was permanently eliminated due to no replacement
+
+    return true
+}
+
 states.withdrawal_negate_step_loss = {
     inactive: 'negate step loss',
     prompt() {
@@ -5110,7 +5132,7 @@ states.withdrawal_negate_step_loss = {
         const has_corps_option = game.attack.defender_loss_pieces.some((p) => data.pieces[p].type === CORPS)
         let can_negate = false
         game.attack.defender_loss_pieces.forEach((p) => {
-            if (data.pieces[p].type === CORPS || !has_corps_option) {
+            if (data.pieces[p].type === CORPS || (!has_corps_option && army_step_loss_can_be_negated_by_withdrawal(p))) {
                 can_negate = true
                 gen_action_piece(p)
             }
