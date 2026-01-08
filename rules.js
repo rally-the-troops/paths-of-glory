@@ -5376,9 +5376,9 @@ function get_loss_options(is_defender, to_satisfy, units, fort_strength) {
     let valid_paths = []
     build_loss_tree(loss_tree, valid_paths)
 
-    if (is_defender && is_first_pick && is_withdrawal_active()) {
-        // If the defender is choosing losses and has played withdrawal, they must choose a path that includes a corps
-        // step loss, if possible
+    if (is_defender && is_withdrawal_active() && !game.attack.defender_loss_pieces.some(is_unit_corps)) {
+        // 12.6.9 If the defender is choosing losses and has played withdrawal, they must choose a path that includes
+        // a corps step loss, if possible
         let valid_paths_with_corps = valid_paths.filter((path) => {
             return path.picked.some((p) => data.pieces[p].type === CORPS)
         })
