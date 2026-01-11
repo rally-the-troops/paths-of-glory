@@ -6399,13 +6399,6 @@ function cost_to_activate(space, type) {
         }
     }
 
-    if (active_faction() === CP && game.events.moltke > 0 && !game.events.falkenhayn) {
-        // Moltke modifies the activation cost, unless Falkenhayn also played
-        if (nation === BELGIUM || nation === FRANCE) {
-            cost = num_pieces
-        }
-    }
-
     if (game.events.eleventh_army > 0 && pieces.includes(GE_11_ARMY)) {
         // Recalculate cost
         let nations_with_armies = []
@@ -6415,6 +6408,14 @@ function cost_to_activate(space, type) {
         })
         cost = nations_with_armies.length
     }
+
+    if (active_faction() === CP && game.events.moltke > 0 && !game.events.falkenhayn) {
+        // Moltke modifies the activation cost, unless Falkenhayn also played
+        if (nation === BELGIUM || nation === FRANCE) {
+            cost = num_pieces
+        }
+    }
+
     // After Fall of the Tsar, spaces with Russian units cost 1 per unit for combat only
     let fall_of_the_tsar_attack = game.events.fall_of_the_tsar > 0 && num_russians > 0 && type === ATTACK
     if (fall_of_the_tsar_attack) {
