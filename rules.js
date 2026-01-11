@@ -5801,6 +5801,7 @@ states.choose_retreat_canceling_replacement = {
         push_undo()
         replace_retreat_canceling_unit(game.attack.replacement.p, game.attack.replacement.s, p)
         delete game.attack.replacement
+        switch_active_faction()
         end_attack_activation()
     }
 }
