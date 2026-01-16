@@ -879,6 +879,10 @@ function set_up_great_war_scenario() {
     game.ap.commitment = COMMITMENT_TOTAL
     game.cp.ru_vp = 2
 
+    // Neutral Romanian pieces
+    setup_piece(ROMANIA, 'ROc', 'Bucharest')
+    setup_piece(ROMANIA, 'ROc', 'Bucharest')
+
     // CP west front trenches and pieces
     set_up_control(LIEGE, CP)
     set_trench_level(BRUSSELS, 1, CP)
