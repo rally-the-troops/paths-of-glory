@@ -7573,7 +7573,7 @@ function is_unit_supplied_in(p, s, for_rp = false) {
     }
 
     if (nation === ITALY)
-        return check_supply_cache(game.supply, s, [LONDON], SUPPLY_MASK.London_Italian)
+        return check_supply_cache(game.supply, s, [LONDON], SUPPLY_MASK.London_Italian) && check_supply_cache(game.supply, s, [], SUPPLY_MASK.NonMEFPath)
 
     if (data.pieces[p].faction === AP && is_space_supplied_through_mef(s) && piece_requires_london_supply(p)) {
         let name = data.pieces[p].name
