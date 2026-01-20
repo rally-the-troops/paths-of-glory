@@ -562,12 +562,14 @@ exports.view = function(state, current) {
         if (!game.options.no_supply_warnings &&
             game.rollback_proposal === undefined &&
             game.rollback &&
-            game.rollback.length > 0)
+            game.rollback.length > 0 &&
+            game.state !== "confirm_mo")
             view.actions.propose_rollback = view.rollback.map((_, i) => i)
 
         // Flag supply warnings
         if (!game.options.no_supply_warnings &&
-            game.state !== "flag_supply_warnings")
+            game.state !== "flag_supply_warnings" &&
+            game.state !== "confirm_mo")
             view.actions.flag_supply_warnings = 1
     }
 
