@@ -6814,6 +6814,12 @@ function apply_replacement_phase_events() {
 function goto_replacement_phase() {
     clear_undo()
     update_supply()
+
+    if (game.turn === 20) {
+        goto_end_turn() // No need to take replacements or draw cards for the last turn
+        return
+    }
+
     game.phase = "Replacement Phase"
     if (has_rps(AP)) {
         log_h2(`${faction_name(AP)} Replacement Phase`)
