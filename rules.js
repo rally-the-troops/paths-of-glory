@@ -7504,7 +7504,7 @@ function update_supply() {
     fill_supply_cache(AP, game.supply, [LONDON], { use_ports: true, set_nonitalian_path: true, set_nonmef_path: true })
 
     // Special mask applied when searching spaces using Italian connections
-    fill_supply_cache(AP, game.supply, [LONDON], { use_ports: true, national_connections: ITALY, override_mask: SUPPLY_MASK.London_Italian })
+    fill_supply_cache(AP, game.supply, [LONDON], { use_ports: true, national_connections: ITALY, set_nonmef_path: true, override_mask: SUPPLY_MASK.London_Italian })
 
     // These are also special cases, but don't need a separate mask because they use separate sources
     fill_supply_cache(AP, game.supply, [SALONIKA])
