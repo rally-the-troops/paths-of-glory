@@ -453,13 +453,14 @@ X.space.fort::before {
 	box-shadow: 0 0 3px black, inset 0 0 3px black;
 }
 
-.space.eastern_supply {
-	border-color: orange;
+.space.italian_supply {
+	border-color: darkseagreen;
 	box-shadow: 0 0 3px black, inset 0 0 3px black;
 }
 
-.space.western_supply.eastern_supply {
-	border-color: plum orange orange plum;
+.space.eastern_supply {
+	border-color: orange;
+	box-shadow: 0 0 3px black, inset 0 0 3px black;
 }
 
 .space.no_supply {
