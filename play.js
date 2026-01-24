@@ -271,16 +271,22 @@ const SINAI = spaces.find(s => s.name === "Sinai").id
 
 let showing_supply = false
 
-function show_ap_supply(supply) {
+function show_ap_supply(supply, type) {
     if (showing_supply)
         hide_supply()
     showing_supply = true
     for (let s = 1; s < map_space_count; ++s) {
-        const western = supply.western[s] > 0
-        const eastern = supply.eastern[s] > 0
-        spaces[s].element.classList.toggle("western_supply", western)
-        spaces[s].element.classList.toggle("eastern_supply", eastern)
-        spaces[s].element.classList.toggle("no_supply", !western && !eastern)
+        if (type === 'mef') {
+            spaces[s].element.classList.toggle("western_supply", supply.spaces[s] === 1)
+            spaces[s].element.classList.toggle("no_supply", supply.spaces[s] !== 1)
+        } else if (type === 'eastern') {
+            spaces[s].element.classList.toggle("eastern_supply", supply.spaces[s] === 1)
+            spaces[s].element.classList.toggle("no_supply", supply.spaces[s] !== 1)
+        } else if (type === 'western') {
+            spaces[s].element.classList.toggle("western_supply", supply.spaces[s] === 1)
+            spaces[s].element.classList.toggle("italian_supply", supply.spaces[s] === 2)
+            spaces[s].element.classList.toggle("no_supply", supply.spaces[s] === 0)
+        }
     }
 }
 
@@ -301,6 +307,7 @@ function hide_supply() {
         for (let s = 1; s < map_space_count; ++s) {
             spaces[s].element.classList.remove("western_supply")
             spaces[s].element.classList.remove("eastern_supply")
+            spaces[s].element.classList.remove("italian_supply")
             spaces[s].element.classList.remove("cp_supply")
             spaces[s].element.classList.remove("no_supply")
         }
@@ -778,8 +785,14 @@ function review_rollback_accept() {
 function on_reply(q, params) {
     if (q === 'cp_supply')
         show_cp_supply(params)
-    if (q === 'ap_supply')
-        show_ap_supply(params)
+    if (q === 'eastern_ap_supply')
+        show_ap_supply(params, 'eastern')
+    if (q === 'western_ap_supply')
+        show_ap_supply(params, 'western')
+    if (q === 'mef_supply')
+        show_ap_supply(params, 'mef')
+    //if (q === 'supplied_through_italy')
+    //    show_ap_supply(params)
     if (q === 'ap_cards')
         show_card_list("ap_card_dialog", params)
     if (q === 'cp_cards')
