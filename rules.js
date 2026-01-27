@@ -7447,17 +7447,16 @@ function is_italian_space(s) {
 }
 
 function update_supply_if_missing() {
-    delete game.supply // TODO: This removes the old supply structure if it exists, to keep game state from getting too large. Once all games are upgraded, this could be removed
     if (!get_supply_cache())
         update_supply()
 }
 
 function get_supply_cache() {
-    return game.supply_v2
+    return game.supply
 }
 
 function reset_supply_cache() {
-    game.supply_v2 = new Array(map_space_count).fill(0)
+    game.supply = new Array(map_space_count).fill(0)
 }
 
 function update_supply() {
