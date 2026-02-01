@@ -7561,7 +7561,7 @@ function is_unit_supplied_in(p, s, for_rp = false) {
     if (nation === ITALY)
         return check_supply_cache(s, SUPPLY_MASK.London_Italian)
 
-    if (is_piece_supplied_through_mef(p)) {
+    if (is_piece_supplied_through_mef(p, s)) {
         return true
     }
 
@@ -7699,8 +7699,8 @@ function can_piece_be_supplied_through_mef(p) {
     return p === MEF_ARMY || name === 'BRc' || name === 'AUSc'
 }
 
-function is_piece_supplied_through_mef(p) {
-    const s = game.location[p]
+function is_piece_supplied_through_mef(p, s) {
+    const space = s || game.location[p]
     return can_piece_be_supplied_through_mef(p) &&
             check_supply_cache(s, SUPPLY_MASK.London_MEF) &&
             !check_supply_cache(s, SUPPLY_MASK.London_Base)
