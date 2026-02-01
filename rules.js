@@ -3357,17 +3357,21 @@ states.place_event_trench = {
     inactive: 'place trench',
     prompt() {
         view.prompt = `Place a trench in a space with a supplied friendly army.`
-
         let spaces = []
         for (let p = 1; p < data.pieces.length; p++) {
-            if (game.location[p] !== 0 &&
-                data.pieces[p].faction === active_faction() &&
-                data.pieces[p].type === ARMY &&
-                get_trench_level(game.location[p], active_faction()) === 0 &&
-                is_unit_supplied(p) &&
-                is_controlled_by(game.location[p], active_faction())) {
-                set_add(spaces, game.location[p])
-            }
+            let s = game.location[p]
+            if (s === 0)
+                continue
+            if (data.pieces[p].faction !== active_faction())
+                continue
+            if (data.pieces[p].type !== ARMY)
+                continue
+            if (get_trench_level(s, active_faction()) !== 0)
+                continue
+            if (!is_unit_supplied(p))
+                continue
+            if (is_controlled_by(s, active_faction()) || is_besieged(s))
+                set_add(spaces, s)
         }
         spaces.forEach(gen_action_space)
 
