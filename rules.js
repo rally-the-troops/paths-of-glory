@@ -4286,10 +4286,6 @@ function attacker_can_flank() {
     return true
 }
 
-function can_withdraw() {
-    return get_retreat_options(get_defenders_pieces(), game.attack.space, 1).length > 0
-}
-
 function get_attackable_spaces(attackers) {
     if (attackers.length === 0)
         return []
@@ -8664,7 +8660,7 @@ events.cp_withdrawal = {
         return false
     },
     can_apply() {
-        return (game.attack.attacker !== CP) && can_withdraw()
+        return (game.attack.attacker !== CP)
     },
     apply() {
         // nothing now
@@ -8946,7 +8942,7 @@ events.ap_withdrawal = {
         return false
     },
     can_apply() {
-        return (game.attack.attacker !== AP) && can_withdraw()
+        return (game.attack.attacker !== AP)
     },
     apply() {
         // nothing now
