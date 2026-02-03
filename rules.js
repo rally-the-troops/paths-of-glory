@@ -7706,8 +7706,8 @@ function can_piece_be_supplied_through_mef(p) {
 function is_piece_supplied_through_mef(p, s) {
     const space = s || game.location[p]
     return can_piece_be_supplied_through_mef(p) &&
-            check_supply_cache(s, SUPPLY_MASK.London_MEF) &&
-            !check_supply_cache(s, SUPPLY_MASK.London_Base)
+            check_supply_cache(space, SUPPLY_MASK.London_MEF) &&
+            !check_supply_cache(space, SUPPLY_MASK.London_Base)
 }
 
 function is_space_supplied_or_has_supplied_unit(s, faction) {
