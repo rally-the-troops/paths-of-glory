@@ -6428,11 +6428,15 @@ function cost_to_activate(space, type) {
     if (game.events.eleventh_army > 0 && pieces.includes(GE_11_ARMY)) {
         // Recalculate cost
         let nations_with_armies = []
+        let count_armies = 0
         pieces.forEach((p) => {
-            if (data.pieces[p].type === ARMY)
+            if (data.pieces[p].type === ARMY) {
                 set_add(nations_with_armies, data.pieces[p].nation)
+                count_armies++
+            }
         })
-        cost = nations_with_armies.length
+        if (count_armies < 2)
+            cost = nations_with_armies.length
     }
 
     if (active_faction() === CP && game.events.moltke > 0 && !game.events.falkenhayn) {
