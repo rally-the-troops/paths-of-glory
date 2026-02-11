@@ -4399,10 +4399,6 @@ function is_eligible_for_siege(p) {
 function get_nation_for_multinational_attacks(piece) {
     let nation = data.pieces[piece].nation
 
-    if (data.pieces[piece].faction === AP && game.turn === game.events.everyone_into_battle) {
-        return AP
-    }
-
     switch (nation) {
         case "sn":
             return TURKEY
