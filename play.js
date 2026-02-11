@@ -910,8 +910,11 @@ function show_score_summary() {
         }
 
         let future_blockades = 0;
-        if ((view.events.blockade >= 1) && (view.state !== "game_over")) {
-            future_blockades++;
+        if (view.events.blockade >= 1 && view.state !== "game_over") {
+            // Check for a score event at turn 20 for the blockade card
+            let scored_t20_blockade = score_events.some(e => e[0] === 20 && e[2] === 2)
+            if (!scored_t20_blockade)
+                future_blockades++;
             if (view.turn <= 16) future_blockades++
             if (view.turn <= 12) future_blockades++
             if (view.turn <= 8) future_blockades++
