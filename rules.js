@@ -4791,6 +4791,17 @@ function log_combat_winner() {
 
 function resolve_fire() {
     const von_hutier_active = game.attack.combat_cards.includes(VON_HUTIER)
+
+    // Turk determination state is saved into the attack object here because it needs to be set before the attacker's
+    // fire and continue to apply throughout the attack, even after combat cards are discarded, so the defending Turkish
+    // units get the option to cancel the retreat.
+    if (get_trench_level(game.attack.space, CP) === 0 &&
+        game.attack.attacker === AP &&
+        game.attack.combat_cards.includes(TURK_DETERMINATION) &&
+        events[data.cards[TURK_DETERMINATION].event].can_apply()) {
+        game.attack.turk_determination = true
+    }
+
     if (game.attack.failed_flank) {
         resolve_defenders_fire()
         set_active_faction(game.attack.attacker)
@@ -4961,14 +4972,6 @@ function resolve_defenders_fire() {
             }
         }
     })
-
-    // Remember that Turk Determination applies, even after the card is discarded
-    if (get_trench_level(game.attack.space, CP) === 0 &&
-        game.attack.attacker === AP &&
-        game.attack.combat_cards.includes(TURK_DETERMINATION) &&
-        events[data.cards[TURK_DETERMINATION].event].can_apply()) {
-        game.attack.turk_determination = true
-    }
 
     let defender_shifts = 0
     let trench_shift_canceled = game.attack.trenches_canceled || game.attack.trench_shift_canceled
@@ -8739,7 +8742,6 @@ events.turk_determination = {
         return this.can_play()
     },
     apply() {
-        log(`${card_name(TURK_DETERMINATION)} acts as a trench`)
     }
 }
 
