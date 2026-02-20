@@ -2351,6 +2351,10 @@ function get_sr_destinations(unit) {
                     continue
                 }
 
+                // Prevent Russian Cavalry corps from SR to the Near East from the reserve box
+                if (is_neareast_space(s) && !can_enter_neareast([unit]))
+                    continue
+
                 // Don't allow BEF Corps to SR to spaces they can't enter
                 if (is_bef_unit(unit) && !can_bef_enter(s))
                     continue
