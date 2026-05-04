@@ -353,7 +353,42 @@ exports.roles = [ AP_ROLE, CP_ROLE ]
 
 const HISTORICAL = "Historical"
 const GREAT_WAR = "The Great War"
-exports.scenarios = [ HISTORICAL, GREAT_WAR ]
+const HISTORICAL_BID = "Historical (Bid for sides)"
+const HISTORICAL_AP_1 = "Historical AP +1"
+const HISTORICAL_AP_2 = "Historical AP +2"
+const HISTORICAL_AP_3 = "Historical AP +3"
+const HISTORICAL_AP_4 = "Historical AP +4"
+const HISTORICAL_CP_1 = "Historical CP +1"
+const HISTORICAL_CP_2 = "Historical CP +2"
+const HISTORICAL_CP_3 = "Historical CP +3"
+const HISTORICAL_CP_4 = "Historical CP +4"
+const GREAT_WAR_BID = "The Great War (Bid for Sides)"
+const GREAT_WAR_AP_1 = "The Great War AP +1"
+const GREAT_WAR_AP_2 = "The Great War AP +2"
+const GREAT_WAR_AP_3 = "The Great War AP +3"
+const GREAT_WAR_CP_1 = "The Great War CP +1"
+const GREAT_WAR_CP_2 = "The Great War CP +2"
+const GREAT_WAR_CP_3 = "The Great War CP +3"
+exports.scenarios = [
+    HISTORICAL,
+    GREAT_WAR,
+    HISTORICAL_BID,
+    GREAT_WAR_BID,
+    HISTORICAL_AP_1,
+    HISTORICAL_AP_2,
+    HISTORICAL_AP_3,
+    HISTORICAL_AP_4,
+    HISTORICAL_CP_1,
+    HISTORICAL_CP_2,
+    HISTORICAL_CP_3,
+    HISTORICAL_CP_4,
+    GREAT_WAR_AP_1,
+    GREAT_WAR_AP_2,
+    GREAT_WAR_AP_3,
+    GREAT_WAR_CP_1,
+    GREAT_WAR_CP_2,
+    GREAT_WAR_CP_3,
+]
 
 function use_historical_scenario_rules() {
     return true // Other rules are not implemented
