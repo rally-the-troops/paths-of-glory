@@ -2913,6 +2913,9 @@ function update_map() {
         }
     }
 
+    action_button('ap', "Allied Powers")
+    action_button('cp', "Central Powers")
+
     action_button("single_op", "Automatic Operation")
 
     action_button("select_all", "Select all")
@@ -2952,11 +2955,16 @@ function update_map() {
         "A different unit in the same space has earned a -1 DRM marker to entrench here.\nDo you still want to entrench with this unit instead?"
     )
 
+    for (let i = 0; i <= 4; ++i) {
+        action_button_with_argument('bid', i, `${i} VP`)
+    }
+
     action_button("pass", "Pass")
 
     action_button("skip", "Skip")
     action_button("next", "Next")
     action_button("done", "Done")
+    action_button("accept", "Accept")
     action_button("undo", "Undo")
 }
 
