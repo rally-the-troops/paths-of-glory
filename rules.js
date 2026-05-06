@@ -1385,6 +1385,8 @@ function goto_start_bidding() {
         game.bid_for_side = 0
         game.bid_winner = 0
         game.current_bid = 0
+        log_h2(`Bid for Sides`)
+        log(`${player_name(game.active)} bids first`)
     } else {
         goto_complete_setup()
     }
@@ -1439,8 +1441,25 @@ function get_scenario_for_bid(old_scenario, faction, bid) {
     return old_scenario
 }
 
+function player_name(role) {
+    switch (role) {
+        case AP:
+        case AP_ROLE:
+            return 'Player 1'
+        case CP:
+        case CP_ROLE:
+            return 'Player 2'
+    }
+    return ''
+}
+
 states.bidding = {
+    inactive() {
+        view.prompt = `Waiting for ${player_name(other_role(game.active))} to bid for sides`
+        view.is_bidding = true
+    },
     prompt() {
+        view.is_bidding = true
         const max_bid = get_max_bid_for_scenario(game.scenario)
         if (game.bid_for_side === 0) {
             view.prompt = `Which side would you prefer to play?`
@@ -1460,19 +1479,24 @@ states.bidding = {
     ap() {
         push_undo()
         game.bid_for_side = AP
+        log(`Bidding for ${faction_name(AP)}`)
     },
     cp() {
         push_undo()
         game.bid_for_side = CP
+        log(`Bidding for ${faction_name(AP)}`)
     },
     bid(i) {
         game.bid_winner = game.active
         game.current_bid = i
+        log(`${player_name(game.active)} bid ${i} VP`)
         switch_active_faction()
         if (i === get_max_bid_for_scenario(game.scenario))
             this.accept()
     },
     accept() {
+        log(`Bid accepted`)
+        log(`${player_name(game.bid_winner)} will play ${faction_name(game.bid_for_side)}`)
         const needs_swap = short_faction(game.bid_winner) !== game.bid_for_side
         const new_scenario = get_scenario_for_bid(game.scenario, game.bid_for_side, game.current_bid)
         game.$pie = { swap: needs_swap, new_scenario }
@@ -1491,17 +1515,12 @@ states.bidding = {
 
 function goto_complete_setup() {
     if (is_any_historical_scenario(game.scenario)) {
-        game.options.hand_size = 8
-        game.failed_entrench = []
         set_up_standard_decks(true)
         goto_start_turn()
     } else if (is_any_great_war_scenario(game.scenario)) {
-        game.options.hand_size = 8
-        game.failed_entrench = []
         set_up_great_war_scenario_decks()
         goto_start_great_war_scenario()
     } else {
-        game.options.hand_size = 7
         set_up_standard_decks(false)
         goto_start_turn()
     }
@@ -7367,6 +7386,10 @@ states.draw_cards_phase = {
 
 function other_faction(faction) {
     return faction === CP ? AP : CP
+}
+
+function other_role(role) {
+    return role === AP_ROLE ? CP_ROLE : AP_ROLE
 }
 
 // === ACTIONS ===

@@ -2968,6 +2968,18 @@ function update_map() {
     action_button("undo", "Undo")
 }
 
+function update_roles() {
+    let ap_name = document.getElementById("ap_role_name")
+    let cp_name = document.getElementById("cp_role_name")
+    if (view.is_bidding) {
+        ap_name.innerText = 'Player 1'
+        cp_name.innerText = 'Player 2'
+    } else {
+        ap_name.innerText = 'Allied Powers'
+        cp_name.innerText = 'Central Powers'
+    }
+}
+
 function update_card_zones() {
     // Update hand
     ui.cards.replaceChildren()
@@ -3040,6 +3052,7 @@ function update_card_zones() {
 function on_update() {
     hide_supply()
     update_map()
+    update_roles()
 }
 
 // INITIALIZE CLIENT
