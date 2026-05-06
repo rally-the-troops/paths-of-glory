@@ -1010,6 +1010,8 @@ const marker_info = {
         cp: {name: "CP OOS", type: "cp_oos", counter: "marker cp oos", size: 45}
     },
     vp: {name: "VP", type: "vp", counter: "marker vp", size: 45},
+    ap_bid: {name: "AP Bid", type: "ap_bid", counter: "marker ap_bid", size: 45},
+    cp_bid: {name: "CP Bid", type: "cp_bid", counter: "marker cp_bid", size: 45},
 
     // War status markers
     ap_war_status: {name: "AP War Status", type: "ap_war_status", counter: "marker ap war_status", size: 45},
@@ -2516,6 +2518,11 @@ function update_general_records_track() {
     general_records_stacks.forEach((stack) => stack.length = 0)
 
     update_general_record("vp", Math.max(0, Math.min(40, view.vp)))
+    if (view.bid < 0)
+        update_general_record("cp_bid", Math.max(0, Math.min(40, view.vp + view.bid)))
+    if (view.bid > 0)
+        update_general_record("ap_bid", Math.max(0, Math.min(40, view.vp + view.bid)))
+
 
     update_general_record("combined_war_status", view.cp.ws + view.ap.ws)
     update_general_record("ap_war_status", view.ap.ws)

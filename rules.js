@@ -518,6 +518,7 @@ exports.view = function(state, current) {
         actions: null,
         turn: game.turn,
         vp: game.vp,
+        bid: game.bid,
         us_entry: game.us_entry,
         russian_capitulation: game.russian_capitulation,
         last_card: game.last_card,
