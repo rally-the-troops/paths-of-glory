@@ -7400,11 +7400,14 @@ function fill_supply_cache(faction, sources, options) {
 
     // Block enemy controlled spaces, unless occupying an enemy fort in the space
     let occupied_forts = []
+    let occupied_unbesieged_forts = []
     for (let p = 1; p < data.pieces.length; ++p) {
         if (data.pieces[p].faction === faction) {
             const occupied_location = game.location[p]
             if (has_undestroyed_fort(occupied_location, other_faction(faction))) {
                 set_add(occupied_forts, occupied_location)
+                if (!is_besieged(occupied_location))
+                    set_add(occupied_unbesieged_forts, occupied_location)
             }
         }
     }
@@ -7430,6 +7433,11 @@ function fill_supply_cache(faction, sources, options) {
             let blocked = blocked_spaces[current] || (avoid_italy && is_italian_space(current))
             if (!blocked) {
                 cache[current] |= mask
+                // This is an enemy occupied fort that is not besieged, probably because the besieging force
+                // took losses that reduced it below the level required to maintain the siege. That means
+                // supply can be traced *to* this space, but not *through* this space.
+                if (set_has(occupied_unbesieged_forts, current))
+                    continue
                 for (let conn of get_connected_spaces(current, national_connections))  {
                     if (!visited[conn]) {
                         frontier.push(conn)
