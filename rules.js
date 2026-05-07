@@ -2884,16 +2884,21 @@ function get_available_reinforcement_spaces(p) {
     return spaces
 }
 
-function roll_peace_terms(faction_offering, combined_war_status) {
+function roll_peace_terms(faction_offering, combined_war_status, card) {
     clear_undo()
     let roll = roll_die(6)
     let result = 'No effect'
-    if (roll <= 2 || (roll === 3 && combined_war_status < 20)) {
-        game.vp += faction_offering === AP ? -1 : 1
-        result = faction_offering === AP ? '-1 VP' : '+1 VP'
-    } else if (roll === 6) {
-        game.vp += faction_offering === AP ? 1 : -1
-        result = faction_offering === AP ? '+1 VP' : '-1 VP'
+    let vp_delta = 0
+    if (roll <= 2 || (roll === 3 && combined_war_status < 20))
+        vp_delta = faction_offering === AP ? -1 : 1
+    else if (roll === 6)
+        vp_delta = faction_offering === AP ? 1 : -1
+
+    if (vp_delta !== 0) {
+        game.vp += vp_delta
+        result = `${vp_delta > 0 ? '+' : ''}${vp_delta}`
+        if (card)
+            record_score_event(vp_delta, card)
     }
 
     log(`Peace terms roll: ${fmt_roll(roll, 0, faction_offering)} -> ${result}`)
@@ -9796,7 +9801,7 @@ events.the_sixtus_affair = {
         return game.turn <= 16 || !game.options.valiant
     },
     play() {
-        roll_peace_terms(AP, 0)
+        roll_peace_terms(AP, 0, THE_SIXTUS_AFFAIR)
         goto_end_event()
     }
 }
