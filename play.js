@@ -1023,6 +1023,7 @@ const marker_info = {
     vp: {name: "VP", type: "vp", counter: "marker vp", size: 45},
     ap_bid: {name: "AP Bid", type: "ap_bid", counter: "marker ap_bid", size: 45},
     cp_bid: {name: "CP Bid", type: "cp_bid", counter: "marker cp_bid", size: 45},
+    vp_with_bid: {name: "VP with Bid", type: "vp_with_bid", counter: "marker vp_bid", size: 45},
 
     // War status markers
     ap_war_status: {name: "AP War Status", type: "ap_war_status", counter: "marker ap war_status", size: 45},
@@ -2530,9 +2531,18 @@ function update_general_records_track() {
 
     update_general_record("vp", Math.max(0, Math.min(40, view.vp)))
     if (view.bid < 0)
-        update_general_record("cp_bid", Math.max(0, Math.min(40, view.vp + view.bid)))
+        update_general_record("cp_bid", Math.abs(view.bid))
+    else
+        update_general_record("cp_bid", 0, true)
     if (view.bid > 0)
-        update_general_record("ap_bid", Math.max(0, Math.min(40, view.vp + view.bid)))
+        update_general_record("ap_bid", view.bid)
+    else
+        update_general_record("ap_bid", 0, true)
+    if (view.bid)
+        update_general_record("vp_with_bid", Math.max(0, Math.min(40, view.vp + view.bid)))
+    else
+        update_general_record("vp_with_bid", 0, true)
+
 
 
     update_general_record("combined_war_status", view.cp.ws + view.ap.ws)
