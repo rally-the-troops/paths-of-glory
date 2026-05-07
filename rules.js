@@ -1399,6 +1399,34 @@ function get_max_bid_for_scenario(scenario) {
     return 3
 }
 
+function get_bid_from_scenario(scenario) {
+    switch (scenario) {
+        case HISTORICAL_AP_1:
+        case GREAT_WAR_AP_1:
+            return -1
+        case HISTORICAL_AP_2:
+        case GREAT_WAR_AP_2:
+            return -2
+        case HISTORICAL_AP_3:
+        case GREAT_WAR_AP_3:
+            return -3
+        case HISTORICAL_AP_4:
+            return -4
+        case HISTORICAL_CP_1:
+        case GREAT_WAR_CP_1:
+            return 1
+        case HISTORICAL_CP_2:
+        case GREAT_WAR_CP_2:
+            return 2
+        case HISTORICAL_CP_3:
+        case GREAT_WAR_CP_3:
+            return 3
+        case HISTORICAL_CP_4:
+            return 4
+    }
+    return 0
+}
+
 const HISTORICAL_SCENARIOS = {
     'ap': [
         HISTORICAL,
@@ -1431,13 +1459,12 @@ const GREAT_WAR_SCENARIOS = {
     ]
 }
 
-function get_scenario_for_bid(old_scenario, faction, bid) {
-    if (faction !== AP && faction !== CP)
-        throw new Error('Invalid faction bid: ' + faction)
+function get_scenario_for_bid(old_scenario, bid_for_faction, bid) {
+    let favored_faction = other_faction(bid_for_faction)
     if (is_any_historical_scenario(old_scenario)) {
-        return HISTORICAL_SCENARIOS[faction][bid]
+        return HISTORICAL_SCENARIOS[favored_faction][bid]
     } else if (is_any_great_war_scenario(old_scenario)) {
-        return GREAT_WAR_SCENARIOS[faction][bid]
+        return GREAT_WAR_SCENARIOS[favored_faction][bid]
     }
     return old_scenario
 }
@@ -1500,7 +1527,7 @@ states.bidding = {
         log(`${player_name(game.bid_winner)} will play ${faction_name(game.bid_for_side)}`)
         const needs_swap = short_faction(game.bid_winner) !== game.bid_for_side
         const new_scenario = get_scenario_for_bid(game.scenario, game.bid_for_side, game.current_bid)
-        game.$pie = { swap: needs_swap, new_scenario }
+        game.$pie = { swap: needs_swap, scenario: new_scenario }
 
         game.bid = game.current_bid
         if (game.bid_for_side === CP)
@@ -1510,11 +1537,15 @@ states.bidding = {
         delete game.bid_winner
         delete game.current_bid
 
+        clear_undo()
         goto_complete_setup()
     }
 }
 
 function goto_complete_setup() {
+    if (game.bid === 0)
+        game.bid = get_bid_from_scenario(game.scenario)
+
     if (is_any_historical_scenario(game.scenario)) {
         set_up_standard_decks(true)
         goto_start_turn()
