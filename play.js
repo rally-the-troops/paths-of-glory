@@ -889,10 +889,21 @@ function show_score_summary() {
 
         current_score += event_total
 
-        // Bid
-        // TODO
+        // Bid (after it has been scored)
+        if (view.bid_was) {
+            append_header(`Bid for Sides`)
+            append_score(`Bid`, view.bid_was)
+            current_score += view.bid_was
+        }
 
         let endgame_score = current_score
+
+        // Bid (before being scored)
+        if (view.bid) {
+            append_header(`Bid for Sides (Applied at End Game)`)
+            append_score(`Bid`, view.bid)
+            endgame_score += view.bid
+        }
 
         // Historical Scenario VPs that would score if the scenario ended by armistice or at turn 20
         append_header(`Historical Scenario End Game VPs`)

@@ -580,6 +580,9 @@ exports.view = function(state, current) {
         action_state: game.action_state
     }
 
+    if (game.bid_was)
+        view.bid_was = game.bid_was
+
     if (current === AP_ROLE) {
         view.hand = game.ap.hand
     } else if (current === CP_ROLE) {
@@ -6993,6 +6996,13 @@ function get_game_result_by_vp() {
             game.vp -= 2 // If the Fall of the Tsar event was not played, subtract 2 VP
             log(`-2 VP -- ${card_name(FALL_OF_THE_TSAR)} was not played`)
         }
+    }
+
+    if (game.bid !== 0 && game.bid !== undefined) {
+        game.vp += game.bid
+        log(`${game.bid > 0 ? '+' : ''}${game.bid} VP -- Bid for sides applied`)
+        game.bid_was = game.bid
+        game.bid = 0 // Set this to zero so the client will stop showing the bid now that it's applied
     }
 
     let cp_threshold = game.events.treaty_of_brest_litovsk > 0 ? 11 : 13
