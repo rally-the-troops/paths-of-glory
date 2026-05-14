@@ -353,10 +353,57 @@ exports.roles = [ AP_ROLE, CP_ROLE ]
 
 const HISTORICAL = "Historical"
 const GREAT_WAR = "The Great War"
-exports.scenarios = [ HISTORICAL, GREAT_WAR ]
+const HISTORICAL_BID = "Historical (Bid for Sides)"
+const HISTORICAL_AP_1 = "Historical AP +1"
+const HISTORICAL_AP_2 = "Historical AP +2"
+const HISTORICAL_AP_3 = "Historical AP +3"
+const HISTORICAL_AP_4 = "Historical AP +4"
+const HISTORICAL_CP_1 = "Historical CP +1"
+const HISTORICAL_CP_2 = "Historical CP +2"
+const HISTORICAL_CP_3 = "Historical CP +3"
+const HISTORICAL_CP_4 = "Historical CP +4"
+const GREAT_WAR_BID = "The Great War (Bid for Sides)"
+const GREAT_WAR_AP_1 = "The Great War AP +1"
+const GREAT_WAR_AP_2 = "The Great War AP +2"
+const GREAT_WAR_AP_3 = "The Great War AP +3"
+const GREAT_WAR_CP_1 = "The Great War CP +1"
+const GREAT_WAR_CP_2 = "The Great War CP +2"
+const GREAT_WAR_CP_3 = "The Great War CP +3"
+exports.scenarios = [
+    HISTORICAL,
+    GREAT_WAR,
+    HISTORICAL_BID,
+    GREAT_WAR_BID,
+    HISTORICAL_AP_1,
+    HISTORICAL_AP_2,
+    HISTORICAL_AP_3,
+    HISTORICAL_AP_4,
+    HISTORICAL_CP_1,
+    HISTORICAL_CP_2,
+    HISTORICAL_CP_3,
+    HISTORICAL_CP_4,
+    GREAT_WAR_AP_1,
+    GREAT_WAR_AP_2,
+    GREAT_WAR_AP_3,
+    GREAT_WAR_CP_1,
+    GREAT_WAR_CP_2,
+    GREAT_WAR_CP_3,
+]
 
 function use_historical_scenario_rules() {
     return true // Other rules are not implemented
+}
+
+function is_any_historical_scenario(scenario) {
+    return scenario.includes(HISTORICAL)
+}
+
+function is_any_great_war_scenario(scenario) {
+    return scenario.includes(GREAT_WAR)
+}
+
+function is_any_bidding_scenario(scenario) {
+    return scenario.includes("Bid for Sides")
 }
 
 exports.action = function (state, current, action, arg) {
@@ -471,6 +518,7 @@ exports.view = function(state, current) {
         actions: null,
         turn: game.turn,
         vp: game.vp,
+        bid: game.bid,
         us_entry: game.us_entry,
         russian_capitulation: game.russian_capitulation,
         last_card: game.last_card,
@@ -531,6 +579,9 @@ exports.view = function(state, current) {
 
         action_state: game.action_state
     }
+
+    if (game.bid_was)
+        view.bid_was = game.bid_was
 
     if (current === AP_ROLE) {
         view.hand = game.ap.hand
@@ -632,21 +683,17 @@ exports.setup = function (seed, scenario, options) {
         log("Supply warnings and rollbacks disabled.")
     }
 
-    if (game.scenario === HISTORICAL) {
+    if (is_any_historical_scenario(game.scenario)) {
         game.options.hand_size = 8
         game.failed_entrench = []
-        set_up_standard_decks(true)
-        goto_start_turn()
-    } else if (scenario === GREAT_WAR) {
+    } else if (is_any_great_war_scenario(game.scenario)) {
         game.options.hand_size = 8
         game.failed_entrench = []
-        set_up_great_war_scenario_decks()
-        goto_start_great_war_scenario()
     } else {
         game.options.hand_size = 7
-        set_up_standard_decks(false)
-        goto_start_turn()
     }
+
+    goto_start_bidding()
 
     return game
 }
@@ -664,6 +711,7 @@ function create_empty_game_state(seed, scenario) {
 
         turn: 1, // Turn number
         vp: 10, // Current VP, can move up or down
+        bid: 0, // Amount of VP bid, negative for CP, positive for AP
         us_entry: 0, // US commitment level
         russian_capitulation: 0, // Russian capitulation level
         ops: 0, // Ops points for the current action
@@ -1329,6 +1377,187 @@ function set_up_played_event(c, turn = 1) {
         game.events.entrench = turn
     } else {
         game.events[card_data.event] = turn
+    }
+}
+
+// === BIDDING FOR SIDES ===
+
+function goto_start_bidding() {
+    if (is_any_bidding_scenario(game.scenario)) {
+        game.state = 'bidding'
+        game.active = random(2) === 1 ? AP_ROLE : CP_ROLE
+        game.bid_for_side = 0
+        game.bid_winner = 0
+        game.current_bid = 0
+        log_h2(`Bid for Sides`)
+        log(`${player_name(game.active)} bids first`)
+    } else {
+        goto_complete_setup()
+    }
+}
+
+function get_max_bid_for_scenario(scenario) {
+    if (is_any_historical_scenario(scenario))
+        return 4
+    return 3
+}
+
+function get_bid_from_scenario(scenario) {
+    switch (scenario) {
+        case HISTORICAL_AP_1:
+        case GREAT_WAR_AP_1:
+            return -1
+        case HISTORICAL_AP_2:
+        case GREAT_WAR_AP_2:
+            return -2
+        case HISTORICAL_AP_3:
+        case GREAT_WAR_AP_3:
+            return -3
+        case HISTORICAL_AP_4:
+            return -4
+        case HISTORICAL_CP_1:
+        case GREAT_WAR_CP_1:
+            return 1
+        case HISTORICAL_CP_2:
+        case GREAT_WAR_CP_2:
+            return 2
+        case HISTORICAL_CP_3:
+        case GREAT_WAR_CP_3:
+            return 3
+        case HISTORICAL_CP_4:
+            return 4
+    }
+    return 0
+}
+
+const HISTORICAL_SCENARIOS = {
+    'ap': [
+        HISTORICAL,
+        HISTORICAL_AP_1,
+        HISTORICAL_AP_2,
+        HISTORICAL_AP_3,
+        HISTORICAL_AP_4
+    ],
+    'cp': [
+        HISTORICAL,
+        HISTORICAL_CP_1,
+        HISTORICAL_CP_2,
+        HISTORICAL_CP_3,
+        HISTORICAL_CP_4
+    ]
+}
+
+const GREAT_WAR_SCENARIOS = {
+    'ap': [
+        GREAT_WAR,
+        GREAT_WAR_AP_1,
+        GREAT_WAR_AP_2,
+        GREAT_WAR_AP_3
+    ],
+    'cp': [
+        GREAT_WAR,
+        GREAT_WAR_CP_1,
+        GREAT_WAR_CP_2,
+        GREAT_WAR_CP_3
+    ]
+}
+
+function get_scenario_for_bid(old_scenario, bid_for_faction, bid) {
+    let favored_faction = other_faction(bid_for_faction)
+    if (is_any_historical_scenario(old_scenario)) {
+        return HISTORICAL_SCENARIOS[favored_faction][bid]
+    } else if (is_any_great_war_scenario(old_scenario)) {
+        return GREAT_WAR_SCENARIOS[favored_faction][bid]
+    }
+    return old_scenario
+}
+
+function player_name(role) {
+    switch (role) {
+        case AP:
+        case AP_ROLE:
+            return 'Player 1'
+        case CP:
+        case CP_ROLE:
+            return 'Player 2'
+    }
+    return ''
+}
+
+states.bidding = {
+    inactive() {
+        view.prompt = `Waiting for ${player_name(other_role(game.active))} to bid for sides`
+        view.is_bidding = true
+    },
+    prompt() {
+        view.is_bidding = true
+        const max_bid = get_max_bid_for_scenario(game.scenario)
+        if (game.bid_for_side === 0) {
+            view.prompt = `Which side would you prefer to play?`
+            gen_action(AP)
+            gen_action(CP)
+        } else if (game.bid_winner === 0) {
+            view.prompt = `How many VP will you bid to play ${faction_name(game.bid_for_side)}`
+            for (let i = 0; i <= max_bid; ++i)
+                gen_action('bid', i)
+        } else {
+            view.prompt = `Opponent bid ${game.current_bid} to play ${faction_name(game.bid_for_side)} -- accept or outbid them?`
+            gen_action('accept')
+            for (let i = game.current_bid + 1; i <= max_bid; ++i)
+                gen_action('bid', i)
+        }
+    },
+    ap() {
+        push_undo()
+        game.bid_for_side = AP
+        log(`Bidding for ${faction_name(AP)}`)
+    },
+    cp() {
+        push_undo()
+        game.bid_for_side = CP
+        log(`Bidding for ${faction_name(AP)}`)
+    },
+    bid(i) {
+        game.bid_winner = game.active
+        game.current_bid = i
+        log(`${player_name(game.active)} bid ${i} VP`)
+        switch_active_faction()
+        if (i === get_max_bid_for_scenario(game.scenario))
+            this.accept()
+    },
+    accept() {
+        log(`Bid accepted`)
+        log(`${player_name(game.bid_winner)} will play ${faction_name(game.bid_for_side)}`)
+        const needs_swap = short_faction(game.bid_winner) !== game.bid_for_side
+        const new_scenario = get_scenario_for_bid(game.scenario, game.bid_for_side, game.current_bid)
+        game.$pie = { swap: needs_swap, scenario: new_scenario }
+
+        game.bid = game.current_bid
+        if (game.bid_for_side === CP)
+            game.bid *= -1
+
+        delete game.bid_for_side
+        delete game.bid_winner
+        delete game.current_bid
+
+        clear_undo()
+        goto_complete_setup()
+    }
+}
+
+function goto_complete_setup() {
+    if (game.bid === 0)
+        game.bid = get_bid_from_scenario(game.scenario)
+
+    if (is_any_historical_scenario(game.scenario)) {
+        set_up_standard_decks(true)
+        goto_start_turn()
+    } else if (is_any_great_war_scenario(game.scenario)) {
+        set_up_great_war_scenario_decks()
+        goto_start_great_war_scenario()
+    } else {
+        set_up_standard_decks(false)
+        goto_start_turn()
     }
 }
 
@@ -6759,6 +6988,13 @@ function get_game_result_by_vp() {
         }
     }
 
+    if (game.bid !== 0 && game.bid !== undefined) {
+        game.vp += game.bid
+        log(`${game.bid > 0 ? '+' : ''}${game.bid} VP -- Bid for sides applied`)
+        game.bid_was = game.bid
+        game.bid = 0 // Set this to zero so the client will stop showing the bid now that it's applied
+    }
+
     let cp_threshold = game.events.treaty_of_brest_litovsk > 0 ? 11 : 13
     let ap_threshold = 9
     if (game.vp >= cp_threshold) {
@@ -7182,6 +7418,10 @@ states.draw_cards_phase = {
 
 function other_faction(faction) {
     return faction === CP ? AP : CP
+}
+
+function other_role(role) {
+    return role === AP_ROLE ? CP_ROLE : AP_ROLE
 }
 
 // === ACTIONS ===
