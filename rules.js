@@ -1870,7 +1870,7 @@ function check_rule_violations() {
         if ((has_undestroyed_fort(s, AP) || has_undestroyed_fort(s, CP)) && !is_besieged(s) && game.broken_sieges && !set_has(game.broken_sieges, s)) {
             const enemy_pieces = get_pieces_in_space(s).filter(p => data.pieces[p].faction !== data.spaces[s].faction)
             if (enemy_pieces.length > 0 && !can_besiege(s, enemy_pieces)) {
-                violations.push({ space: s, piece: 0, rule: "Insufficient strength to begin a siege" })
+                violations.push({ space: s, piece: 0, rule: "Insufficient strength to besiege" })
             }
         }
     }
@@ -3495,16 +3495,6 @@ states.choose_pieces_to_move = {
 }
 
 function get_eligible_spaces_to_move() {
-    if (is_besieged(game.move.current)) {
-        let units_in_space_after_move = []
-        for_each_piece_in_space(game.move.current, (p) => {
-            if (!set_has(game.move.pieces, p))
-                units_in_space_after_move.push(p)
-        })
-        if (units_in_space_after_move.length > 0 && !can_besiege(game.move.current, units_in_space_after_move))
-            return [] // Can't move out of this space because it would break the siege, unless moving all units out of the space
-    }
-
     let spaces = []
     let lowest_mf = 1000
     game.move.pieces.forEach((p) => {
