@@ -3081,6 +3081,9 @@ function next_attack_activation() {
         game.location[p] === LONDON || get_attackable_spaces([p]).length > 0
     )
 
+    // Filter out unsupplied units
+    game.eligible_attackers = game.eligible_attackers.filter(is_unit_supplied)
+
     // remove attack markers with no eligible attackers remaining
     game.activated.attack = game.activated.attack.filter(s => game.eligible_attackers.some(p => game.location[p] === s))
 
