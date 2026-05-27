@@ -3719,6 +3719,14 @@ function contains_piece_of_faction(s, faction) {
     return false
 }
 
+function contains_piece_of_faction_at_war(s, faction) {
+    for (let p = 1; p < data.pieces.length; ++p)
+        if (game.location[p] === s && data.pieces[p].faction === faction && nation_at_war(data.pieces[p].nation))
+            return true
+
+    return false
+}
+
 function contains_piece_of_nation(s, nation) {
     for (let p of all_pieces_by_nation[nation])
         if (game.location[p] === s)
@@ -4769,8 +4777,9 @@ function begin_combat() {
 
 function adds_flanking_drm(space, attacking_faction, attack_space) {
     const spaces = get_connected_spaces(space)
+    const defending_faction = other_faction(attacking_faction)
     for (let i = 0; i < spaces.length; ++i) {
-        if (spaces[i] !== attack_space && contains_piece_of_faction(spaces[i], other_faction(attacking_faction)))
+        if (spaces[i] !== attack_space && contains_piece_of_faction_at_war(spaces[i], defending_faction))
             return false
     }
     return true
