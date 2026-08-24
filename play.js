@@ -889,10 +889,21 @@ function show_score_summary() {
 
         current_score += event_total
 
-        // Bid
-        // TODO
+        // Bid (after it has been scored)
+        if (view.bid_was) {
+            append_header(`Bid for Sides`)
+            append_score(`Bid`, view.bid_was)
+            current_score += view.bid_was
+        }
 
         let endgame_score = current_score
+
+        // Bid (before being scored)
+        if (view.bid) {
+            append_header(`Bid for Sides (Applied at End Game)`)
+            append_score(`Bid`, view.bid)
+            endgame_score += view.bid
+        }
 
         // Historical Scenario VPs that would score if the scenario ended by armistice or at turn 20
         append_header(`Historical Scenario End Game VPs`)
@@ -1010,6 +1021,9 @@ const marker_info = {
         cp: {name: "CP OOS", type: "cp_oos", counter: "marker cp oos", size: 45}
     },
     vp: {name: "VP", type: "vp", counter: "marker vp", size: 45},
+    ap_bid: {name: "AP Bid", type: "ap_bid", counter: "marker ap_bid", size: 45},
+    cp_bid: {name: "CP Bid", type: "cp_bid", counter: "marker cp_bid", size: 45},
+    vp_with_bid: {name: "VP with Bid", type: "vp_with_bid", counter: "marker vp_bid", size: 45},
 
     // War status markers
     ap_war_status: {name: "AP War Status", type: "ap_war_status", counter: "marker ap war_status", size: 45},
@@ -2516,6 +2530,20 @@ function update_general_records_track() {
     general_records_stacks.forEach((stack) => stack.length = 0)
 
     update_general_record("vp", Math.max(0, Math.min(40, view.vp)))
+    if (view.bid < 0)
+        update_general_record("cp_bid", Math.abs(view.bid))
+    else
+        update_general_record("cp_bid", 0, true)
+    if (view.bid > 0)
+        update_general_record("ap_bid", view.bid)
+    else
+        update_general_record("ap_bid", 0, true)
+    if (view.bid)
+        update_general_record("vp_with_bid", Math.max(0, Math.min(40, view.vp + view.bid)))
+    else
+        update_general_record("vp_with_bid", 0, true)
+
+
 
     update_general_record("combined_war_status", view.cp.ws + view.ap.ws)
     update_general_record("ap_war_status", view.ap.ws)
@@ -2913,6 +2941,9 @@ function update_map() {
         }
     }
 
+    action_button('ap', "Allied Powers")
+    action_button('cp', "Central Powers")
+
     action_button("single_op", "Automatic Operation")
 
     action_button("select_all", "Select all")
@@ -2952,12 +2983,29 @@ function update_map() {
         "A different unit in the same space has earned a -1 DRM marker to entrench here.\nDo you still want to entrench with this unit instead?"
     )
 
+    for (let i = 0; i <= 4; ++i) {
+        action_button_with_argument('bid', i, `${i} VP`)
+    }
+
     action_button("pass", "Pass")
 
     action_button("skip", "Skip")
     action_button("next", "Next")
     action_button("done", "Done")
+    action_button("accept", "Accept")
     action_button("undo", "Undo")
+}
+
+function update_roles() {
+    let ap_name = document.getElementById("ap_role_name")
+    let cp_name = document.getElementById("cp_role_name")
+    if (view.is_bidding) {
+        ap_name.innerText = 'Player 1'
+        cp_name.innerText = 'Player 2'
+    } else {
+        ap_name.innerText = 'Allied Powers'
+        cp_name.innerText = 'Central Powers'
+    }
 }
 
 function update_card_zones() {
@@ -3032,6 +3080,7 @@ function update_card_zones() {
 function on_update() {
     hide_supply()
     update_map()
+    update_roles()
 }
 
 // INITIALIZE CLIENT
