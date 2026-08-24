@@ -5449,8 +5449,12 @@ function get_units_in_reserve() {
 }
 
 function get_reserve_units_by_nation(nation) {
+    let pieces = all_pieces_by_nation[nation]
+    if (nation === BRITAIN)
+        pieces = pieces.filter((p) => data.pieces[p].name === "BRc") // Only standard British corps, not CNDc, AUSc, BEFc, etc.
+
     let reduced = 0, full = 0
-    for (let p of all_pieces_by_nation[nation]) {
+    for (let p of pieces) {
         if (game.location[p] === AP_RESERVE_BOX || game.location[p] === CP_RESERVE_BOX) {
             if (is_unit_reduced(p))
                 ++reduced
@@ -5463,8 +5467,12 @@ function get_reserve_units_by_nation(nation) {
 
 function check_rb_empty(replacement) {
     let nation = data.pieces[replacement].nation
+    let pieces = all_pieces_by_nation[nation]
+    if (nation === BRITAIN)
+        pieces = pieces.filter((p) => data.pieces[p].name === "BRc") // Only standard British corps, not CNDc, AUSc, BEFc, etc.
+
     let reduced = 0, full = 0
-    for (let p of all_pieces_by_nation[nation]) {
+    for (let p of pieces) {
         if (game.location[p] === AP_RESERVE_BOX || game.location[p] === CP_RESERVE_BOX) {
             if (is_unit_reduced(p))
                 ++reduced
