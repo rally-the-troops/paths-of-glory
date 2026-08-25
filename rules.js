@@ -339,6 +339,7 @@ function faction_name(faction) {
 const all_pieces = Array.from(data.pieces, (_,ix) => ix)
 const all_pieces_by_nation = object_group_by(all_pieces, p => data.pieces[p].nation)
 const all_pieces_by_faction = object_group_by(all_pieces, p => data.pieces[p].faction)
+const all_british_corps = all_pieces_by_nation[BRITAIN].filter((p) => data.pieces[p].name === "BRc")
 
 const all_spaces = Array.from(data.spaces, (_,ix) => ix)
 const all_spaces_by_nation = object_group_by(all_spaces, s => data.spaces[s].nation)
@@ -5451,7 +5452,7 @@ function get_units_in_reserve() {
 function get_reserve_units_by_nation(nation) {
     let pieces = all_pieces_by_nation[nation]
     if (nation === BRITAIN)
-        pieces = pieces.filter((p) => data.pieces[p].name === "BRc") // Only standard British corps, not CNDc, AUSc, BEFc, etc.
+        pieces = all_british_corps // Only standard British corps, not CNDc, AUSc, BEFc, etc.
 
     let reduced = 0, full = 0
     for (let p of pieces) {
@@ -5469,7 +5470,7 @@ function check_rb_empty(replacement) {
     let nation = data.pieces[replacement].nation
     let pieces = all_pieces_by_nation[nation]
     if (nation === BRITAIN)
-        pieces = pieces.filter((p) => data.pieces[p].name === "BRc") // Only standard British corps, not CNDc, AUSc, BEFc, etc.
+        pieces = all_british_corps // Only standard British corps, not CNDc, AUSc, BEFc, etc.
 
     let reduced = 0, full = 0
     for (let p of pieces) {
