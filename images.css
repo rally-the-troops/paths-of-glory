@@ -1,8 +1,8 @@
-#map{background-image:url(map75.jpg)}
-#reinforcements{background-image:url(reinf75.webp); }
+#map{background-image:url(map75.avif)}
+#reinforcements{background-image:url(reinf75.avif); }
 @media (min-resolution: 97dpi) {
-#map{background-image:url(map150.jpg)}
-#reinforcements{background-image:url(reinf150.webp)}
+#map{background-image:url(map150.avif)}
+#reinforcements{background-image:url(reinf150.avif)}
 }
 
 .marker.mini.fort_destroyed { background-image: url(pieces/fort_destroyed.webp); background-size: 18px 18px; }
@@ -119,17 +119,17 @@
 
 /* VASSAL NE MARKERS */
 .marker.ne_limit { background-size: 45px 45px; }
-.marker.ne_limit.ru_ne_move { background-image: url(pieces/ru_ne_move3.png); }
-.marker.ne_limit.ru_ne_move.used { background-image: url(pieces/ru_ne_move_used3.png); }
-.marker.ne_limit.ru_ne_sr { background-image: url(pieces/ru_ne_sr2.png); }
-.marker.ne_limit.ru_ne_sr.used { background-image: url(pieces/ru_ne_sr_used2.png); }
-.marker.ne_limit.cp_ne_sr { background-image: url(pieces/cp_ne_sr2.png); }
-.marker.ne_limit.cp_ne_sr.used { background-image: url(pieces/cp_ne_sr_used2.png); }
-.marker.ne_limit.br_ne_sr { background-image: url(pieces/br_ne_sr2.png); }
-.marker.ne_limit.br_ne_sr.used { background-image: url(pieces/br_ne_sr_used2.png); }
+.marker.ne_limit.ru_ne_move { background-image: url(pieces/ru_ne_move3.webp); }
+.marker.ne_limit.ru_ne_move.used { background-image: url(pieces/ru_ne_move_used3.webp); }
+.marker.ne_limit.ru_ne_sr { background-image: url(pieces/ru_ne_sr2.webp); }
+.marker.ne_limit.ru_ne_sr.used { background-image: url(pieces/ru_ne_sr_used2.webp); }
+.marker.ne_limit.cp_ne_sr { background-image: url(pieces/cp_ne_sr2.webp); }
+.marker.ne_limit.cp_ne_sr.used { background-image: url(pieces/cp_ne_sr_used2.webp); }
+.marker.ne_limit.br_ne_sr { background-image: url(pieces/br_ne_sr2.webp); }
+.marker.ne_limit.br_ne_sr.used { background-image: url(pieces/br_ne_sr_used2.webp); }
 
 /* LARGE NEUTRAL BADGE */
-.marker.neutral { background-image: url(pieces/neutral.png); }
+.marker.neutral { background-image: url(pieces/neutral.webp); }
 
 /* ARMIES (45x45) */
 .army_ah { background-image: url(pieces/army_ah.webp); background-size: 405px 90px; }
