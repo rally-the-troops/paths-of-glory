@@ -6609,9 +6609,17 @@ states.attrition_phase = {
         log(`Flipped control of ${space_name(s)}`)
         set_control(s, other_faction(active_faction()))
 
-        if (get_trench_level(s, active_faction()) > 0) {
-            log(`Removed trench in ${space_name(s)}`)
-            set_trench_level(s, 0, active_faction())
+        const trench_level = get_trench_level(s, active_faction())
+        switch (trench_level) {
+            case 2:
+                log(`Trench at ${space_name(s)} captured by ${faction_name(inactive_faction())}`)
+                set_trench_level(s, 0, active_faction())
+                set_trench_level(s, 1, inactive_faction())
+                break
+            case 1:
+                log(`Removed trench at ${space_name(s)}`)
+                set_trench_level(s, 0, active_faction())
+                break
         }
 
         if (game.attrition[active_faction()].spaces.length === 0 && game.attrition[active_faction()].pieces.length === 0) {
