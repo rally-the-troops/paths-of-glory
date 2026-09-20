@@ -5028,20 +5028,25 @@ states.eliminate_retreated_units = {
     },
     piece(p) {
         push_undo()
-        // Pieces eliminated in this condition are sent to the eliminated box and not replaced (12.5.6)
-        if (data.pieces[p].notreplaceable) {
-            log(`>*${piece_name(p)} in ${space_name(game.location[p])} permanently eliminated`)
-            set_add(game.removed, p)
-            game.location[p] = PERM_ELIMINATED_BOX
-        } else {
-            log(`>${piece_name(p)} in ${space_name(game.location[p])} eliminated`)
-            send_to_eliminated_box(p)
-        }
-        set_delete(game.retreated, p)
+        eliminate_retreated_unit(p)
+
     },
     done() {
         game.state = 'apply_defender_losses'
     }
+}
+
+function eliminate_retreated_unit(p) {
+    // Pieces eliminated in this condition are sent to the eliminated box and not replaced (12.5.6)
+    if (data.pieces[p].notreplaceable) {
+        log(`>*${piece_name(p)} in ${space_name(game.location[p])} permanently eliminated`)
+        set_add(game.removed, p)
+        game.location[p] = PERM_ELIMINATED_BOX
+    } else {
+        log(`>${piece_name(p)} in ${space_name(game.location[p])} eliminated`)
+        send_to_eliminated_box(p)
+    }
+    set_delete(game.retreated, p)
 }
 
 states.apply_defender_losses = {
@@ -5050,7 +5055,7 @@ states.apply_defender_losses = {
         let loss_options = []
         if (game.attack.defender_losses - game.attack.defender_losses_taken > 0) {
             const fort_strength = has_undestroyed_fort(game.attack.space, active_faction()) ? data.spaces[game.attack.space].fort : 0
-            loss_options = get_loss_options(true, game.attack.defender_losses - game.attack.defender_losses_taken, get_defenders_pieces(), fort_strength)
+            loss_options = get_loss_option_units(true, game.attack.defender_losses - game.attack.defender_losses_taken, get_defenders_pieces(), fort_strength)
         }
         if (loss_options.length > 0) {
             view.prompt = `Take losses in attack on ${space_name(game.attack.space)}: ${game.attack.defender_losses_taken} / ${game.attack.defender_losses}.`
@@ -5068,44 +5073,57 @@ states.apply_defender_losses = {
     },
     piece(p) {
         push_undo()
-        game.attack.defender_losses_taken += get_piece_lf(p)
-        set_add(game.attack.defender_loss_pieces, p)
-        if (is_unit_reduced(p)) {
-            const location = game.location[p]
-            let replacement_options = eliminate_piece(p)
-            // If there are multiple options, defender must choose one
-            if (replacement_options.length > 1) {
-                game.attack.replacement = { p: p, s: location, options: replacement_options }
-                game.state = 'choose_defender_replacement'
-            } else if (replacement_options.length === 1) {
-                replace_defender_unit(p, location, replacement_options[0])
-            } else if (is_withdrawal_active() && data.pieces[p].type === ARMY) {
-                // If the army was permanently eliminated because of no replacement corps, and withdrawal is active,
-                // remember that its step loss cannot be negated unless losses were exactly fulfilled (12.6.8)
-                if (!game.attack.ineligible_for_withdrawal)
-                    game.attack.ineligible_for_withdrawal = []
-                set_add(game.attack.ineligible_for_withdrawal, p)
-            }
-        } else {
-            reduce_piece_defender(p)
-        }
+        apply_defender_loss(p)
     },
     space(s) {
         push_undo()
-        game.attack.defender_losses_taken += data.spaces[s].fort
-        set_add(game.forts.destroyed, s)
-        logi(`Fort destroyed`)
-        if (is_besieged(s)) {
-            set_delete(game.forts.besieged, s)
-            set_control(s, inactive_faction())
-        } else if (game.broken_sieges && set_has(game.broken_sieges, s) && contains_piece_of_faction(s, inactive_faction())) {
-            set_delete(game.broken_sieges, s)
-            set_control(s, inactive_faction())
-        }
+        apply_fort_loss(s)
     },
     done() {
         clear_undo()
         goto_end_defender_losses()
+    }
+}
+
+function apply_defender_loss(p) {
+    game.attack.defender_losses_taken += get_piece_lf(p)
+    set_add(game.attack.defender_loss_pieces, p)
+    if (is_unit_reduced(p)) {
+        const location = game.location[p]
+        let replacement_options = eliminate_piece(p)
+
+        // If losses are automated, just choose the first option
+        if (game.options.auto_losses && replacement_options.length > 1)
+            replacement_options = replacement_options.slice(0, 1)
+
+        // If there are multiple options, defender must choose one
+        if (replacement_options.length > 1) {
+            game.attack.replacement = { p: p, s: location, options: replacement_options }
+            game.state = 'choose_defender_replacement'
+        } else if (replacement_options.length === 1) {
+            replace_defender_unit(p, location, replacement_options[0])
+        } else if (is_withdrawal_active() && data.pieces[p].type === ARMY) {
+            // If the army was permanently eliminated because of no replacement corps, and withdrawal is active,
+            // remember that its step loss cannot be negated unless losses were exactly fulfilled (12.6.8)
+            if (!game.attack.ineligible_for_withdrawal)
+                game.attack.ineligible_for_withdrawal = []
+            set_add(game.attack.ineligible_for_withdrawal, p)
+        }
+    } else {
+        reduce_piece_defender(p)
+    }
+}
+
+function apply_fort_loss(s) {
+    game.attack.defender_losses_taken += data.spaces[s].fort
+    set_add(game.forts.destroyed, s)
+    logi(`Fort destroyed`)
+    if (is_besieged(s)) {
+        set_delete(game.forts.besieged, s)
+        set_control(s, inactive_faction())
+    } else if (game.broken_sieges && set_has(game.broken_sieges, s) && contains_piece_of_faction(s, inactive_faction())) {
+        set_delete(game.broken_sieges, s)
+        set_control(s, inactive_faction())
     }
 }
 
@@ -5300,7 +5318,7 @@ function reduce_piece_defender(p) {
 }
 
 function goto_attacker_losses() {
-    let loss_options = get_loss_options(false, game.attack.attacker_losses, game.attack.pieces, 0)
+    let loss_options = get_loss_option_units(false, game.attack.attacker_losses, game.attack.pieces, 0)
     if (game.attack.attacker_losses > 0 && loss_options.length > 0)
         log("Attacker losses:")
     if (game.options.auto_losses && can_automate_losses(false, game.attack.attacker_losses, game.attack.pieces, 0)) {
@@ -5316,7 +5334,7 @@ states.apply_attacker_losses = {
     prompt() {
         let loss_options = []
         if (game.attack.attacker_losses - game.attack.attacker_losses_taken > 0)
-            loss_options = get_loss_options(false, game.attack.attacker_losses - game.attack.attacker_losses_taken, game.attack.pieces, 0)
+            loss_options = get_loss_option_units(false, game.attack.attacker_losses - game.attack.attacker_losses_taken, game.attack.pieces, 0)
         if (loss_options.length > 0) {
             view.prompt = `Take losses in attack on ${space_name(game.attack.space)}: ${game.attack.attacker_losses_taken} / ${game.attack.attacker_losses}.`
             loss_options.forEach((p) => {
@@ -5329,25 +5347,34 @@ states.apply_attacker_losses = {
     },
     piece(p) {
         push_undo()
-        game.attack.attacker_losses_taken += get_piece_lf(p)
-        if (is_unit_reduced(p)) {
-            const location = game.location[p]
-            let replacement_options = eliminate_piece(p)
-            set_delete(game.attack.pieces, p)
-            // If there are multiple options, player must choose a replacement
-            if (replacement_options.length > 1) {
-                game.attack.replacement = { p: p, s: location, options: replacement_options }
-                game.state = 'choose_attacker_replacement'
-            } else if (replacement_options.length === 1) {
-                replace_attacker_unit(p, location, replacement_options[0])
-            }
-        } else {
-            reduce_piece(p)
-        }
+        apply_attacker_loss(p)
     },
     done() {
         push_undo()
         goto_end_attacker_losses()
+    }
+}
+
+function apply_attacker_loss(p) {
+    game.attack.attacker_losses_taken += get_piece_lf(p)
+    if (is_unit_reduced(p)) {
+        const location = game.location[p]
+        let replacement_options = eliminate_piece(p)
+        set_delete(game.attack.pieces, p)
+
+        // If losses are automated, just choose the first option
+        if (game.options.auto_losses && replacement_options.length > 1)
+            replacement_options = replacement_options.slice(0, 1)
+
+        // If there are multiple options, player must choose a replacement
+        if (replacement_options.length > 1) {
+            game.attack.replacement = { p: p, s: location, options: replacement_options }
+            game.state = 'choose_attacker_replacement'
+        } else if (replacement_options.length === 1) {
+            replace_attacker_unit(p, location, replacement_options[0])
+        }
+    } else {
+        reduce_piece(p)
     }
 }
 
@@ -5389,10 +5416,10 @@ function replace_attacker_unit(unit, location, replacement) {
 
 function goto_defender_losses() {
     clear_undo()
-    set_active_faction(other_faction(game.attack.attacker)) // TODO
+    set_active_faction(other_faction(game.attack.attacker))
 
     const fort_strength = has_undestroyed_fort(game.attack.space, other_faction(game.attack.attacker)) ? data.spaces[game.attack.space].fort : 0
-    let loss_options = get_loss_options(true, game.attack.defender_losses, get_defenders_pieces(), fort_strength)
+    let loss_options = get_loss_option_units(true, game.attack.defender_losses, get_defenders_pieces(), fort_strength)
 
     if (game.attack.defender_losses > 0 && loss_options.length > 0) {
         log("Defender losses:")
@@ -5412,21 +5439,8 @@ function goto_defender_losses() {
 
 const FORT_LOSS = -1
 
-function get_loss_options(is_defender, to_satisfy, units, fort_strength) {
+function get_loss_options_full(is_defender, to_satisfy, units, fort_strength) {
     const is_first_pick = (is_defender && game.attack.defender_losses_taken === 0) || (!is_defender && game.attack.attacker_losses_taken === 0)
-
-    // If this is the attacker's first loss, check for priority units first
-    if (!is_defender && is_first_pick) {
-        if (units.includes(BEF_ARMY) && to_satisfy >= get_piece_lf(BEF_ARMY)) return [BEF_ARMY]
-        if (units.includes(BEF_CORPS) && to_satisfy >= get_piece_lf(BEF_CORPS)) return [BEF_CORPS]
-        let priority_units = []
-        if (units.includes(MEF_ARMY) && to_satisfy >= get_piece_lf(MEF_ARMY)) priority_units.push(MEF_ARMY)
-        if (units.includes(CAU_ARMY) && to_satisfy >= get_piece_lf(CAU_ARMY)) priority_units.push(CAU_ARMY)
-        if (priority_units.length > 0) return priority_units
-        if (units.includes(AUS_CORPS) && to_satisfy >= get_piece_lf(AUS_CORPS)) return [AUS_CORPS]
-        if (units.includes(CND_CORPS) && to_satisfy >= get_piece_lf(CND_CORPS)) return [CND_CORPS]
-        if (priority_units.length > 0) return priority_units
-    }
 
     let reserve_units = get_units_in_reserve()
     let loss_tree = {
@@ -5454,12 +5468,75 @@ function get_loss_options(is_defender, to_satisfy, units, fort_strength) {
         }
     }
 
-    let valid_units = []
-    valid_paths.forEach((path) => {
-        valid_units.push(path.picked[0])
-    })
+    // If this is the attacker's first loss, filter out the options that don't start with a priority unit
+    if (!is_defender && is_first_pick) {
+        let priority_units = []
+        if (units.includes(BEF_ARMY) && to_satisfy >= get_piece_lf(BEF_ARMY)) {
+            priority_units.push(BEF_ARMY)
+        } else if (units.includes(BEF_CORPS) && to_satisfy >= get_piece_lf(BEF_CORPS)) {
+            priority_units.push(BEF_CORPS)
+        } else {
+            if (units.includes(MEF_ARMY) && to_satisfy >= get_piece_lf(MEF_ARMY))
+                priority_units.push(MEF_ARMY)
+            if (units.includes(CAU_ARMY) && to_satisfy >= get_piece_lf(CAU_ARMY))
+                priority_units.push(CAU_ARMY)
+        }
+        if (priority_units.length === 0) {
+            if (units.includes(AUS_CORPS) && to_satisfy >= get_piece_lf(AUS_CORPS))
+                priority_units.push(AUS_CORPS)
+            if (units.includes(CND_CORPS) && to_satisfy >= get_piece_lf(CND_CORPS))
+                priority_units.push(CND_CORPS)
+        }
 
-    return valid_units
+        if (priority_units.length > 0) {
+            // Filter to only the paths starting with a priority unit
+            valid_paths = valid_paths.filter((path) => priority_units.includes(path.picked[0]) )
+        }
+    }
+
+    return valid_paths
+}
+
+function get_loss_option_units(is_defender, to_satisfy, units, fort_strength) {
+    let valid_paths = get_loss_options_full(is_defender, to_satisfy, units, fort_strength)
+    return valid_paths.map(path => path.picked[0])
+}
+
+function loss_options_are_equivalent(path1, path2) {
+    if (path1.to_satisfy !== path2.to_satisfy) return false
+    if (path1.full_strength.length !== path2.full_strength.length) return false
+    if (path1.reduced_strength.length !== path2.reduced_strength.length) return false
+
+    // Every full strength unit left in path 1 must also have an equivalent full strength unit in path2,
+    // but not necessarily the same unit. Remove them as they are matched.
+    let units_to_match = [...path2.full_strength]
+    for (let u of path1.full_strength) {
+        let found_unit = units_to_match.find(u2 => is_equivalent_unit(u, u2))
+        if (found_unit === undefined)
+            return false
+        set_delete(units_to_match, found_unit)
+    }
+
+    // Then do the same for the reduced units
+    units_to_match = [...path2.reduced_strength]
+    for (let u of path1.reduced_strength) {
+        let found_unit = units_to_match.find(u2 => is_equivalent_unit(u, u2))
+        if (found_unit === undefined)
+            return false
+        set_delete(units_to_match, found_unit)
+    }
+
+    return true
+}
+
+function is_equivalent_unit(u1, u2) {
+    if (u1 === u2) return true
+
+    let u1_data = data.pieces[u1]
+    let u2_data = data.pieces[u2]
+    if (u1_data.type === CORPS && u2_data.type === CORPS) {
+        return u1_data.name === u2_data.name // All equivalent corps have the same name
+    }
 }
 
 function get_units_in_reserve() {
@@ -5683,13 +5760,43 @@ function get_replacement_options(unit, available_replacements) {
 }
 
 function can_automate_losses(is_defender, num_losses, pieces, fort_strength) {
-    // TODO
-    get_loss_options(is_defender, num_losses, pieces, fort_strength)
-    return false
+    // If there are no options or one option then automation is easy
+    let paths = get_loss_options_full(is_defender, num_losses, pieces, fort_strength)
+    if (paths.length <= 1)
+        return true
+
+    // If any option is not equivalent in result, then this cannot be automated
+    for (let i = 1; i < paths.length; i++) {
+        if (!loss_options_are_equivalent(paths[0], paths[i]))
+            return false
+    }
+
+    return true
 }
 
 function automate_losses(is_defender, num_losses, pieces, fort_strength) {
-    // TODO
+    let paths = get_loss_options_full(is_defender, num_losses, pieces, fort_strength)
+    if (paths.length === 0)
+        return // no losses to take
+
+    let path = paths[0] // Otherwise, assume all paths are equal in end result, take the first path
+    path.picked.forEach((l) => {
+        if (is_defender) {
+            if (l === FORT_LOSS)
+                apply_fort_loss(game.attack.space)
+            else
+                apply_defender_loss(l)
+        } else {
+            apply_attacker_loss(l)
+        }
+    })
+}
+
+function automate_eliminate_retreated_units() {
+    for_each_piece_in_space(game.attack.space, (p) => {
+        if (data.pieces[p].faction === other_faction(game.attack.attacker) && set_has(game.retreated, p))
+            eliminate_retreated_unit(p)
+    })
 }
 
 function is_withdrawal_active() {
