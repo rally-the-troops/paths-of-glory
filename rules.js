@@ -2173,6 +2173,8 @@ function goto_play_event(card) {
     else
         record_action(ACTION_EVENT, card)
     evt.play()
+
+    update_supply()
 }
 
 function goto_play_ops(card) {
