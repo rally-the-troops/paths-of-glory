@@ -633,6 +633,11 @@ exports.setup = function (seed, scenario, options) {
         log("Supply warnings and rollbacks disabled.")
     }
 
+    if (options.expert_mode) {
+        game.options.auto_losses = 1
+        log("Expert mode: combat losses will be automated when possible.")
+    }
+
     if (game.scenario === HISTORICAL) {
         game.options.hand_size = 8
         game.failed_entrench = []
@@ -5100,39 +5105,42 @@ states.apply_defender_losses = {
     },
     done() {
         clear_undo()
+        goto_end_defender_losses()
+    }
+}
 
-        // If withdrawal was played and the last step loss was an army permanently eliminated because of no replacement
-        // corps in the reserve box, then withdrawal only allows replacement of that step loss if the losses taken are
-        // exactly equal to the total losses. (12.6.8)
-        if (game.attack.defender_losses === game.attack.defender_losses_taken)
-            game.attack.defender_fulfilled_losses_exactly = true
+function goto_end_defender_losses() {
+    // If withdrawal was played and the last step loss was an army permanently eliminated because of no replacement
+    // corps in the reserve box, then withdrawal only allows replacement of that step loss if the losses taken are
+    // exactly equal to the total losses. (12.6.8)
+    if (game.attack.defender_losses === game.attack.defender_losses_taken)
+        game.attack.defender_fulfilled_losses_exactly = true
 
-        update_siege(game.attack.space)
+    update_siege(game.attack.space)
 
-        if (has_undestroyed_fort(game.attack.space, game.attack.attacker) && !is_besieged(game.attack.space)) {
-            // Fort is no longer besieged due to losses, but the remaining pieces are allowed to continue occupying the space
-            // until the player moves them out or moves another piece in, so we have to remember this space is a "broken siege". (15.2.4)
-            set_add(game.broken_sieges, game.attack.space)
-        }
+    if (has_undestroyed_fort(game.attack.space, game.attack.attacker) && !is_besieged(game.attack.space)) {
+        // Fort is no longer besieged due to losses, but the remaining pieces are allowed to continue occupying the space
+        // until the player moves them out or moves another piece in, so we have to remember this space is a "broken siege". (15.2.4)
+        set_add(game.broken_sieges, game.attack.space)
+    }
 
-        const flank_attack_active = game.attack.is_flank || (game.attack.combat_cards.includes(VON_HUTIER) && events.von_hutier.can_play())
-        if (!flank_attack_active && is_withdrawal_active() && game.attack.defender_loss_pieces.length > 0) {
-            // If this is not a flank attack and the defender played Withdrawal, they choose a step loss to negate
-            // If this was a flank attack, then the defender will not negate the step loss until the attacker has taken
-            // their losses
-            game.state = 'withdrawal_negate_step_loss'
-        } else if (game.attack.failed_flank) {
-            set_active_faction(game.attack.attacker)
-            determine_combat_winner()
-        } else if (game.attack.is_flank || game.attack.combat_cards.includes(VON_HUTIER)) {
-            resolve_defenders_fire()
-            log_combat_winner()
-            set_active_faction(game.attack.attacker)
-            goto_attacker_losses()
-        } else {
-            set_active_faction(game.attack.attacker)
-            goto_attacker_losses()
-        }
+    const flank_attack_active = game.attack.is_flank || (game.attack.combat_cards.includes(VON_HUTIER) && events.von_hutier.can_play())
+    if (!flank_attack_active && is_withdrawal_active() && game.attack.defender_loss_pieces.length > 0) {
+        // If this is not a flank attack and the defender played Withdrawal, they choose a step loss to negate
+        // If this was a flank attack, then the defender will not negate the step loss until the attacker has taken
+        // their losses
+        game.state = 'withdrawal_negate_step_loss'
+    } else if (game.attack.failed_flank) {
+        set_active_faction(game.attack.attacker)
+        determine_combat_winner()
+    } else if (game.attack.is_flank || game.attack.combat_cards.includes(VON_HUTIER)) {
+        resolve_defenders_fire()
+        log_combat_winner()
+        set_active_faction(game.attack.attacker)
+        goto_attacker_losses()
+    } else {
+        set_active_faction(game.attack.attacker)
+        goto_attacker_losses()
     }
 }
 
@@ -5292,9 +5300,15 @@ function reduce_piece_defender(p) {
 }
 
 function goto_attacker_losses() {
-    if (game.attack.attacker_losses > 0 && get_loss_options(false, game.attack.attacker_losses, game.attack.pieces, 0).length > 0)
+    let loss_options = get_loss_options(false, game.attack.attacker_losses, game.attack.pieces, 0)
+    if (game.attack.attacker_losses > 0 && loss_options.length > 0)
         log("Attacker losses:")
-    game.state = "apply_attacker_losses"
+    if (game.options.auto_losses && can_automate_losses(false, game.attack.attacker_losses, game.attack.pieces, 0)) {
+        automate_losses(false, game.attack.attacker_losses, game.attack.pieces, 0)
+        goto_end_attacker_losses()
+    } else {
+        game.state = "apply_attacker_losses"
+    }
 }
 
 states.apply_attacker_losses = {
@@ -5333,18 +5347,22 @@ states.apply_attacker_losses = {
     },
     done() {
         push_undo()
-        if (game.attack.failed_flank) {
-            resolve_attackers_fire()
-            log_combat_winner()
-            goto_defender_losses()
-        } else if (is_withdrawal_active() && game.attack.defender_loss_pieces.length > 0 && (game.attack.is_flank || (game.attack.combat_cards.includes(VON_HUTIER) && events.von_hutier.can_play()))) {
-            // If this was a flank attack and the defender played Withdrawal, they now choose their step loss to negate
-            clear_undo()
-            switch_active_faction()
-            game.state = 'withdrawal_negate_step_loss'
-        } else {
-            determine_combat_winner()
-        }
+        goto_end_attacker_losses()
+    }
+}
+
+function goto_end_attacker_losses() {
+    if (game.attack.failed_flank) {
+        resolve_attackers_fire()
+        log_combat_winner()
+        goto_defender_losses()
+    } else if (is_withdrawal_active() && game.attack.defender_loss_pieces.length > 0 && (game.attack.is_flank || (game.attack.combat_cards.includes(VON_HUTIER) && events.von_hutier.can_play()))) {
+        // If this was a flank attack and the defender played Withdrawal, they now choose their step loss to negate
+        clear_undo()
+        switch_active_faction()
+        game.state = 'withdrawal_negate_step_loss'
+    } else {
+        determine_combat_winner()
     }
 }
 
@@ -5371,19 +5389,25 @@ function replace_attacker_unit(unit, location, replacement) {
 
 function goto_defender_losses() {
     clear_undo()
-    set_active_faction(other_faction(game.attack.attacker))
+    set_active_faction(other_faction(game.attack.attacker)) // TODO
 
-    if (game.attack.defender_losses > 0) {
-        const fort_strength = has_undestroyed_fort(game.attack.space, active_faction()) ? data.spaces[game.attack.space].fort : 0
-        let loss_options = get_loss_options(true, game.attack.defender_losses, get_defenders_pieces(), fort_strength)
-        if (loss_options.length > 0)
-            log("Defender losses:")
+    const fort_strength = has_undestroyed_fort(game.attack.space, other_faction(game.attack.attacker)) ? data.spaces[game.attack.space].fort : 0
+    let loss_options = get_loss_options(true, game.attack.defender_losses, get_defenders_pieces(), fort_strength)
+
+    if (game.attack.defender_losses > 0 && loss_options.length > 0) {
+        log("Defender losses:")
     }
 
-    if (game.attack.defender_losses > 0 && get_defenders_pieces().some((p) => set_has(game.retreated, p)))
-        game.state = 'eliminate_retreated_units'
-    else
-        game.state = 'apply_defender_losses'
+    if (game.options.auto_losses && can_automate_losses(true, game.attack.defender_losses, get_defenders_pieces(), fort_strength)) {
+        automate_eliminate_retreated_units()
+        automate_losses(true, game.attack.defender_losses, get_defenders_pieces(), fort_strength)
+        goto_end_defender_losses()
+    } else {
+        if (game.attack.defender_losses > 0 && get_defenders_pieces().some((p) => set_has(game.retreated, p)))
+            game.state = 'eliminate_retreated_units'
+        else
+            game.state = 'apply_defender_losses'
+    }
 }
 
 const FORT_LOSS = -1
@@ -5656,6 +5680,16 @@ function get_replacement_options(unit, available_replacements) {
     }
 
     return full_options.length > 0 ? full_options : reduced_options
+}
+
+function can_automate_losses(is_defender, num_losses, pieces, fort_strength) {
+    // TODO
+    get_loss_options(is_defender, num_losses, pieces, fort_strength)
+    return false
+}
+
+function automate_losses(is_defender, num_losses, pieces, fort_strength) {
+    // TODO
 }
 
 function is_withdrawal_active() {
