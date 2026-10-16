@@ -4205,7 +4205,8 @@ function has_trench_negating_card_in_hand(faction) {
 }
 
 function goto_attack_step_flank() {
-    if (attacker_can_flank()) {
+    let von_hutier_active = game.attack.combat_cards.includes(VON_HUTIER) && events.von_hutier.can_play()
+    if (attacker_can_flank() && !von_hutier_active) {
         // if attacker can flank, go to 'choose_flank_attack'
         game.state = 'choose_flank_attack'
     } else {
