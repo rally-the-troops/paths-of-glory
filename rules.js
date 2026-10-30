@@ -633,6 +633,14 @@ exports.setup = function (seed, scenario, options) {
         log("Supply warnings and rollbacks disabled.")
     }
 
+    if (options.expert_mode) {
+        game.options.auto_losses = 1
+        game.options.auto_attrition = 1
+        game.options.auto_sieges = 1
+        game.options.auto_reinforcements = 1
+        log("Expert mode: combat losses, attrition, sieges, and other steps will be automated when possible for faster asynchronous play.")
+    }
+
     if (game.scenario === HISTORICAL) {
         game.options.hand_size = 8
         game.failed_entrench = []
@@ -2743,7 +2751,46 @@ function goto_play_reinf(card) {
         let pieces = find_n_unused_pieces(piece_nation, name, quantities[name])
         game.reinforcements.push(...pieces)
     }
+    goto_place_reinforcements()
+}
+
+function goto_place_reinforcements() {
+    if (game.options.auto_reinforcements) {
+        let placed = []
+        game.reinforcements.forEach((r) => {
+            let spaces = get_available_reinforcement_spaces(r)
+            if (spaces.length === 1) {
+                placed.push(r)
+                place_reinforcement(r, spaces[0])
+            } else if (spaces.length === 0) {
+                skip_reinforcement(r)
+            }
+        })
+        placed.forEach(p => set_delete(game.reinforcements, p))
+    }
     game.state = 'place_reinforcements'
+}
+
+function place_reinforcement(p, s) {
+    game.location[p] = s
+    set_delete(game.reduced, p)
+    log(`${piece_name(p)}${log_corps(p)} placed in ${space_name(s)}`)
+
+    if (neareast_armies.includes(p) && data.spaces[s].map !== 'neareast' && !is_mef_space(s) && s !== SALONIKA) {
+        log(`${piece_name(p)} is a NE army placed outside the Near East, it will not be able to operate on the Near East map`)
+        set_add(game.ne_armies_placed_outside_neareast, p)
+    }
+
+    if (is_mef_space(s)) {
+        game.mef_beachhead = s
+        log(`MEF beachhead established in ${space_name(s)}`)
+    }
+    set_control(s, data.pieces[p].faction)
+}
+
+function skip_reinforcement(p) {
+    game.location[p] = 0
+    log(`${piece_name(p)} could not be placed`)
 }
 
 states.place_reinforcements = {
@@ -2771,26 +2818,12 @@ states.place_reinforcements = {
     space(s) {
         push_undo()
         const p = game.reinforcements.shift()
-        game.location[p] = s
-        set_delete(game.reduced, p)
-        log(`${piece_name(p)}${log_corps(p)} placed in ${space_name(s)}`)
-
-        if (neareast_armies.includes(p) && data.spaces[s].map !== 'neareast' && !is_mef_space(s) && s !== SALONIKA) {
-            log(`${piece_name(p)} is a NE army placed outside the Near East, it will not be able to operate on the Near East map`)
-            set_add(game.ne_armies_placed_outside_neareast, p)
-        }
-
-        if (is_mef_space(s)) {
-            game.mef_beachhead = s
-            log(`MEF beachhead established in ${space_name(s)}`)
-        }
-        set_control(s, active_faction())
+        place_reinforcement(p, s)
     },
     skip() {
         push_undo()
         const p = game.reinforcements.shift()
-        game.location[p] = 0
-        log(`${piece_name(p)} could not be placed`)
+        skip_reinforcement(p)
     },
     done() {
         clear_undo()
@@ -2821,38 +2854,38 @@ function get_available_reinforcement_spaces(p) {
     // Corps can be placed in the reserve box
     if (piece_data.type === CORPS) {
         if (piece_data.faction === AP)
-            spaces.push(AP_RESERVE_BOX)
+            set_add(spaces, AP_RESERVE_BOX)
         else
-            spaces.push(CP_RESERVE_BOX)
+            set_add(spaces, CP_RESERVE_BOX)
         return spaces
     }
 
     // Special placement options for French Orient Army, British NE Army, Russian CAU Army, and British MEF Army
     if (piece_data.name === 'FR Orient' && is_space_at_war(SALONIKA) && !is_fully_stacked(SALONIKA, active_faction()) && is_controlled_by(SALONIKA, AP)) {
-        spaces.push(SALONIKA)
+        set_add(spaces, SALONIKA)
     } else if (piece_data.name === 'BR NE' && game.events.sinai_pipeline > 0 && !is_fully_stacked(ALEXANDRIA, active_faction()) && is_controlled_by(ALEXANDRIA, AP)) {
-        spaces.push(ALEXANDRIA)
+        set_add(spaces, ALEXANDRIA)
     } else if (piece_data.name === 'RU CAU') {
         // any supplied space in Russia on the NE map
         for (let s of all_spaces_by_nation[RUSSIA]) {
             if (data.spaces[s].map === 'neareast' && is_unit_supplied_in(p, s) && !is_fully_stacked(s, AP) && is_controlled_by(s, AP)) {
                 if (!is_brest_litovsk_restricted_one(p, s)) {
-                    spaces.push(s)
+                    set_add(spaces, s)
                 }
             }
         }
     } else if (piece_data.name === 'BR MEF' && !game.events.salonika) {
-        spaces.push(MEF1)
-        spaces.push(MEF2)
-        spaces.push(MEF3)
-        spaces.push(MEF4)
+        set_add(spaces, MEF1)
+        set_add(spaces, MEF2)
+        set_add(spaces, MEF3)
+        set_add(spaces, MEF4)
     }
 
     // US Armies can only be placed at unbesieged ports in France
     if (nation === US) {
         for (let s of all_spaces_by_nation[FRANCE]) {
             if (is_port(s, AP) && is_controlled_by(s, active_faction()) && !is_besieged(s) && !is_fully_stacked(s, AP)) {
-                spaces.push(s)
+                set_add(spaces, s)
             }
         }
         return spaces
@@ -2862,14 +2895,14 @@ function get_available_reinforcement_spaces(p) {
     const capitals = get_capitals(nation)
     for (let c of capitals) {
         if (is_controlled_by(c, active_faction()) && is_unit_supplied_in(p, c) && !is_fully_stacked(c, active_faction())) {
-            spaces.push(c)
+            set_add(spaces, c)
         }
     }
 
     // Friendly supply sources in the right nation can receive armies
     for (let s of all_spaces_by_nation[nation]) {
         if (data.spaces[s].supply && is_controlled_by(s, active_faction()) && is_unit_supplied_in(p, s) && !is_fully_stacked(s, active_faction())) {
-            spaces.push(s)
+            set_add(spaces, s)
         }
     }
 
@@ -2881,7 +2914,7 @@ function get_available_reinforcement_spaces(p) {
         is_unit_supplied_in(p, ORLEANS) &&
         !is_fully_stacked(ORLEANS, active_faction())
     ) {
-        spaces.push(ORLEANS)
+        set_add(spaces, ORLEANS)
     }
 
     return spaces
@@ -5026,20 +5059,25 @@ states.eliminate_retreated_units = {
     },
     piece(p) {
         push_undo()
-        // Pieces eliminated in this condition are sent to the eliminated box and not replaced (12.5.6)
-        if (data.pieces[p].notreplaceable) {
-            log(`>*${piece_name(p)} in ${space_name(game.location[p])} permanently eliminated`)
-            set_add(game.removed, p)
-            game.location[p] = PERM_ELIMINATED_BOX
-        } else {
-            log(`>${piece_name(p)} in ${space_name(game.location[p])} eliminated`)
-            send_to_eliminated_box(p)
-        }
-        set_delete(game.retreated, p)
+        eliminate_retreated_unit(p)
+
     },
     done() {
         game.state = 'apply_defender_losses'
     }
+}
+
+function eliminate_retreated_unit(p) {
+    // Pieces eliminated in this condition are sent to the eliminated box and not replaced (12.5.6)
+    if (data.pieces[p].notreplaceable) {
+        log(`>*${piece_name(p)} in ${space_name(game.location[p])} permanently eliminated`)
+        set_add(game.removed, p)
+        game.location[p] = PERM_ELIMINATED_BOX
+    } else {
+        log(`>${piece_name(p)} in ${space_name(game.location[p])} eliminated`)
+        send_to_eliminated_box(p)
+    }
+    set_delete(game.retreated, p)
 }
 
 states.apply_defender_losses = {
@@ -5048,7 +5086,7 @@ states.apply_defender_losses = {
         let loss_options = []
         if (game.attack.defender_losses - game.attack.defender_losses_taken > 0) {
             const fort_strength = has_undestroyed_fort(game.attack.space, active_faction()) ? data.spaces[game.attack.space].fort : 0
-            loss_options = get_loss_options(true, game.attack.defender_losses - game.attack.defender_losses_taken, get_defenders_pieces(), fort_strength)
+            loss_options = get_loss_option_units(true, game.attack.defender_losses - game.attack.defender_losses_taken, get_defenders_pieces(), fort_strength)
         }
         if (loss_options.length > 0) {
             view.prompt = `Take losses in attack on ${space_name(game.attack.space)}: ${game.attack.defender_losses_taken} / ${game.attack.defender_losses}.`
@@ -5066,76 +5104,92 @@ states.apply_defender_losses = {
     },
     piece(p) {
         push_undo()
-        game.attack.defender_losses_taken += get_piece_lf(p)
-        set_add(game.attack.defender_loss_pieces, p)
-        if (is_unit_reduced(p)) {
-            const location = game.location[p]
-            let replacement_options = eliminate_piece(p)
-            // If there are multiple options, defender must choose one
-            if (replacement_options.length > 1) {
-                game.attack.replacement = { p: p, s: location, options: replacement_options }
-                game.state = 'choose_defender_replacement'
-            } else if (replacement_options.length === 1) {
-                replace_defender_unit(p, location, replacement_options[0])
-            } else if (is_withdrawal_active() && data.pieces[p].type === ARMY) {
-                // If the army was permanently eliminated because of no replacement corps, and withdrawal is active,
-                // remember that its step loss cannot be negated unless losses were exactly fulfilled (12.6.8)
-                if (!game.attack.ineligible_for_withdrawal)
-                    game.attack.ineligible_for_withdrawal = []
-                set_add(game.attack.ineligible_for_withdrawal, p)
-            }
-        } else {
-            reduce_piece_defender(p)
-        }
+        apply_defender_loss(p)
     },
     space(s) {
         push_undo()
-        game.attack.defender_losses_taken += data.spaces[s].fort
-        set_add(game.forts.destroyed, s)
-        logi(`Fort destroyed`)
-        if (is_besieged(s)) {
-            set_delete(game.forts.besieged, s)
-            set_control(s, inactive_faction())
-        } else if (game.broken_sieges && set_has(game.broken_sieges, s) && contains_piece_of_faction(s, inactive_faction())) {
-            set_delete(game.broken_sieges, s)
-            set_control(s, inactive_faction())
-        }
+        apply_fort_loss(s)
     },
     done() {
         clear_undo()
+        goto_end_defender_losses()
+    }
+}
 
-        // If withdrawal was played and the last step loss was an army permanently eliminated because of no replacement
-        // corps in the reserve box, then withdrawal only allows replacement of that step loss if the losses taken are
-        // exactly equal to the total losses. (12.6.8)
-        if (game.attack.defender_losses === game.attack.defender_losses_taken)
-            game.attack.defender_fulfilled_losses_exactly = true
+function apply_defender_loss(p) {
+    game.attack.defender_losses_taken += get_piece_lf(p)
+    set_add(game.attack.defender_loss_pieces, p)
+    if (is_unit_reduced(p)) {
+        const location = game.location[p]
+        let replacement_options = eliminate_piece(p)
 
-        update_siege(game.attack.space)
+        // If losses are automated, just choose the first option
+        if (game.options.auto_losses && replacement_options.length > 1)
+            replacement_options = replacement_options.slice(0, 1)
 
-        if (has_undestroyed_fort(game.attack.space, game.attack.attacker) && !is_besieged(game.attack.space)) {
-            // Fort is no longer besieged due to losses, but the remaining pieces are allowed to continue occupying the space
-            // until the player moves them out or moves another piece in, so we have to remember this space is a "broken siege". (15.2.4)
-            set_add(game.broken_sieges, game.attack.space)
+        // If there are multiple options, defender must choose one
+        if (replacement_options.length > 1) {
+            game.attack.replacement = { p: p, s: location, options: replacement_options }
+            game.state = 'choose_defender_replacement'
+        } else if (replacement_options.length === 1) {
+            replace_defender_unit(p, location, replacement_options[0])
+        } else if (is_withdrawal_active() && data.pieces[p].type === ARMY) {
+            // If the army was permanently eliminated because of no replacement corps, and withdrawal is active,
+            // remember that its step loss cannot be negated unless losses were exactly fulfilled (12.6.8)
+            if (!game.attack.ineligible_for_withdrawal)
+                game.attack.ineligible_for_withdrawal = []
+            set_add(game.attack.ineligible_for_withdrawal, p)
         }
+    } else {
+        reduce_piece_defender(p)
+    }
+}
 
-        const flank_attack_active = game.attack.is_flank || (game.attack.combat_cards.includes(VON_HUTIER) && events.von_hutier.can_play())
-        if (!flank_attack_active && is_withdrawal_active() && game.attack.defender_loss_pieces.length > 0) {
-            // If this is not a flank attack and the defender played Withdrawal, they choose a step loss to negate
-            // If this was a flank attack, then the defender will not negate the step loss until the attacker has taken
-            // their losses
-            game.state = 'withdrawal_negate_step_loss'
-        } else if (game.attack.failed_flank) {
-            set_active_faction(game.attack.attacker)
-            determine_combat_winner()
-        } else if (game.attack.is_flank || game.attack.combat_cards.includes(VON_HUTIER)) {
-            resolve_defenders_fire()
-            log_combat_winner()
-            set_active_faction(game.attack.attacker)
-            goto_attacker_losses()
-        } else {
-            set_active_faction(game.attack.attacker)
-            goto_attacker_losses()
-        }
+function apply_fort_loss(s) {
+    game.attack.defender_losses_taken += data.spaces[s].fort
+    set_add(game.forts.destroyed, s)
+    logi(`Fort destroyed`)
+    if (is_besieged(s)) {
+        set_delete(game.forts.besieged, s)
+        set_control(s, inactive_faction())
+    } else if (game.broken_sieges && set_has(game.broken_sieges, s) && contains_piece_of_faction(s, inactive_faction())) {
+        set_delete(game.broken_sieges, s)
+        set_control(s, inactive_faction())
+    }
+}
+
+function goto_end_defender_losses() {
+    // If withdrawal was played and the last step loss was an army permanently eliminated because of no replacement
+    // corps in the reserve box, then withdrawal only allows replacement of that step loss if the losses taken are
+    // exactly equal to the total losses. (12.6.8)
+    if (game.attack.defender_losses === game.attack.defender_losses_taken)
+        game.attack.defender_fulfilled_losses_exactly = true
+
+    update_siege(game.attack.space)
+
+    if (has_undestroyed_fort(game.attack.space, game.attack.attacker) && !is_besieged(game.attack.space)) {
+        // Fort is no longer besieged due to losses, but the remaining pieces are allowed to continue occupying the space
+        // until the player moves them out or moves another piece in, so we have to remember this space is a "broken siege". (15.2.4)
+        set_add(game.broken_sieges, game.attack.space)
+    }
+
+    const flank_attack_active = game.attack.is_flank || (game.attack.combat_cards.includes(VON_HUTIER) && events.von_hutier.can_play())
+    if (!flank_attack_active && is_withdrawal_active() && game.attack.defender_loss_pieces.length > 0) {
+        // If this is not a flank attack and the defender played Withdrawal, they choose a step loss to negate
+        // If this was a flank attack, then the defender will not negate the step loss until the attacker has taken
+        // their losses
+        game.state = 'withdrawal_negate_step_loss'
+    } else if (game.attack.failed_flank) {
+        set_active_faction(game.attack.attacker)
+        determine_combat_winner()
+    } else if (game.attack.is_flank || game.attack.combat_cards.includes(VON_HUTIER)) {
+        resolve_defenders_fire()
+        log_combat_winner()
+        set_active_faction(game.attack.attacker)
+        goto_attacker_losses()
+    } else {
+        set_active_faction(game.attack.attacker)
+        goto_attacker_losses()
     }
 }
 
@@ -5295,9 +5349,15 @@ function reduce_piece_defender(p) {
 }
 
 function goto_attacker_losses() {
-    if (game.attack.attacker_losses > 0 && get_loss_options(false, game.attack.attacker_losses, game.attack.pieces, 0).length > 0)
+    let loss_options = get_loss_option_units(false, game.attack.attacker_losses, game.attack.pieces, 0)
+    if (game.attack.attacker_losses > 0 && loss_options.length > 0)
         log("Attacker losses:")
-    game.state = "apply_attacker_losses"
+    if (game.options.auto_losses && can_automate_losses(false, game.attack.attacker_losses, game.attack.pieces, 0)) {
+        automate_losses(false, game.attack.attacker_losses, game.attack.pieces, 0)
+        goto_end_attacker_losses()
+    } else {
+        game.state = "apply_attacker_losses"
+    }
 }
 
 states.apply_attacker_losses = {
@@ -5305,7 +5365,7 @@ states.apply_attacker_losses = {
     prompt() {
         let loss_options = []
         if (game.attack.attacker_losses - game.attack.attacker_losses_taken > 0)
-            loss_options = get_loss_options(false, game.attack.attacker_losses - game.attack.attacker_losses_taken, game.attack.pieces, 0)
+            loss_options = get_loss_option_units(false, game.attack.attacker_losses - game.attack.attacker_losses_taken, game.attack.pieces, 0)
         if (loss_options.length > 0) {
             view.prompt = `Take losses in attack on ${space_name(game.attack.space)}: ${game.attack.attacker_losses_taken} / ${game.attack.attacker_losses}.`
             loss_options.forEach((p) => {
@@ -5318,36 +5378,49 @@ states.apply_attacker_losses = {
     },
     piece(p) {
         push_undo()
-        game.attack.attacker_losses_taken += get_piece_lf(p)
-        if (is_unit_reduced(p)) {
-            const location = game.location[p]
-            let replacement_options = eliminate_piece(p)
-            set_delete(game.attack.pieces, p)
-            // If there are multiple options, player must choose a replacement
-            if (replacement_options.length > 1) {
-                game.attack.replacement = { p: p, s: location, options: replacement_options }
-                game.state = 'choose_attacker_replacement'
-            } else if (replacement_options.length === 1) {
-                replace_attacker_unit(p, location, replacement_options[0])
-            }
-        } else {
-            reduce_piece(p)
-        }
+        apply_attacker_loss(p)
     },
     done() {
         push_undo()
-        if (game.attack.failed_flank) {
-            resolve_attackers_fire()
-            log_combat_winner()
-            goto_defender_losses()
-        } else if (is_withdrawal_active() && game.attack.defender_loss_pieces.length > 0 && (game.attack.is_flank || (game.attack.combat_cards.includes(VON_HUTIER) && events.von_hutier.can_play()))) {
-            // If this was a flank attack and the defender played Withdrawal, they now choose their step loss to negate
-            clear_undo()
-            switch_active_faction()
-            game.state = 'withdrawal_negate_step_loss'
-        } else {
-            determine_combat_winner()
+        goto_end_attacker_losses()
+    }
+}
+
+function apply_attacker_loss(p) {
+    game.attack.attacker_losses_taken += get_piece_lf(p)
+    if (is_unit_reduced(p)) {
+        const location = game.location[p]
+        let replacement_options = eliminate_piece(p)
+        set_delete(game.attack.pieces, p)
+
+        // If losses are automated, just choose the first option
+        if (game.options.auto_losses && replacement_options.length > 1)
+            replacement_options = replacement_options.slice(0, 1)
+
+        // If there are multiple options, player must choose a replacement
+        if (replacement_options.length > 1) {
+            game.attack.replacement = { p: p, s: location, options: replacement_options }
+            game.state = 'choose_attacker_replacement'
+        } else if (replacement_options.length === 1) {
+            replace_attacker_unit(p, location, replacement_options[0])
         }
+    } else {
+        reduce_piece(p)
+    }
+}
+
+function goto_end_attacker_losses() {
+    if (game.attack.failed_flank) {
+        resolve_attackers_fire()
+        log_combat_winner()
+        goto_defender_losses()
+    } else if (is_withdrawal_active() && game.attack.defender_loss_pieces.length > 0 && (game.attack.is_flank || (game.attack.combat_cards.includes(VON_HUTIER) && events.von_hutier.can_play()))) {
+        // If this was a flank attack and the defender played Withdrawal, they now choose their step loss to negate
+        clear_undo()
+        switch_active_faction()
+        game.state = 'withdrawal_negate_step_loss'
+    } else {
+        determine_combat_winner()
     }
 }
 
@@ -5376,36 +5449,29 @@ function goto_defender_losses() {
     clear_undo()
     set_active_faction(other_faction(game.attack.attacker))
 
-    if (game.attack.defender_losses > 0) {
-        const fort_strength = has_undestroyed_fort(game.attack.space, active_faction()) ? data.spaces[game.attack.space].fort : 0
-        let loss_options = get_loss_options(true, game.attack.defender_losses, get_defenders_pieces(), fort_strength)
-        if (loss_options.length > 0)
-            log("Defender losses:")
+    const fort_strength = has_undestroyed_fort(game.attack.space, other_faction(game.attack.attacker)) ? data.spaces[game.attack.space].fort : 0
+    let loss_options = get_loss_option_units(true, game.attack.defender_losses, get_defenders_pieces(), fort_strength)
+
+    if (game.attack.defender_losses > 0 && loss_options.length > 0) {
+        log("Defender losses:")
     }
 
-    if (game.attack.defender_losses > 0 && get_defenders_pieces().some((p) => set_has(game.retreated, p)))
-        game.state = 'eliminate_retreated_units'
-    else
-        game.state = 'apply_defender_losses'
+    if (game.options.auto_losses && can_automate_losses(true, game.attack.defender_losses, get_defenders_pieces(), fort_strength)) {
+        automate_eliminate_retreated_units()
+        automate_losses(true, game.attack.defender_losses, get_defenders_pieces(), fort_strength)
+        goto_end_defender_losses()
+    } else {
+        if (game.attack.defender_losses > 0 && get_defenders_pieces().some((p) => set_has(game.retreated, p)))
+            game.state = 'eliminate_retreated_units'
+        else
+            game.state = 'apply_defender_losses'
+    }
 }
 
 const FORT_LOSS = -1
 
-function get_loss_options(is_defender, to_satisfy, units, fort_strength) {
+function get_loss_options_full(is_defender, to_satisfy, units, fort_strength) {
     const is_first_pick = (is_defender && game.attack.defender_losses_taken === 0) || (!is_defender && game.attack.attacker_losses_taken === 0)
-
-    // If this is the attacker's first loss, check for priority units first
-    if (!is_defender && is_first_pick) {
-        if (units.includes(BEF_ARMY) && to_satisfy >= get_piece_lf(BEF_ARMY)) return [BEF_ARMY]
-        if (units.includes(BEF_CORPS) && to_satisfy >= get_piece_lf(BEF_CORPS)) return [BEF_CORPS]
-        let priority_units = []
-        if (units.includes(MEF_ARMY) && to_satisfy >= get_piece_lf(MEF_ARMY)) priority_units.push(MEF_ARMY)
-        if (units.includes(CAU_ARMY) && to_satisfy >= get_piece_lf(CAU_ARMY)) priority_units.push(CAU_ARMY)
-        if (priority_units.length > 0) return priority_units
-        if (units.includes(AUS_CORPS) && to_satisfy >= get_piece_lf(AUS_CORPS)) priority_units.push(AUS_CORPS)
-        if (units.includes(CND_CORPS) && to_satisfy >= get_piece_lf(CND_CORPS)) priority_units.push(CND_CORPS)
-        if (priority_units.length > 0) return priority_units
-    }
 
     let reserve_units = get_units_in_reserve()
     let loss_tree = {
@@ -5433,12 +5499,77 @@ function get_loss_options(is_defender, to_satisfy, units, fort_strength) {
         }
     }
 
-    let valid_units = []
-    valid_paths.forEach((path) => {
-        valid_units.push(path.picked[0])
-    })
+    // If this is the attacker's first loss, filter out the options that don't start with a priority unit
+    if (!is_defender && is_first_pick) {
+        let priority_units = []
+        if (units.includes(BEF_ARMY) && to_satisfy >= get_piece_lf(BEF_ARMY)) {
+            priority_units.push(BEF_ARMY)
+        } else if (units.includes(BEF_CORPS) && to_satisfy >= get_piece_lf(BEF_CORPS)) {
+            priority_units.push(BEF_CORPS)
+        } else {
+            if (units.includes(MEF_ARMY) && to_satisfy >= get_piece_lf(MEF_ARMY))
+                priority_units.push(MEF_ARMY)
+            if (units.includes(CAU_ARMY) && to_satisfy >= get_piece_lf(CAU_ARMY))
+                priority_units.push(CAU_ARMY)
+        }
+        if (priority_units.length === 0) {
+            if (units.includes(AUS_CORPS) && to_satisfy >= get_piece_lf(AUS_CORPS))
+                priority_units.push(AUS_CORPS)
+            if (units.includes(CND_CORPS) && to_satisfy >= get_piece_lf(CND_CORPS))
+                priority_units.push(CND_CORPS)
+        }
 
+        if (priority_units.length > 0) {
+            // Filter to only the paths starting with a priority unit
+            valid_paths = valid_paths.filter((path) => priority_units.includes(path.picked[0]) )
+        }
+    }
+
+    return valid_paths
+}
+
+function get_loss_option_units(is_defender, to_satisfy, units, fort_strength) {
+    let valid_paths = get_loss_options_full(is_defender, to_satisfy, units, fort_strength)
+    let valid_units = []
+    valid_paths.forEach((path) => set_add(valid_units, path.picked[0]))
     return valid_units
+}
+
+function loss_options_are_equivalent(path1, path2) {
+    if (path1.to_satisfy !== path2.to_satisfy) return false
+    if (path1.full_strength.length !== path2.full_strength.length) return false
+    if (path1.reduced.length !== path2.reduced.length) return false
+
+    // Every full strength unit left in path 1 must also have an equivalent full strength unit in path2,
+    // but not necessarily the same unit. Remove them as they are matched.
+    let units_to_match = [...path2.full_strength]
+    for (let u of path1.full_strength) {
+        let found_unit = units_to_match.find(u2 => is_equivalent_unit(u, u2))
+        if (found_unit === undefined)
+            return false
+        set_delete(units_to_match, found_unit)
+    }
+
+    // Then do the same for the reduced units
+    units_to_match = [...path2.reduced]
+    for (let u of path1.reduced) {
+        let found_unit = units_to_match.find(u2 => is_equivalent_unit(u, u2))
+        if (found_unit === undefined)
+            return false
+        set_delete(units_to_match, found_unit)
+    }
+
+    return true
+}
+
+function is_equivalent_unit(u1, u2) {
+    if (u1 === u2) return true
+
+    let u1_data = data.pieces[u1]
+    let u2_data = data.pieces[u2]
+    if (u1_data.type === CORPS && u2_data.type === CORPS) {
+        return u1_data.name === u2_data.name // All equivalent corps have the same name
+    }
 }
 
 function get_units_in_reserve() {
@@ -5659,6 +5790,46 @@ function get_replacement_options(unit, available_replacements) {
     }
 
     return full_options.length > 0 ? full_options : reduced_options
+}
+
+function can_automate_losses(is_defender, num_losses, pieces, fort_strength) {
+    // If there are no options or one option then automation is easy
+    let paths = get_loss_options_full(is_defender, num_losses, pieces, fort_strength)
+    if (paths.length <= 1)
+        return true
+
+    // If any option is not equivalent in result, then this cannot be automated
+    for (let i = 1; i < paths.length; i++) {
+        if (!loss_options_are_equivalent(paths[0], paths[i]))
+            return false
+    }
+
+    return true
+}
+
+function automate_losses(is_defender, num_losses, pieces, fort_strength) {
+    let paths = get_loss_options_full(is_defender, num_losses, pieces, fort_strength)
+    if (paths.length === 0)
+        return // no losses to take
+
+    let path = paths[0] // Otherwise, assume all paths are equal in end result, take the first path
+    path.picked.forEach((l) => {
+        if (is_defender) {
+            if (l === FORT_LOSS)
+                apply_fort_loss(game.attack.space)
+            else
+                apply_defender_loss(l)
+        } else {
+            apply_attacker_loss(l)
+        }
+    })
+}
+
+function automate_eliminate_retreated_units() {
+    for_each_piece_in_space(game.attack.space, (p) => {
+        if (data.pieces[p].faction === other_faction(game.attack.attacker) && set_has(game.retreated, p))
+            eliminate_retreated_unit(p)
+    })
 }
 
 function is_withdrawal_active() {
@@ -6562,6 +6733,11 @@ function goto_attrition_phase() {
         }
     }
 
+    if (game.options.auto_attrition) {
+        automate_attrition_phase()
+        return
+    }
+
     if (game.attrition.ap.spaces.length > 0 || game.attrition.ap.pieces.length > 0) {
         game.state = 'attrition_phase'
         set_active_faction(AP)
@@ -6570,6 +6746,49 @@ function goto_attrition_phase() {
         set_active_faction(CP)
     } else {
         goto_siege_phase()
+    }
+}
+
+function automate_attrition_phase() {
+    game.state = 'attrition_phase'
+    set_active_faction(AP)
+    game.attrition.ap.pieces.forEach(attrit_piece)
+    game.attrition.ap.spaces.forEach(attrit_space)
+    set_active_faction(CP)
+    game.attrition.cp.pieces.forEach(attrit_piece)
+    game.attrition.cp.spaces.forEach(attrit_space)
+    goto_siege_phase()
+}
+
+function attrit_piece(p) {
+    let loc = game.location[p]
+    if (data.pieces[p].type === ARMY) {
+        log_alert(`Permanently removed ${piece_name(p)} from ${space_name(game.location[p])}`)
+        game.location[p] = PERM_ELIMINATED_BOX
+        set_add(game.removed, p)
+    } else {
+        log(`Removed ${piece_name(p)} from ${space_name(game.location[p])}`)
+        send_to_eliminated_box(p)
+    }
+
+    update_siege(loc)
+}
+
+function attrit_space(s) {
+    log(`Flipped control of ${space_name(s)}`)
+    set_control(s, other_faction(active_faction()))
+
+    const trench_level = get_trench_level(s, active_faction())
+    switch (trench_level) {
+        case 2:
+            log(`Trench at ${space_name(s)} captured by ${faction_name(inactive_faction())}`)
+            set_trench_level(s, 0, active_faction())
+            set_trench_level(s, 1, inactive_faction())
+            break
+        case 1:
+            log(`Removed trench at ${space_name(s)}`)
+            set_trench_level(s, 0, active_faction())
+            break
     }
 }
 
@@ -6585,18 +6804,8 @@ states.attrition_phase = {
         spaces.forEach((s) => { gen_action_space(s) })
     },
     piece(p) {
-        let loc = game.location[p]
         set_delete(game.attrition[active_faction()].pieces, p)
-        if (data.pieces[p].type === ARMY) {
-            log_alert(`Permanently removed ${piece_name(p)} from ${space_name(game.location[p])}`)
-            game.location[p] = PERM_ELIMINATED_BOX
-            set_add(game.removed, p)
-        } else {
-            log(`Removed ${piece_name(p)} from ${space_name(game.location[p])}`)
-            send_to_eliminated_box(p)
-        }
-
-        update_siege(loc)
+        attrit_piece(p)
 
         if (game.attrition[active_faction()].spaces.length === 0 && game.attrition[active_faction()].pieces.length === 0) {
             if (game.attrition[other_faction(active_faction())].spaces.length > 0 || game.attrition[other_faction(active_faction())].pieces.length > 0) {
@@ -6609,21 +6818,7 @@ states.attrition_phase = {
     },
     space(s) {
         set_delete(game.attrition[active_faction()].spaces, s)
-        log(`Flipped control of ${space_name(s)}`)
-        set_control(s, other_faction(active_faction()))
-
-        const trench_level = get_trench_level(s, active_faction())
-        switch (trench_level) {
-            case 2:
-                log(`Trench at ${space_name(s)} captured by ${faction_name(inactive_faction())}`)
-                set_trench_level(s, 0, active_faction())
-                set_trench_level(s, 1, inactive_faction())
-                break
-            case 1:
-                log(`Removed trench at ${space_name(s)}`)
-                set_trench_level(s, 0, active_faction())
-                break
-        }
+        attrit_space(s)
 
         if (game.attrition[active_faction()].spaces.length === 0 && game.attrition[active_faction()].pieces.length === 0) {
             if (game.attrition[other_faction(active_faction())].spaces.length > 0 || game.attrition[other_faction(active_faction())].pieces.length > 0) {
@@ -6646,9 +6841,41 @@ function goto_siege_phase() {
         const ap_has_sieges = game.forts.besieged.some((s) => data.spaces[s].faction === CP)
         set_active_faction(ap_has_sieges ? AP : CP)
         game.sieges_to_roll = [...game.forts.besieged]
+
+        if (game.options.auto_sieges) {
+            automate_siege_phase()
+        }
     } else {
         goto_war_status_phase()
     }
+}
+
+function automate_siege_phase() {
+    const ap_to_roll = game.sieges_to_roll.filter((s) => data.spaces[s].faction === CP)
+    const cp_to_roll = game.sieges_to_roll.filter((s) => data.spaces[s].faction === AP)
+    set_active_faction(AP)
+    ap_to_roll.forEach(roll_siege)
+    set_active_faction(CP)
+    cp_to_roll.forEach(roll_siege)
+    goto_war_status_phase()
+}
+
+function roll_siege(s) {
+    array_remove_item(game.sieges_to_roll, s)
+    let roll = roll_die(6)
+    const drm = game.turn <= 2 ? -2 : 0
+    const fort_str = data.spaces[s].fort
+    log(`Siege at ${space_name(s)} (${data.spaces[s].fort} CF): ${fmt_roll(roll, drm)}`)
+    if (roll + drm > fort_str) {
+        logi(`Fort destroyed`)
+        array_remove_item(game.forts.besieged, s)
+        set_add(game.forts.destroyed, s)
+        set_control(s, active_faction())
+        capture_trench(s, active_faction())
+    } else {
+        logi(`Fort holds`)
+    }
+    log_event_for_rollback(`Siege roll at ${space_name(s)}`)
 }
 
 states.siege_phase = {
@@ -6659,21 +6886,7 @@ states.siege_phase = {
         view.prompt = `Roll for besieged forts: ${space_list(siege_spaces)}.`
     },
     space(s) {
-        array_remove_item(game.sieges_to_roll, s)
-        let roll = roll_die(6)
-        const drm = game.turn <= 2 ? -2 : 0
-        const fort_str = data.spaces[s].fort
-        log(`Siege at ${space_name(s)} (${data.spaces[s].fort} CF): ${fmt_roll(roll, drm)}`)
-        if (roll + drm > fort_str) {
-            logi(`Fort destroyed`)
-            array_remove_item(game.forts.besieged, s)
-            set_add(game.forts.destroyed, s)
-            set_control(s, active_faction())
-            capture_trench(s, active_faction())
-        } else {
-            logi(`Fort holds`)
-        }
-        log_event_for_rollback(`Siege roll at ${space_name(s)}`)
+        roll_siege(s)
 
         if (game.sieges_to_roll.length === 0) {
             goto_war_status_phase()
