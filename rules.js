@@ -635,7 +635,10 @@ exports.setup = function (seed, scenario, options) {
 
     if (options.expert_mode) {
         game.options.auto_losses = 1
-        log("Expert mode: combat losses will be automated when possible.")
+        game.options.auto_attrition = 1
+        game.options.auto_sieges = 1
+        game.options.auto_reinforcements = 1
+        log("Expert mode: combat losses, attrition, sieges, and other steps will be automated when possible for faster asynchronous play.")
     }
 
     if (game.scenario === HISTORICAL) {
@@ -2748,7 +2751,46 @@ function goto_play_reinf(card) {
         let pieces = find_n_unused_pieces(piece_nation, name, quantities[name])
         game.reinforcements.push(...pieces)
     }
+    goto_place_reinforcements()
+}
+
+function goto_place_reinforcements() {
+    if (game.options.auto_reinforcements) {
+        let placed = []
+        game.reinforcements.forEach((r) => {
+            let spaces = get_available_reinforcement_spaces(r)
+            if (spaces.length === 1) {
+                placed.push(r)
+                place_reinforcement(r, spaces[0])
+            } else if (spaces.length === 0) {
+                skip_reinforcement(r)
+            }
+        })
+        placed.forEach(p => set_delete(game.reinforcements, p))
+    }
     game.state = 'place_reinforcements'
+}
+
+function place_reinforcement(p, s) {
+    game.location[p] = s
+    set_delete(game.reduced, p)
+    log(`${piece_name(p)}${log_corps(p)} placed in ${space_name(s)}`)
+
+    if (neareast_armies.includes(p) && data.spaces[s].map !== 'neareast' && !is_mef_space(s) && s !== SALONIKA) {
+        log(`${piece_name(p)} is a NE army placed outside the Near East, it will not be able to operate on the Near East map`)
+        set_add(game.ne_armies_placed_outside_neareast, p)
+    }
+
+    if (is_mef_space(s)) {
+        game.mef_beachhead = s
+        log(`MEF beachhead established in ${space_name(s)}`)
+    }
+    set_control(s, data.pieces[p].faction)
+}
+
+function skip_reinforcement(p) {
+    game.location[p] = 0
+    log(`${piece_name(p)} could not be placed`)
 }
 
 states.place_reinforcements = {
@@ -2776,26 +2818,12 @@ states.place_reinforcements = {
     space(s) {
         push_undo()
         const p = game.reinforcements.shift()
-        game.location[p] = s
-        set_delete(game.reduced, p)
-        log(`${piece_name(p)}${log_corps(p)} placed in ${space_name(s)}`)
-
-        if (neareast_armies.includes(p) && data.spaces[s].map !== 'neareast' && !is_mef_space(s) && s !== SALONIKA) {
-            log(`${piece_name(p)} is a NE army placed outside the Near East, it will not be able to operate on the Near East map`)
-            set_add(game.ne_armies_placed_outside_neareast, p)
-        }
-
-        if (is_mef_space(s)) {
-            game.mef_beachhead = s
-            log(`MEF beachhead established in ${space_name(s)}`)
-        }
-        set_control(s, active_faction())
+        place_reinforcement(p, s)
     },
     skip() {
         push_undo()
         const p = game.reinforcements.shift()
-        game.location[p] = 0
-        log(`${piece_name(p)} could not be placed`)
+        skip_reinforcement(p)
     },
     done() {
         clear_undo()
@@ -2826,38 +2854,38 @@ function get_available_reinforcement_spaces(p) {
     // Corps can be placed in the reserve box
     if (piece_data.type === CORPS) {
         if (piece_data.faction === AP)
-            spaces.push(AP_RESERVE_BOX)
+            set_add(spaces, AP_RESERVE_BOX)
         else
-            spaces.push(CP_RESERVE_BOX)
+            set_add(spaces, CP_RESERVE_BOX)
         return spaces
     }
 
     // Special placement options for French Orient Army, British NE Army, Russian CAU Army, and British MEF Army
     if (piece_data.name === 'FR Orient' && is_space_at_war(SALONIKA) && !is_fully_stacked(SALONIKA, active_faction()) && is_controlled_by(SALONIKA, AP)) {
-        spaces.push(SALONIKA)
+        set_add(spaces, SALONIKA)
     } else if (piece_data.name === 'BR NE' && game.events.sinai_pipeline > 0 && !is_fully_stacked(ALEXANDRIA, active_faction()) && is_controlled_by(ALEXANDRIA, AP)) {
-        spaces.push(ALEXANDRIA)
+        set_add(spaces, ALEXANDRIA)
     } else if (piece_data.name === 'RU CAU') {
         // any supplied space in Russia on the NE map
         for (let s of all_spaces_by_nation[RUSSIA]) {
             if (data.spaces[s].map === 'neareast' && is_unit_supplied_in(p, s) && !is_fully_stacked(s, AP) && is_controlled_by(s, AP)) {
                 if (!is_brest_litovsk_restricted_one(p, s)) {
-                    spaces.push(s)
+                    set_add(spaces, s)
                 }
             }
         }
     } else if (piece_data.name === 'BR MEF' && !game.events.salonika) {
-        spaces.push(MEF1)
-        spaces.push(MEF2)
-        spaces.push(MEF3)
-        spaces.push(MEF4)
+        set_add(spaces, MEF1)
+        set_add(spaces, MEF2)
+        set_add(spaces, MEF3)
+        set_add(spaces, MEF4)
     }
 
     // US Armies can only be placed at unbesieged ports in France
     if (nation === US) {
         for (let s of all_spaces_by_nation[FRANCE]) {
             if (is_port(s, AP) && is_controlled_by(s, active_faction()) && !is_besieged(s) && !is_fully_stacked(s, AP)) {
-                spaces.push(s)
+                set_add(spaces, s)
             }
         }
         return spaces
@@ -2867,14 +2895,14 @@ function get_available_reinforcement_spaces(p) {
     const capitals = get_capitals(nation)
     for (let c of capitals) {
         if (is_controlled_by(c, active_faction()) && is_unit_supplied_in(p, c) && !is_fully_stacked(c, active_faction())) {
-            spaces.push(c)
+            set_add(spaces, c)
         }
     }
 
     // Friendly supply sources in the right nation can receive armies
     for (let s of all_spaces_by_nation[nation]) {
         if (data.spaces[s].supply && is_controlled_by(s, active_faction()) && is_unit_supplied_in(p, s) && !is_fully_stacked(s, active_faction())) {
-            spaces.push(s)
+            set_add(spaces, s)
         }
     }
 
@@ -2886,7 +2914,7 @@ function get_available_reinforcement_spaces(p) {
         is_unit_supplied_in(p, ORLEANS) &&
         !is_fully_stacked(ORLEANS, active_faction())
     ) {
-        spaces.push(ORLEANS)
+        set_add(spaces, ORLEANS)
     }
 
     return spaces
@@ -5510,7 +5538,7 @@ function get_loss_option_units(is_defender, to_satisfy, units, fort_strength) {
 function loss_options_are_equivalent(path1, path2) {
     if (path1.to_satisfy !== path2.to_satisfy) return false
     if (path1.full_strength.length !== path2.full_strength.length) return false
-    if (path1.reduced_strength.length !== path2.reduced_strength.length) return false
+    if (path1.reduced.length !== path2.reduced.length) return false
 
     // Every full strength unit left in path 1 must also have an equivalent full strength unit in path2,
     // but not necessarily the same unit. Remove them as they are matched.
@@ -5523,8 +5551,8 @@ function loss_options_are_equivalent(path1, path2) {
     }
 
     // Then do the same for the reduced units
-    units_to_match = [...path2.reduced_strength]
-    for (let u of path1.reduced_strength) {
+    units_to_match = [...path2.reduced]
+    for (let u of path1.reduced) {
         let found_unit = units_to_match.find(u2 => is_equivalent_unit(u, u2))
         if (found_unit === undefined)
             return false
@@ -6705,6 +6733,11 @@ function goto_attrition_phase() {
         }
     }
 
+    if (game.options.auto_attrition) {
+        automate_attrition_phase()
+        return
+    }
+
     if (game.attrition.ap.spaces.length > 0 || game.attrition.ap.pieces.length > 0) {
         game.state = 'attrition_phase'
         set_active_faction(AP)
@@ -6713,6 +6746,49 @@ function goto_attrition_phase() {
         set_active_faction(CP)
     } else {
         goto_siege_phase()
+    }
+}
+
+function automate_attrition_phase() {
+    game.state = 'attrition_phase'
+    set_active_faction(AP)
+    game.attrition.ap.pieces.forEach(attrit_piece)
+    game.attrition.ap.spaces.forEach(attrit_space)
+    set_active_faction(CP)
+    game.attrition.cp.pieces.forEach(attrit_piece)
+    game.attrition.cp.spaces.forEach(attrit_space)
+    goto_siege_phase()
+}
+
+function attrit_piece(p) {
+    let loc = game.location[p]
+    if (data.pieces[p].type === ARMY) {
+        log_alert(`Permanently removed ${piece_name(p)} from ${space_name(game.location[p])}`)
+        game.location[p] = PERM_ELIMINATED_BOX
+        set_add(game.removed, p)
+    } else {
+        log(`Removed ${piece_name(p)} from ${space_name(game.location[p])}`)
+        send_to_eliminated_box(p)
+    }
+
+    update_siege(loc)
+}
+
+function attrit_space(s) {
+    log(`Flipped control of ${space_name(s)}`)
+    set_control(s, other_faction(active_faction()))
+
+    const trench_level = get_trench_level(s, active_faction())
+    switch (trench_level) {
+        case 2:
+            log(`Trench at ${space_name(s)} captured by ${faction_name(inactive_faction())}`)
+            set_trench_level(s, 0, active_faction())
+            set_trench_level(s, 1, inactive_faction())
+            break
+        case 1:
+            log(`Removed trench at ${space_name(s)}`)
+            set_trench_level(s, 0, active_faction())
+            break
     }
 }
 
@@ -6728,18 +6804,8 @@ states.attrition_phase = {
         spaces.forEach((s) => { gen_action_space(s) })
     },
     piece(p) {
-        let loc = game.location[p]
         set_delete(game.attrition[active_faction()].pieces, p)
-        if (data.pieces[p].type === ARMY) {
-            log_alert(`Permanently removed ${piece_name(p)} from ${space_name(game.location[p])}`)
-            game.location[p] = PERM_ELIMINATED_BOX
-            set_add(game.removed, p)
-        } else {
-            log(`Removed ${piece_name(p)} from ${space_name(game.location[p])}`)
-            send_to_eliminated_box(p)
-        }
-
-        update_siege(loc)
+        attrit_piece(p)
 
         if (game.attrition[active_faction()].spaces.length === 0 && game.attrition[active_faction()].pieces.length === 0) {
             if (game.attrition[other_faction(active_faction())].spaces.length > 0 || game.attrition[other_faction(active_faction())].pieces.length > 0) {
@@ -6752,21 +6818,7 @@ states.attrition_phase = {
     },
     space(s) {
         set_delete(game.attrition[active_faction()].spaces, s)
-        log(`Flipped control of ${space_name(s)}`)
-        set_control(s, other_faction(active_faction()))
-
-        const trench_level = get_trench_level(s, active_faction())
-        switch (trench_level) {
-            case 2:
-                log(`Trench at ${space_name(s)} captured by ${faction_name(inactive_faction())}`)
-                set_trench_level(s, 0, active_faction())
-                set_trench_level(s, 1, inactive_faction())
-                break
-            case 1:
-                log(`Removed trench at ${space_name(s)}`)
-                set_trench_level(s, 0, active_faction())
-                break
-        }
+        attrit_space(s)
 
         if (game.attrition[active_faction()].spaces.length === 0 && game.attrition[active_faction()].pieces.length === 0) {
             if (game.attrition[other_faction(active_faction())].spaces.length > 0 || game.attrition[other_faction(active_faction())].pieces.length > 0) {
@@ -6789,9 +6841,41 @@ function goto_siege_phase() {
         const ap_has_sieges = game.forts.besieged.some((s) => data.spaces[s].faction === CP)
         set_active_faction(ap_has_sieges ? AP : CP)
         game.sieges_to_roll = [...game.forts.besieged]
+
+        if (game.options.auto_sieges) {
+            automate_siege_phase()
+        }
     } else {
         goto_war_status_phase()
     }
+}
+
+function automate_siege_phase() {
+    const ap_to_roll = game.sieges_to_roll.filter((s) => data.spaces[s].faction === CP)
+    const cp_to_roll = game.sieges_to_roll.filter((s) => data.spaces[s].faction === AP)
+    set_active_faction(AP)
+    ap_to_roll.forEach(roll_siege)
+    set_active_faction(CP)
+    cp_to_roll.forEach(roll_siege)
+    goto_war_status_phase()
+}
+
+function roll_siege(s) {
+    array_remove_item(game.sieges_to_roll, s)
+    let roll = roll_die(6)
+    const drm = game.turn <= 2 ? -2 : 0
+    const fort_str = data.spaces[s].fort
+    log(`Siege at ${space_name(s)} (${data.spaces[s].fort} CF): ${fmt_roll(roll, drm)}`)
+    if (roll + drm > fort_str) {
+        logi(`Fort destroyed`)
+        array_remove_item(game.forts.besieged, s)
+        set_add(game.forts.destroyed, s)
+        set_control(s, active_faction())
+        capture_trench(s, active_faction())
+    } else {
+        logi(`Fort holds`)
+    }
+    log_event_for_rollback(`Siege roll at ${space_name(s)}`)
 }
 
 states.siege_phase = {
@@ -6802,21 +6886,7 @@ states.siege_phase = {
         view.prompt = `Roll for besieged forts: ${space_list(siege_spaces)}.`
     },
     space(s) {
-        array_remove_item(game.sieges_to_roll, s)
-        let roll = roll_die(6)
-        const drm = game.turn <= 2 ? -2 : 0
-        const fort_str = data.spaces[s].fort
-        log(`Siege at ${space_name(s)} (${data.spaces[s].fort} CF): ${fmt_roll(roll, drm)}`)
-        if (roll + drm > fort_str) {
-            logi(`Fort destroyed`)
-            array_remove_item(game.forts.besieged, s)
-            set_add(game.forts.destroyed, s)
-            set_control(s, active_faction())
-            capture_trench(s, active_faction())
-        } else {
-            logi(`Fort holds`)
-        }
-        log_event_for_rollback(`Siege roll at ${space_name(s)}`)
+        roll_siege(s)
 
         if (game.sieges_to_roll.length === 0) {
             goto_war_status_phase()
