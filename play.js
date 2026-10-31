@@ -2704,7 +2704,33 @@ function sub_icon(match) {
 var log_box_ap = 0
 var log_box_cp = 0
 
+var SHOW_FULL_LOG = false
+
+var DEF_LOG_SIZE = 100
+
+function show_full_log() {
+    SHOW_FULL_LOG = true
+    var len = Number.isInteger(view.log) ? view.log : game_log.length
+    update_log(0, 0)
+    update_log(0, len)
+}
+
 function on_log(text, ix) {
+    var total = game_log.length
+    if (Number.isInteger(view.log)) {
+        total = view.log
+    }
+    if (!SHOW_FULL_LOG && total > DEF_LOG_SIZE && ix === 0) {
+        var r = document.createElement("a")
+        r.href = "javascript:;"
+        r.onclick = () => show_full_log()
+        r.innerHTML = `Click to show more logs.`
+        return r
+    } else if (!SHOW_FULL_LOG && total - ix > DEF_LOG_SIZE) {
+        var empty = document.createElement("div")
+        empty.classList.add("blank")
+        return empty
+    }
     let p = document.createElement("div")
 
     // Reset group box counter (when log is rewound)

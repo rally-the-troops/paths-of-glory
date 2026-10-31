@@ -6,6 +6,7 @@ header { background-color: gainsboro; }
 #log .h1 { background-color: thistle;}
 #log .h2 { background-color: lightgray; }
 #log .h3 { background-color: gainsboro; }
+#log > .blank { padding: 0; min-height: 0}
 
 #log .h1 { border-top: 1px solid black; border-bottom: 1px solid black; }
 #log .h2 { border-top: 1px solid black; border-bottom: 1px solid black; }
