@@ -5492,7 +5492,7 @@ function get_loss_options_full(is_defender, to_satisfy, units, fort_strength) {
         // 12.6.9 If the defender is choosing losses and has played withdrawal, they must choose a path that includes
         // a corps step loss, if possible
         let valid_paths_with_corps = valid_paths.filter((path) => {
-            return path.picked.some((p) => data.pieces[p].type === CORPS)
+            return path.picked.some((p) => p !== FORT_LOSS && data.pieces[p].type === CORPS)
         })
         if (valid_paths_with_corps.length > 0) {
             valid_paths = valid_paths_with_corps
