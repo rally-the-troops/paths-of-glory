@@ -5490,23 +5490,9 @@ function get_loss_options_full(is_defender, to_satisfy, units, fort_strength) {
     }
     units.forEach(unit => { map_set(loss_tree.locations, unit, game.location[unit]) }) // Record the locations of all units so that automated losses can tell whether units are in the same space
 
-    let valid_paths = []
-    build_loss_tree(loss_tree, valid_paths)
-
-    if (is_defender && is_withdrawal_active() && !game.attack.defender_loss_pieces.some(is_unit_corps)) {
-        // 12.6.9 If the defender is choosing losses and has played withdrawal, they must choose a path that includes
-        // a corps step loss, if possible
-        let valid_paths_with_corps = valid_paths.filter((path) => {
-            return path.picked.some((p) => p !== FORT_LOSS && data.pieces[p].type === CORPS)
-        })
-        if (valid_paths_with_corps.length > 0) {
-            valid_paths = valid_paths_with_corps
-        }
-    }
-
     // If this is the attacker's first loss, filter out the options that don't start with a priority unit
+    let priority_units = []
     if (!is_defender && is_first_pick) {
-        let priority_units = []
         if (units.includes(BEF_ARMY) && to_satisfy >= get_piece_lf(BEF_ARMY)) {
             priority_units.push(BEF_ARMY)
         } else if (units.includes(BEF_CORPS) && to_satisfy >= get_piece_lf(BEF_CORPS)) {
@@ -5523,10 +5509,19 @@ function get_loss_options_full(is_defender, to_satisfy, units, fort_strength) {
             if (units.includes(CND_CORPS) && to_satisfy >= get_piece_lf(CND_CORPS))
                 priority_units.push(CND_CORPS)
         }
+    }
 
-        if (priority_units.length > 0) {
-            // Filter to only the paths starting with a priority unit
-            valid_paths = valid_paths.filter((path) => priority_units.includes(path.picked[0]) )
+    let valid_paths = []
+    build_loss_tree(loss_tree, valid_paths, priority_units)
+
+    if (is_defender && is_withdrawal_active() && !game.attack.defender_loss_pieces.some(is_unit_corps)) {
+        // 12.6.9 If the defender is choosing losses and has played withdrawal, they must choose a path that includes
+        // a corps step loss, if possible
+        let valid_paths_with_corps = valid_paths.filter((path) => {
+            return path.picked.some((p) => p !== FORT_LOSS && data.pieces[p].type === CORPS)
+        })
+        if (valid_paths_with_corps.length > 0) {
+            valid_paths = valid_paths_with_corps
         }
     }
 
@@ -5643,9 +5638,11 @@ function check_rb_empty(replacement) {
 }
 
 // Recursively build a tree of possible options for choosing losses
-function build_loss_tree(parent, valid_paths) {
+function build_loss_tree(parent, valid_paths, priority_units) {
     // For all full strength units, build out the option tree if they are reduced
     for (let i = 0; i < parent.full_strength.length; i++) {
+        if (priority_units && priority_units.length > 0 && !priority_units.includes(parent.full_strength[i]))
+            continue
         let unit = parent.full_strength[i]
         let unit_lf = data.pieces[unit].lf
         if (unit_lf <= parent.to_satisfy) {
@@ -5666,6 +5663,8 @@ function build_loss_tree(parent, valid_paths) {
 
     // For all reduced units, build out the tree if they are eliminated and possibly replaced
     for (let i = 0; i < parent.reduced.length; i++) {
+        if (priority_units && priority_units.length > 0 && !priority_units.includes(parent.reduced[i]))
+            continue
         let unit = parent.reduced[i]
         let unit_lf = data.pieces[unit].rlf
 
