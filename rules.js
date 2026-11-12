@@ -636,12 +636,12 @@ exports.setup = function (seed, scenario, options) {
         log("Supply warnings and rollbacks disabled.")
     }
 
-    if (options.expert_mode) {
+    if (options.express_mode) {
         game.options.auto_losses = 1
         game.options.auto_attrition = 1
         game.options.auto_sieges = 1
         game.options.auto_reinforcements = 1
-        log("Expert mode: combat losses, attrition, sieges, and other steps will be automated when possible for faster asynchronous play.")
+        log("Express mode: combat losses, attrition, sieges, and other steps will be automated when possible for faster asynchronous play.")
     }
 
     if (game.scenario === HISTORICAL) {
