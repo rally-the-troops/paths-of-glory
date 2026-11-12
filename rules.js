@@ -6898,7 +6898,8 @@ function roll_siege(s) {
         logi(`Fort destroyed`)
         array_remove_item(game.forts.besieged, s)
         set_add(game.forts.destroyed, s)
-        set_control(s, active_faction())
+        if (can_take_control(get_pieces_in_space(s))) // Prevent ANA from setting control
+            set_control(s, active_faction())
         capture_trench(s, active_faction())
     } else {
         logi(`Fort holds`)
