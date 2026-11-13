@@ -8080,6 +8080,50 @@ function update_oos_pieces() {
     }
 }
 
+// === AUTOMATED SUPPLY WARNINGS ===
+
+function compute_oos_with(faction, block_spaces) {
+    const saved_supply = [...game.supply]
+    const saved_control = [...game.control]
+    const saved_oos_pieces = [...game.oos_pieces]
+    const saved_log = [...game.log]
+    const saved_vp = game.vp
+    const enemy = other_faction(faction)
+
+    block_spaces.forEach(space => { set_control(space, enemy) })
+    update_supply()
+    update_oos_pieces()
+    let oos_pieces = game.oos_pieces.filter(p => data.pieces[p].faction === faction)
+
+    game.vp = saved_vp
+    game.log = saved_log
+    game.oos_pieces = saved_oos_pieces
+    game.supply = saved_supply
+    game.control = saved_control
+    return oos_pieces
+}
+
+function get_enemy_reach(faction) {
+    let controllable_spaces = []
+    let siegeable_forts = []
+    let enemy_pieces = all_pieces_by_faction[other_faction(faction)]
+
+    enemy_pieces.forEach(p => {
+        set_reachable_spaces(p, controllable_spaces, siegeable_forts)
+    })
+
+    return {
+        control: controllable_spaces,
+        forts: siegeable_forts
+    }
+}
+
+function set_reachable_spaces(p, controllable_spaces, siegeable_forts) {
+    // TODO: use move allowance, get_connected_spaces, can_move_to, and can_end_move to add all reachable spaces to the
+    //  controllable_spaces set. Stop at forts unless they are in the siegeable_forts set. Need to figure out how to
+    //  track the siegeable forts to allow other units to pass through without stopping, maybe multiple passes?
+}
+
 // === CARD EVENTS ===
 
 function goto_end_event() {
