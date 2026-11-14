@@ -545,15 +545,15 @@ exports.view = function(state, current) {
 
         supply_warnings: game.supply_warnings,
 
-        supply_threats: game.threatened,
-
         action_state: game.action_state
     }
 
     if (current === AP_ROLE) {
         view.hand = game.ap.hand
+        view.supply_threats = game.supply_threats.ap
     } else if (current === CP_ROLE) {
         view.hand = game.cp.hand
+        view.supply_threats = game.supply_threats.cp
     } else {
         view.hand = []
     }
@@ -3091,7 +3091,6 @@ function start_action_round() {
     game.attacked = []
     game.ineligible_for_siege = []
     game.retreated = []
-    delete game.threatened
 
     if (game.activated.move.length > 0) {
         log("Move")
@@ -3118,7 +3117,6 @@ function start_action_round() {
 }
 
 function next_move_activation() {
-    game.threatened = get_supply_threats(active_faction()).threatened
     if (game.activated.move.length > 0) {
         start_move_activation()
     } else {
@@ -3145,7 +3143,7 @@ function next_attack_activation() {
     if (game.eligible_attackers.length > 0) {
         start_attack_activation()
     } else {
-        goto_end_operations()
+        game.state = "end_operations"
     }
 }
 
@@ -3263,11 +3261,6 @@ states.trench_rolls = {
         if (game.entrenching.length === 0)
             next_attack_activation()
     },
-}
-
-function goto_end_operations() {
-    game.threatened = get_supply_threats(active_faction()).threatened
-    game.state = 'end_operations'
 }
 
 states.end_operations = {
@@ -7802,6 +7795,9 @@ function update_supply() {
     fill_supply_cache(AP, [BASRA], { national_connections: BRITAIN })
 
     update_oos_pieces()
+
+    game.threatened.ap = get_supply_threats(AP)
+    game.threatened.cp = get_supply_threats(CP)
 }
 
 function is_unit_supplied(p) {
@@ -8210,7 +8206,6 @@ function set_reachable_spaces(p, loc, mf, reachable, siegeable_forts) {
 // === CARD EVENTS ===
 
 function goto_end_event() {
-    game.threatened = get_supply_threats(active_faction()).threatened
     game.state = "confirm_event"
 }
 
