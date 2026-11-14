@@ -550,12 +550,13 @@ exports.view = function(state, current) {
 
     if (current === AP_ROLE) {
         view.hand = game.ap.hand
-        view.supply_threats = game.supply_threats.ap
+        view.supply_threats = game.threatened?.ap || []
     } else if (current === CP_ROLE) {
         view.hand = game.cp.hand
-        view.supply_threats = game.supply_threats.cp
+        view.supply_threats = game.threatened?.cp || []
     } else {
         view.hand = []
+        view.supply_threats = []
     }
 
     if (!game.rollback)
@@ -7764,6 +7765,15 @@ function reset_supply_cache() {
 }
 
 function update_supply() {
+    update_supply_impl()
+
+    game.threatened = {
+        ap: get_supply_threats(AP).threatened,
+        cp: get_supply_threats(CP).threatened
+    }
+}
+
+function update_supply_impl() {
     let cp_sources = [ESSEN, BRESLAU]
     if (nation_at_war(BULGARIA))
         cp_sources.push(SOFIA)
@@ -7795,9 +7805,6 @@ function update_supply() {
     fill_supply_cache(AP, [BASRA], { national_connections: BRITAIN })
 
     update_oos_pieces()
-
-    game.threatened.ap = get_supply_threats(AP)
-    game.threatened.cp = get_supply_threats(CP)
 }
 
 function is_unit_supplied(p) {
@@ -8125,8 +8132,7 @@ function compute_oos_with(faction, block_spaces) {
     const enemy = other_faction(faction)
 
     block_spaces.forEach(space => { set_control_bit(space, enemy === CP ? 1 : 0) })
-    update_supply()
-    update_oos_pieces()
+    update_supply_impl()
     let oos_pieces = game.oos_pieces.filter(p => data.pieces[p].faction === faction)
 
     game.oos_pieces = saved_oos_pieces

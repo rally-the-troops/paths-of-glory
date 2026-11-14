@@ -2318,7 +2318,8 @@ function update_space_highlight(s) {
     space.element.classList.toggle("selected", view.where === s)
     space.element.classList.toggle("warning",
         view.violations.some(v => v.space === s) ||
-        !!(view.supply_warnings && view.supply_warnings.includes(s))
+        !!(view.supply_warnings && view.supply_warnings.includes(s) ||
+        !!(view.supply_threats && view.supply_threats.includes(s)))
     )
 }
 
