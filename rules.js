@@ -261,6 +261,18 @@ function is_mef_space(s) {
     return (s >= MEF1 && s <= MEF3) || s === MEF4
 }
 
+function is_off_map(s) {
+    return s === 0 || s >= AP_RESERVE_BOX
+}
+
+function is_reserve_box(s) {
+    return s === AP_RESERVE_BOX || s === CP_RESERVE_BOX
+}
+
+function is_eliminated_box(s) {
+    return s === AP_ELIMINATED_BOX || s === CP_ELIMINATED_BOX
+}
+
 const map_space_count = 282
 
 // Terrain
@@ -532,6 +544,8 @@ exports.view = function(state, current) {
         score_events: game.score_events,
 
         supply_warnings: game.supply_warnings,
+
+        supply_threats: game.threatened,
 
         action_state: game.action_state
     }
@@ -3077,6 +3091,7 @@ function start_action_round() {
     game.attacked = []
     game.ineligible_for_siege = []
     game.retreated = []
+    delete game.threatened
 
     if (game.activated.move.length > 0) {
         log("Move")
@@ -3103,6 +3118,7 @@ function start_action_round() {
 }
 
 function next_move_activation() {
+    game.threatened = get_supply_threats(active_faction()).threatened
     if (game.activated.move.length > 0) {
         start_move_activation()
     } else {
@@ -3129,7 +3145,7 @@ function next_attack_activation() {
     if (game.eligible_attackers.length > 0) {
         start_attack_activation()
     } else {
-        game.state = "end_operations"
+        goto_end_operations()
     }
 }
 
@@ -3247,6 +3263,11 @@ states.trench_rolls = {
         if (game.entrenching.length === 0)
             next_attack_activation()
     },
+}
+
+function goto_end_operations() {
+    game.threatened = get_supply_threats(active_faction()).threatened
+    game.state = 'end_operations'
 }
 
 states.end_operations = {
@@ -3788,8 +3809,8 @@ function contains_only_pieces_of_nation(s, nation) {
 }
 
 function can_move_to(s, moving_pieces) {
-    let contains_enemy = contains_piece_of_faction(s, other_faction(active_faction()))
-    if (contains_enemy)
+    let faction = data.pieces[moving_pieces[0]].faction
+    if (contains_piece_of_faction(s, other_faction(faction)))
         return false
 
     if (is_blocked_italian_space(s, moving_pieces))
@@ -8081,22 +8102,37 @@ function update_oos_pieces() {
 }
 
 // === AUTOMATED SUPPLY WARNINGS ===
+// This produces false positives because it does not account for ops budget, which would limit the number of spaces
+// that can be activated in any one activation.
+
+function get_supply_threats(faction) {
+    let reach = get_enemy_reach(faction)
+    let blocked_spaces = [...reach.control]
+    reach.forts.forEach(fort => set_add(blocked_spaces, fort))
+    let already_oos_pieces = game.oos_pieces
+    let oos_pieces = compute_oos_with(faction, blocked_spaces)
+    let threatened_spaces = []
+    oos_pieces.forEach(p => {
+        if (!set_has(already_oos_pieces, p))
+            set_add(threatened_spaces, game.location[p])
+    })
+    return {
+        reach: blocked_spaces,
+        threatened: threatened_spaces
+    }
+}
 
 function compute_oos_with(faction, block_spaces) {
     const saved_supply = [...game.supply]
     const saved_control = [...game.control]
     const saved_oos_pieces = [...game.oos_pieces]
-    const saved_log = [...game.log]
-    const saved_vp = game.vp
     const enemy = other_faction(faction)
 
-    block_spaces.forEach(space => { set_control(space, enemy) })
+    block_spaces.forEach(space => { set_control_bit(space, enemy === CP ? 1 : 0) })
     update_supply()
     update_oos_pieces()
     let oos_pieces = game.oos_pieces.filter(p => data.pieces[p].faction === faction)
 
-    game.vp = saved_vp
-    game.log = saved_log
     game.oos_pieces = saved_oos_pieces
     game.supply = saved_supply
     game.control = saved_control
@@ -8104,29 +8140,77 @@ function compute_oos_with(faction, block_spaces) {
 }
 
 function get_enemy_reach(faction) {
-    let controllable_spaces = []
+    let spaces = []
     let siegeable_forts = []
+    let fort_reach = all_spaces.map(s => [])
     let enemy_pieces = all_pieces_by_faction[other_faction(faction)]
 
+    // First pass: set reachable forts
     enemy_pieces.forEach(p => {
-        set_reachable_spaces(p, controllable_spaces, siegeable_forts)
+        let loc = game.location[p]
+        if (is_off_map(loc))
+            return
+        set_reachable_forts(p, loc, get_piece_mf(p), fort_reach, siegeable_forts)
+    })
+
+    // Second pass: set reachable spaces, using the siegeable forts list
+    enemy_pieces.forEach(p => {
+        let loc = game.location[p]
+        if (is_off_map(loc))
+            return
+        set_reachable_spaces(p, loc, get_piece_mf(p), spaces, siegeable_forts)
     })
 
     return {
-        control: controllable_spaces,
+        control: spaces,
         forts: siegeable_forts
     }
 }
 
-function set_reachable_spaces(p, controllable_spaces, siegeable_forts) {
-    // TODO: use move allowance, get_connected_spaces, can_move_to, and can_end_move to add all reachable spaces to the
-    //  controllable_spaces set. Stop at forts unless they are in the siegeable_forts set. Need to figure out how to
-    //  track the siegeable forts to allow other units to pass through without stopping, maybe multiple passes?
+function set_reachable_forts(p, loc, mf, forts, siegeable_forts) {
+    let connections = get_connected_spaces_for_pieces(loc, p)
+    let enemy = other_faction(data.pieces[p].faction)
+    connections.forEach(conn => {
+        if (can_move_to(conn, [p])) {
+            let is_passable = true
+            if (data.spaces[conn].fort && !is_besieged(conn) && has_undestroyed_fort(conn, enemy)) {
+                set_add(forts[conn], p)
+
+                // Check if fort now has a sufficient besieging force
+                if (forts[conn].length >= data.spaces[conn].fort || forts[conn].some(p => data.pieces[p].type === ARMY))
+                    set_add(siegeable_forts, conn)
+
+                // Fort is passable if it is siegeable
+                is_passable = set_has(siegeable_forts, conn)
+            }
+
+            if (is_passable && mf-1 > 0) {
+                set_reachable_forts(p, conn, mf-1, forts, siegeable_forts)
+            }
+        }
+    })
+}
+
+function set_reachable_spaces(p, loc, mf, reachable, siegeable_forts) {
+    let connections = get_connected_spaces_for_pieces(loc, p)
+    let enemy = other_faction(data.pieces[p].faction)
+    connections.forEach(conn => {
+        if (can_move_to(conn, [p])) {
+            let has_fort = has_undestroyed_fort(conn, enemy) && !is_besieged(conn)
+	        if (has_fort && !set_has(siegeable_forts, conn))
+                return
+            if (is_controlled_by(conn, enemy) && !has_undestroyed_fort(conn, enemy))
+                set_add(reachable, conn)
+            if (mf-1 > 0)
+                set_reachable_spaces(p, conn, mf-1, reachable, siegeable_forts)
+        }
+    })
 }
 
 // === CARD EVENTS ===
 
 function goto_end_event() {
+    game.threatened = get_supply_threats(active_faction()).threatened
     game.state = "confirm_event"
 }
 
