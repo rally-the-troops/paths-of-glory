@@ -8145,7 +8145,7 @@ function get_enemy_reach(faction) {
     let spaces = []
     let siegeable_forts = []
     let fort_reach = all_spaces.map(s => [])
-    let enemy_pieces = all_pieces_by_faction[other_faction(faction)]
+    let enemy_pieces = all_pieces_by_faction[other_faction(faction)].filter(is_unit_supplied)
 
     // First pass: set reachable forts
     enemy_pieces.forEach(p => {
