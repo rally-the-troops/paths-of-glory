@@ -5488,7 +5488,6 @@ function get_loss_options_full(is_defender, to_satisfy, units, fort_strength) {
         options: [],
         locations: []
     }
-    units.forEach(unit => { map_set(loss_tree.locations, unit, game.location[unit]) }) // Record the locations of all units so that automated losses can tell whether units are in the same space
 
     // If this is the attacker's first loss, filter out the options that don't start with a priority unit
     let priority_units = []
@@ -5544,7 +5543,7 @@ function loss_options_are_equivalent(path1, path2) {
     // but not necessarily the same unit. Remove them as they are matched.
     let units_to_match = [...path2.full_strength]
     for (let u of path1.full_strength) {
-        let found_unit = units_to_match.find(u2 => is_equivalent_unit(u, u2) && map_get(path2.locations, u2) === map_get(path1.locations, u))
+        let found_unit = units_to_match.find(u2 => is_equivalent_unit(u, u2) && game.location[u2] === game.location[u])
         if (found_unit === undefined)
             return false
         set_delete(units_to_match, found_unit)
@@ -5553,7 +5552,7 @@ function loss_options_are_equivalent(path1, path2) {
     // Then do the same for the reduced units
     units_to_match = [...path2.reduced]
     for (let u of path1.reduced) {
-        let found_unit = units_to_match.find(u2 => is_equivalent_unit(u, u2) && map_get(path2.locations, u2) === map_get(path1.locations, u))
+        let found_unit = units_to_match.find(u2 => is_equivalent_unit(u, u2) && game.location[u2] === game.location[u])
         if (found_unit === undefined)
             return false
         set_delete(units_to_match, found_unit)
@@ -5654,8 +5653,7 @@ function build_loss_tree(parent, valid_paths, priority_units) {
                 full_replacements: [...parent.full_replacements],
                 reduced_replacements: [...parent.reduced_replacements],
                 fort_strength: parent.fort_strength,
-                options: [],
-                locations: [...parent.locations]
+                options: []
             }
             parent.options.push(node)
         }
@@ -5677,8 +5675,7 @@ function build_loss_tree(parent, valid_paths, priority_units) {
                 full_replacements: [...parent.full_replacements],
                 reduced_replacements: [...parent.reduced_replacements],
                 fort_strength: parent.fort_strength,
-                options: [],
-                locations: [...parent.locations]
+                options: []
             }
 
             const full_replacement = find_any_replacement(unit, node.full_replacements)
@@ -5686,13 +5683,9 @@ function build_loss_tree(parent, valid_paths, priority_units) {
             if (full_replacement !== 0) {
                 array_remove_item(node.full_replacements, full_replacement)
                 node.full_strength.push(full_replacement)
-                map_set(node.locations, full_replacement, map_get(node.locations, unit))
-                map_set(node.locations, unit, 0)
             } else if (reduced_replacement !== 0) {
                 array_remove_item(node.reduced_replacements, reduced_replacement)
                 node.reduced.push(reduced_replacement)
-                map_set(node.locations, reduced_replacement, map_get(node.locations, unit))
-                map_set(node.locations, unit, 0)
             } else if (!is_unit_corps(unit) && node.to_satisfy >= 1) {
                 // 12.4.4.2 If a space with multiple armies that do not have replacement corps in the Reserve Box
                 // suffers a Loss Number greater than can be applied, the losses must be applied to one army before
@@ -5724,8 +5717,7 @@ function build_loss_tree(parent, valid_paths, priority_units) {
             full_replacements: [...parent.full_replacements],
             reduced_replacements: [...parent.reduced_replacements],
             fort_strength: 0,
-            options: [],
-            locations: [...parent.locations]
+            options: []
         }
         parent.options.push(node)
     }
