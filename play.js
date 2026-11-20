@@ -2701,10 +2701,56 @@ function sub_icon(match) {
     return ICONS_SVG[match]
 }
 
+// SHORTEN LOG (WARNING - THESE FEATURES ARE FRAGILE AND SUBJECT TO CHANGE)
+
+var shorten_log_start = 0
+
+function show_full_log() {
+    shorten_log_start = 0
+    update_log(0, game_log.length)
+}
+
+function on_init_log(log) {
+    var turns = []
+    for (var i = 0; i < log.length; ++i) {
+        if (log[i].startsWith(".h1") || log[i].startsWith(".h2") || log[i].startsWith(".h3ap Turn") || log[i].startsWith(".h3cp Turn"))
+            turns.push(i)
+    }
+    if (turns.length >= 8)
+        shorten_log_start = turns[turns.length - 4]
+}
+
+function show_full_log_if_needed() {
+    var current_log_length = document.getElementById("log").children.length
+    if (current_log_length < shorten_log_start) {
+        shorten_log_start = 0
+        update_log(0, current_log_length)
+    }
+}
+
 var log_box_ap = 0
 var log_box_cp = 0
 
 function on_log(text, ix) {
+    // SHORTEN LOG
+    var total = game_log.length
+    if (Number.isInteger(view.log))
+        total = view.log
+    if (ix < shorten_log_start) {
+        if (ix === 0) {
+            var d = document.createElement("div")
+            d.classList.add("full_log")
+            var b = document.createElement("button")
+            b.onclick = show_full_log
+            b.textContent = "Show full log"
+            d.append(b)
+            return d
+        }
+        var empty = document.createElement("div")
+        empty.hidden = true
+        return empty
+    }
+
     let p = document.createElement("div")
 
     // Reset group box counter (when log is rewound)
@@ -3032,6 +3078,7 @@ function update_card_zones() {
 function on_update() {
     hide_supply()
     update_map()
+    show_full_log_if_needed()
 }
 
 // INITIALIZE CLIENT

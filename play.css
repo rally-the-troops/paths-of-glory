@@ -29,6 +29,13 @@ body.Central_Powers header.your_turn { background-color: lightsteelblue; }
 
 /* LOG */
 
+#log > .full_log {
+    text-align: center;
+    padding: 12px;
+    margin-top: -6px;
+    background-image: linear-gradient(#0006,#0004,#0002,#0001,#0000);
+}
+
 #log > div { padding-left: 20px; text-indent: -12px; }
 #log .h1 { font-weight: bold; padding-top:2px; padding-bottom:2px; text-align: center; }
 #log .h2 { padding-top:2px; padding-bottom:2px; text-align: center; }
